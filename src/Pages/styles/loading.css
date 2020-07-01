@@ -1,0 +1,24 @@
+.loading-icon{
+    animation: loading 1s infinite alternate-reverse;
+    color:#004c40
+}
+#loading-icon2{
+    animation-delay: .1s
+}
+#loading-icon3{
+    animation-delay: .2s
+}
+@keyframes loading{
+    from{
+        transform: translateY(0px) rotateY(0deg);
+        color: #004c40
+    }
+    50%{
+        transform: translateY(-25px) rotateY(360deg);
+        color: #b2fab4
+    }
+    to{
+        transform: translateY(0px) rotateY(0deg);
+        color:#004c40
+    }
+}
