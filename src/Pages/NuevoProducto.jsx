@@ -203,9 +203,11 @@ function getSteps() {
     }
     const obtenerListaDeProductos = () =>{
         let aux = []
-        Object.keys(props.productos).map(nombre=>{
-            aux.push(`${nombre}`)
-        })
+        if(props.productos){
+            Object.keys(props.productos).map(nombre=>{
+                aux.push(`${nombre}`)
+            })
+        }
         return aux
     }
     return(

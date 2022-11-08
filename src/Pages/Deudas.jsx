@@ -171,9 +171,7 @@ const Deudas=(props)=>{
                             <Grid container justify='space-around' className={classes.wrapper}  alignItems='center' spacing={1}>
                                 {renderClientes()}
                             </Grid>
-                            <Grid container justify='space-around' className={classes.wrapper}  alignItems='center' spacing={1}>
-                                {renderProveedores()}
-                            </Grid>
+                            
                         </Grid>
                         :
                         <Typography variant='h5'>
