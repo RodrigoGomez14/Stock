@@ -157,6 +157,15 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history})=>{
                         </ListItem>
                     </Link>
                 <Divider />
+                <Link className={classes.link} to='/IVA'>
+                        <ListItem button key={'IVA'} >
+                            <ListItemIcon>
+                                <LocalAtmOutlined/>
+                            </ListItemIcon>
+                            <ListItemText primary={'IVA'} />
+                        </ListItem>
+                    </Link>
+                <Divider />
                 </List>
                 <List className={classes.buttonSignOut}>
                     <Divider />

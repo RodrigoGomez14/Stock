@@ -14,6 +14,7 @@ import Menu from './Pages/Menu'
 import Deudas from './Pages/Deudas'
 import Cheques from './Pages/Cheques'
 import Productos from './Pages/Productos'
+import IvaPage from './Pages/IvaPage'
 import Historial from './Pages/Historial'
 import Pedidos from './Pages/Pedidos'
 import Entregas from './Pages/Entregas'
@@ -123,6 +124,7 @@ class App extends Component {
                     <Route exact path='/Productos' component={Productos}/>
                     <Route exact path='/Nuevo-Producto' component={NuevoProducto}/>
                     <Route exact path='/Editar-Producto' component={NuevoProducto}/>
+                    <Route exact path='/IVA' component={IvaPage}/>
                     
                     <Route exact path='/Pedidos' component={Pedidos}/>
                     <Route exact path='/Nuevo-Pedido' component={NuevoPedido}/>
