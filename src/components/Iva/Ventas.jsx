@@ -1,5 +1,6 @@
 import React, {useState,useEffect} from 'react'
 import {Grid,makeStyles,Paper,Typography,List,ListItem,ListItemText} from '@material-ui/core'
+import {Tabla} from './Tabla'
 const useStyles = makeStyles(theme=>({
     card:{
         minHeight:'180px',
@@ -22,38 +23,22 @@ const useStyles = makeStyles(theme=>({
     deleteButton:{
         color:theme.palette.error.main
     },
-    link:{
-        color:theme.palette.primary.contrastText,
-        textDecoration:'none'
+    paper:{
+        overflow:'auto'
     }
 }))
-export const Ventas = ({list}) =>{
+export const Ventas = ({data}) =>{
     const classes = useStyles()
-    const [anchorEl, setAnchorEl] = useState(null);
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
     return(
-        <Grid item xs={12} sm={6}>
-                <Paper>
-                    <Grid container>
-                        <Grid item xs={12}>
-                            <Typography> Ventas</Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem>
-                            </List>
-                        </Grid>
-                    </Grid>
-                </Paper>
-        </Grid>
+        <Paper className={classes.paper}>
+            <Grid container>
+                <Grid item xs={12}>
+                    <Typography align='center'>Ventas</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                    <Tabla data={data} ventas={true}/>
+                </Grid>
+            </Grid>
+        </Paper>
     )
 }

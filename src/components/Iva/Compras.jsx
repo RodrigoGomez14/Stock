@@ -1,5 +1,6 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,makeStyles,Paper,Typography,List,ListItem,ListItemText} from '@material-ui/core'
+import {Grid,makeStyles,Paper,Typography,Button,ListItem,ListItemText} from '@material-ui/core'
+import {Tabla} from './Tabla'
 const useStyles = makeStyles(theme=>({
     card:{
         minHeight:'180px',
@@ -26,83 +27,18 @@ const useStyles = makeStyles(theme=>({
         overflow:'auto'
     }
 }))
-export const Compras = ({list}) =>{
+export const Compras = ({data}) =>{
     const classes = useStyles()
-    const [anchorEl, setAnchorEl] = useState(null);
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const calcularTotal =() =>{
-        
-    }
     return(
-        <Grid item xs={12} sm={6}>
-            {console.log(list)}
-                <Paper className={classes.paper}>
-                    <Grid container>
-                        <Grid item xs={12}>
-                            <Typography> Compras</Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem><ListItem>
-                                    <ListItemText primary='$5000'/>
-                                </ListItem>
-                            </List>
-                        </Grid>
-                    </Grid>
-                </Paper>
-        </Grid>
+        <Paper className={classes.paper}>
+            <Grid container>
+                <Grid item xs={12}>
+                    <Typography align='center'>Compras</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                    <Tabla data={data}/>
+                </Grid>
+            </Grid>
+        </Paper>
     )
 }
