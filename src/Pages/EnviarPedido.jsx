@@ -158,15 +158,8 @@ function getSteps() {
           );
       }
     }
-    const obtenerFecha = () =>{
-        let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
-        let diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"]
-        var f=new Date()
-        return `${diasSemana[f.getDay()]} ${f.getDate()} de ${meses[f.getMonth()]} de ${f.getFullYear()}`
-    }
     const guardarCheques =() =>{
         let chequesList= []
-        console.log(cheques)
         if(cheques.length){
             cheques.map(cheque=>{
                 chequesList.push(cheque.numero)
@@ -203,22 +196,36 @@ function getSteps() {
         }
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
         agregarPagoAlHistorial(aux.metodoDePago)
+        agregarAListaDeIva(aux.total)
         database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push(aux)
             .then(()=>{
                 setshowSnackbar('El pedido se agregó correctamente!')
-                setTimeout(() => {
-                    database().ref().child(props.user.uid).child('pedidos').child(id).remove().then(()=>{
-                        props.history.replace('/Pedidos')
+                database().ref().child(props.user.uid).child('pedidos').child(id).remove().then(()=>{
+                    props.history.replace('/Pedidos')
+                })
+                .catch(()=>{
+                    setLoading(false)
+                    setshowSnackbar('')
                     })
-                    .catch(()=>{
-                        setLoading(false)
-                        setshowSnackbar('')
-                     })
-                }, 2000);
             })
             .catch(()=>{
                 setLoading(false)
             })
+    }
+    const agregarAListaDeIva = (aux) =>{
+        if(props.history.location.props.facturacion){
+            database().ref().child(props.user.uid).child('iva').child('ventas').push({
+                fecha:obtenerFecha(),
+                iva:aux-(aux/1.21),
+                total:aux
+            })
+        }
+    }
+    const obtenerFecha = () =>{
+        let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+        let diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"]
+        var f=new Date()
+        return `${diasSemana[f.getDay()]} ${f.getDate()} de ${meses[f.getMonth()]} de ${f.getFullYear()}`
     }
     const descontarProductos = async pedido =>{
         const id = props.history.location.search.slice(1)

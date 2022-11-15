@@ -132,6 +132,7 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
                         }
                     </Grid>
                 </TabPanel>
+                
             </>
         )
     }
@@ -211,7 +212,7 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
         switch (tipoDeDato) {
             case 'Metodo De Pago': 
                 return(
-                        renderMetodoDePago()
+                    renderMetodoDePago()
                 )
             case 'Metodo De Envio':
                 return(

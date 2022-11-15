@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,makeStyles, List,ListItem, ListItemText} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,makeStyles, List,ListItem, ListItemText,Switch,FormControlLabel} from '@material-ui/core'
 import {MoreVert,AttachMoney} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {database} from 'firebase'
@@ -62,6 +62,7 @@ const useStyles = makeStyles(theme=>({
 export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
     const classes = useStyles()
     const [anchorEl, setAnchorEl] = useState(null);
+    const [facturacion,setFacturacion]=useState(false)
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -134,11 +135,25 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                 <Paper elevation={6} className={classes.paper}>
                     <Grid container justify='space-around'>
                         <Typography variant='h5'>
-                            $ {formatMoney(pedido.total)}
+                            {facturacion?
+                                `$ ${formatMoney(pedido.total+(pedido.total*0.21))}`
+                                :
+                                `$ ${formatMoney(pedido.total)}`
+                            }
                         </Typography>
+                        <FormControlLabel
+                        control={
+                            <Switch
+                                checked={facturacion}
+                                onChange={e=>{
+                                    setFacturacion(e.target.checked)
+                                }}
+                            />
+                        }
+                            label="Facturacion "/>
                         <Link 
                             className={classes.textWhite}
-                            to={{pathname:'/Enviar-Pedido',search:`${id}`,props:{total:pedido.total}}
+                            to={{pathname:'/Enviar-Pedido',search:`${id}`,props:{total:facturacion?pedido.total+(pedido.total*0.21):pedido.total,facturacion:facturacion}}
                         }>
                             <Button
                                 variant='outlined'

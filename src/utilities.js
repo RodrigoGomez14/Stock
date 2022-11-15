@@ -18,6 +18,11 @@ export const formatMoney =amount=> {
     }
 }
 export const obtenerFecha = () =>{
+  var f=new Date()
+  return `${f.getDate()}/${f.getMonth()+1}/${f.getFullYear()}`
+}
+
+export const convertirFecha = (fecha) =>{
   let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
   let diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"]
   var f=new Date()

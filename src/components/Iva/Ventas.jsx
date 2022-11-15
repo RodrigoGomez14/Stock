@@ -33,7 +33,7 @@ export const Ventas = ({data}) =>{
         <Paper className={classes.paper}>
             <Grid container>
                 <Grid item xs={12}>
-                    <Typography align='center'>Ventas</Typography>
+                    <Typography align='center' variant='h4'>Ventas</Typography>
                 </Grid>
                 <Grid item xs={12}>
                     <Tabla data={data} ventas={true}/>

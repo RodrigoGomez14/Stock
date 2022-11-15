@@ -1,11 +1,13 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Grid,Button,Backdrop,Snackbar,CircularProgress, Typography} from '@material-ui/core'
+import {makeStyles,Grid,Button,Backdrop,Snackbar,CircularProgress, Typography,Chip} from '@material-ui/core'
+import {Add} from '@material-ui/icons'
 import {Alert} from '@material-ui/lab'
 import {Compras} from '../components/Iva/Compras'
 import {Ventas} from '../components/Iva/Ventas'
 import {database} from 'firebase'
+import {formatMoney} from '../utilities'
 
 const useStyles=makeStyles(theme=>({
     container:{
@@ -51,7 +53,12 @@ const useStyles=makeStyles(theme=>({
     backdrop: {
         zIndex: theme.zIndex.drawer + 1,
         color: '#fff',
-      },
+    },
+    gridTable:{
+        maxHeight: '70vh',
+        overflow:'auto',
+        marginBottom:theme.spacing(3)
+    }
 }))
 const IvaPage=(props)=>{
     const classes = useStyles()
@@ -65,8 +72,8 @@ const IvaPage=(props)=>{
         let aux={
             fecha:'13/11/2022',
             categoria:'Super',
-            iva:4200,
-            total:20000
+            iva:2100,
+            total:10000
         }
         database().ref().child(props.user.uid).child('iva').child('compras').push(aux)
             .then(()=>{
@@ -79,45 +86,32 @@ const IvaPage=(props)=>{
                 setLoading(false)
             })
     }
-    const agregarVenta = () =>{
-        let aux={
-            fecha:'13/11/2022',
-            iva:3150,
-            total:15000
-        }
-        database().ref().child(props.user.uid).child('iva').child('ventas').push(aux)
-            .then(()=>{
-                setshowSnackbar(true)
-                setTimeout(() => {
-                    setshowSnackbar(false)
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-    }
     const calcularTotal =(type) =>{
         let i =0
-        Object.keys(props.iva[type]).map(item=>{
-            i+=props.iva[type][item].total
-        })
-        if(type==='compras'){
-            setTotalCompras(i)
-        }
-        else{
-            setTotalVentas(i)
+        if(props.iva[type]){
+            Object.keys(props.iva[type]).map(item=>{
+                i+=props.iva[type][item].total
+            })
+            if(type==='compras'){
+                setTotalCompras(i)
+            }
+            else{
+                setTotalVentas(i)
+            }
         }
     }
     const calcularIva =(type) =>{
         let i =0
-        Object.keys(props.iva[type]).map(item=>{
-            i+=props.iva[type][item].iva
-        })
-        if(type==='compras'){
-            setIvaCompras(i)
-        }
-        else{
-            setIvaVentas(i)
+        if(props.iva[type]){
+            Object.keys(props.iva[type]).map(item=>{
+                i+=props.iva[type][item].iva
+            })
+            if(type==='compras'){
+                setIvaCompras(i)
+            }
+            else{
+                setIvaVentas(i)
+            }
         }
     }
     useEffect(()=>{
@@ -130,17 +124,20 @@ const IvaPage=(props)=>{
         <Layout history={props.history} page="Iva" user={props.user.uid}>
             <Grid container justify='center' className={classes.container}>
                 <Grid item xs={12}>
-                    <Button onClick={()=>{agregarCompra()}}>Agregar Compra</Button>
-                    <Button onClick={()=>{agregarVenta()}}>Agregar Venta</Button>
+                    <Typography align='center' variant='h2' className={ivaCompras-ivaVentas>=0? classes.positive:classes.negative}>$ {formatMoney(ivaCompras-ivaVentas)}</Typography>
                 </Grid>
-                <Grid item xs={12}>
-                    <Typography align='center' variant='h2' className={ivaCompras-ivaVentas>=0? classes.positive:classes.negative}>$ {ivaCompras-ivaVentas}</Typography>
+                <Grid item xs={12} justify='center'>
+                    <Button startIcon={<Add/>} onClick={()=>{agregarCompra()}}>
+                        Agregar Compra
+                    </Button>
                 </Grid>
-                <Grid item spacing={3}>
-                    <Compras data={props.iva.compras}/>
-                </Grid>
-                <Grid item spacing={3}>
-                    <Ventas data={props.iva.ventas}/>
+                <Grid container justify='space-around'>
+                    <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
+                        <Compras data={props.iva.compras}/>
+                    </Grid>
+                    <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
+                        <Ventas data={props.iva.ventas}/>
+                    </Grid>
                 </Grid>
             </Grid>
             <Backdrop className={classes.backdrop} open={loading}>
