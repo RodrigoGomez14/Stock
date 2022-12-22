@@ -1,31 +1,31 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper} from '@material-ui/core'
+import {content} from './styles/styles'
+import {Paper,Grid,Typography} from '@material-ui/core'
+import Home from '../images/Home.png'
 
-
-const useStyles=makeStyles(theme=>({
-    root:{
-        height:'100%',
-        width:'100%',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'flex-start',
-        backgroundColor:theme.palette.type==='dark'?theme.palette.secondary.main:theme.palette.primary.dark,
-        borderRadius:'0',
-        overflow:'auto',
-    }
-}))
+//COMPONENT
 const Menu=(props)=>{
-    const classes = useStyles()
+    const classes = content()
     return(
+        //Layout
         <Layout history={props.history} page="Menu" user={props.user.uid}>
-            <Paper className={classes.root}>
-                <h1>Inicio</h1>
+            <Paper className={classes.content}>
+                <Grid container xs={12} justify='center' spacing={2}>
+                    <Grid container item xs={12} justify='center'>
+                        <Typography variant='h4'>Seccion En Construccion</Typography>
+                    </Grid>
+                    <Grid item>
+                        <img src={Home} alt="" height='600px'/>
+                    </Grid>
+                </Grid>
             </Paper>
         </Layout>
     )
 }
+
+//REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,

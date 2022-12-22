@@ -12,63 +12,13 @@ import {DialogConfirmDelete} from '../components/Cliente/DialogConfirmDelete'
 import {database} from 'firebase'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
+import {content} from './styles/styles'
+import {checkSearch} from '../utilities'
 
-const useStyles=makeStyles(theme=>({
-    container:{
-        paddingTop:theme.spacing(1),
-    },
-    table:{
-        marginTop:theme.spacing(1)
-    },
-    success:{
-        marginLeft:theme.spacing(1),
-        color:theme.palette.success.main,
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        color:theme.palette.danger.main,
-        borderColor:theme.palette.danger.main
-    },
-    grid:{
-        display:'flex',
-        flexDirection:'column',
-        padding:theme.spacing(1),
-        height:'calc(100vh - 100px)',
-    },
-    pedidos:{
-        marginTop:theme.spacing(2)
-    },
-    grow:{
-        flexGrow:1
-    },
-    textWhite:{
-        color:theme.palette.primary.contrastText
-    },
-    pedidosContainer:{
-        flexGrow:1
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-    link:{
-        color:theme.palette.primary.contrastText,
-        marginBottom:theme.spacing(1),
-        textDecoration:'none'
-    },
-    dangerText:{
-        color:theme.palette.danger.main,
-        textShadow:'1px 1px black'
-
-    }
-}))
-const Historial=(props)=>{
-    const classes = useStyles()
-    const [cliente,setCliente]= useState(props.clientes[props.history.location.search.slice(1)].pagos)
-    const [showSnackbar, setshowSnackbar] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
+// COMPONENT
+const HistorialProveedor=(props)=>{
+    const classes = content()
+    const [proveedor,setProveedor]= useState(props.proveedores[checkSearch(props.history.location.search)].pagos)
    
 
     const calcularTotal = (total,efectivo) =>{
@@ -76,23 +26,21 @@ const Historial=(props)=>{
     
         return total-auxEfectivo!=0?total-auxEfectivo:0
     }
-    const aux = new Array
-    if(cliente){
-        cliente.map(pago=>{
-            aux.push(pago)
-        })
-    }
+
     return(
-            <Layout history={props.history} page={`Historial ${props.clientes[props.history.location.search.slice(1)].datos.nombre}`} user={props.user.uid}>
-                <Grid container className={classes.container} justify='center' >
+        <Layout history={props.history} page={`Historial ${props.proveedores[checkSearch(props.history.location.search)].datos.nombre}`} user={props.user.uid}>
+            {/* CONTENT */}
+            <Paper className={classes.content}>
+                <Grid container xs={12} justify='center' >
                     <Grid container item xs={12} justify='center'>
                         <Link 
                             className={classes.link}
                             to={{
-                                pathname:'/Nuevo-Pago',
+                                pathname:'/Nuevo-Pago-Proveedor',
                                 props:{
-                                    cliente:props.clientes[props.history.location.search.slice(1)].datos.nombre
-                                }
+                                    proveedor:props.proveedores[checkSearch(props.history.location.search)].datos.nombre
+                                },
+                                search:`${props.proveedores[checkSearch(props.history.location.search)].datos.nombre}`
                             }
                         }>
                             <Button 
@@ -103,7 +51,7 @@ const Historial=(props)=>{
                             </Button>
                         </Link>
                     </Grid>
-                        {cliente? 
+                        {proveedor? 
                             <Grid item xs={11}>
                                 <Paper elevation={3}>
                                     <TableContainer component={Paper}>
@@ -127,24 +75,24 @@ const Historial=(props)=>{
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                    {aux.reverse().map(pago=>(
+                                                    {Object.keys(proveedor).reverse().map(pago=>(
                                                         <TableRow> 
                                                             <TableCell>
-                                                                {pago.fecha}
+                                                                {proveedor[pago].fecha}
                                                             </TableCell>
-                                                            <TableCell align='left' className={calcularTotal(pago.total,pago.efectivo)<0?classes.dangerText:null}>
-                                                                $ {formatMoney(pago.total)}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {pago.efectivo?formatMoney(pago.efectivo):'-'}
+                                                            <TableCell align='left' className={calcularTotal(proveedor[pago].total,proveedor[pago].efectivo)<0?classes.dangerText:null}>
+                                                                $ {formatMoney(proveedor[pago].total)}
                                                             </TableCell>
                                                             <TableCell align='right'>
-                                                                $ {formatMoney(calcularTotal(pago.total,pago.efectivo))}
+                                                                $ {proveedor[pago].efectivo?formatMoney(proveedor[pago].efectivo):'-'}
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                $ {formatMoney(calcularTotal(proveedor[pago].total,proveedor[pago].efectivo))}
                                                             </TableCell>
                                                             <TableCell   align='right'>
-                                                                {pago.cheques?
+                                                                {proveedor[pago].cheques?
                                                                     <>
-                                                                        <MenuCheques pago={pago}/>
+                                                                        <MenuCheques pago={proveedor[pago]}/>
                                                                     </>
                                                                     :
                                                                     '-'
@@ -159,29 +107,20 @@ const Historial=(props)=>{
                             </Grid>
                             :
                             <Typography variant='h6'>
-                                {props.clientes[props.history.location.search.slice(1)].datos.nombre} no tiene un historial de pagos
+                                {props.proveedores[checkSearch(props.history.location.search)].datos.nombre} no tiene un historial de pagos
                             </Typography>
                         }
                 </Grid>
-                <Backdrop className={classes.backdrop} open={loading}>
-                    {showSnackbar?
-                        <Snackbar open={Boolean(showSnackbar)} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                            <Alert onClose={()=>{setshowSnackbar('')}} severity="error" variant='filled'>
-                                {showSnackbar}
-                            </Alert>
-                        </Snackbar>
-                        :
-                        <CircularProgress color="inherit" />
-                    }
-                </Backdrop>
-                <DialogConfirmDelete open={showDialogConfirmDelete} setOpen={setshowDialogConfirmDelete}/>
-            </Layout>
+            </Paper>
+        </Layout>
     )
 }
+
+// REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,
-        clientes:state.clientes
+        proveedores:state.proveedores
     }
 }
-export default connect(mapStateToProps,null)(Historial)
+export default connect(mapStateToProps,null)(HistorialProveedor)

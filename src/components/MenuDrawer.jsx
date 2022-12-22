@@ -53,7 +53,45 @@ const useStyles = makeStyles(theme=>({
 
       }
 }))
-export const MenuDrawer = ({menuOpened,setMenuOpened,history})=>{
+
+//FUNCTIONS 
+
+const checkSelected = (icon,page) =>{
+    if(icon==page){
+        return true
+    }
+    else if(icon=='Menu' && page== ''){
+        return true
+    }
+    // PRODUCTOS
+    else if(icon==='Productos' && (page=='Nuevo-Producto' || page=='Editar-Producto')){
+        return true
+    }
+    // PEDIDOS
+    else if(icon==='Pedidos' && (page=='Enviar-Pedido' || page=='Editar-Pedido')){
+        return true
+    }
+    // ENTREGAS
+    else if(icon==='Entregas' && (page=='Recibir-Entrega' || page=='Editar-Entrega')){
+        return true
+    }
+    // CLIENTES
+    else if(icon==='Clientes'&& (page=='Nuevo-Cliente'||page=='Editar-Cliente'||page.slice(0,7)=='Cliente'||page.slice(0,17)=='Historial-Cliente')){
+        return true
+    }
+    // PROVEEDORES
+    else if(icon==='Proveedores'&& (page=='Nuevo-Proveedor'||page=='Editar-Proveedor'||page.slice(0,9)=='Proveedor'||page.slice(0,19)=='Historial-Proveedor')){
+        return true
+    }
+    // EXPRESOS
+    else if(icon==='Expresos'&& (page=='Nuevo-Expreso'||page=='Editar-Expreso'||page.slice(0,7)=='Expreso')){
+        return true
+    }
+    else{
+        return false
+    }
+}
+export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
     const classes = useStyles()
     return(
         <Drawer 
@@ -68,135 +106,137 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history})=>{
                 [classes.drawerOpen]: menuOpened,
                 [classes.drawerClose]: !menuOpened,
             }),
-        }} open={menuOpened}  onClose={e=>{setMenuOpened(false)}}>
-                <div className={classes.toolbar}>
-                    <IconButton onClick={()=>{setMenuOpened(false)}}>
-                        <ChevronRight /> 
-                    </IconButton>
-                </div>
-                <Divider />
-                <List>
-                    <Link className={classes.link} to='/'>
-                        <ListItem button key={'Menu'}>
-                            <ListItemIcon>
-                                <Home/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Menu'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                    <Link className={classes.link} to='/Productos'>
-                        <ListItem button key={'Productos'} >
-                            <ListItemIcon>
-                                <ListIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Productos'} />
-                        </ListItem>
-                    </Link>
-                    <Divider />
-                    <Link className={classes.link} to='/Pedidos'>
-                        <ListItem button key={'Pedidos'} >
-                            <ListItemIcon>
-                                <MoveToInboxOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Pedidos'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                    <Link className={classes.link} to='/Entregas'>
-                        <ListItem button key={'Entregas'} >
-                            <ListItemIcon>
-                                <MoveToInboxOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Entregas'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                    <Link className={classes.link} to='/Clientes'>
-                        <ListItem button key={'Clientes'} >
-                            <ListItemIcon>
-                                <ContactMailOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Clientes'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                    <Link className={classes.link} to='/Proveedores'>
-                        <ListItem button key={'Proveedores'} >
-                            <ListItemIcon>
-                                <ContactMailOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Proveedores'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                    <Link className={classes.link} to='/Expresos'>
-                        <ListItem button key={'Expresos'} >
-                            <ListItemIcon>
-                                <LocalShippingOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Expresos'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                <Link className={classes.link} to='/Deudas'>
-                        <ListItem button key={'Deudas'} >
-                            <ListItemIcon>
-                                <AttachMoneyOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Deudas'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                <Link className={classes.link} to='/Cheques'>
-                        <ListItem button key={'Cheques'} >
-                            <ListItemIcon>
-                                <LocalAtmOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'Cheques'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                <Link className={classes.link} to='/IVA'>
-                        <ListItem button key={'IVA'} >
-                            <ListItemIcon>
-                                <LocalAtmOutlined/>
-                            </ListItemIcon>
-                            <ListItemText primary={'IVA'} />
-                        </ListItem>
-                    </Link>
-                <Divider />
-                </List>
-                <List className={classes.buttonSignOut}>
-                    <Divider />
-                    <Link className={classes.link} to='/Nuevo-Pedido'>
-                        <ListItem button key={'Nuevo Pedido'} >
-                            <ListItemIcon>
-                                <ShoppingCartOutlined/>
-                            </ListItemIcon>
-                            <ListItemText  primary={'Nuevo Pedido'} />
-                        </ListItem> 
-                    </Link>
-                    <Divider />
-                    <Link className={classes.link} to='/Nueva-Entrega'>
-                        <ListItem button key={'Nueva Entrega'} >
-                            <ListItemIcon>
-                                <ShoppingCartOutlined/>
-                            </ListItemIcon>
-                            <ListItemText  primary={'Nueva Entrega'} />
-                        </ListItem>    
-                    </Link>
-                    <Divider />
-                    <ListItem button key={'Cerrar sesion'}  onClick={()=>{
-                        history.replace('/')
-                        auth().signOut()
-                    }} >
+            }} 
+            open={menuOpened}  
+            onClose={e=>{setMenuOpened(false)}}>
+            <div className={classes.toolbar}>
+                <IconButton onClick={()=>{setMenuOpened(false)}}>
+                    <ChevronRight /> 
+                </IconButton>
+            </div>
+            <Divider />
+            <List>
+                <Link className={classes.link} to='/'>
+                    <ListItem button key={'Menu'} selected={checkSelected('Menu',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <ExitToAppOutlined color='error'/>
+                            <Home/>
                         </ListItemIcon>
-                        <ListItemText  primary={'Cerrar sesion'} />
+                        <ListItemText primary={'Menu'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+                <Link className={classes.link} to='/Productos'>
+                    <ListItem button key={'Productos'} selected={checkSelected('Productos',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <ListIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Productos'} />
+                    </ListItem>
+                </Link>
+                <Divider />
+                <Link className={classes.link} to='/Pedidos'>
+                    <ListItem button key={'Pedidos'} selected={checkSelected('Pedidos',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <MoveToInboxOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Pedidos'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+                <Link className={classes.link} to='/Entregas'>
+                    <ListItem button key={'Entregas'} selected={checkSelected('Entregas',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <MoveToInboxOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Entregas'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+                <Link className={classes.link} to='/Clientes'>
+                    <ListItem button key={'Clientes'} selected={checkSelected('Clientes',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <ContactMailOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Clientes'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+                <Link className={classes.link} to='/Proveedores'>
+                    <ListItem button key={'Proveedores'} selected={checkSelected('Proveedores',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <ContactMailOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Proveedores'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+                <Link className={classes.link} to='/Expresos'>
+                    <ListItem button key={'Expresos'} selected={checkSelected('Expresos',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <LocalShippingOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Expresos'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+            <Link className={classes.link} to='/Deudas'>
+                <ListItem button key={'Deudas'} selected={checkSelected('Deudas',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <AttachMoneyOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Deudas'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+            <Link className={classes.link} to='/Cheques'>
+                <ListItem button key={'Cheques'} selected={checkSelected('Cheques',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <LocalAtmOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Cheques'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+            <Link className={classes.link} to='/IVA'>
+                <ListItem button key={'IVA'} selected={checkSelected('IVA',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <LocalAtmOutlined/>
+                        </ListItemIcon>
+                        <ListItemText primary={'IVA'} />
+                    </ListItem>
+                </Link>
+            <Divider />
+            </List>
+            <List className={classes.buttonSignOut}>
+                <Divider />
+                <Link className={classes.link} to='/Nuevo-Pedido'>
+                    <ListItem button key={'Nuevo Pedido'} selected={checkSelected('Nuevo-Pedido',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <ShoppingCartOutlined/>
+                        </ListItemIcon>
+                        <ListItemText  primary={'Nuevo Pedido'} />
+                    </ListItem> 
+                </Link>
+                <Divider />
+                <Link className={classes.link} to='/Nueva-Entrega'>
+                    <ListItem button key={'Nueva Entrega'} selected={checkSelected('Nueva-Entrega',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <ShoppingCartOutlined/>
+                        </ListItemIcon>
+                        <ListItemText  primary={'Nueva Entrega'} />
                     </ListItem>    
-                </List>
+                </Link>
+                <Divider />
+                <ListItem button key={'Cerrar sesion'}  onClick={()=>{
+                    history.replace('/')
+                    auth().signOut()
+                }} >
+                    <ListItemIcon>
+                        <ExitToAppOutlined color='error'/>
+                    </ListItemIcon>
+                    <ListItemText  primary={'Cerrar sesion'} />
+                </ListItem>    
+            </List>
         </Drawer>
     )
 }

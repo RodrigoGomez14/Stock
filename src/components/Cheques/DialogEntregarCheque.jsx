@@ -13,8 +13,6 @@ export const DialogEntregarCheque = ({open,setOpen,guardarEntregaDeCheque,id}) =
     const classes = useStyles()
     const [nombre,setnombre]=useState(undefined)
     
-    
-
     const resetTextFields = () =>{
         setnombre('')
     }
@@ -22,7 +20,7 @@ export const DialogEntregarCheque = ({open,setOpen,guardarEntregaDeCheque,id}) =
         guardarEntregaDeCheque(id,obtenerFecha(),nombre)
     }
     return(
-        <Dialog open={open}>
+        <Dialog open={open} maxWidth='md' fullWidth={true}>
             <DialogTitle>
                 Entregar Cheque
             </DialogTitle>

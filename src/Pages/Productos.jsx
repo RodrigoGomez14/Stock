@@ -1,74 +1,31 @@
-import React,{useState,useEffect} from 'react'
+import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,DialogActions,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Link as LinkComponent,Snackbar,Dialog,DialogTitle,DialogContent,Button} from '@material-ui/core'
+import {Paper,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Snackbar} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
-import {MoreVert,AddOutlined} from '@material-ui/icons'
+import {AddOutlined} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardProducto} from '../components/Productos/CardProducto'
 import {database} from 'firebase'
+import {content} from './styles/styles'
 
-
-const useStyles=makeStyles(theme=>({
-    table:{
-        marginTop:theme.spacing(1)
-    },
-    success:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.danger.main
-    },
-    iconSuccess:{
-        color:theme.palette.success.main,
-    },
-    iconDanger:{
-        color:theme.palette.danger.main,
-    },
-    paperCliente:{
-    },
-    card:{
-        minHeight:'180px',
-        maxHeight:'300px'
-    },
-    link:{
-        outline:'none',
-        textDecoration:'none'
-    },
-    displayNone:{
-        display:'none'
-    },
-    display:{
-        display:'block'
-    },
-    container:{
-        paddingTop:theme.spacing(1),
-        paddingBottom:theme.spacing(1)
-    },
-    containerClientes:{
-        height:'calc( 100vh - 128px )',
-        overflow:'scroll'
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-}))
+// COMPONENT
 const Productos=(props)=>{
-    const classes = useStyles()
+    const classes = content()
     const [search,setSearch]=useState('')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
 
+    //FUNCTIONS
     const eliminarProducto = (key) =>{
         setLoading(true)
         database().ref().child(props.user.uid).child('productos').child(key).remove()
         .then(()=>{
             setshowSnackbar('El producto se eliminó correctamente')
-            setLoading(false)
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000);
         })
         .catch(()=>{
             setLoading(false)
@@ -77,58 +34,68 @@ const Productos=(props)=>{
 
     return(
         <Layout history={props.history} page="Productos" user={props.user.uid}>
-            <Grid container justify='center' alignItems='center' className={classes.container}>
-                <Grid item>
-                    <Link to={{
-                        pathname:'/Nuevo-Producto'
-                    }}>
-                        <IconButton>
-                            <AddOutlined/>
-                        </IconButton>
-                    </Link>
-                </Grid>
-                <Grid item>
-                    <TextField
-                        value={search}
-                        onChange={e=>{
-                            setSearch(e.target.value)
-                        }}
-                        disabled={!props.productos}
-                        label='Buscar Producto'
-                    />
-                </Grid>
-                <Grid container justify='center' alignItems='center' className={classes.container} >
-                    {props.productos?
-                        <Grid container item xs={12} sm={10} md={9} lg={8} spacing={2} alignItems='center'>
-                            {Object.keys(props.productos).map(key=>(
+            <Paper className={classes.content}>
+                <Grid container spacing={4}>
+
+                    {/* SEARCH BAR */}
+                    <Grid container item xs={12} justify='center' alignItems='center'>
+                        <Grid item>
+                            <Link to={{
+                                pathname:'/Nuevo-Producto'
+                            }}>
+                                <IconButton>
+                                    <AddOutlined/>
+                                </IconButton>
+                            </Link>
+                        </Grid>
+                        <Grid item>
+                            <TextField
+                                value={search}
+                                onChange={e=>{
+                                    setSearch(e.target.value)
+                                }}
+                                disabled={!props.productos}
+                                label='Buscar Producto'
+                            />
+                        </Grid>
+                    </Grid>
+
+                    {/* PRODUCT LIST */}
+                    <Grid container item xs={12} justify='center' alignItems='center' spacing={2} >
+                        {props.productos?
+                            (Object.keys(props.productos).map(key=>(
                                 <CardProducto 
                                     search={search} 
                                     precio={props.productos[key].precio} 
                                     cantidad={props.productos[key].cantidad}
-                                    colores={props.productos[key].colores}
+                                    subproductos={props.productos[key].subproductos}
                                     name={key}
                                     eliminarProducto={()=>{eliminarProducto(key)}}
-                                />
-                            ))}
-                        </Grid>
-                        :
-                        <Typography variant='h5'>
-                            Aun no hay ningun producto ingresado
-                        </Typography>
-                    }
+                                />)))
+                            :
+                            <Typography variant='h5'>
+                                Aun no hay ningun producto ingresado
+                            </Typography>
+                        }
+                    </Grid>
                 </Grid>
-            </Grid>
+
+            </Paper>
+            
+            {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
+                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                    <Alert severity="success" variant='filled'>
+                        {showSnackbar}
+                    </Alert>
+                </Snackbar>
             </Backdrop>
-            <Snackbar open={Boolean(showSnackbar)} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                <Alert onClose={()=>{setshowSnackbar('')}} severity="success" variant='filled'>
-                    {showSnackbar}
-                </Alert>
-            </Snackbar>
         </Layout>
     )
 }
+
+//REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,

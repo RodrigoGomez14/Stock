@@ -2,19 +2,11 @@ import React,{useState,useEffect} from 'react'
 import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,makeStyles,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
 import {EditOutlined} from '@material-ui/icons'
 import DateFnsUtils from '@date-io/date-fns';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
-const useStyles = makeStyles(theme=>({
-    input:{
-        marginBottom:theme.spacing(1),
-        textAlign:'center'
-    }
-}))
+import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker} from '@material-ui/pickers';
+import {content} from '../../../Pages/styles/styles'
+
 export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,seteditIndex,total,settotal,cliente}) =>{
-    const classes = useStyles()
+    const classes = content()
     const [numero,setnumero]=useState(undefined)
     const [banco,setbanco]=useState(undefined)
     const [vencimiento,setvencimiento]=useState(undefined)
@@ -22,7 +14,7 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
     const [editarPrecio,seteditarPrecio]=useState(false)
     
     
-
+    // FUNCTIONS
     const resetTextFields = () =>{
         setnumero('')
         setbanco('')
@@ -59,6 +51,8 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
     const convertirVencimiento= (vencimiento)=>{
         return `${vencimiento.slice(vencimiento.indexOf('/')+1,vencimiento.lastIndexOf('/'))}/${vencimiento.slice(0,vencimiento.indexOf('/'))}${vencimiento.slice(vencimiento.lastIndexOf('/'))}`
     }
+
+    // FILL FOR EDIT
     useEffect(()=>{
         if(edit){
             setnumero(datos[editIndex].numero)
@@ -67,8 +61,10 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
             setvalor(datos[editIndex].valor)
         }
     },[edit])
+
+    // CONTENT
     return(
-        <Dialog open={open}>
+        <Dialog open={open} maxWidth='md'>
             <DialogTitle>
                 {edit?
                     'Editar Cheque'
@@ -77,8 +73,8 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
                 }
             </DialogTitle>
             <DialogContent>
-                <Grid container direction='column'>
-                    <Grid item className={classes.input}>
+            <Grid container direction='column' alignItems='center' spacing={2}>
+                    <Grid item>
                         <TextField
                             fullWidth
                             label='Numero'
@@ -89,7 +85,7 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
                             }}
                         />
                     </Grid>
-                    <Grid item className={classes.input}>
+                    <Grid item>
                         <TextField
                             fullWidth
                             label='Banco'
@@ -99,7 +95,7 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
                             }}
                         />
                     </Grid>
-                    <Grid item className={classes.input}>
+                    <Grid item>
                     <MuiPickersUtilsProvider utils={DateFnsUtils} noValidate>
                         <KeyboardDatePicker
                             disableToolbar
@@ -114,7 +110,7 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
                         />
                     </MuiPickersUtilsProvider   >
                     </Grid>
-                    <Grid item className={classes.input}>
+                    <Grid item>
                         <TextField
                             fullWidth
                             label='Valor'

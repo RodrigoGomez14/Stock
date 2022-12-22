@@ -1,110 +1,17 @@
 import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@material-ui/core'
+import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Cliente/Step'
 import {FormDetalles} from '../components/Nuevo-Cliente/FormDetalles'
-import {Direccion} from '../components/Nuevo-Cliente/Direccion'
-import BDD from '../base de datos.json'
+import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@material-ui/icons';
+import {checkSearch} from '../utilities'
 import {database} from 'firebase'
+import {content} from './styles/styles'
 
-const useStyles=makeStyles(theme=>({
-    root:{
-        height:'100%',
-        width:'100%',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'flex-start',
-        backgroundColor:theme.palette.type==='dark'?theme.palette.secondary.main:theme.palette.primary.dark,
-        borderRadius:'0',
-        overflow:'auto',
-    },
-    table:{
-        marginTop:theme.spacing(1)
-    },
-    success:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.danger.main
-    },
-    iconSuccess:{
-        color:theme.palette.success.main,
-    },
-    iconDanger:{
-        color:theme.palette.danger.main,
-    },
-    paperCliente:{
-    },
-    cardContent:{
-        padding:0,
-        height:'100%',
-        textAlign:'center',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'space-around',
-    },
-    card:{
-        height:'150px',
-        display:'flex',
-        justifyContent:'center',
-        alignItems:'center'
-
-    },
-    link:{
-        outline:'none',
-        textDecoration:'none'
-    },
-    displayNone:{
-        display:'none'
-    },
-    display:{
-        display:'block'
-    },
-    paper:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(2),
-        padding:theme.spacing(2),
-        display:'flex',
-        flexDirection:'column',
-    },
-    input:{
-        marginTop:theme.spacing(1)
-    },
-    stepper:{
-        backgroundColor:'transparent'
-    },
-    textAlignCenter:{
-        textAlign:'center'
-    },
-    margin:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(1),
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-    flex:{
-        flex:1,
-        display:'flex',
-        justifyContent:'flex-end'
-    },
-    button:{
-        marginLeft:theme.spacing(2)
-    }
-}))
-
-function getSteps() {
-    return ['Detalles', 'Direcciones', 'Telefonos','Mails','Informacion Extra'];
-  }
-  
-  
-  const NuevoExpreso=(props)=>{
-    const classes = useStyles()
+const NuevoExpreso=(props)=>{
+    const classes = content()
     const [nombre,setnombre]=useState(undefined)
     const [dni,setdni]=useState(undefined)
     const [cuit,setcuit]=useState(undefined)
@@ -113,16 +20,20 @@ function getSteps() {
     const [telefonos,settelefonos]=useState([])
     const [infoExtra,setinfoExtra]=useState([])
     const [activeStep, setActiveStep] = useState(0);
-    const [showSnackbar, setshowSnackbar] = useState(false);
+    const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const steps = getSteps();
 
+    // STEPPER NAVIGATION
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
+    }
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
+    }
+    function getSteps() {
+        return ['Detalles', 'Direcciones', 'Telefonos','Mails','Informacion Extra'];
+    }
     function getStepContent(step) {
       switch (step) {
         case 0:
@@ -170,6 +81,84 @@ function getSteps() {
             );
       }
     }
+    function getStepLabel(label,index) {
+        switch (index) {
+            case 0:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<PeopleAlt/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 1:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<Room/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 2:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<Phone/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 3:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<Mail/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 4:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<LocalShipping/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 5:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<ContactMail/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+        }
+    }
+
+    //FUNCTIONS
     const guardarDatos = () =>{
         setLoading(true)
         let aux={[nombre]:{
@@ -185,7 +174,7 @@ function getSteps() {
         }}
         database().ref().child(props.user.uid).child('expresos').update(aux)
             .then(()=>{
-                setshowSnackbar(true)
+                setshowSnackbar(props.history.location.search?'El expreso se edito correctamente!':'El nuevo expreso ha sido agregado!')
                 setTimeout(() => {
                     props.history.replace(`/Expreso?${nombre}`)
                 }, 2000);
@@ -194,9 +183,11 @@ function getSteps() {
                 setLoading(false)
             })
     }
+
+    // VALIDACION EDITAR EXPRESO
     useEffect(()=>{
         if(props.history.location.search){
-            const {nombre,dni,cuit,mails,direcciones,telefonos,infoExtra} = props.expresos[props.history.location.search.slice(1)].datos
+            const {nombre,dni,cuit,mails,direcciones,telefonos,infoExtra} = props.expresos[checkSearch(props.history.location.search)].datos
             nombre&&setnombre(nombre)
             dni&&setdni(dni)
             cuit&&setcuit(cuit)
@@ -205,76 +196,83 @@ function getSteps() {
             telefonos&&settelefonos(telefonos)
             infoExtra&&setinfoExtra(infoExtra)
         }
-    })
+    },[])
     return(
         <Layout history={props.history} page={props.history.location.search?'Editar Expreso':'Nuevo Expreso'} user={props.user.uid} blockGoBack={true}>
-            <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
-                {steps.map((label,index)=>(
-                    <Step>
-                        <StepLabel>
-                            {label}
-                        </StepLabel>
-                        <StepContent>
-                            {getStepContent(index)}
-                            <div className={classes.margin}>
-                                <Button
-                                    disabled={activeStep===0}
-                                    onClick={handleBack}
-                                >
-                                    Volver
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    disabled={!nombre}
-                                    onClick={activeStep === steps.length - 1 ? guardarDatos : handleNext}
-                                >
-                                    {activeStep === steps.length - 1 ? `${props.history.location.search?'Guardar Edicion':'Guardar Expreso'}` : 'Siguiente'}
-                                </Button>
-                                {activeStep != steps.length -1?
-                                    <Button
-                                        variant="outlined"
-                                        color="light"
-                                        disabled={!nombre}
-                                        onClick={()=>{setActiveStep(steps.length)}}
-                                        className={classes.button}
-                                    >
-                                        Finalizar
-                                    </Button>
-                                    :
-                                    null
-                                }
-                            </div>
-                        </StepContent>
-                    </Step>
-                ))}
-            </Stepper>
-            {activeStep === steps.length && (
-                <Grid container justify='center'>
-                    <Paper elevation={6}>
-                        <Button  onClick={handleBack}>
-                            Atras     
-                        </Button>
-                        <Button variant='contained'  onClick={guardarDatos} className={classes.button}>
-                            {props.history.location.search?'Guardar Edicion':'Guardar Expreso'}     
-                        </Button>
-                    </Paper>
-                </Grid>
-            )}
+            {/* CONTENT */}
+            <Paper className={classes.content}>
+                {/* STEPPER */}
+                <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
+                    {steps.map((label,index)=>(
+                        <Step>
+                            {getStepLabel(label,index)}
+                            <StepContent>
+                                <Grid container xs={12} justify='center' spacing={3}>
+                                    {getStepContent(index)}
+                                    <Grid container item xs={12} justify='center' spacing={3}>
+                                        <Grid item>
+                                            <Button
+                                                disabled={activeStep===0}
+                                                onClick={handleBack}
+                                            >
+                                                Volver
+                                            </Button>
+                                        </Grid>
+                                        <Grid item>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                disabled={!nombre}
+                                                onClick={activeStep === steps.length - 1 ? guardarDatos : handleNext}
+                                            >
+                                                {activeStep === steps.length - 1 ? `${props.history.location.search?'Guardar Edicion':'Guardar Expreso'}` : 'Siguiente'}
+                                            </Button>
+                                        </Grid>
+                                        {activeStep !== steps.length -1?
+                                            <Grid item>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="light"
+                                                    disabled={!nombre}
+                                                    onClick={()=>{setActiveStep(steps.length)}}
+                                                    className={classes.button}
+                                                >
+                                                    Finalizar
+                                                </Button>
+                                            </Grid>
+                                            :
+                                            null
+                                        }
+                                    </Grid>
+                                </Grid>
+                            </StepContent>
+                        </Step>
+                    ))}
+                </Stepper>
+
+                {/* PREVIEW */}
+                {activeStep === steps.length && (
+                    <Grid container justify='center'>
+                        <Paper elevation={6}>
+                            <Button  onClick={handleBack}>
+                                Atras     
+                            </Button>
+                            <Button variant='contained'  onClick={guardarDatos} className={classes.button}>
+                                {props.history.location.search?'Guardar Edicion':'Guardar Expreso'}     
+                            </Button>
+                        </Paper>
+                    </Grid>
+                )}
+
+            </Paper>
+            {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
-                {showSnackbar?
-                    <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar(false)}}>
-                        <Alert onClose={()=>{setshowSnackbar(false)}} severity="success" variant='filled'>
-                            {props.history.location.search?
-                                'El expreso se edito correctamente!'
-                                :
-                                'El nuevo expreso ha sido agregado!'
-                            }
-                        </Alert>
-                    </Snackbar>
-                    :
-                    <CircularProgress color="inherit" />
-                }
+                <CircularProgress color="inherit" />
+                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                    <Alert severity="success" variant='filled'>
+                        {showSnackbar}
+                    </Alert>
+                </Snackbar>
             </Backdrop>
         </Layout>
     )

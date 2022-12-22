@@ -1,157 +1,198 @@
 import React from 'react'
-import {List,Paper,ListItem,ListItemText,makeStyles,Typography,Divider,Grid} from '@material-ui/core'
+import {List,Paper,ListItem,ListItemText,Typography,Divider,Grid, ListItemIcon} from '@material-ui/core'
+import {ContactMail, LocalShipping, Mail, PeopleAlt,Phone,Room,} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
-import { Search } from '@material-ui/icons'
-const useStyles = makeStyles(theme=>({
-    divider:{
-        width:'100%'
-    },
-    detalles:{
-        height:'calc(100vh - 100px)',
-        backgroundColor:'transparent',
-        overflowY:'scroll',
-        padding:theme.spacing(1)
-    },
-    paper:{
-        marginBottom:theme.spacing(1)
-    },
-    textWhite:{
-        color:theme.palette.primary.contrastText
-    },
-    link:{
-        outline:'none',
-        textDecoration:'none',
-        cursor:'pointer'
-    },
-}))
+import {content} from '../../Pages/styles/styles'
+
+// CONTENT
 export const Detalles = ({dni,cuit,direcciones,telefonos,mails,infoExtra,expresos}) =>{
-    const classes = useStyles()
+    const classes = content()
     return(
-        <Grid item xs={12}>
-            <div className={classes.detalles}>
-                    {dni || cuit ?
-                        <Paper elevation={6} className={classes.paper}>
-                            <List>
-                                {dni&&
-                                    <>
-                                        <ListItem>
-                                            <ListItemText primary='DNI' secondary={dni?dni:'-'}/>
-                                        </ListItem>
-                                        <Divider />
-                                    </>
-                                }
-                                {cuit &&
+        <Grid container item xs={12} className={classes.containerDetallesCliente} spacing={3} alignItems='flex-start'>
+            {console.log('detalles')}
+            {dni || cuit ?
+                <Grid item xs={10} md={4}>
+                    <Paper elevation={6} className={classes.paperCliente}>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <List className={classes.titleDetallesCard}>
                                     <ListItem>
-                                        <ListItemText primary='CUIT' secondary={cuit?cuit:'-'}/>
+                                        <ListItemIcon><PeopleAlt/></ListItemIcon>
+                                        <ListItemText primary="Datos Personales"/>
                                     </ListItem>
-                                }
-                            </List>
-                        </Paper>
-                        :
-                        null
-                    }
-                    {direcciones &&
-                        <Paper elevation={6} className={classes.paper}>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary={'Direcciones'}/>
-                                </ListItem>
-                                {direcciones.map(direccion=>(
-                                    <>
-                                        <Divider />
+                                </List>
+                                <Divider/>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <List>
+                                    {dni&&
+                                        <>
+                                            <ListItem>
+                                                <ListItemText primary='DNI' secondary={dni?dni:'-'}/>
+                                            </ListItem>
+                                        </>
+                                    }
+                                    {cuit &&
                                         <ListItem>
-                                            <ListItemText secondary={`${direccion.calleYnumero}, ${direccion.ciudad}, ${direccion.provincia}, ${direccion.cp}`}/>
+                                            <ListItemText primary='CUIT' secondary={cuit?cuit:'-'}/>
                                         </ListItem>
-                                    </>
-                                ))}
-                            </List>
-                        </Paper>
-                    }
-                    {telefonos &&
-                        <Paper elevation={6} className={classes.paper}>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary={'Telefonos'}/>
-                                </ListItem>
-                                {telefonos.map(telefono=>(
-                                    <>
-                                        <Divider />
+                                    }
+                                </List>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+                :
+                null
+            }
+            {direcciones &&
+                <Grid item xs={10} md={4}>
+                    <Paper elevation={6} className={classes.paperCliente}>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <List className={classes.titleDetallesCard}>
+                                    <ListItem>
+                                        <ListItemIcon><Room/></ListItemIcon>
+                                        <ListItemText primary='Direcciones'/>
+                                    </ListItem>
+                                </List>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <List>
+                                    {direcciones.map(direccion=>(
+                                        <ListItem>
+                                            <ListItemText primary={`${direccion.calleYnumero}, ${direccion.ciudad}, ${direccion.provincia}, ${direccion.cp}`}/>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+            }
+            {telefonos &&
+                <Grid item xs={10} md={4}>
+                    <Paper elevation={6} className={classes.paperCliente}>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <List className={classes.titleDetallesCard}>
+                                    <ListItem>
+                                        <ListItemIcon><Phone/></ListItemIcon>
+                                        <ListItemText primary='Telefonos'/>
+                                    </ListItem>
+                                </List>
+                                <Divider />
+                            </Grid>
+                            <Grid item>
+                                <List>
+                                    {telefonos.map(telefono=>(
                                         <ListItem>
                                             <ListItemText primary={telefono.numero} secondary={telefono.nombre?telefono.nombre:'-'}/>
                                         </ListItem>
-                                    </>
-                                ))}
-                            </List>
-                        </Paper>
-                    }
-                    {mails&&
-                        <Paper elevation={6} className={classes.paper}>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary={'Mails'}/>
-                                </ListItem>
-                                {mails.map(mail=>(
-                                    <>
-                                        <Divider />
+                                    ))}
+                                </List>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+            }
+            {mails&&
+                <Grid item xs={10} md={4}>
+                    <Paper elevation={6} className={classes.paperCliente}>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <List className={classes.titleDetallesCard}>
+                                    <ListItem>
+                                        <ListItemIcon><Mail/></ListItemIcon>
+                                        <ListItemText primary={'Mails'}/>
+                                    </ListItem>
+                                </List>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <List>
+                                    {mails.map(mail=>(
                                         <ListItem>
                                             <ListItemText primary={mail.mail} secondary={mail.nombre?mail.nombre:'-'}/>
                                         </ListItem>
-                                    </>
-                                ))}
-                            </List>
-                        </Paper>
-                    }
-                    {expresos &&
-                        <Paper elevation={6} className={classes.paper}>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary={'Expresos'}/>
-                                </ListItem>
-                                {expresos.map(expreso=>(
-                                    <>
-                                        <Divider />
+                                    ))}
+                                </List>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+            }
+            {expresos &&
+                <Grid item xs={10} md={4}>
+                    <Paper elevation={6} className={classes.paperCliente}>
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <List className={classes.titleDetallesCard}>
+                                    <ListItem>
+                                        <ListItemIcon><LocalShipping/></ListItemIcon>
+                                        <ListItemText primary={'Expresos'}/>
+                                    </ListItem>
+                                </List>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <List>
+                                    {expresos.map(expreso=>(
                                         <ListItem>
-                                            <Link 
-                                                className={classes.link}
+                                            <Link
+                                                style={{color:'#fff',textDecoration:'none'}}
                                                 to={{
                                                 pathname:'/Expreso',
-                                                search:`${expreso}`
+                                                search:expreso
                                             }}>
-                                                <ListItemText secondary={expreso}/>
+                                                <ListItemText primary={expreso}/>
                                             </Link>
                                         </ListItem>
-                                    </>
-                                ))}
-                            </List>
-                        </Paper>
-                    }
-                    {infoExtra &&
-                        <Paper elevation={6} className={classes.paper}>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary={'Info Extra'}/>
-                                </ListItem>
-                                {infoExtra.map((info,i)=>(
-                                    <>
-                                        <Divider />
-                                        <ListItem>
-                                            <ListItemText primary={i+1} secondary={info}/>
-                                        </ListItem>
-                                    </>
-                                ))}
-                            </List>
-                        </Paper>
-                    }
-                    {!dni && !cuit && !direcciones && !telefonos && !mails && !infoExtra && !expresos?
-                        <Grid container item xs={12} justify='center'>
-                            <Typography variant='h6' className={classes.textWhite}>
-                                No hay informacion del cliente
-                            </Typography>
+                                    ))}
+                                </List>
+                            </Grid>
                         </Grid>
-                        :
-                        null
-                    }
-            </div>
+                    </Paper>
+                </Grid>
+            }
+            {infoExtra &&
+                <Grid item xs={10} md={4}>
+                    <Paper elevation={6} className={classes.paperCliente}>
+                        <Grid container>
+                            <Grid xs={12}>
+                                <List className={classes.titleDetallesCard}>
+                                    <ListItem>
+                                        <ListItemIcon><ContactMail/></ListItemIcon>
+                                        <ListItemText primary={'Info Extra'}/>
+                                    </ListItem>
+                                </List>
+                                <Divider />
+                            </Grid>
+                            <Grid xs={12}>
+                                <List>
+                                    {infoExtra.map((info,i)=>(
+                                        <ListItem>
+                                            <ListItemText primary={info}/>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+            }
+            {!dni && !cuit && !direcciones && !telefonos && !mails && !infoExtra && !expresos?
+                <Grid container item xs={12} justify='center' spacing={6}>
+                    <Grid item>
+                        <Typography variant='h6' className={classes.textWhite}>
+                            No hay informacion del cliente
+                        </Typography>
+                    </Grid>
+                </Grid>
+                :
+                null
+            }
         </Grid>
     )
 }

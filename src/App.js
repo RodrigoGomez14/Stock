@@ -15,13 +15,13 @@ import Deudas from './Pages/Deudas'
 import Cheques from './Pages/Cheques'
 import Productos from './Pages/Productos'
 import IvaPage from './Pages/IvaPage'
-import Historial from './Pages/Historial'
+import HistorialCliente from './Pages/HistorialCliente'
+import HistorialProveedor from './Pages/HistorialProveedor';
 import Pedidos from './Pages/Pedidos'
 import Entregas from './Pages/Entregas'
 import NuevaEntrega from './Pages/NuevaEntrega'
 import RecibirEntrega from './Pages/RecibirEntrega'
 import EnviarPedido from './Pages/EnviarPedido'
-import NuevoPago from './Pages/NuevoPago'
 import NuevoProducto from './Pages/NuevoProducto'
 import {SignInPage} from './Pages/SignIn'
 import {PantallaDeCarga} from './Pages/PantallaDeCarga'
@@ -31,9 +31,15 @@ import {createStore} from 'redux'
 import * as firebase from 'firebase'
 import {NotFound} from './Pages/NotFound'
 import { createMuiTheme,ThemeProvider } from '@material-ui/core/styles';
+import NuevoPagoProveedor from './Pages/NuevoPagoProveedor';
+import NuevoPagoCliente from './Pages/NuevoPagoCliente';
 
 let store 
 let data
+let photosList
+
+
+//FIREBASE
 var config = {
     apiKey: "AIzaSyDPmTjxjMxN2abofP8ZczgFGeYQYSvbXHE",
     authDomain: "stock-119e8.firebaseapp.com",
@@ -42,12 +48,15 @@ var config = {
     storageBucket: "stock-119e8.appspot.com",
     messagingSenderId: "1007277754269",
     appId: "1:1007277754269:web:d1db0def0da907b2"
-  };
+};
+
 firebase.initializeApp(config)
 class App extends Component {
   state={
     loading:true,
   }
+
+  // Comprobacion de usuario y creacion del store
   async componentDidMount(){
     firebase.auth().onAuthStateChanged(async user=>{
       if(user){
@@ -67,12 +76,13 @@ class App extends Component {
   }
   
   render(){
+    //creacion del tema 
     const themeProvider = createMuiTheme({
       palette: {
           white:'#fff',
           primary: {
             light: '#5e92f3',
-            main: '#1565c0',
+            main: '#01579b',
             dark: '#003c8f',
             contrastText: '#fff',
           },
@@ -82,6 +92,10 @@ class App extends Component {
             dark: '#000a12',
             contrastText: '#000',
           },
+          info:{
+            main:'#ffeb3b',
+            contrastText:'#000'
+          },
           danger:{
             main:'#c62828'
           },
@@ -89,8 +103,10 @@ class App extends Component {
             main:'#2e7d32'
           },
           type:'dark'
-      },
+      }
   });
+
+    //PANTALLA DE CARGA
     if(this.state.loading){
       return(
           <ThemeProvider theme={themeProvider}>
@@ -98,7 +114,9 @@ class App extends Component {
           </ThemeProvider>
       )
     }
+    //DIVISION DE RUTAS
     else{
+      // RUTEADO DE LA APP
       if(this.state.user){
         return (
           <ThemeProvider theme={themeProvider}>
@@ -116,7 +134,8 @@ class App extends Component {
                     <Route exact path='/Editar-Proveedor' component={NuevoProveedor}/>
                     <Route exact path='/Expresos' component={Expresos}/>
                     <Route exact path='/Expreso' component={Expreso}/>
-                    <Route exact path='/Historial' component={Historial}/>
+                    <Route exact path='/Historial-Cliente' component={HistorialCliente}/>
+                    <Route exact path='/Historial-Proveedor' component={HistorialProveedor}/>
                     <Route exact path='/Nuevo-Expreso' component={NuevoExpreso}/>
                     <Route exact path='/Editar-Expreso' component={NuevoExpreso}/>
                     <Route exact path='/Deudas' component={Deudas}/>
@@ -136,13 +155,17 @@ class App extends Component {
                     <Route exact path='/Editar-Entrega' component={NuevaEntrega}/>
                     <Route exact path='/Recibir-Entrega' component={RecibirEntrega}/>
 
-                    <Route exact path='/Nuevo-Pago' component={NuevoPago}/>
+                    <Route exact path='/Nuevo-Pago-Cliente' component={NuevoPagoCliente}/>
+                    <Route exact path='/Nuevo-Pago-Proveedor' component={NuevoPagoProveedor}/>
+    
+                    <Route component={NotFound}/>
                   </Switch>
                 </BrowserRouter>
               </Provider>
             </ThemeProvider>
         )
       }
+      //Si no hay usuario la unica ruta es SignIn
       else{
         return (
           <ThemeProvider theme={themeProvider}>

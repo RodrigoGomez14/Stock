@@ -6,107 +6,12 @@ import Alert from '@material-ui/lab/Alert';
 import {Redirect} from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
 import {database} from 'firebase'
-
-const useStyles=makeStyles(theme=>({
-    root:{
-        height:'100%',
-        width:'100%',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'flex-start',
-        backgroundColor:theme.palette.type==='dark'?theme.palette.secondary.main:theme.palette.primary.dark,
-        borderRadius:'0',
-        overflow:'auto',
-    },
-    table:{
-        marginTop:theme.spacing(1)
-    },
-    success:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.danger.main
-    },
-    iconSuccess:{
-        color:theme.palette.success.main,
-    },
-    iconDanger:{
-        color:theme.palette.danger.main,
-    },
-    paperCliente:{
-    },
-    cardContent:{
-        padding:0,
-        height:'100%',
-        textAlign:'center',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'space-around',
-    },
-    card:{
-        height:'150px',
-        display:'flex',
-        justifyContent:'center',
-        alignItems:'center'
-
-    },
-    link:{
-        outline:'none',
-        textDecoration:'none'
-    },
-    displayNone:{
-        display:'none'
-    },
-    display:{
-        display:'block'
-    },
-    paper:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(2),
-        padding:theme.spacing(2),
-        display:'flex',
-        flexDirection:'column',
-    },
-    input:{
-        marginTop:theme.spacing(1)
-    },
-    stepper:{
-        backgroundColor:'transparent'
-    },
-    textAlignCenter:{
-        textAlign:'center'
-    },
-    margin:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(1),
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-    flex:{
-        flex:1,
-        display:'flex',
-        justifyContent:'flex-end'
-    },
-    button:{
-        marginLeft:theme.spacing(2)
-    },
-    paperTotal:{
-        padding:theme.spacing(1),
-        marginBottom:theme.spacing(1)
-    }
-}))
-
-function getSteps() {
-    return ['Detalles', 'Producto Compuesto' , 'Cadena De Produccion' ];
-  }
+import {content} from './styles/styles'
+import {checkSearch} from '../utilities'
   
-  
-  const NuevoProducto=(props)=>{
-    const classes = useStyles()
+// COMPONENT  
+const NuevoProducto=(props)=>{
+    const classes = content()
     const [nombre,setnombre]=useState('')
     const [precio,setprecio]=useState(0)
     const [cantidad,setcantidad]=useState(0)
@@ -114,22 +19,11 @@ function getSteps() {
     const [composicion,setcomposicion]=useState([])
 
     const [activeStep, setActiveStep] = useState(0);
-    const [showSnackbar, setshowSnackbar] = useState(false);
+    const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const steps = getSteps();
 
-    useEffect(()=>{
-        if(props.history.location.props){
-            console.log(props.history.location.props.producto)
-            const {nombre,precio,cantidad,cadenaDeProduccion,composicion} = props.productos[props.history.location.props.producto]
-            nombre&&setnombre(nombre)
-            precio&&setprecio(precio)
-            cantidad&&setcantidad(cantidad)
-            cadenaDeProduccion&&setcadenaDeProduccion(cadenaDeProduccion)
-            composicion&&setcomposicion(composicion)
-        }
-    },[])
-
+    // STEPPER NAVIGATION
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
     };
@@ -168,11 +62,12 @@ function getSteps() {
         );
       }
     }
-    
     const setDisabled=(step)=>{
         switch (step) {
             case 0:
-                    
+                    if(!nombre || !precio){
+                        return true
+                    }
                 break;
             case 1:
                 break;
@@ -180,6 +75,12 @@ function getSteps() {
                 break;
         }
     }
+    function getSteps() {
+        //return ['Detalles', 'Producto Compuesto' , 'Cadena De Produccion' ];
+        return ['Detalles' ];
+    }
+
+    // FUNCTIONS
     const guardarProducto = () =>{
         setLoading(true)
         database().ref().child(props.user.uid).child('productos').update({
@@ -191,7 +92,7 @@ function getSteps() {
             }
         })
         .then(()=>{
-            setshowSnackbar('El producto se agregó correctamente')
+            setshowSnackbar(props.history.location.search?'El Producto Se Edito Correctamente!':'El Producto Se Agrego Correctamente!')
             setTimeout(() => {
                 setLoading(false)
                 props.history.replace('/Productos')
@@ -210,50 +111,72 @@ function getSteps() {
         }
         return aux
     }
+
+    // FILL FOR EDIT
+    useEffect(()=>{
+        if(props.history.location.props){
+            console.log(props.history.location.props.producto)
+            const {nombre,precio,cantidad,cadenaDeProduccion,composicion} = props.productos[props.history.location.props.producto]
+            nombre&&setnombre(nombre)
+            precio&&setprecio(precio)
+            cantidad&&setcantidad(cantidad)
+            cadenaDeProduccion&&setcadenaDeProduccion(cadenaDeProduccion)
+            composicion&&setcomposicion(composicion)
+        }
+    },[])
     return(
         <Layout history={props.history} page={props.history.location.props?'Editar Producto':'Nuevo Producto'} user={props.user.uid} blockGoBack={true}>
-            <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
-                {steps.map((label,index)=>(
-                    <Step>
-                        <StepLabel>
-                            {label}
-                        </StepLabel>
-                        <StepContent>
-                            {getStepContent(index)}
-                            <div className={classes.margin}>
-                                <Button
-                                    disabled={activeStep===0}
-                                    onClick={handleBack}
-                                >
-                                    Volver
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    disabled={setDisabled(activeStep)}
-                                    onClick={activeStep === steps.length - 1 ? guardarProducto : handleNext}
-                                >
-                                    {activeStep === steps.length - 1 ? `${props.history.location.props?'Guardar Edicion':'Guardar Producto'}` : 'Siguiente'}
-                                </Button>
-                            </div>
-                        </StepContent>
-                    </Step>
-                ))}
-            </Stepper>
-            <Backdrop className={classes.backdrop} open={loading}>
-                {Boolean(showSnackbar)?
-                    <Snackbar open={Boolean(showSnackbar)} autoHideDuration={2000} onClose={()=>{setshowSnackbar(undefined)}}>
-                        <Alert onClose={()=>{setshowSnackbar(undefined)}} severity="success" variant='filled'>
+            <Paper className={classes.content}>
+                {/* STEPPER */}
+                <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
+                    {steps.map((label,index)=>(
+                        <Step>
+                            <StepLabel>
+                                {label}
+                            </StepLabel>
+                            <StepContent>
+                                <Grid container xs={12} justify='center' spacing={3}>
+                                    {getStepContent(index)}
+                                    <Grid container item xs={12} justify='center'>
+                                        <Grid item>
+                                            <Button
+                                                disabled={activeStep===0}
+                                                onClick={handleBack}
+                                            >
+                                                Volver
+                                            </Button>
+                                        </Grid>
+                                        <Grid item>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                disabled={setDisabled(activeStep)}
+                                                onClick={activeStep === steps.length - 1 ? guardarProducto : handleNext}
+                                            >
+                                                {activeStep === steps.length - 1 ? `${props.history.location.props?'Guardar Edicion':'Guardar Producto'}` : 'Siguiente'}
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </StepContent>
+                        </Step>
+                    ))}
+                </Stepper>
+                {/* BACKDROP & SNACKBAR */}
+                <Backdrop className={classes.backdrop} open={loading}>
+                    <CircularProgress color="inherit" />
+                    <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                        <Alert severity="success" variant='filled'>
                             {showSnackbar}
                         </Alert>
                     </Snackbar>
-                    :
-                    <CircularProgress color="inherit" />
-                }
-            </Backdrop>
+                </Backdrop>
+            </Paper>
         </Layout>
     )
 }
+
+// REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,

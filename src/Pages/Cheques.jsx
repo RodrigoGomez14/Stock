@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,DialogActions,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Link as LinkComponent,Snackbar,TableContainer,Table,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem} from '@material-ui/core'
+import {FormControl,InputLabel,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Link as LinkComponent,Snackbar,Select,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {PersonAdd} from '@material-ui/icons'
 import {MoreVert,DeleteOutlineOutlined} from '@material-ui/icons'
@@ -10,61 +10,12 @@ import {CardPedido} from '../components/Pedidos/CardPedido'
 import {database} from 'firebase'
 import {formatMoney,obtenerFecha} from '../utilities'
 import {DialogEntregarCheque} from '../components/Cheques/DialogEntregarCheque'
+import {content} from './styles/styles'
+import { Cheque } from '../components/Cheques/Cheque'
 
-const useStyles=makeStyles(theme=>({
-    success:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.danger.main
-    },
-    iconSuccess:{
-        color:theme.palette.success.main,
-    },
-    iconDanger:{
-        color:theme.palette.danger.main,
-    },
-    paperCliente:{
-    },
-    card:{
-        minHeight:'180px',
-        maxHeight:'300px'
-    },
-    link:{
-        color:theme.palette.primary.contrastText,
-        textDecoration:'none'
-    },
-    displayNone:{
-        display:'none'
-    },
-    display:{
-        display:'block'
-    },
-    container:{
-        paddingTop:theme.spacing(1),
-        paddingBottom:theme.spacing(1)
-    },
-    containerClientes:{
-        height:'calc( 100vh - 128px )',
-        overflow:'scroll'
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-    displayNone:{
-        display:'none'
-    },
-    dangerText:{
-        color:theme.palette.danger.main,
-        textShadow:'1px 1px black'
-    }
-}))
 
+//MENU DESPLEGABLE
 const MenuCheque = ({guardarChequeRebotado,guardarEntregaDeCheque,disabledBaja,disabledEntrega,id}) =>{
-    const classes = useStyles()
     const [anchorEl, setAnchorEl] = useState(null);
     const [openDialogEntregarCheque, setopenDialogEntregarCheque] = useState(null);
 
@@ -93,13 +44,15 @@ const MenuCheque = ({guardarChequeRebotado,guardarEntregaDeCheque,disabledBaja,d
     )
 }
 
+// COMPONENT
 const Cheques=(props)=>{
-    const classes = useStyles()
+    const classes = content()
     const [search,setSearch]=useState('')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
 
+    // FUNCTIONS 
     const eliminarCheque = (id) =>{
         setLoading(true)
         database().ref().child(props.user.uid).child('pedidos').child(id).remove()
@@ -114,11 +67,6 @@ const Cheques=(props)=>{
                 setLoading(false)
             })
     }
-    useEffect(()=>{
-        if(props.history.location.search){
-            setSearch(props.history.location.search.slice(1))
-        }
-    },[])
     const guardarPago = (cliente,cheque) =>{
         let aux={
             cheques:[props.cheques[cheque].numero],
@@ -178,69 +126,47 @@ const Cheques=(props)=>{
             setLoading(false)
         })
     }
+
+    // VALIDACION DE BUSQUEDA PREVIA
+    useEffect(()=>{
+        if(props.history.location.search){
+            setSearch(props.history.location.search.slice(1))
+        }
+    },[])
+
     return(
         <Layout history={props.history} page="Cheques" user={props.user.uid}>
-            <Grid container justify='center' alignItems='center' className={classes.container} >
-                <Grid item>
-                    <TextField
-                        value={search}
-                        onChange={e=>{
-                            setSearch(e.target.value)
-                        }}
-                        disabled={!props.cheques}
-                        label='Buscar Cheque'
-                    />
-                </Grid>
-                <Grid container justify='center' alignItems='center' className={classes.container}>
-                    <Grid item xs={11} >
+            {/* CONTENT */}
+            <Paper className={classes.content}>
+                {/* CHEQUES TABLE */}
+                <Grid container justify='center' alignItems='center' spacing={3}>
+                    {/* SEARCH BAR */}
+                    <Grid container item xs={12} justify='center' alignItems='center' >
+                        <Grid item>
+                                <Link 
+                                    to='/Nuevo-Cheque'>
+                                    <IconButton>
+                                        <PersonAdd/>
+                                    </IconButton>
+                                </Link>
+                        </Grid>
+                        <Grid item>
+                            <TextField
+                                value={search}
+                                onChange={e=>{
+                                    setSearch(e.target.value)
+                                }}
+                                disabled={!props.cheques}
+                                label='Buscar Cheque'
+                            />
+                        </Grid>
+                    </Grid>
+                    {/* TABLE */}
+                    <Grid container justify='center' alignItems='center' spacing={3}>
                         {props.cheques?
-                            <Paper elevation={3}>
-                                <TableContainer>
-                                    <Table stickyHeader>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Nombre</TableCell>
-                                                <TableCell>Valor</TableCell>
-                                                <TableCell>Vencimiento</TableCell>
-                                                <TableCell align="right">Banco</TableCell>
-                                                <TableCell align="right">Numero</TableCell>
-                                                <TableCell align="right">Dia de envio</TableCell>
-                                                <TableCell align="right">Destinatario</TableCell>
-                                                <TableCell align="right" padding='checkbox'></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {Object.keys(props.cheques).reverse().map((key,i)=>(
-                                                <>
-                                                    <TableRow className={!search?null:(props.cheques[key].numero.search(search) === -1 && classes.displayNone)}>
-
-                                                        <TableCell component="th" scope="row">
-                                                            <Link
-                                                                className={classes.link} 
-                                                                to={{
-                                                                    pathname:'/Cliente',
-                                                                    search:props.cheques[key].nombre
-                                                                }}
-                                                            >
-                                                                {props.cheques[key].nombre}
-                                                            </Link>
-                                                        </TableCell>
-                                                        <TableCell className={props.cheques[key].dadoDeBaja?classes.dangerText:null}>$ {formatMoney(props.cheques[key].valor)}</TableCell>
-                                                        <TableCell>{props.cheques[key].vencimiento}</TableCell>
-                                                        <TableCell align="right">{props.cheques[key].banco}</TableCell>
-                                                        <TableCell align="right">{props.cheques[key].numero}</TableCell>
-                                                        <TableCell align="right">{props.cheques[key].diaDeEnvio?props.cheques[key].diaDeEnvio:'-'}</TableCell>
-                                                        <TableCell align="right">{props.cheques[key].destinatario?props.cheques[key].destinatario:'-'}</TableCell>
-                                                        <TableCell align="right">
-                                                            <MenuCheque disabledBaja={props.cheques[key].dadoDeBaja} disabledEntrega={props.cheques[key].destinatario || props.cheques[key].dadoDeBaja ?true:false} guardarChequeRebotado={()=>{guardarChequeRebotado(key)}} guardarEntregaDeCheque={guardarEntregaDeCheque} id={key}/>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                </>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Paper>
+                            Object.keys(props.cheques).reverse().map((key,i)=>(
+                                <Cheque cheque={props.cheques[key]}  search={search}/>    
+                            ))
                         :
                         <Typography variant='h5'>
                             Aun no hay ningun cheque ingresado
@@ -248,18 +174,21 @@ const Cheques=(props)=>{
                     }
                     </Grid>
                 </Grid>
-            </Grid>
+            </Paper>
+
+            {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
+                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                    <Alert severity="success" variant='filled'>
+                        {showSnackbar}
+                    </Alert>
+                </Snackbar>
             </Backdrop>
-            <Snackbar open={Boolean(showSnackbar)} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                <Alert onClose={()=>{setshowSnackbar('')}} severity="success" variant='filled'>
-                    {showSnackbar}
-                </Alert>
-            </Snackbar>
         </Layout>
     )
 }
+// REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,

@@ -1,68 +1,23 @@
-import React,{useState,useEffect} from 'react'
+import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,DialogActions,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Link as LinkComponent,Snackbar,Dialog,DialogTitle,DialogContent,Button} from '@material-ui/core'
+import {Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
-import {MoreVert,AddOutlined} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardEntrega} from '../components/Entregas/CardEntrega'
 import {database} from 'firebase'
+import {content} from './styles/styles'
 
 
-const useStyles=makeStyles(theme=>({
-    table:{
-        marginTop:theme.spacing(1)
-    },
-    success:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.danger.main
-    },
-    iconSuccess:{
-        color:theme.palette.success.main,
-    },
-    iconDanger:{
-        color:theme.palette.danger.main,
-    },
-    paperCliente:{
-    },
-    card:{
-        minHeight:'180px',
-        maxHeight:'300px'
-    },
-    link:{
-        outline:'none',
-        textDecoration:'none'
-    },
-    displayNone:{
-        display:'none'
-    },
-    display:{
-        display:'block'
-    },
-    container:{
-        paddingTop:theme.spacing(1),
-        paddingBottom:theme.spacing(1)
-    },
-    containerproveedores:{
-        height:'calc( 100vh - 128px )',
-        overflow:'scroll'
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-}))
+//COMPONENT
 const Entregas=(props)=>{
-    const classes = useStyles()
+    const classes = content()
     const [search,setSearch]=useState('')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
 
+    //FUNCTIONS
     const eliminarEntrega = (id) =>{
         setLoading(true)
         database().ref().child(props.user.uid).child('entregas').child(id).remove()
@@ -80,39 +35,44 @@ const Entregas=(props)=>{
 
     return(
         <Layout history={props.history} page="Entregas" user={props.user.uid}>
-            <Grid container justify='center' alignItems='center' className={classes.container} >
-                <Grid container justify='center' alignItems='center' className={classes.container} >
+            {/* CONTENT */}
+            <Paper className={classes.content}>
+                {/* ENTREGAS LIST */}
+                <Grid container justify='center' alignItems='center' spacing={3}>
                     {props.entregas?
-                        <Grid item xs={12} sm={10} md={9} lg={8}>
-                            <Grid container justify='space-around'  alignItems='center' spacing={1}>
-                                {Object.keys(props.entregas).map(key=>(
-                                    <CardEntrega
-                                        entrega={props.entregas[key]}
-                                        deuda={props.proveedores[props.entregas[key].proveedor].datos.deuda}
-                                        id={key}
-                                        eliminarEntrega={()=>{eliminarEntrega(key)}}
-                                    />
-                                ))}
-                            </Grid>
-                        </Grid>
+                        (Object.keys(props.entregas).map(key=>(
+                            <>
+                            <CardEntrega
+                                entrega={props.entregas[key]}
+                                deuda={props.proveedores[props.entregas[key].proveedor].datos.deuda}
+                                id={key}
+                                eliminarEntrega={()=>{eliminarEntrega(key)}}
+                            />
+                            </>
+                        )))
                         :
                         <Typography variant='h5'>
                             Aun no hay ninguna entrega ingresada
                         </Typography>
                     }
                 </Grid>
-            </Grid>
+
+            </Paper>
+
+            {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
+                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                    <Alert severity="success" variant='filled'>
+                        {showSnackbar}
+                    </Alert>
+                </Snackbar>
             </Backdrop>
-            <Snackbar open={Boolean(showSnackbar)} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                <Alert onClose={()=>{setshowSnackbar('')}} severity="success" variant='filled'>
-                    {showSnackbar}
-                </Alert>
-            </Snackbar>
         </Layout>
     )
 }
+
+// REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,

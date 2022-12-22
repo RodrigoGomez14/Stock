@@ -1,16 +1,8 @@
-import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogActions,TextField,Button,DialogContent,makeStyles} from '@material-ui/core'
+import React from 'react'
+import {Dialog,DialogTitle,DialogActions,Button,DialogContent} from '@material-ui/core'
 
-const useStyles = makeStyles(theme=>({
-    input:{
-        marginBottom:theme.spacing(1),
-        textAlign:'center'
-    }
-}))
 
-export const DialogConfirmGoBack = ({blockGoBack,setBlockGoBack,history}) =>{
-    const classes = useStyles()
-    
+export const DialogConfirmGoBack = ({blockGoBack,setBlockGoBack,history}) =>{    
     const goBack = () =>{
         setBlockGoBack(false)
         history.goBack()

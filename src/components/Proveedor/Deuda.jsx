@@ -1,50 +1,50 @@
 import React from 'react'
-import {Grid, Paper, Typography, makeStyles,Card,CardContent,CardTitle,CardActions,Button} from '@material-ui/core'
-import {AttachMoney} from '@material-ui/icons'
+import {Grid, Paper, Typography, CardHeader,Card,IconButton,CardTitle,CardActions,Button} from '@material-ui/core'
+import {History,Add} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
+import {formatMoney} from '../../utilities'
+import {content} from '../../Pages/styles/styles'
 
-
-const useStyles = makeStyles(theme=>({
-    card:{
-        height:'150px',
-        width:'300px',
-    },
-    success:{
-        backgroundColor:theme.palette.success.main
-    },
-    danger:{
-        backgroundColor:theme.palette.danger.main
-    },
-    flex:{
-        flex:1
-    }
-}))
 export const Deuda = ({deuda,id}) =>{
-    const classes= useStyles()
+    const classes= content()
     return(
-        <Grid item>
-            <Card className={classes.card,deuda?classes.success:classes.danger}>
-                <CardContent>
-                    <Typography variant="h5" component="h2">
-                        Balance
-                    </Typography>
-                    <div className={classes.flex}>
-                        <Typography variant="h4" component="h2">
-                            $ {deuda}
-                        </Typography>
-                    </div>
-                    <Link to={{
-                        pathname:'/Historial',
-                        search:id,
-                        props:{
-                            tipo:'proveedores'
-                        }
-                    }}>
-                        <Button size='small'>
-                            Ver historial de pagos
-                        </Button>
-                    </Link>
-                </CardContent>
+        <Grid container item xs={12} justify='center'>
+            <Card className={deuda>0?classes.cardDeudaRed:classes.cardDeudaGreen}>
+                <CardHeader
+                    title={
+                        <>
+                            <Typography variant="h5" component="h2">
+                                Balance
+                            </Typography>
+                            <Typography variant="h4" component="h2">
+                                $ {formatMoney(deuda)}
+                            </Typography>
+                        </>
+                    }
+                    action={
+                        <>
+                            <Link to={{
+                                pathname:'/Historial-Proveedor',
+                                search:id,
+                                props:{
+                                    tipo:'proveedor'
+                                }
+                            }}>
+                                <IconButton size='small'>
+                                    <History/>
+                                </IconButton>
+                            </Link>
+                            <Link to={{
+                                pathname:'/Nuevo-Pago-Proveedor',
+                                search:id,
+                            }}>
+                                <IconButton size='small'>
+                                    <Add/>
+                                </IconButton>
+                            </Link>
+                        </>
+                    }
+                />
             </Card>
         </Grid>
     )

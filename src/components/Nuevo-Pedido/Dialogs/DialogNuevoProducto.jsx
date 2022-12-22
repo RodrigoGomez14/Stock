@@ -1,26 +1,22 @@
 import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,makeStyles,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
-import {EditOutlined} from '@material-ui/icons'
+import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,Paper,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
+import {CheckCircle, EditOutlined} from '@material-ui/icons'
 import {formatMoney} from '../../../utilities'
-const useStyles = makeStyles(theme=>({
-    input:{
-        marginBottom:theme.spacing(1),
-        textAlign:'center'
-    }
-}))
+import {content} from '../../../Pages/styles/styles'
+import { Autocomplete } from '@material-ui/lab'
+
 export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,editIndex,seteditIndex,productosList,total,settotal}) =>{
-    const classes = useStyles()
+    const classes = content()
     const [producto,setproducto]=useState(undefined)
     const [cantidad,setcantidad]=useState(undefined)
-    const [precio,setprecio]=useState(undefined)
+    const [precio,setprecio]=useState('')
     const [editarPrecio,seteditarPrecio]=useState(false)
     
-    
-
+    // FUNCTIONS
     const resetTextFields = () =>{
-        setproducto('')
-        setcantidad('')
-        setprecio('')
+        setproducto(undefined)
+        setcantidad(undefined)
+        setprecio(undefined)
     }
     const agregarProducto = () =>{
         let aux = productos
@@ -65,7 +61,13 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
         }
         setproductos(aux)
     }
+    const obtenerPrecio =producto=>{
+        if(productosList[producto]){
+            return productosList[producto].precio
+        }
+    }
 
+    // FILL FOR EDIT
     useEffect(()=>{
         if(edit){
             setproducto(productos[editIndex].producto)
@@ -73,11 +75,10 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             setprecio(productos[editIndex].precio)
         }
     },[edit])
-    const obtenerPrecio =producto=>{
-        return productosList[producto].precio
-    }
+
+    // CONTENT
     return(
-        <Dialog open={open}>
+        <Dialog open={open} maxWidth='md'>
             <DialogTitle>
                 {edit?
                     'Editar Producto Elegido'
@@ -86,40 +87,51 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                 }
             </DialogTitle>
             <DialogContent>
-                <Grid container direction='column'>
-                    <Grid item className={classes.input}>
-                        <FormControl fullWidth>
-                            <Select
-                                value={producto}
-                                onChange={e=>{
-                                    setproducto(e.target.value)
-                                    setprecio(obtenerPrecio(e.target.value))
-                                }}
-                                input={<Input autoFocus className={classes.select}label='Lista de Productos' id="select-multiple-chip" />}
-                                >
-                                {Object.keys(productosList).map(producto => (
-                                    <MenuItem key={productosList[producto].nombre} value={productosList[producto].nombre}>
-                                        {productosList[producto].nombre}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                <Grid container direction='column' alignItems='center'>
+                    <Grid item>
+                        <Autocomplete
+                            freeSolo
+                            value={producto}
+                            options={Object.keys(productosList)}
+                            getOptionLabel={(option) => productosList[option].nombre}
+                            onChange={(e)=>{
+                                setproducto(e.target.value) 
+                                setprecio(obtenerPrecio(e.target.value))
+                            }}
+                            onSelect={(e)=>{
+                                setproducto(e.target.value) 
+                                setprecio(obtenerPrecio(e.target.value))
+                            }}
+                            style={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params} label="Producto" variant="outlined" />}
+                        />
                     </Grid>
-                    <Grid item className={classes.input}>
-                        {producto&&
-                            <>
-                                <Typography variant='body1'>
+                    {producto&&
+                        <Grid container item xs={12} justify='center' spacing={3} >
+                            <Grid item xs={12}>
+                                <Typography variant='h6' textAlign='center'>
                                     $ {formatMoney(precio)} c/u
                                 </Typography>
+                            </Grid>
+                            <Grid item>
                                 {editarPrecio?
-                                    <TextField
-                                        label='Precio'
-                                        type='number'
-                                        value={precio}
-                                        onChange={e=>{
-                                            setprecio(e.target.value)
-                                        }}
-                                    />
+                                    <>
+                                        <TextField
+                                            label='Precio'
+                                            type='number'
+                                            value={precio}
+                                            onChange={e=>{
+                                                setprecio(e.target.value)
+                                            }}
+                                        />
+                                        <IconButton
+                                            onClick={e=>{
+                                                seteditarPrecio(false)
+                                            }}
+                                        >
+                                            <CheckCircle/>
+                                        </IconButton>
+                                    </>
                                     :
                                     <IconButton
                                         onClick={e=>{
@@ -129,25 +141,32 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                         <EditOutlined/>
                                     </IconButton>
                                 }
-                            </>
-                        }
+                            </Grid>
+                        </Grid>
+                    }
+                    <Grid container item xs={12} justify='center' >
+                        <Grid item>
+                            <TextField
+                                label='Cantidad'
+                                type='number'
+                                disabled={!producto}
+                                value={cantidad}
+                                onChange={e=>{
+                                    setcantidad(e.target.value)
+                                }}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item className={classes.input}>
-                        <TextField
-                            label='Cantidad'
-                            type='number'
-                            value={cantidad}
-                            onChange={e=>{
-                                setcantidad(e.target.value)
-                            }}
-                        />
+                    <Grid container item xs={8} justify='center'>
+                        <List>
+                            <Paper className={classes.titleDetallesCard} elevation={3}>
+                                <ListItem>
+                                        <ListItemText primary={'Total'} secondary={`$ ${cantidad*precio?formatMoney(cantidad*precio):'-'}`}/>
+                                </ListItem>
+                            </Paper>
+                        </List>
                     </Grid>
                 </Grid>
-                <List>
-                    <ListItem>
-                            <ListItemText primary={'Total'} secondary={`$ ${cantidad*precio?formatMoney(cantidad*precio):'-'}`}/>
-                    </ListItem>
-                </List>
             </DialogContent>
             <DialogActions>
                 <Button 

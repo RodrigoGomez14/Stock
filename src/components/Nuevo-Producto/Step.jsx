@@ -1,36 +1,10 @@
 import React, { useState } from 'react'
 import {Grid, Button,makeStyles,Select,Input,Chip,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel} from '@material-ui/core'
 import {AddOutlined} from '@material-ui/icons'
-
-const useStyles = makeStyles(theme=>({
-    textAlignCenter:{
-        textAlign:'center'
-    },
-    button:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(1),
-    },
-    containerDirecciones:{
-        maxWidth:'calc(100vw - 60px)',
-        flexWrap:'nowrap',
-        overflowX:'scroll',
-        marginBottom:theme.spacing(2),
-        marginTop:theme.spacing(2),
-    },
-    container:{
-        marginBottom:theme.spacing(1)
-    },
-    paper:{
-        padding:theme.spacing(2),
-        margin:theme.spacing(1),
-    },
-    chip: {
-        margin: 2,
-    },
-}))
+import {content} from '../../Pages/styles/styles'
 
 export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setcantidad,composicion,setcomposicion,listaDeProductos,disableCantidad}) =>{
-    const classes = useStyles()
+    const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
     const [showDialogDelete,setshowDialogDelete]=useState(false)
@@ -40,44 +14,44 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
         setdeleteIndex(index)
         setshowDialogDelete(true)
     }
+
     const renderStep = () =>{
         switch (tipoDeDato) {
             case 'Detalles': 
                 return(
-                    <Paper elevation={3} className={classes.paper}>
-                        <Grid container justify='center' alignItems='center' direction='column'>
-                            <Grid item>
-                                <TextField
-                                    value={nombre}
-                                    label="Nombre"
-                                    onChange={e=>{
-                                        setnombre(e.target.value)
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item>
-                                <TextField
-                                    value={precio}
-                                    onChange={e=>{
-                                        setprecio(e.target.value)
-                                    }}
-                                    type='number'
-                                    label="Precio"
-                                />
-                            </Grid>
-                            <Grid item>
-                                <TextField
-                                    value={cantidad}
-                                    disabled={disableCantidad}
-                                    onChange={e=>{
-                                        setcantidad(e.target.value)
-                                    }}
-                                    type='number'
-                                    label="Cantidad"
-                                />
-                            </Grid>
+                    <Grid container item xs={12} direction='column' alignItems='center' spacing={3}>
+                        <Grid item>
+                            <TextField
+                                value={nombre}
+                                label="Nombre"
+                                onChange={e=>{
+                                    setnombre(e.target.value)
+                                }}
+                            />
                         </Grid>
-                    </Paper>
+                        <Grid item>
+                            <TextField
+                                value={precio}
+                                onChange={e=>{
+                                    setprecio(e.target.value)
+                                }}
+                                disabled={!nombre}
+                                type='number'
+                                label="Precio"
+                            />
+                        </Grid>
+                        <Grid item>
+                            <TextField
+                                value={cantidad}
+                                disabled={disableCantidad}
+                                onChange={e=>{
+                                    setcantidad(e.target.value)
+                                }}
+                                type='number'
+                                label="Cantidad"
+                            />
+                        </Grid>
+                    </Grid>
                 )
             case 'Producto Compuesto':
                 return(

@@ -22,9 +22,22 @@ export const obtenerFecha = () =>{
   return `${f.getDate()}/${f.getMonth()+1}/${f.getFullYear()}`
 }
 
-export const convertirFecha = (fecha) =>{
+export const fechaDetallada = () =>{
   let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
   let diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"]
   var f=new Date()
   return `${diasSemana[f.getDay()]} ${f.getDate()} de ${meses[f.getMonth()]} de ${f.getFullYear()}`
+}
+
+// CHECK IF SEARCH CONTAINS WHITE SPACES
+export const checkSearch =(search)=>{
+  let aux = checkWhiteSpace(search.slice(1).toString())
+  return aux
+}
+const checkWhiteSpace =(text)=>{
+  var aux = text
+  while(aux.indexOf('%20')!=-1){
+      aux = aux.slice(0,aux.indexOf('%20')) + ' ' + aux.slice(aux.indexOf('%20')+3)
+  }
+  return aux
 }

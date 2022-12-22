@@ -1,112 +1,18 @@
 import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@material-ui/core'
+import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Enviar-Pedido/Step'
 import {database} from 'firebase'
-import {formatMoney} from '../utilities'
+import {formatMoney,fechaDetallada} from '../utilities'
 import {Redirect} from 'react-router-dom'
-const useStyles=makeStyles(theme=>({
-    root:{
-        height:'100%',
-        width:'100%',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'flex-start',
-        backgroundColor:theme.palette.type==='dark'?theme.palette.secondary.main:theme.palette.primary.dark,
-        borderRadius:'0',
-        overflow:'auto',
-    },
-    table:{
-        marginTop:theme.spacing(1)
-    },
-    success:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.danger.main
-    },
-    iconSuccess:{
-        color:theme.palette.success.main,
-    },
-    iconDanger:{
-        color:theme.palette.danger.main,
-    },
-    paperCliente:{
-    },
-    cardContent:{
-        padding:0,
-        height:'100%',
-        textAlign:'center',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'space-around',
-    },
-    card:{
-        height:'150px',
-        display:'flex',
-        justifyContent:'center',
-        alignItems:'center'
-
-    },
-    link:{
-        outline:'none',
-        textDecoration:'none'
-    },
-    displayNone:{
-        display:'none'
-    },
-    display:{
-        display:'block'
-    },
-    paper:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(2),
-        padding:theme.spacing(2),
-        display:'flex',
-        flexDirection:'column',
-    },
-    input:{
-        marginTop:theme.spacing(1)
-    },
-    stepper:{
-        backgroundColor:'transparent'
-    },
-    textAlignCenter:{
-        textAlign:'center'
-    },
-    margin:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(1),
-    },
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
-    },
-    flex:{
-        flex:1,
-        display:'flex',
-        justifyContent:'flex-end'
-    },
-    button:{
-        marginLeft:theme.spacing(2)
-    },
-    paperTotal:{
-        padding:theme.spacing(1),
-        marginBottom:theme.spacing(1)
-    }
-}))
-
-function getSteps() {
-    return ['Metodo De Pago', 'Metodo De Envio'];
-  }
-  
-  
+import {content} from './styles/styles'
+import { AttachMoney, LocalShipping } from '@material-ui/icons';
+ 
+  // COMPONENT
   const EnviarPedido=(props)=>{
-    const classes = useStyles()
+    const classes = content()
     const [cheques,setcheques]=useState([])
     const [efectivo,setefectivo]=useState(undefined)
     const [expreso,setexpreso]=useState('')
@@ -119,15 +25,31 @@ function getSteps() {
     const [sumarEnvio,setsumarEnvio]=useState(false)
     const steps = getSteps();
 
+    // STEPPER NAVIGATION
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
+    }
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
+    }
     function getStepContent(step) {
       switch (step) {
         case 0:
+        return (
+                <StepComponent
+                    expresosList={props.expresos}
+                    tipoDeDato='Metodo De Envio'
+                    precio={precio}
+                    setprecio={setprecio}
+                    expreso={expreso}
+                    setexpreso={setexpreso}
+                    remito={remito}
+                    setremito={setremito}
+                    sumarEnvio={sumarEnvio}
+                    setsumarEnvio={setsumarEnvio}
+                />
+        );
+        case 1:
           return (
             <StepComponent
                 expresosList={props.expresos}
@@ -141,30 +63,48 @@ function getSteps() {
                 nombre={props.pedidos[props.history.location.search.slice(1)].cliente}
             />
           );
-        case 1:
-          return (
-                <StepComponent
-                    expresosList={props.expresos}
-                    tipoDeDato='Metodo De Envio'
-                    precio={precio}
-                    setprecio={setprecio}
-                    expreso={expreso}
-                    setexpreso={setexpreso}
-                    remito={remito}
-                    setremito={setremito}
-                    sumarEnvio={sumarEnvio}
-                    setsumarEnvio={setsumarEnvio}
-                />
-          );
       }
     }
+    function getSteps() {
+        return ['Metodo De Envio', 'Metodo De Pago'];
+    }
+    function getStepLabel(label,index) {
+        switch (index) {
+            case 0:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<LocalShipping/>} 
+                            label={label}  
+                            onClick={()=>{setActiveStep(index)}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 1:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<AttachMoney/>} 
+                            label={label}  
+                            onClick={()=>{setActiveStep(index)}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+        }
+    }
+
+    // FUNCTIONS 
     const guardarCheques =() =>{
         let chequesList= []
         if(cheques.length){
             cheques.map(cheque=>{
                 chequesList.push(cheque.numero)
                 let auxCheque = {
-                    ingreso:obtenerFecha(),
+                    ingreso:fechaDetallada(),
                     nombre:cheque.nombre,
                     numero:cheque.numero,
                     vencimiento:cheque.vencimiento,
@@ -182,12 +122,12 @@ function getSteps() {
         await descontarProductos(id)
         let chequesList = guardarCheques()
         let aux={
-            fecha:obtenerFecha(),
+            fecha:fechaDetallada(),
             articulos:props.pedidos[id].productos,
             metodoDePago:{
                 efectivo:efectivo?efectivo:null,
                 cheques:chequesList,
-                fecha:(efectivo||total?obtenerFecha():null),
+                fecha:(efectivo||total?fechaDetallada():null),
                 total:((efectivo?parseFloat(efectivo):0)+total)?((efectivo?parseFloat(efectivo):0)+total):null,
                 deudaPasada:props.clientes[props.pedidos[id].cliente].datos.deuda,
             },
@@ -197,16 +137,23 @@ function getSteps() {
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
         agregarPagoAlHistorial(aux.metodoDePago)
         agregarAListaDeIva(aux.total)
-        database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push(aux)
+        let idLink = database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push()
+        setshowSnackbar('El pedido se envió correctamente!')
+        idLink.update(aux) 
             .then(()=>{
-                setshowSnackbar('El pedido se agregó correctamente!')
+                props.history.replace('/Pedidos')
                 database().ref().child(props.user.uid).child('pedidos').child(id).remove().then(()=>{
-                    props.history.replace('/Pedidos')
+                    setTimeout(() => {
+                        if(expreso){
+                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:fechaDetallada(),id:idLink.key,remito:remito}).then(()=>{
+                                setLoading(false)
+                            }) 
+                        }
+                    }, 2000);
                 })
                 .catch(()=>{
                     setLoading(false)
-                    setshowSnackbar('')
-                    })
+                })
             })
             .catch(()=>{
                 setLoading(false)
@@ -215,17 +162,11 @@ function getSteps() {
     const agregarAListaDeIva = (aux) =>{
         if(props.history.location.props.facturacion){
             database().ref().child(props.user.uid).child('iva').child('ventas').push({
-                fecha:obtenerFecha(),
+                fecha:fechaDetallada(),
                 iva:aux-(aux/1.21),
                 total:aux
             })
         }
-    }
-    const obtenerFecha = () =>{
-        let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
-        let diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"]
-        var f=new Date()
-        return `${diasSemana[f.getDay()]} ${f.getDate()} de ${meses[f.getMonth()]} de ${f.getFullYear()}`
     }
     const descontarProductos = async pedido =>{
         const id = props.history.location.search.slice(1)
@@ -238,7 +179,7 @@ function getSteps() {
                 })
             }
             else{
-                const nuevaCantidad = props.productos[articulo.producto].cantidad-articulo.cantidad
+                const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)-parseInt(articulo.cantidad)
                 await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
             }
         })
@@ -255,56 +196,70 @@ function getSteps() {
     const agregarPagoAlHistorial = pago =>{
         const id = props.history.location.search.slice(1)
         if((efectivo?parseFloat(efectivo):0)+total){
-            let newPagos = props.clientes[props.pedidos[id].cliente].pagos?props.clientes[props.pedidos[id].cliente].pagos:[]
-            newPagos.push(pago)
-            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pagos').update(newPagos)
+            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pagos').push(pago)
         }
     }
     return(
         props.history.location.props?
             <Layout history={props.history} page='Enviar Pedido' user={props.user.uid} blockGoBack={true}>
-                <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
-                    {steps.map((label,index)=>(
-                        <Step>
-                            <StepLabel>
-                                {label}
-                            </StepLabel>
-                            <StepContent>
-                                {getStepContent(index)}
-                                <div className={classes.margin}>
-                                    <Paper elevation={3} variant='body1' className={classes.paperTotal}>
-                                        <Typography variant='h6'>
-                                            Total $ {formatMoney( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) } / $ {formatMoney( total + (efectivo?parseFloat(efectivo):0))}
-                                        </Typography>
-                                    </Paper>
-                                    <Button
-                                        disabled={activeStep===0}
-                                        onClick={handleBack}
-                                    >
-                                        Volver
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={activeStep === steps.length - 1 ? enviarPedido : handleNext}
-                                    >
-                                        {activeStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
-                                    </Button>
-                                </div>
-                            </StepContent>
-                        </Step>
-                    ))}
-                </Stepper>
+                {/* CONTENT */}
+                <Paper className={classes.content}>
+                    {/* STEPPER */}
+                    <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
+                        {steps.map((label,index)=>(
+                            <Step>
+                                {getStepLabel(label,index)}
+                                <StepContent>
+                                    <Grid container xs={12} justify='center' spacing={3}>
+                                        {getStepContent(index)}
+                                        {activeStep==1 &&
+                                            <Grid container item xs={12} justify='center'>
+                                                <Paper elevation={3} variant='body1' className={classes.paperTotalEnviarPedido}>
+                                                    <Grid item xs={12}>
+                                                        <Typography variant='h6'>
+                                                            Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0))} / $ {formatMoney( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) }
+                                                        </Typography>
+                                                    </Grid>
+                                                    <Grid container item xs={12} justify='center'>
+                                                        <Chip label={`$ ${formatMoney(( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) - ( total + (efectivo?parseFloat(efectivo):0)))}`}/>
+                                                    </Grid>
+                                                </Paper>
+                                            </Grid>
+                                        }
+                                        <Grid container item xs={12} justify='center'>
+                                            <Grid item>
+                                                <Button
+                                                    disabled={activeStep===0}
+                                                    onClick={handleBack}
+                                                >
+                                                    Volver
+                                                </Button>
+                                            </Grid>
+                                            <Grid item>
+                                                <Button
+                                                    variant="contained"
+                                                    color="primary"
+                                                    onClick={activeStep === steps.length - 1 ? enviarPedido : handleNext}
+                                                >
+                                                    {activeStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </StepContent>
+                            </Step>
+                        ))}
+                    </Stepper>
+                </Paper>
+
+                {/* BACKDROP & SNACKBAR */}
                 <Backdrop className={classes.backdrop} open={loading}>
-                    {showSnackbar?
-                        <Snackbar open={Boolean} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                            <Alert onClose={()=>{setshowSnackbar('')}} severity="success" variant='filled'>
-                                {showSnackbar}
-                            </Alert>
-                        </Snackbar>
-                        :
-                        <CircularProgress color="inherit" />
-                    }
+                    <CircularProgress color="inherit" />
+                    <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                        <Alert severity="success" variant='filled'>
+                            {showSnackbar}
+                        </Alert>
+                    </Snackbar>
                 </Backdrop>
             </Layout>
             :

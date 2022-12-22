@@ -1,40 +1,15 @@
 import React, { useState } from 'react'
-import {Grid, Button,makeStyles,Select,Input,Chip,MenuItem,Paper,FormControl, Typography,Card,CardContent,CardActions} from '@material-ui/core'
+import {Grid, Button,makeStyles,Select,Input,TextField,Paper,FormControl, Typography,Card,CardContent,CardActions} from '@material-ui/core'
+import { Autocomplete } from '@material-ui/lab'
 import {Productos} from './Productos'
 import {DialogNuevoProducto} from './Dialogs/DialogNuevoProducto'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
 import {AddOutlined} from '@material-ui/icons'
 import {formatMoney} from '../../utilities'
-
-const useStyles = makeStyles(theme=>({
-    textAlignCenter:{
-        textAlign:'center'
-    },
-    button:{
-        marginTop:theme.spacing(1),
-        marginBottom:theme.spacing(1),
-    },
-    containerDirecciones:{
-        maxWidth:'calc(100vw - 60px)',
-        flexWrap:'nowrap',
-        overflowX:'scroll',
-        marginBottom:theme.spacing(2),
-        marginTop:theme.spacing(2),
-    },
-    container:{
-        marginBottom:theme.spacing(1)
-    },
-    paper:{
-        padding:theme.spacing(1),
-        margin:theme.spacing(1),
-    },
-    chip: {
-        margin: 2,
-    },
-}))
+import {content} from '../../Pages/styles/styles'
 
 export const Step = ({datos,setDatos,tipoDeDato,clientesList,productosList,total,settotal}) =>{
-    const classes = useStyles()
+    const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
     const [showDialogDelete,setshowDialogDelete]=useState(false)
@@ -48,30 +23,43 @@ export const Step = ({datos,setDatos,tipoDeDato,clientesList,productosList,total
         switch (tipoDeDato) {
             case 'Destinatario':
                 return(
-                    <Paper elevation={3} className={classes.paper} >
-                        <Grid container justify='center' className={classes.containerDirecciones}>
-                            <Grid item xs={5} justify='center'>
-                                <FormControl fullWidth>
-                                    <Select
-                                        value={datos}
-                                        onChange={e=>{setDatos(e.target.value)}}
-                                        input={<Input className={classes.select}label='Lista de Clientes' id="select-multiple-chip" />}
-                                        >
-                                        {Object.keys(clientesList).map(cliente => (
-                                            <MenuItem key={clientesList[cliente].datos.nombre} value={clientesList[cliente].datos.nombre}>
-                                                {clientesList[cliente].datos.nombre}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
+                    <Grid container item xs={12} justify='center'>
+                        <Paper elevation={3}>
+                            <Grid item xs={12} justify='center'>
+                                <Autocomplete
+                                    freeSolo
+                                    options={Object.keys(clientesList)}
+                                    getOptionLabel={(option) => option}
+                                    onSelect={(e)=>{setDatos(e.target.value)}}
+                                    onChange={(e)=>{setDatos(e.target.value)}}
+                                    style={{ width: 300 }}
+                                    renderInput={(params) => <TextField {...params} label="Destinatario" variant="outlined" />}
+                                />
                             </Grid>
-                        </Grid>
-                    </Paper>
+                        </Paper>
+                    </Grid>
                 )
                 break;
             case 'Productos':
                 return(
-                    <Paper elevation={3} className={classes.paper} >
+                    <Grid container item xs={12} justify='center' spacing={3}>
+                        <Grid container item xs={12} justify='center' >
+                            <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
+                                Agregar Producto
+                            </Button>
+                        </Grid>
+                        <Productos productos={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                        <Grid container item xs={12} justify='center'>
+                            <Grid item justify='center'>
+                                <Paper elevation={3} className={classes.cardTotalPedidoSuccess}>
+                                    <Typography variant='h5'>
+                                        Total $ {formatMoney(total)}
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+
+                        {/* DIALOGS */}
                         <DialogNuevoProducto 
                             open={showDialog} 
                             setOpen={setshowDialog} 
@@ -95,24 +83,7 @@ export const Step = ({datos,setDatos,tipoDeDato,clientesList,productosList,total
                             total={total}
                             settotal={settotal}
                         />
-                        <Grid container className={classes.container} justify='center'>
-                            <Button className={classes.button} variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
-                                Agregar Producto
-                            </Button>
-                        </Grid>
-                        {datos.length?
-                            <Grid container item xs={12} spacing={1} alignItems='center' justify='center' className={classes.containerDirecciones}>
-                                <Productos productos={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
-                            </Grid>
-                            :
-                            null
-                        }
-                        <Grid container justify='center'>
-                            <Typography variant='h5'>
-                                Total $ {formatMoney(total)}
-                            </Typography>
-                        </Grid>
-                    </Paper>
+                    </Grid>
                 )
                 break;
             default:

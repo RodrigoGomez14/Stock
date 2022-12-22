@@ -1,63 +1,46 @@
-import React from 'react'
-import {Grid,Paper,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton,makeStyles,TableContainer,Table,TableCell,TableRow,TableHead,TableBody} from '@material-ui/core'
-import {EditOutlined,DeleteOutlineOutlined} from '@material-ui/icons'
+import React, {useState,useEffect} from 'react'
+import {Grid,Paper,Checkbox,ListItem,ListItemText,ListItemSecondaryAction,IconButton,makeStyles,TableContainer,Table,TableCell,TableRow,TableHead,TableBody} from '@material-ui/core'
+import {EditOutlined,DeleteOutlineOutlined, CheckBox} from '@material-ui/icons'
+import {content} from '../../Pages/styles/styles'
 
-const useStyles = makeStyles(theme=>({
-    root:{
-        minWidth:'230px'
-    },
-    icon:{
-        marginLeft:theme.spacing(1),
-        marginRight:theme.spacing(1)
-    }
-}))
-export const Cheques = ({cheques,seteditIndex,showDialog,openDialogDelete}) =>{
-    const classes = useStyles()
-
-    const openDialog = index =>{
-        seteditIndex(index)
-        showDialog()
-    }
+export const Cheques = ({chequesList,cheques,addCheque}) =>{
+    const classes = content()
     return (
-        <Grid item>
-            <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Nombre</TableCell>
-                            <TableCell>Valor</TableCell>
-                            <TableCell align="right">Banco</TableCell>
-                            <TableCell align="right">Numero</TableCell>
-                            <TableCell align="right">Vencimiento</TableCell>
-                            <TableCell align="right" padding='checkbox'></TableCell>
-                            <TableCell align="right" padding='checkbox'></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {cheques.map((cheque,i)=>(
+        <Grid container item xs={12}>
+            <TableContainer component={Paper} >
+                    <Table style={{width:'100%'}} aria-label="simple table" size='small' stickyHeader>
+                        <TableHead>
                             <TableRow>
-                                <TableCell component="th" scope="row">
-                                    {cheque.nombre}
-                                </TableCell>
-                                <TableCell align="right">$ {cheque.valor}</TableCell>
-                                <TableCell align="right">{cheque.banco}</TableCell>
-                                <TableCell align="right">{cheque.numero}</TableCell>
-                                <TableCell align="right">{cheque.vencimiento}</TableCell>
-                                <TableCell align="right">
-                                    <IconButton className={classes.icon} edge="end" aria-label="delete" onClick={()=>{openDialog(i)}}>
-                                        <EditOutlined />
-                                    </IconButton>
-                                </TableCell>
-                                <TableCell align="right">
-                                    <IconButton className={classes.icon} edge="end" aria-label="delete" onClick={()=>{openDialogDelete(i)}}>
-                                        <DeleteOutlineOutlined color='error'/>
-                                    </IconButton>
-                                </TableCell>
+                                <TableCell className={classes.titleDetallesCard} padding='checkbox'></TableCell>
+                                <TableCell className={classes.titleDetallesCard} align='left'>Nombre</TableCell>
+                                <TableCell className={classes.titleDetallesCard} align='right'>Valor</TableCell>
+                                <TableCell className={classes.titleDetallesCard} align="right">Banco</TableCell>
+                                <TableCell className={classes.titleDetallesCard} align="right">Numero</TableCell>
+                                <TableCell className={classes.titleDetallesCard} align="right">Vencimiento</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {Object.keys(chequesList).map((cheque,i)=>(
+                                !chequesList[cheque].dadoDeBaja?
+                                    <TableRow onClick={()=>{addCheque(cheque)}} style={{cursor:'pointer'}}>
+                                            <TableCell>
+                                                <Checkbox
+                                                    color='primary'
+                                                    checked={cheques.indexOf(cheque) !== -1}
+                                                />
+                                            </TableCell>
+                                            <TableCell align='left'>{chequesList[cheque].nombre}</TableCell>
+                                            <TableCell align="right">$ {chequesList[cheque].valor}</TableCell>
+                                            <TableCell align="right">{chequesList[cheque].banco}</TableCell>
+                                            <TableCell align="right">{chequesList[cheque].numero}</TableCell>
+                                            <TableCell align="right">{chequesList[cheque].vencimiento}</TableCell>
+                                    </TableRow>
+                                    :
+                                    null
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
         </Grid>
     )
 }

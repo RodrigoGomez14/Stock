@@ -4,104 +4,20 @@ import {Layout} from './Layout'
 import {makeStyles,Paper,ListItem,Card,CardContent,Typography,TextField,IconButton,Grid,Chip,Button,Link as LinkComponent} from '@material-ui/core'
 import {AttachMoney,PersonAdd} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
+import {content} from './styles/styles'
+import {CardProveedor} from '../components/Proveedores/CardProveedor'
 
-
-const useStyles=makeStyles(theme=>({
-    table:{
-        marginTop:theme.spacing(1)
-    },
-    success:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.success.main
-    },
-    danger:{
-        marginLeft:theme.spacing(1),
-        borderColor:theme.palette.danger.main
-    },
-    iconSuccess:{
-        color:theme.palette.success.main,
-    },
-    iconDanger:{
-        color:theme.palette.danger.main,
-    },
-    paperCliente:{
-    },
-    cardContent:{
-        padding:0,
-        height:'100%',
-        textAlign:'center',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent:'space-around',
-    },
-    card:{
-        height:'150px',
-        display:'flex',
-        justifyContent:'center',
-        alignItems:'center'
-
-    },
-    link:{
-        outline:'none',
-        textDecoration:'none'
-    },
-    displayNone:{
-        display:'none'
-    },
-    display:{
-        display:'block'
-    },
-    marginTop:{
-        marginTop:theme.spacing(1),
-    },
-    container:{
-        paddingTop:theme.spacing(1),
-        paddingBottom:theme.spacing(1)
-    },
-    containerProveedores:{
-        height:'calc( 100vh - 128px )',
-        overflow:'scroll'
-    }
-    
-}))
+// COMPONENT
 const Proveedores=(props)=>{
-    const classes = useStyles()
+    const classes = content()
     let [search,setSearch]=useState('')
-
-
-    const renderProveedores = () =>
-        Object.keys(props.proveedores).map(key=>{
-                return(
-                    <Grid item xs={8} sm={6} md={4} lg={3} className={!search?null:key.toLowerCase().search(search.toLowerCase()) == -1 ? classes.displayNone:classes.display}>
-                        <Link 
-                            className={classes.link}
-                            to={{
-                            pathname:'/Proveedor',
-                            search:`${key}`
-                        }}>
-                                <Card className={classes.card}>
-                                    <CardContent className={classes.cardContent}>
-                                        <Typography variant="h5" component="h2">
-                                            {key}
-                                        </Typography>
-                                        <div className={classes.flex}>
-                                            <Chip
-                                                className={props.proveedores[key].datos.deuda?classes.success:classes.danger}
-                                                variant="outlined"
-                                                icon={<AttachMoney className={props.proveedores[key].datos.deuda?classes.iconSuccess:classes.iconDanger} />}
-                                                label={props.proveedores[key].datos.deuda?props.proveedores[key].datos.deuda:'0'}
-                                            />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                        </Link>
-                    </Grid>
-                )
-        })
+            
     return(
         <Layout history={props.history} page="Proveedores" user={props.user.uid}>
-                <Grid container justify='center' className={classes.container}>
-                    <Grid container justify='center' alignItems='center' className={classes.container} >
+            <Paper className={classes.content}>
+                <Grid container spacing={4}>
+                    {/* SEARCH BAR */}
+                    <Grid container item xs={12} justify='center' alignItems='center'>
                         <Grid item>
                             <Link 
                                 to='/Nuevo-Proveedor'>
@@ -120,13 +36,12 @@ const Proveedores=(props)=>{
                             />
                         </Grid>
                     </Grid>
-                    <Grid container justify='center' className={classes.containerProveedores}> 
+                    {/* PROVEEDOR LIST */}
+                    <Grid container item xs={12} justify='center' alignItems='center' spacing={2}> 
                         {props.proveedores?
-                            <Grid item xs={12} sm={10} md={9} lg={8}>
-                                <Grid container justify='space-around'  alignItems='center' spacing={1}>
-                                {renderProveedores()}
-                                </Grid>
-                            </Grid>
+                            Object.keys(props.proveedores).map(key=>(
+                                <CardProveedor datos={props.proveedores[key].datos} search={search}/>
+                            ))
                             :
                             <Typography variant='h5'>
                                 Aun no hay ningun Proveedor ingresado
@@ -134,9 +49,12 @@ const Proveedores=(props)=>{
                         }
                     </Grid>
                 </Grid>
+            </Paper>
         </Layout>
     )
 }
+
+// REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,
