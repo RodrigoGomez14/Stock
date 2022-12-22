@@ -67,12 +67,23 @@ export const CardEnvio = ({envio,id}) =>{
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
+                        <List>
+                            <ListItem>
+                                <ListItemText primary={envio.fecha} secondary='Fecha de Salida'/>
+                            </ListItem>
+                            <ListItem>
+                                <ListItemText primary='-' secondary='Fecha de LLegada'/>
+                            </ListItem>
+                            <ListItem>
+                                <ListItemText primary={envio.fecha} secondary='Fecha de Salida'/>
+                            </ListItem>
+                        </List>
                     </CardContent>
                 </Collapse>
                 <Paper elevation={3} className={classes.cardPedidoActions}>
                     <CardActions>
                         <Grid container justify='space-around'>
-                            <Typography variant='h5'>Link pedido</Typography>
+                            <Typography variant='h5'>Remito {envio.remito}</Typography>
                         </Grid>
                     </CardActions>
                 </Paper>

@@ -145,8 +145,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 database().ref().child(props.user.uid).child('pedidos').child(id).remove().then(()=>{
                     setTimeout(() => {
                         if(expreso){
-                            console.log(props.location.props)
-                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:fechaDetallada(),id:idLink.key,remito:remito,cliente:props.history.location.props.nombre}).then(()=>{
+                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:fechaDetallada(),id:idLink.key,remito:remito,cliente:props.location.props.nombre}).then(()=>{
                                 setLoading(false)
                             }) 
                         }

@@ -33,10 +33,10 @@ import {NotFound} from './Pages/NotFound'
 import { createMuiTheme,ThemeProvider } from '@material-ui/core/styles';
 import NuevoPagoProveedor from './Pages/NuevoPagoProveedor';
 import NuevoPagoCliente from './Pages/NuevoPagoCliente';
+import CadenasDeProduccion from './Pages/CadenasDeProduccion';
 
 let store 
 let data
-let photosList
 
 
 //FIREBASE
@@ -157,6 +157,8 @@ class App extends Component {
 
                     <Route exact path='/Nuevo-Pago-Cliente' component={NuevoPagoCliente}/>
                     <Route exact path='/Nuevo-Pago-Proveedor' component={NuevoPagoProveedor}/>
+
+                    <Route exact path='/Cadenas-De-Produccion' component={CadenasDeProduccion}/>
     
                     <Route component={NotFound}/>
                   </Switch>

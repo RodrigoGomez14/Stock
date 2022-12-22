@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,ListSubheader,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {database} from 'firebase'
@@ -50,25 +50,36 @@ export const CardPedido = ({pedido,id}) =>{
                                 </Menu>
                             </>
                         }
-                        title={
-                            <Grid container xs={12} justify='flex-start' spacing={3}>
-                                <Grid item>
-                                    <Link 
-                                        style={{color:'#fff',textDecoration:'none'}}
-                                        className={classes.textWhite}
-                                        to={{pathname:'/Cliente',search:`${pedido.cliente}`}
-                                    }>
-                                        {pedido.cliente} 
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                        subheader={
+                            <List>
+                                <ListItem>
+                                    <ListItemText
+                                        primary={<Chip
+                                            className={classes.cardProductoChip}
+                                            label={`$ ${pedido.total}`}
+                                        />}
+                                    />
+                                </ListItem>
+                                    
+                            </List>
                         }
-                        subheader={pedido.fecha}
+                        title={pedido.fecha}
                     />
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
                         <List>
+                            <ListItem>
+                                <ListItemText primary={pedido.metodoDeEnvio=="Particular"?'Particular':pedido.metodoDeEnvio.expreso} secondary={pedido.metodoDeEnvio=="Particular"?'Envio':pedido.metodoDeEnvio.remito}/>
+                            </ListItem>
+                        </List>
+                        <List
+                            subheader={
+                                <ListSubheader component="div" id="nested-list-subheader">
+                                  Productos
+                                </ListSubheader>
+                              }
+                        >
                             {pedido.articulos.map(producto=>(
                                 <ListItem>
                                     <ListItemText primary={producto.producto} secondary={`${producto.cantidad} u, $ ${producto.precio}`}/>

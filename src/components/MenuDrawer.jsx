@@ -1,10 +1,9 @@
 import React from 'react'
 import {auth} from 'firebase'
 import {Card,CardMedia,Drawer,List,makeStyles,ListItem,IconButton,ListItemIcon,ListItemText,Divider} from '@material-ui/core'
-import {ContactMailOutlined,MoveToInboxOutlined,Home,List as ListIcon,ExitToAppOutlined,Close,AttachMoneyOutlined,LocalShippingOutlined,ChevronRight,LocalAtmOutlined,ShoppingCartOutlined} from '@material-ui/icons'
+import {ContactMailOutlined,MoveToInboxOutlined,Home,List as ListIcon,ExitToAppOutlined,Link as LinkIcon,AttachMoneyOutlined,LocalShippingOutlined,ChevronRight,LocalAtmOutlined,ShoppingCartOutlined} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import logo from '../images/logo.png'
-
 import clsx from 'clsx';
 
 
@@ -208,6 +207,15 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
             <Divider />
             </List>
             <List className={classes.buttonSignOut}>
+                <Divider />
+                <Link className={classes.link} to='/Cadenas-De-Produccion'>
+                    <ListItem button key={'Cadenas De Produccion'} selected={checkSelected('Cadenas-De-Produccion',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <LinkIcon/>
+                        </ListItemIcon>
+                        <ListItemText  primary={'Nuevo Pedido'} />
+                    </ListItem> 
+                </Link>
                 <Divider />
                 <Link className={classes.link} to='/Nuevo-Pedido'>
                     <ListItem button key={'Nuevo Pedido'} selected={checkSelected('Nuevo-Pedido',history.location.pathname.slice(1))}>
