@@ -7,7 +7,7 @@ import {Link} from 'react-router-dom'
 import {CardEntrega} from '../components/Entregas/CardEntrega'
 import {database} from 'firebase'
 import {content} from './styles/styles'
-
+import Empty from '../images/Empty.png'
 
 //COMPONENT
 const Entregas=(props)=>{
@@ -51,9 +51,14 @@ const Entregas=(props)=>{
                             </>
                         )))
                         :
-                        <Typography variant='h5'>
-                            Aun no hay ninguna entrega ingresada
-                        </Typography>
+                        <>
+                            <Grid item>
+                                <img src={Empty} alt="" height='600px'/>
+                            </Grid>
+                            <Grid container item xs={12} justify='center'>
+                                <Typography variant='h4'>No hay Entregas Ingresadas</Typography>
+                            </Grid>
+                        </>
                     }
                 </Grid>
 

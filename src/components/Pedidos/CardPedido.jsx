@@ -122,7 +122,14 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                             <Link
                                 style={{color:'#fff',textDecoration:'none'}}
                                 className={classes.textWhite}
-                                to={{pathname:'/Enviar-Pedido',search:`${id}`,props:{total:facturacion?pedido.total+(pedido.total*0.21):pedido.total,facturacion:facturacion}}
+                                to={{
+                                    pathname:'/Enviar-Pedido',
+                                    search:`${id}`,
+                                    props:{
+                                        total: facturacion?pedido.total+(pedido.total*0.21) : pedido.total,
+                                        facturacion:facturacion,
+                                        nombre:pedido.cliente
+                                    }}
                             }>
                                 <Button
                                     variant='outlined'

@@ -5,7 +5,7 @@ import {makeStyles,Paper,Grid,List,Typography,IconButton,Backdrop,Snackbar,Circu
 import {Alert} from '@material-ui/lab'
 import {EditOutlined,DeleteOutline} from '@material-ui/icons'
 import {Deuda} from '../components/Cliente/Deuda'
-import {ListaDePedidos} from '../components/Cliente/ListaDePedidos'
+import {ListaDeEnvios} from '../components/Expreso/ListaDeEnvios'
 import {Detalles} from '../components/Cliente/Detalles'
 import {DialogConfirmDelete} from '../components/Cliente/DialogConfirmDelete'
 import {database} from 'firebase'
@@ -43,6 +43,7 @@ const Expreso=(props)=>{
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...expreso.datos}/>
+                        <ListaDeEnvios envios={expreso.envios}/>
                         <Grid item xs={12} sm={8} >
                             <Link to={{
                                 pathname: '/Editar-Expreso',

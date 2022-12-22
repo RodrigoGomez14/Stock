@@ -55,33 +55,24 @@ export const CardEnvio = ({envio,id}) =>{
                                     <Link 
                                         style={{color:'#fff',textDecoration:'none'}}
                                         className={classes.textWhite}
-                                        to={{pathname:'/Cliente',search:`${pedido.cliente}`}
+                                        to={{pathname:'/Cliente',search:`${envio.cliente}`}
                                     }>
+                                        {envio.cliente}
                                     </Link>
                                 </Grid>
                             </Grid>
                         }
-                        subheader={pedido.fecha}
+                        subheader={envio.fecha}
                     />
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
-                        <List>
-                            {pedido.articulos.map(producto=>(
-                                <ListItem>
-                                    <ListItemText primary={producto.producto} secondary={`${producto.cantidad} u, $ ${producto.precio}`}/>
-                                    <ListItemText secondary={<Chip className={classes.cardProductoChip} label='- 10%'/>}/>
-                                </ListItem>
-                            ))}
-                        </List>
                     </CardContent>
                 </Collapse>
                 <Paper elevation={3} className={classes.cardPedidoActions}>
                     <CardActions>
                         <Grid container justify='space-around'>
-                            <Typography variant='h5'>
-                                    {`$ ${formatMoney(pedido.total)}`}
-                            </Typography>
+                            <Typography variant='h5'>Link pedido</Typography>
                         </Grid>
                     </CardActions>
                 </Paper>

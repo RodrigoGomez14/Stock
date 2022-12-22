@@ -6,7 +6,7 @@ import {Alert} from '@material-ui/lab'
 import {CardPedido} from '../components/Pedidos/CardPedido'
 import {database} from 'firebase'
 import {content} from './styles/styles'
-
+import Empty from '../images/Empty.png'
 // COMPONENT
 const Pedidos=(props)=>{
     const classes = content()
@@ -46,9 +46,14 @@ const Pedidos=(props)=>{
                             />
                         )))
                         :
-                        <Typography variant='h5'>
-                            Aun no hay ningun pedido ingresado
-                        </Typography>
+                        <>
+                            <Grid item>
+                                <img src={Empty} alt="" height='600px'/>
+                            </Grid>
+                            <Grid container item xs={12} justify='center'>
+                                <Typography variant='h4'>No hay Pedidos Ingresados</Typography>
+                            </Grid>
+                        </>
                     }
                 </Grid>
 
