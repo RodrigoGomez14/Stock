@@ -21,6 +21,7 @@ export const Productos = ({productos,seteditIndex,showDialog,openDialogDelete}) 
                                 <TableCell className={classes.titleDetallesCard} align="right">Cantidad</TableCell>
                                 <TableCell className={classes.titleDetallesCard} align="right">Precio Unitario</TableCell>
                                 <TableCell className={classes.titleDetallesCard} align="right">Precio Total</TableCell>
+                                <TableCell className={classes.titleDetallesCard} align="right">Descuento Aplicado</TableCell>
                                 <TableCell className={classes.titleDetallesCard} align="right" padding='checkbox'></TableCell>
                                 <TableCell className={classes.titleDetallesCard} align="right" padding='checkbox'></TableCell>
                             </TableRow>
@@ -34,6 +35,7 @@ export const Productos = ({productos,seteditIndex,showDialog,openDialogDelete}) 
                                     <TableCell align="right">{producto.cantidad}</TableCell>
                                     <TableCell align="right">$ {formatMoney(producto.precio)}</TableCell>
                                     <TableCell align="right">$ {formatMoney(producto.total)}</TableCell>
+                                    <TableCell align="right">{producto.discount?`${producto.discount}%`:'-%'}</TableCell>
                                     <TableCell align="right">
                                         <IconButton edge="end" aria-label="delete" onClick={()=>{openDialog(i)}}>
                                             <EditOutlined />

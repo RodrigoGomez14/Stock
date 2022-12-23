@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,ListSubheader,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,ListSubheader,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,FormControlLabel, CardActions} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {database} from 'firebase'
@@ -91,11 +91,16 @@ export const CardPedido = ({pedido,id}) =>{
                             {pedido.articulos.map(producto=>(
                                 <ListItem>
                                     <ListItemText primary={producto.producto} secondary={`${producto.cantidad} u, $ ${producto.precio}`}/>
-                                    <ListItemText secondary={<Chip className={classes.cardProductoChip} label='- 10%'/>}/>
+                                    {producto.discount?
+                                        <ListItemText primary={<Chip className={classes.cardProductoChip} label={`-${producto.discount}%`}/>}/>
+                                        :
+                                        null
+                                    }
                                 </ListItem>
                             ))}
                         </List>
                         <List>
+                            <Divider/>
                             <ListItem>
                                 <ListItemText
                                     primary={<Chip
@@ -104,8 +109,6 @@ export const CardPedido = ({pedido,id}) =>{
                                     />}
                                     secondary='Pagado'
                                 />
-                            </ListItem>
-                            <ListItem>
                                 <ListItemText
                                     primary={<Chip
                                         className={classes.cardProductoChip}
@@ -114,7 +117,22 @@ export const CardPedido = ({pedido,id}) =>{
                                     secondary='Adeudado'
                                 />
                             </ListItem>
-                                
+                            <ListItem>
+                                <ListItemText
+                                    primary={<Chip
+                                        className={classes.cardProductoChip}
+                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaPasada)}`}
+                                    />}
+                                    secondary='Deuda Anterior'
+                                />
+                                <ListItemText
+                                    primary={<Chip
+                                        className={classes.cardProductoChip}
+                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaPasada+pedido.adeudado)}`}
+                                    />}
+                                    secondary='Deuda Actualizada'
+                                />
+                            </ListItem>                                
                         </List>
                     </CardContent>
                 </Collapse>

@@ -154,7 +154,7 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
                                 <Grid item>
                                     <Autocomplete
                                         freeSolo
-                                        options={Object.keys(expresosList)}
+                                        options={expresosList}
                                         getOptionLabel={(option) => option}
                                         onSelect={(e)=>{setexpreso(e.target.value)}}
                                         onChange={(e)=>{setexpreso(e.target.value)}}

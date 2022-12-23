@@ -9,6 +9,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     const classes = content()
     const [producto,setproducto]=useState(undefined)
     const [cantidad,setcantidad]=useState(undefined)
+    const [discount,setDiscount]=useState(undefined)
     const [precio,setprecio]=useState('')
     const [editarPrecio,seteditarPrecio]=useState(false)
     
@@ -17,14 +18,16 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
         setproducto(undefined)
         setcantidad(undefined)
         setprecio(undefined)
+        seteditarPrecio(false)
     }
     const agregarProducto = () =>{
-        let aux = productos
+        let aux = [...productos]
         aux.push({
             producto:producto,
             cantidad:cantidad,
             precio:precio,
-            total:precio*cantidad
+            total:precio*cantidad,
+            discount:discount?discount:null
         })
         setproductos(aux)
         settotal(total+(cantidad*precio))
@@ -66,6 +69,12 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             return productosList[producto].precio
         }
     }
+    const getDiscountPrice = (precio,porcentaje) =>{
+        return precio - (porcentaje*precio/100)
+    }
+    const getDiscount = (precio,porcentaje) =>{
+        return (porcentaje*precio/100)
+    }
 
     // FILL FOR EDIT
     useEffect(()=>{
@@ -87,7 +96,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                 }
             </DialogTitle>
             <DialogContent>
-                <Grid container direction='column' alignItems='center'>
+                <Grid container direction='column' alignItems='center' spacing={3}>
                     <Grid item>
                         <Autocomplete
                             freeSolo
@@ -108,24 +117,33 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                     </Grid>
                     {producto&&
                         <Grid container item xs={12} justify='center' spacing={3} >
-                            <Grid item xs={12}>
-                                <Typography variant='h6' textAlign='center'>
-                                    $ {formatMoney(precio)} c/u
-                                </Typography>
-                            </Grid>
+                            <List>
+                                <ListItem>
+                                    <ListItemText primary={`$ ${formatMoney(precio)} c/u`} secondary={editarPrecio&&discount?`$ -${formatMoney(getDiscount(precio,discount))}`:null}/>
+                                </ListItem>
+                                {editarPrecio && discount?
+                                    <ListItem>
+                                        <ListItemText primary={`$ ${formatMoney(getDiscountPrice(precio,discount))} c/u`} secondary='Nuevo Precio'/>
+                                    </ListItem>
+                                    :
+                                    null
+                                }
+                            </List>
                             <Grid item>
                                 {editarPrecio?
                                     <>
                                         <TextField
-                                            label='Precio'
+                                            label='% Descuento'
                                             type='number'
-                                            value={precio}
+                                            value={discount}
                                             onChange={e=>{
-                                                setprecio(e.target.value)
+                                                setDiscount(e.target.value)
                                             }}
                                         />
                                         <IconButton
+                                            disabled={!discount}
                                             onClick={e=>{
+                                                setprecio(getDiscountPrice(precio,discount))
                                                 seteditarPrecio(false)
                                             }}
                                         >
@@ -133,13 +151,15 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                         </IconButton>
                                     </>
                                     :
-                                    <IconButton
+                                    <Button
+                                        color='primary'
+                                        variant='contained'
                                         onClick={e=>{
                                             seteditarPrecio(true)
                                         }}
                                     >
-                                        <EditOutlined/>
-                                    </IconButton>
+                                        Descuento de precio
+                                    </Button>
                                 }
                             </Grid>
                         </Grid>
@@ -157,14 +177,14 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             />
                         </Grid>
                     </Grid>
-                    <Grid container item xs={8} justify='center'>
-                        <List>
-                            <Paper className={classes.titleDetallesCard} elevation={3}>
+                    <Grid container item xs={12} justify='center'>
+                        <Paper className={classes.totalProductoNuevoPedido} elevation={3}>
+                            <List>
                                 <ListItem>
                                         <ListItemText primary={'Total'} secondary={`$ ${cantidad*precio?formatMoney(cantidad*precio):'-'}`}/>
                                 </ListItem>
-                            </Paper>
-                        </List>
+                            </List>
+                        </Paper>
                     </Grid>
                 </Grid>
             </DialogContent>
@@ -175,6 +195,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             seteditIndex(-1)
                         }
                         resetTextFields()
+                        setDiscount(undefined)
                         seteditarPrecio(false)
                         setOpen(false)
                     }}
@@ -192,6 +213,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             agregarProducto()
                         }
                         resetTextFields()
+                        setDiscount(undefined)
                         seteditarPrecio(false)
                         setOpen(false)
                     }}

@@ -93,6 +93,17 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                             {pedido.productos.map(producto=>(
                                 <ListItem>
                                     <ListItemText primary={producto.producto} secondary={producto.cantidad}/>
+                                    {producto.discount?
+                                        <ListItemText 
+                                            primary={<Chip
+                                                className={classes.cardProductoChip}
+                                                variant="default"
+                                                label={`-${producto.discount}%`}
+                                            />}
+                                        />
+                                        :
+                                        null
+                                    }
                                 </ListItem>
                             ))}
                         </List>

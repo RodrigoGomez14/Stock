@@ -37,7 +37,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         case 0:
         return (
                 <StepComponent
-                    expresosList={props.expresos}
+                    expresosList={props.clientes[props.pedidos[props.history.location.search.slice(1)].cliente].datos.expresos}
                     tipoDeDato='Metodo De Envio'
                     precio={precio}
                     setprecio={setprecio}
@@ -52,7 +52,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         case 1:
           return (
             <StepComponent
-                expresosList={props.expresos}
+                expresosList={props.clientes[props.pedidos[props.history.location.search.slice(1)].cliente].datos.expresos}
                 efectivo={efectivo}
                 setefectivo={setefectivo}
                 cheques={cheques}

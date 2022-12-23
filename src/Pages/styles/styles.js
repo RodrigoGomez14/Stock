@@ -101,6 +101,11 @@ export const content =makeStyles(theme=>({
         color:theme.palette.success.contrastText,
         padding:'20px'
     },
+
+    totalProductoNuevoPedido:{
+        backgroundColor:theme.palette.primary.main,
+        width:'100%'
+    },
     //RECIBIR ENTREGA
     paperTotalRecibirEntrega:{
         backgroundColor:theme.palette.danger.main,
