@@ -26,7 +26,7 @@ const HistorialCliente=(props)=>{
         <Layout history={props.history} page={`Historial ${props.clientes[checkSearch(props.history.location.search)].datos.nombre}`} user={props.user.uid}>
             {/* CONTENT */}            
             <Paper className={classes.content}>
-                <Grid container xs={12} justify='center' >
+                <Grid container xs={12} justify='center' spacing={3} >
                     <Grid container item xs={12} justify='center'>
                         <Link 
                             className={classes.link}
@@ -39,7 +39,8 @@ const HistorialCliente=(props)=>{
                             }
                         }>
                             <Button 
-                                variant='outlined'
+                                variant='contained'
+                                color='primary'
                                 startIcon={<AddOutlined/>}
                             >
                                 Nuevo Pago
@@ -53,19 +54,23 @@ const HistorialCliente=(props)=>{
                                         <Table stickyHeader>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell>
+                                                    <TableCell className={classes.titleDetallesCard}>
                                                         Fecha
                                                     </TableCell>
-                                                    <TableCell align='left'>
-                                                        Total
-                                                    </TableCell>
-                                                    <TableCell align='right'>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
                                                         Efectivo
                                                     </TableCell>
-                                                    <TableCell align='right'>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
                                                         Cheques
                                                     </TableCell>
-                                                    <TableCell   align='right'>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
+                                                        Deuda Pasada
+                                                    </TableCell>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
+                                                        Deuda Actualizada
+                                                    </TableCell>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
+                                                        Pedido
                                                     </TableCell>
                                                 </TableRow>
                                             </TableHead>
@@ -75,20 +80,40 @@ const HistorialCliente=(props)=>{
                                                             <TableCell>
                                                                 {cliente[pago].fecha}
                                                             </TableCell>
-                                                            <TableCell align='left' className={calcularTotal(cliente[pago].total,cliente[pago].efectivo)<0?classes.dangerText:null}>
-                                                                $ {formatMoney(cliente[pago].total)}
-                                                            </TableCell>
                                                             <TableCell align='right'>
                                                                 $ {cliente[pago].efectivo?formatMoney(cliente[pago].efectivo):'-'}
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 $ {formatMoney(calcularTotal(cliente[pago].total,cliente[pago].efectivo))}
-                                                            </TableCell>
-                                                            <TableCell   align='right'>
                                                                 {cliente[pago].cheques?
                                                                     <>
                                                                         <MenuCheques pago={cliente[pago]}/>
                                                                     </>
+                                                                    :
+                                                                    null
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                $ {formatMoney(cliente[pago].deudaPasada)}
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                $ {formatMoney(cliente[pago].deudaPasada+(cliente[pago].adeudado?cliente[pago].adeudado:-cliente[pago].total))}
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                {cliente[pago].idPedido?
+                                                                    <Link
+                                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                                        to={{
+                                                                        pathname:'/cliente',
+                                                                        search:props.history.location.search,
+                                                                        props:{
+                                                                            searchPedido:cliente[pago].idPedido
+                                                                        }
+                                                                    }}>
+                                                                        <Button variant='outlined'>
+                                                                            Ver
+                                                                        </Button>
+                                                                    </Link>
                                                                     :
                                                                     '-'
                                                                 }

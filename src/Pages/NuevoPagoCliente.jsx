@@ -104,13 +104,8 @@ const NuevoPagoCliente=(props)=>{
             total:efectivo||cheques?total+(efectivo?parseFloat(efectivo):0):null,
             deudaPasada:props.clientes[checkSearch(props.history.location.search)].datos.deuda,
         }
-        let pagos = []
-        if(props.clientes[checkSearch(props.history.location.search)].pagos){
-            pagos=props.clientes[checkSearch(props.history.location.search)].pagos
-        }
         if(aux){
-            pagos.push(aux)
-            database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('pagos').update(pagos)
+            database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('pagos').push(aux)
             .then(()=>{
                     setshowSnackbar('El pago se agregó correctamente!')
                 setTimeout(() => {

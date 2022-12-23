@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import {Button,Menu,MenuItem,Divider,makeStyles} from '@material-ui/core'
+import {Button,Menu,MenuItem,Divider,makeStyles,IconButton} from '@material-ui/core'
 import {Link} from 'react-router-dom'
 import {ArrowDropDown} from '@material-ui/icons'
 
@@ -23,9 +23,9 @@ export const MenuCheques = ({pago}) =>{
     return(
         pago.cheques.length?
             <>
-                <Button aria-controls="simple-menu" aria-haspopup="true" endIcon={<ArrowDropDown/>} onClick={handleClick}>
-                    Ver Cheques 
-                </Button>
+                <IconButton aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+                    <ArrowDropDown/>
+                </IconButton>
                 <Menu
                     anchorEl={anchorEl}
                     keepMounted

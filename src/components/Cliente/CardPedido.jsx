@@ -1,16 +1,18 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,ListSubheader,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,FormControlLabel, CardActions} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,ListSubheader,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,ListItemSecondaryAction, CardActions} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const CardPedido = ({pedido,id}) =>{
+export const CardPedido = ({pedido,id,searchPedido}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
     const [expanded, setExpanded] = useState(false);
+    const [expandedPago, setExpandedPago] = useState(false);
+    const [expandedCheques, setExpandedCheques] = useState(false);
 
     //Menu More
     const handleClick = (event) => {
@@ -21,7 +23,7 @@ export const CardPedido = ({pedido,id}) =>{
     };
 
     return(
-        <Grid item xs={11} sm={8} md={6} lg={4} >
+        <Grid item xs={11} sm={8} md={6} lg={4} className={!searchPedido?null:id.search(searchPedido) == -1 ? classes.displayNone:classes.display}>
             <Card>
                 <Paper elevation={3} className={classes.cardPedidoHeader}>
                     <CardHeader
@@ -96,6 +98,11 @@ export const CardPedido = ({pedido,id}) =>{
                                         :
                                         null
                                     }
+                                    {producto.increase?
+                                        <ListItemText primary={<Chip className={classes.cardProductoChip} label={`+${producto.increase}%`}/>}/>
+                                        :
+                                        null
+                                    }
                                 </ListItem>
                             ))}
                         </List>
@@ -105,14 +112,14 @@ export const CardPedido = ({pedido,id}) =>{
                                 <ListItemText
                                     primary={<Chip
                                         className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.pagado)}`}
+                                        label={`$ ${formatMoney(pedido.metodoDePago.pagado)}`}
                                     />}
                                     secondary='Pagado'
                                 />
                                 <ListItemText
                                     primary={<Chip
                                         className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.adeudado)}`}
+                                        label={`$ ${formatMoney(pedido.metodoDePago.adeudado)}`}
                                     />}
                                     secondary='Adeudado'
                                 />
@@ -128,12 +135,77 @@ export const CardPedido = ({pedido,id}) =>{
                                 <ListItemText
                                     primary={<Chip
                                         className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaPasada+pedido.adeudado)}`}
+                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaPasada+pedido.metodoDePago.adeudado)}`}
                                     />}
                                     secondary='Deuda Actualizada'
                                 />
-                            </ListItem>                                
+                            </ListItem>   
+                            <Divider/>
                         </List>
+                        {pedido.metodoDePago.pagado > 0?
+                        <Card>
+                            <CardHeader className={classes.titleDetallesCard} title='Detalles de pago' action={<IconButton onClick={()=>{setExpandedPago(!expandedPago)}}>{expandedPago?<ExpandLess/>:<ExpandMore/>}</IconButton>}/>
+                            <Collapse in={expandedPago} timeout='auto' unmountOnExit>
+                                <CardContent>
+                                    {pedido.metodoDePago.efectivo?
+                                        <List>
+                                            <ListItem>
+                                                <ListItemText primary={`$ ${formatMoney(pedido.metodoDePago.efectivo)}`} secondary='Efectivo'/>
+                                            </ListItem>
+                                        </List>
+                                        :
+                                        null
+                                    }
+                                    {pedido.metodoDePago.cheques?
+                                        <Card>
+                                            <CardHeader
+                                            className={classes.titleDetallesCard}
+                                            title={
+                                                <List>
+                                                    <ListItem>
+                                                        <ListItemText primary={`${pedido.metodoDePago.cheques.length} ${pedido.metodoDePago.cheques.length>1?'Cheques':'Cheque'} $ ${formatMoney(pedido.metodoDePago.total-(pedido.metodoDePago.efectivo?pedido.metodoDePago.efectivo:0))}`}/>
+                                                        <ListItemSecondaryAction>
+                                                            <IconButton 
+                                                                onClick={()=>{
+                                                                    setExpandedCheques(!expandedCheques)
+                                                                 }}>
+                                                                    {expandedCheques?<ExpandLess/>:<ExpandMore/>}
+                                                            </IconButton>                           
+                                                        </ListItemSecondaryAction>
+                                                    </ListItem>
+                                                </List>
+                                                }/>
+                                            <Collapse in={expandedCheques} timeout='auto' unmountOnExit>
+                                                <CardContent>
+                                                    <List>
+                                                        {pedido.metodoDePago.cheques.map(cheque=>(
+                                                           <ListItem>
+                                                                <ListItemText 
+                                                                    primary={
+                                                                        <Link
+                                                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                                            to={{
+                                                                            pathname:'/Cheques',
+                                                                            search:cheque
+                                                                        }}>
+                                                                            {cheque}
+                                                                        </Link>}
+                                                                    />
+                                                           </ListItem> 
+                                                        ))}
+                                                    </List>
+                                                </CardContent>
+                                            </Collapse>
+                                        </Card>
+                                        :
+                                        null
+                                    }
+                                </CardContent>
+                            </Collapse>
+                        </Card>
+                            :
+                            null
+                        }
                     </CardContent>
                 </Collapse>
                 <Paper elevation={3} className={classes.cardPedidoActions}>

@@ -130,16 +130,16 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 fecha:(efectivo||total?fechaDetallada():null),
                 total:((efectivo?parseFloat(efectivo):0)+total)?((efectivo?parseFloat(efectivo):0)+total):null,
                 deudaPasada:props.clientes[props.pedidos[id].cliente].datos.deuda,
+                pagado:total + (efectivo?parseFloat(efectivo):0),
+                adeudado:props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0))
             },
             metodoDeEnvio:expreso?{expreso:expreso,remito:remito,precio:precio}:'Particular',
             total:props.history.location.props.total,
-            pagado:total + (efectivo?parseFloat(efectivo):0),
-            adeudado:props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0))
         }
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
-        agregarPagoAlHistorial(aux.metodoDePago)
         agregarAListaDeIva(aux.total)
         let idLink = database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push()
+        agregarPagoAlHistorial(aux.metodoDePago,idLink.key)
         setshowSnackbar('El pedido se envió correctamente!')
         idLink.update(aux) 
             .then(()=>{
@@ -195,10 +195,11 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
             database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('datos').update({deuda:(props.clientes[props.pedidos[id].cliente].datos.deuda)-(totalRecibido-totalPedido)})
         }
     }
-    const agregarPagoAlHistorial = pago =>{
+    const agregarPagoAlHistorial = (pago,idLink) =>{
+        let aux= {...pago,idPedido:idLink}
         const id = props.history.location.search.slice(1)
         if((efectivo?parseFloat(efectivo):0)+total){
-            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pagos').push(pago)
+            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pagos').push(aux)
         }
     }
     return(

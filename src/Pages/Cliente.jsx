@@ -20,6 +20,8 @@ const Cliente=(props)=>{
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
+    const [searchPedido, setSearchPedido] = useState(props.location.props?props.location.props.searchPedido:'');
+
 
     // FUNCTIONS
     const eliminarCliente = () =>{
@@ -37,7 +39,6 @@ const Cliente=(props)=>{
         })
     }
     const eliminarPedido = (id) =>{
-        console.log('eliminar')
         setLoading(true)
         database().ref().child(props.user.uid).child('clientes').child(cliente.datos.nombre).child('pedidos').child(id).remove()
         .then(()=>{
@@ -56,12 +57,11 @@ const Cliente=(props)=>{
         cliente?
             <Layout history={props.history} page={`${cliente.datos.nombre}`} user={props.user.uid}>
                 {/* CONTENT */}
-                {console.log(props.photosList)}
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...cliente.datos}/>
                         <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre}/>
-                        <ListaDePedidos pedidos={cliente.pedidos} eliminarPedido={eliminarPedido}/>
+                        <ListaDePedidos pedidos={cliente.pedidos} eliminarPedido={eliminarPedido} searchPedido={searchPedido}/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>
                                 <Link to={{

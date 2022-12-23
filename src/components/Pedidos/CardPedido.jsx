@@ -44,15 +44,15 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                                     keepMounted
                                     open={Boolean(anchorEl)}
                                     onClose={handleClose}
-                                    >   
-                                    <Link 
-                                        className={classes.link}
-                                        to={{
-                                        pathname:'/Editar-Pedido',
-                                        search:`${id}`
-                                    }}>
-                                        <MenuItem>Editar</MenuItem>
-                                    </Link>
+                                    >
+                                        <Link
+                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                            to={{
+                                                pathname:'/Editar-Pedido',
+                                                search:`${id}`
+                                        }}>
+                                            <MenuItem>Editar</MenuItem>
+                                        </Link>   
                                     <MenuItem className={classes.deleteButton} onClick={()=>{
                                         setAnchorEl(null)
                                         eliminarPedido()
@@ -99,6 +99,17 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                                                 className={classes.cardProductoChip}
                                                 variant="default"
                                                 label={`-${producto.discount}%`}
+                                            />}
+                                        />
+                                        :
+                                        null
+                                    }
+                                    {producto.increase?
+                                        <ListItemText 
+                                            primary={<Chip
+                                                className={classes.cardProductoChip}
+                                                variant="default"
+                                                label={`+${producto.increase}%`}
                                             />}
                                         />
                                         :

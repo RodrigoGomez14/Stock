@@ -10,6 +10,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     const [producto,setproducto]=useState(undefined)
     const [cantidad,setcantidad]=useState(undefined)
     const [discount,setDiscount]=useState(undefined)
+    const [increase,setIncrease]=useState(undefined)
     const [precio,setprecio]=useState('')
     const [editarPrecio,seteditarPrecio]=useState(false)
     
@@ -27,7 +28,8 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             cantidad:cantidad,
             precio:precio,
             total:precio*cantidad,
-            discount:discount?discount:null
+            discount:discount?discount:null,
+            increase:increase?increase:null
         })
         setproductos(aux)
         settotal(total+(cantidad*precio))
@@ -35,22 +37,15 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     const actualizarTotal=()=>{
         let nuevoTotal = total
         if(productos[editIndex].precio!=precio){
-            console.log(nuevoTotal)
             nuevoTotal-=productos[editIndex].cantidad*productos[editIndex].precio
             nuevoTotal+=productos[editIndex].cantidad*precio
-            console.log(nuevoTotal)
         }
         if(productos[editIndex].cantidad>cantidad){
-            console.log(nuevoTotal)
             nuevoTotal-=(productos[editIndex].cantidad-cantidad)*precio
-            console.log(nuevoTotal)
         }
         else if(productos[editIndex].cantidad<cantidad){
-            console.log(nuevoTotal)
             nuevoTotal+=(cantidad-productos[editIndex].cantidad)*precio
-            console.log(nuevoTotal)
         }
-        console.log(nuevoTotal)
         settotal(nuevoTotal)
     }
     const editarProducto = () =>{
@@ -60,7 +55,10 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             producto:producto,
             cantidad:cantidad,
             precio:precio,
-            total:precio*cantidad
+            total:precio*cantidad,
+            discount:discount?discount:null,
+            increase:increase?increase:null
+
         }
         setproductos(aux)
     }
@@ -75,6 +73,12 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     const getDiscount = (precio,porcentaje) =>{
         return (porcentaje*precio/100)
     }
+    const getIncreasedPrice = (precio,porcentaje) =>{
+        return precio + (porcentaje*precio/100)
+    }
+    const getIncrease = (precio,porcentaje) =>{
+        return (porcentaje*precio/100)
+    }
 
     // FILL FOR EDIT
     useEffect(()=>{
@@ -82,6 +86,12 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             setproducto(productos[editIndex].producto)
             setcantidad(productos[editIndex].cantidad)
             setprecio(productos[editIndex].precio)
+            if(productos[editIndex].discount){
+                setDiscount(productos[editIndex].discount)
+            }
+            if(productos[editIndex].increase){
+                setIncrease(productos[editIndex].increase)
+            }
         }
     },[edit])
 
@@ -119,11 +129,16 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                         <Grid container item xs={12} justify='center' spacing={3} >
                             <List>
                                 <ListItem>
-                                    <ListItemText primary={`$ ${formatMoney(precio)} c/u`} secondary={editarPrecio&&discount?`$ -${formatMoney(getDiscount(precio,discount))}`:null}/>
+                                    <ListItemText 
+                                        primary={`$ ${formatMoney(precio)} c/u`} 
+                                        secondary={editarPrecio&&(discount||increase)?`$ ${editarPrecio=='discount'?'-':'+'}${formatMoney(editarPrecio=='discount'?getDiscount(precio,discount):getIncrease(precio,increase))}`:null}/>
                                 </ListItem>
-                                {editarPrecio && discount?
+                                {editarPrecio && (discount||increase)?
                                     <ListItem>
-                                        <ListItemText primary={`$ ${formatMoney(getDiscountPrice(precio,discount))} c/u`} secondary='Nuevo Precio'/>
+                                        <ListItemText 
+                                            primary={`$ ${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio,discount):getIncreasedPrice(precio,increase))} c/u`} 
+                                            secondary='Nuevo Precio'
+                                            />
                                     </ListItem>
                                     :
                                     null
@@ -135,15 +150,25 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                         <TextField
                                             label='% Descuento'
                                             type='number'
-                                            value={discount}
+                                            value={discount?discount:increase}
                                             onChange={e=>{
-                                                setDiscount(e.target.value)
+                                                if(editarPrecio=='discount'){
+                                                    setDiscount(e.target.value)
+                                                }
+                                                else{
+                                                    setIncrease(e.target.value)
+                                                }
                                             }}
                                         />
                                         <IconButton
-                                            disabled={!discount}
+                                            disabled={!discount&&!increase}
                                             onClick={e=>{
-                                                setprecio(getDiscountPrice(precio,discount))
+                                                if(editarPrecio=='discount'){
+                                                    setprecio(getDiscountPrice(precio,discount))
+                                                }
+                                                else{
+                                                    setprecio(getIncreasedPrice(precio,increase))
+                                                }
                                                 seteditarPrecio(false)
                                             }}
                                         >
@@ -151,15 +176,30 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                         </IconButton>
                                     </>
                                     :
-                                    <Button
-                                        color='primary'
-                                        variant='contained'
-                                        onClick={e=>{
-                                            seteditarPrecio(true)
-                                        }}
-                                    >
-                                        Descuento de precio
-                                    </Button>
+                                    <Grid container xs={12} justify='center' spacing={3}>
+                                            <Grid item>
+                                                <Button
+                                                    color='primary'
+                                                    variant='contained'
+                                                    onClick={e=>{
+                                                        seteditarPrecio('discount')
+                                                    }}
+                                                >
+                                                    Descuento de precio
+                                                </Button>
+                                            </Grid>
+                                             <Grid item>
+                                                <Button
+                                                    color='primary'
+                                                    variant='contained'
+                                                    onClick={e=>{
+                                                        seteditarPrecio('increase')
+                                                    }}
+                                                >
+                                                    Aumento de precio
+                                                </Button>
+                                             </Grid>
+                                    </Grid>
                                 }
                             </Grid>
                         </Grid>
@@ -196,6 +236,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                         }
                         resetTextFields()
                         setDiscount(undefined)
+                        setIncrease(undefined)
                         seteditarPrecio(false)
                         setOpen(false)
                     }}
@@ -214,6 +255,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                         }
                         resetTextFields()
                         setDiscount(undefined)
+                        setIncrease(undefined)
                         seteditarPrecio(false)
                         setOpen(false)
                     }}
