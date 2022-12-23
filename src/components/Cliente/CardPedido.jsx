@@ -53,14 +53,27 @@ export const CardPedido = ({pedido,id}) =>{
                         subheader={
                             <List>
                                 <ListItem>
-                                    <ListItemText
-                                        primary={<Chip
-                                            className={classes.cardProductoChip}
-                                            label={`$ ${pedido.total}`}
-                                        />}
-                                    />
+                                    <ListItemText 
+                                        primary={pedido.metodoDeEnvio=="Particular"?
+                                        'Envio'
+                                        :
+                                        <ListItemText 
+                                            primary={
+                                                <Link
+                                                    style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                    to={{
+                                                    pathname:'/Expreso',
+                                                    search:pedido.metodoDeEnvio.expreso,
+                                                    props:{
+                                                        remito:pedido.metodoDeEnvio.remito
+                                                    }
+                                                }}>
+                                                    <Chip className={classes.cardProductoChip} label={pedido.metodoDeEnvio.expreso}/>
+                                                </Link>
+                                        }/>
+                                    } 
+                                    secondary={pedido.metodoDeEnvio=="Particular"?'Particular': pedido.metodoDeEnvio.remito}/>
                                 </ListItem>
-                                    
                             </List>
                         }
                         title={pedido.fecha}
@@ -68,11 +81,6 @@ export const CardPedido = ({pedido,id}) =>{
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
-                        <List>
-                            <ListItem>
-                                <ListItemText primary={pedido.metodoDeEnvio=="Particular"?'Particular':pedido.metodoDeEnvio.expreso} secondary={pedido.metodoDeEnvio=="Particular"?'Envio':pedido.metodoDeEnvio.remito}/>
-                            </ListItem>
-                        </List>
                         <List
                             subheader={
                                 <ListSubheader component="div" id="nested-list-subheader">
@@ -86,6 +94,27 @@ export const CardPedido = ({pedido,id}) =>{
                                     <ListItemText secondary={<Chip className={classes.cardProductoChip} label='- 10%'/>}/>
                                 </ListItem>
                             ))}
+                        </List>
+                        <List>
+                            <ListItem>
+                                <ListItemText
+                                    primary={<Chip
+                                        className={classes.cardProductoChip}
+                                        label={`$ ${formatMoney(pedido.pagado)}`}
+                                    />}
+                                    secondary='Pagado'
+                                />
+                            </ListItem>
+                            <ListItem>
+                                <ListItemText
+                                    primary={<Chip
+                                        className={classes.cardProductoChip}
+                                        label={`$ ${formatMoney(pedido.adeudado)}`}
+                                    />}
+                                    secondary='Adeudado'
+                                />
+                            </ListItem>
+                                
                         </List>
                     </CardContent>
                 </Collapse>

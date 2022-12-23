@@ -132,7 +132,9 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 deudaPasada:props.clientes[props.pedidos[id].cliente].datos.deuda,
             },
             metodoDeEnvio:expreso?{expreso:expreso,remito:remito,precio:precio}:'Particular',
-            total:props.history.location.props.total + (sumarEnvio?parseFloat(precio):0)
+            total:props.history.location.props.total,
+            pagado:total + (efectivo?parseFloat(efectivo):0),
+            adeudado:props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0))
         }
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
         agregarPagoAlHistorial(aux.metodoDePago)

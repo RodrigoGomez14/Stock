@@ -6,7 +6,7 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const CardEnvio = ({envio,id}) =>{
+export const CardEnvio = ({envio,search,asentarLlegada}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [expanded, setExpanded] = useState(false);
@@ -18,9 +18,8 @@ export const CardEnvio = ({envio,id}) =>{
     const handleClose = () => {
         setAnchorEl(null);
     };
-
     return(
-        <Grid item xs={11} sm={8} md={6} lg={4} >
+        <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:envio.remito.search(search) == -1 ? classes.displayNone:classes.display} >
             <Card>
                 <Paper elevation={3} className={classes.cardPedidoHeader}>
                     <CardHeader
@@ -44,7 +43,11 @@ export const CardEnvio = ({envio,id}) =>{
                                     open={Boolean(anchorEl)}
                                     onClose={handleClose}
                                 >
-                                    <MenuItem>Editar</MenuItem>
+                                    {!envio.fechaDeLlegada?
+                                        <MenuItem onClick={()=>{asentarLlegada()}}>Asentar llegada</MenuItem>
+                                        :
+                                        null
+                                    }
                                     <MenuItem className={classes.deleteButton} onClick={()=>{}}>Eliminar</MenuItem>
                                 </Menu>
                             </>
@@ -72,10 +75,7 @@ export const CardEnvio = ({envio,id}) =>{
                                 <ListItemText primary={envio.fecha} secondary='Fecha de Salida'/>
                             </ListItem>
                             <ListItem>
-                                <ListItemText primary='-' secondary='Fecha de LLegada'/>
-                            </ListItem>
-                            <ListItem>
-                                <ListItemText primary={envio.fecha} secondary='Fecha de Salida'/>
+                                <ListItemText primary={!envio.fechaDeLlegada?'-':envio.fechaDeLlegada} secondary='Fecha de LLegada'/>
                             </ListItem>
                         </List>
                     </CardContent>

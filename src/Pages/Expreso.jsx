@@ -11,12 +11,13 @@ import {DialogConfirmDelete} from '../components/Cliente/DialogConfirmDelete'
 import {database} from 'firebase'
 import {Link} from 'react-router-dom'
 import {content} from './styles/styles'
-import {checkSearch} from '../utilities'
+import {checkSearch, obtenerFecha} from '../utilities'
 
 // COMPONENT
 const Expreso=(props)=>{
     const classes = content()
     const [expreso,setExpreso]= useState(props.expresos[checkSearch(props.history.location.search)])
+    const [search, setSearch] = useState(props.location.props?props.location.props.remito:'');
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
@@ -35,15 +36,28 @@ const Expreso=(props)=>{
             setLoading(false)
         })
     }
+    const asentarLlegada = (key) =>{
+        setLoading(true)
+        console.log(key)
+        database().ref().child(props.user.uid).child('expresos').child(expreso.datos.nombre).child('envios').child(key).update({fechaDeLlegada:obtenerFecha()}).then(()=>{
+            setshowSnackbar('El Pedido llego a Destino!')
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000);
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
     return(
         expreso?
             <Layout history={props.history} page={`${expreso.datos.nombre}`} user={props.user.uid}>
-                
+                {console.log(props.location.props)}
                 {/* CONTENT */}
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...expreso.datos}/>
-                        <ListaDeEnvios envios={expreso.envios}/>
+                        <ListaDeEnvios envios={expreso.envios} search={search} setSearch={setSearch} asentarLlegada={asentarLlegada}/>
                         <Grid item xs={12} sm={8} >
                             <Link to={{
                                 pathname: '/Editar-Expreso',
