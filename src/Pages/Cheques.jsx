@@ -47,7 +47,7 @@ const MenuCheque = ({guardarChequeRebotado,guardarEntregaDeCheque,disabledBaja,d
 // COMPONENT
 const Cheques=(props)=>{
     const classes = content()
-    const [search,setSearch]=useState('')
+    const [search,setSearch]=useState(props.location.search?props.location.search.slice(1):'')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
@@ -67,30 +67,6 @@ const Cheques=(props)=>{
                 setLoading(false)
             })
     }
-    const guardarPago = (cliente,cheque) =>{
-        let aux={
-            cheques:[props.cheques[cheque].numero],
-            fecha:obtenerFecha(),
-            total:-(props.cheques[cheque].valor),
-        }
-        let pagos = []
-        if(props.clientes[cliente].pagos){
-            pagos=props.clientes[cliente].pagos
-        }
-        pagos.push(aux)
-        database().ref().child(props.user.uid).child('clientes').child(cliente).update({
-            pagos:pagos
-        })
-    }
-    const actualizarDeuda = (valor,nombre,cheque) =>{
-        let nuevaDeuda = props.clientes[nombre].datos.deuda
-        nuevaDeuda+=parseFloat(valor)
-        console.log(nuevaDeuda,nombre)
-        database().ref().child(props.user.uid).child('clientes').child(nombre).child('datos').update({
-            deuda:nuevaDeuda
-        })
-        guardarPago(nombre,cheque)
-    }
     const guardarChequeRebotado = id =>{
         setLoading(true)
         actualizarDeuda(props.cheques[id].valor,props.cheques[id].nombre,id)
@@ -108,9 +84,34 @@ const Cheques=(props)=>{
             setLoading(false)
         })
     }
+    const actualizarDeuda = (valor,nombre,idCheque) =>{
+        let nuevaDeuda = props.clientes[nombre].datos.deuda
+        nuevaDeuda+=parseFloat(valor)
+        database().ref().child(props.user.uid).child('clientes').child(nombre).child('datos').update({
+            deuda:nuevaDeuda
+        })
+        console.log(props.cheques[idCheque].destinatario)
+        if(props.cheques[idCheque].destinatario){
+            database().ref().child(props.user.uid).child('proveedores').child(`${props.cheques[idCheque].destinatario}`).child('datos').update({deuda:props.proveedores[`${props.cheques[idCheque].destinatario}`].datos.deuda+parseFloat(valor)})  
+        }
+        guardarPago(nombre,idCheque)
+    }
+    
+    const guardarPago = (cliente,cheque) =>{
+        let aux={
+            cheques:[props.cheques[cheque].numero],
+            fecha:obtenerFecha(),
+            total:-(props.cheques[cheque].valor),
+        }
+        database().ref().child(props.user.uid).child('clientes').child(cliente).child('pagos').push(aux)
+        if(props.cheques[cheque].destinatario){
+            database().ref().child(props.user.uid).child('proveedores').child(props.cheques[cheque].destinatario).child('pagos').push(aux)  
+        }
+    }
+    
     const guardarEntregaDeCheque = (id,diaDeEnvio,destinatario) =>{
         setLoading(true)
-        console.log(id,diaDeEnvio,destinatario)
+        console.log(id,diaDeEnvio,destinatario) 
         database().ref().child(props.user.uid).child('cheques').child(id).update({
             diaDeEnvio:diaDeEnvio,
             destinatario:destinatario
@@ -165,7 +166,7 @@ const Cheques=(props)=>{
                     <Grid container justify='center' alignItems='center' spacing={3}>
                         {props.cheques?
                             Object.keys(props.cheques).reverse().map((key,i)=>(
-                                <Cheque cheque={props.cheques[key]}  search={search}/>    
+                                <Cheque cheque={props.cheques[key]} id={key} search={search} guardarChequeRebotado={guardarChequeRebotado}/>    
                             ))
                         :
                         <Typography variant='h5'>
@@ -193,7 +194,8 @@ const mapStateToProps = state =>{
     return{
         user:state.user,
         cheques:state.cheques,
-        clientes:state.clientes
+        clientes:state.clientes,
+        proveedores:state.proveedores
     }
 }
 export default connect(mapStateToProps,null)(Cheques)

@@ -101,23 +101,15 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
     }
 
     //FUNCTIONS
-    const guardarCheques =() =>{
+    const actualizarCheques =() =>{
         let chequesList= []
-        console.log(cheques)
         if(cheques.length){
             cheques.map(cheque=>{
-                chequesList.push(cheque.numero)
-                let auxCheque = {
-                    ingreso:obtenerFecha(),
-                    nombre:cheque.nombre,
-                    numero:cheque.numero,
-                    vencimiento:cheque.vencimiento,
-                    banco:cheque.banco,
-                    valor:cheque.valor,
-                    diaDeEnvio:cheque.diaDeEnvio,
-                    destinatario:cheque.destinatario
-                }
-                database().ref().child(props.user.uid).child('cheques').push(auxCheque)
+                database().ref().child(props.user.uid).child('cheques').child(cheque).update({
+                    destinatario:props.entregas[props.history.location.search.slice(1)].proveedor,
+                    egreso:obtenerFecha()
+                })
+                chequesList.push(props.cheques[cheque].numero)
             })
         }
         return chequesList
@@ -126,7 +118,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         setLoading(true)
         const id = props.history.location.search.slice(1)
         await aumentarProductos(id)
-        let chequesList = guardarCheques()
+        let chequesList = actualizarCheques()
         let aux={
             fecha:obtenerFecha(),
             articulos:props.entregas[id].productos,
@@ -136,15 +128,18 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                 fecha:(efectivo||total?obtenerFecha():null),
                 total:((efectivo?parseFloat(efectivo):0)+total)?((efectivo?parseFloat(efectivo):0)+total):null,
                 deudaPasada:props.proveedores[props.entregas[id].proveedor].datos.deuda,
+                pagado:total + (efectivo?parseFloat(efectivo):0),
+                adeudado:props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0))
             },
             metodoDeEnvio:expreso?{expreso:expreso,remito:remito,precio:precio}:'Particular',
             total:props.history.location.props.total + (sumarEnvio?parseFloat(precio):0)
         }
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
+        let idLink = database().ref().child(props.user.uid).child('proveedores').child(props.entregas[id].proveedor).child('entregas').push()
         agregarPagoAlHistorial(aux.metodoDePago)
-        database().ref().child(props.user.uid).child('proveedores').child(props.entregas[id].proveedor).child('entregas').push(aux)
+        setshowSnackbar('La entrega se agregó correctamente!')
+        idLink.update(aux)
             .then(()=>{
-                setshowSnackbar('La entrega se agregó correctamente!')
                 setTimeout(() => {
                     props.history.replace('/Entregas')
                     database().ref().child(props.user.uid).child('entregas').child(id).remove().then(()=>{

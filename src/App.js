@@ -97,10 +97,13 @@ class App extends Component {
             contrastText:'#000'
           },
           danger:{
-            main:'#c62828'
+            main:'#c62828',
+            light:'#ef5350'
           },
           success:{
-            main:'#2e7d32'
+            main:'#2e7d32',
+            light:'#66bb6a',
+            dark:'#43a047'
           },
           type:'dark'
       }

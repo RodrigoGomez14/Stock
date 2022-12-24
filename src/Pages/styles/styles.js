@@ -117,4 +117,15 @@ export const content =makeStyles(theme=>({
     iconLabelSelected:{
         backgroundColor:`${theme.palette.primary.main} !important`
     },
+
+    // CARD CHEQUE
+    cardChequeHeader:{
+    },
+    cardChequeHeaderBaja:{
+        backgroundColor:theme.palette.danger.light
+    },
+    cardChequeEnviadoHeader:{
+        backgroundColor:theme.palette.success.dark,
+        color:'#000'
+    }
 }))
