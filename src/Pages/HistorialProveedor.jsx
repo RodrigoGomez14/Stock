@@ -31,10 +31,10 @@ const HistorialProveedor=(props)=>{
         <Layout history={props.history} page={`Historial ${props.proveedores[checkSearch(props.history.location.search)].datos.nombre}`} user={props.user.uid}>
             {/* CONTENT */}
             <Paper className={classes.content}>
-                <Grid container xs={12} justify='center' >
+                <Grid container xs={12} justify='center' spacing={3}>
                     <Grid container item xs={12} justify='center'>
                         <Link 
-                            className={classes.link}
+                            style={{color:'#fff',textDecoration:'none'}}
                             to={{
                                 pathname:'/Nuevo-Pago-Proveedor',
                                 props:{
@@ -44,7 +44,8 @@ const HistorialProveedor=(props)=>{
                             }
                         }>
                             <Button 
-                                variant='outlined'
+                                variant='contained'
+                                color='primary'
                                 startIcon={<AddOutlined/>}
                             >
                                 Nuevo Pago
@@ -58,19 +59,23 @@ const HistorialProveedor=(props)=>{
                                         <Table stickyHeader>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell>
+                                                    <TableCell className={classes.titleDetallesCard}>
                                                         Fecha
                                                     </TableCell>
-                                                    <TableCell align='left'>
-                                                        Total
-                                                    </TableCell>
-                                                    <TableCell align='right'>
+                                                    <TableCell className={classes.titleDetallesCard} align='left'>
                                                         Efectivo
                                                     </TableCell>
-                                                    <TableCell align='right'>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
                                                         Cheques
                                                     </TableCell>
-                                                    <TableCell   align='right'>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
+                                                        Deuda Pasado
+                                                    </TableCell>
+                                                    <TableCell className={classes.titleDetallesCard}   align='right'>
+                                                        Deuda Actualizada
+                                                    </TableCell>
+                                                    <TableCell className={classes.titleDetallesCard}   align='right'>
+                                                        Entrega
                                                     </TableCell>
                                                 </TableRow>
                                             </TableHead>
@@ -80,20 +85,40 @@ const HistorialProveedor=(props)=>{
                                                             <TableCell>
                                                                 {proveedor[pago].fecha}
                                                             </TableCell>
-                                                            <TableCell align='left' className={calcularTotal(proveedor[pago].total,proveedor[pago].efectivo)<0?classes.dangerText:null}>
-                                                                $ {formatMoney(proveedor[pago].total)}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {proveedor[pago].efectivo?formatMoney(proveedor[pago].efectivo):'-'}
+                                                            <TableCell align='left'>
+                                                               $ {proveedor[pago].efectivo?formatMoney(proveedor[pago].efectivo):'-'}
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 $ {formatMoney(calcularTotal(proveedor[pago].total,proveedor[pago].efectivo))}
-                                                            </TableCell>
-                                                            <TableCell   align='right'>
                                                                 {proveedor[pago].cheques?
                                                                     <>
                                                                         <MenuCheques pago={proveedor[pago]}/>
                                                                     </>
+                                                                    :
+                                                                    null
+                                                                }                                                            
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                $ {formatMoney(proveedor[pago].deudaPasada)}
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                $ {formatMoney(proveedor[pago].deudaActualizada)}
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                {proveedor[pago].idEntrega?
+                                                                    <Link
+                                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                                        to={{
+                                                                        pathname:'/Proveedor',
+                                                                        search:props.history.location.search,
+                                                                        props:{
+                                                                            searchPedido:proveedor[pago].idEntrega
+                                                                        }
+                                                                    }}>
+                                                                        <Button variant='outlined'>
+                                                                            Ver
+                                                                        </Button>
+                                                                    </Link>
                                                                     :
                                                                     '-'
                                                                 }

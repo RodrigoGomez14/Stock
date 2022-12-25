@@ -70,22 +70,16 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
                                 title={
                                     <Grid container xs={12} justify='flex-start' spacing={3}>
                                         <Grid item>
-                                            <Link 
-                                                style={{color:'#fff',textDecoration:'none'}}
-                                                className={classes.textWhite}
-                                                to={{pathname:'/Cliente',search:`${cheque.nombre}`}
-                                            }>
-                                                {cheque.nombre} 
-                                            </Link>
+                                               Nº {cheque.numero} 
                                         </Grid>
                                         <Grid item>
                                             <Chip
-                                                className={classes.cardDeudaGreen}
+                                                className={classes.cardChequeChip}
                                                 variant="outlined"
+                                                color="primary"
                                                 icon={<AttachMoney/>}
                                                 label={cheque.valor?formatMoney(cheque.valor):formatMoney(0)}
                                             />
-
                                         </Grid>
                                     </Grid>
                                 }
@@ -95,34 +89,40 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
                         </Paper>
                         <Collapse in={expanded} timeout='auto' unmountOnExit>
                             <CardContent>
-                                {cheque.dadoDeBaja?
-                                    <Alert variant="filled" severity="error">
-                                        Cheque Dado De Baja
-                                    </Alert>
-                                    :
-                                    null
-                                }
-                                {cheque.destinatario?
-                                    <>
-                                        <Divider/>
-                                        <Alert variant="filled" severity="success">
-                                            <ListItem>
-                                                <ListItemText primary={
-                                                    <Link 
-                                                        style={{color:'#fff',textDecoration:'none'}}
-                                                        className={classes.textWhite}
-                                                        to={{pathname:'/proveedor',search:`${cheque.destinatario}`}
-                                                    }>
-                                                    {cheque.destinatario} 
-                                                </Link>
-                                                } secondary={cheque.egreso}/>
-                                            </ListItem>
-                                        </Alert>
-                                    </>
-                                    :
-                                    null
-                                }
+                                <Grid container xs={12} spacing={3}>
+                                    {cheque.dadoDeBaja?
+                                        <Grid container item xs={12}>
+                                            <Alert variant="filled" severity="error" className={classes.alertCheque}>
+                                                Cheque Dado De Baja
+                                            </Alert>
+                                        </Grid>
+                                        :
+                                        null
+                                    }
+                                    {cheque.destinatario?
+                                        <Grid container item xs={12}>
+                                            <Alert variant="filled" severity="success" className={classes.alertCheque}>
+                                                Entregado a <Link 
+                                                                style={{color:'#fff',textDecoration:'none'}}
+                                                                className={classes.textWhite}
+                                                                to={{pathname:'/Proveedor',search:`${cheque.nombre}`}
+                                                            }>{cheque.destinatario}</Link> el {cheque.egreso}
+                                            </Alert>
+                                        </Grid>
+                                        :
+                                        null
+                                    }
+                                </Grid>
                                 <List>
+                                    <Link 
+                                        style={{color:'#fff',textDecoration:'none'}}
+                                        className={classes.textWhite}
+                                        to={{pathname:'/Cliente',search:`${cheque.nombre}`}
+                                    }>
+                                        <ListItem>
+                                            <ListItemText primary={cheque.nombre} secondary='Entregado por'/>
+                                        </ListItem>
+                                    </Link>
                                     <ListItem>
                                         <ListItemText primary={cheque.ingreso} secondary='Fecha de Entrega'/>
                                     </ListItem>
@@ -131,9 +131,6 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
                                     </ListItem>
                                     <ListItem>
                                         <ListItemText primary={cheque.banco} secondary='Banco'/>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemText primary={cheque.numero} secondary='Numero'/>
                                     </ListItem>
                                 </List>
                             </CardContent>

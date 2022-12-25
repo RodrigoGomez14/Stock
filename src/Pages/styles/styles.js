@@ -127,5 +127,13 @@ export const content =makeStyles(theme=>({
     cardChequeEnviadoHeader:{
         backgroundColor:theme.palette.success.dark,
         color:'#000'
+    },
+
+    // CHEQUES
+    cardChequeChip:{
+        color:theme.palette.primary.contrastText
+    },
+    alertCheque:{
+        width:'100%'
     }
 }))

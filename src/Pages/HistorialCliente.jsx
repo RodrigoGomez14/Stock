@@ -26,10 +26,11 @@ const HistorialCliente=(props)=>{
         <Layout history={props.history} page={`Historial ${props.clientes[checkSearch(props.history.location.search)].datos.nombre}`} user={props.user.uid}>
             {/* CONTENT */}            
             <Paper className={classes.content}>
-                <Grid container xs={12} justify='center' spacing={3} >
+                <Grid container xs={12} justify='center' spacing={3}>
                     <Grid container item xs={12} justify='center'>
                         <Link 
                             className={classes.link}
+                            style={{color:'#fff',textDecoration:'none'}}
                             to={{
                                 pathname:'/Nuevo-Pago-Cliente',
                                 props:{
@@ -97,7 +98,7 @@ const HistorialCliente=(props)=>{
                                                                 $ {formatMoney(cliente[pago].deudaPasada)}
                                                             </TableCell>
                                                             <TableCell align='right'>
-                                                                $ {formatMoney(cliente[pago].deudaPasada+(cliente[pago].adeudado?cliente[pago].adeudado:-cliente[pago].total))}
+                                                                $ {formatMoney(cliente[pago].deudaActualizada)}
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 {cliente[pago].idPedido?

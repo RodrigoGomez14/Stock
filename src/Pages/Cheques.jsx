@@ -14,36 +14,6 @@ import {content} from './styles/styles'
 import { Cheque } from '../components/Cheques/Cheque'
 
 
-//MENU DESPLEGABLE
-const MenuCheque = ({guardarChequeRebotado,guardarEntregaDeCheque,disabledBaja,disabledEntrega,id}) =>{
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [openDialogEntregarCheque, setopenDialogEntregarCheque] = useState(null);
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    return(
-        <>  
-            <DialogEntregarCheque open={openDialogEntregarCheque} setOpen={setopenDialogEntregarCheque} guardarEntregaDeCheque={guardarEntregaDeCheque} id={id}/>
-            <IconButton aria-label="settings" onClick={handleClick}>
-                <MoreVert/>
-            </IconButton>
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-            >  
-                <MenuItem disabled={disabledBaja} onClick={()=>{guardarChequeRebotado()}}>Dar de baja</MenuItem>
-                <MenuItem disabled={disabledEntrega}onClick={()=>{setopenDialogEntregarCheque(true)}}>Entregar Cheque</MenuItem>
-            </Menu>
-        </>
-    )
-}
-
 // COMPONENT
 const Cheques=(props)=>{
     const classes = content()
@@ -53,26 +23,26 @@ const Cheques=(props)=>{
     const [openDialog,setOpenDialog]=useState(false)
 
     // FUNCTIONS 
-    const eliminarCheque = (id) =>{
-        setLoading(true)
-        database().ref().child(props.user.uid).child('pedidos').child(id).remove()
-            .then(()=>{
-                setshowSnackbar('El pedido se eliminó correctamente!')
-                setTimeout(() => {
-                    setLoading(false)
-                    setshowSnackbar('')
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-    }
+
     const guardarChequeRebotado = id =>{
         setLoading(true)
-        actualizarDeuda(props.cheques[id].valor,props.cheques[id].nombre,id)
+
+        let valor = props.cheques[id].valor
+        let cliente = props.cheques[id].nombre
+        let destinatario = props.cheques[id].destinatario?props.cheques[id].destinatario:undefined
+
+
+        // GUARDA EL MOVIMIENTO EN LA LISTA DE PAGOS DEL CLIENTE Y DEL PROVEEDOR
+        guardarPago(cliente,id,destinatario)
+
+        // ACTUALIZA DEUDA DE CLIENTE Y PROVEEDOR 
+        actualizarDeuda(valor,cliente,destinatario)
+
+        // ACTUALIZA EL CHEQUE EN LA DB
         database().ref().child(props.user.uid).child('cheques').child(id).update({
             dadoDeBaja:true
         })
+        // FEEDBACK DEL PROCESO
         .then(()=>{
             setshowSnackbar('El cheque se dio de baja correctamente!')
             setTimeout(() => {
@@ -84,28 +54,60 @@ const Cheques=(props)=>{
             setLoading(false)
         })
     }
-    const actualizarDeuda = (valor,nombre,idCheque) =>{
-        let nuevaDeuda = props.clientes[nombre].datos.deuda
-        nuevaDeuda+=parseFloat(valor)
+
+    const actualizarDeuda = (valor,nombre,destinatario) =>{
+        
+        // CLIENTE
+        const nuevaDeudaCliente = props.clientes[nombre].datos.deuda+parseFloat(valor)
         database().ref().child(props.user.uid).child('clientes').child(nombre).child('datos').update({
-            deuda:nuevaDeuda
+            deuda:nuevaDeudaCliente
         })
-        console.log(props.cheques[idCheque].destinatario)
-        if(props.cheques[idCheque].destinatario){
-            database().ref().child(props.user.uid).child('proveedores').child(`${props.cheques[idCheque].destinatario}`).child('datos').update({deuda:props.proveedores[`${props.cheques[idCheque].destinatario}`].datos.deuda+parseFloat(valor)})  
+        // SI EL CHEQUE FUE ENTREGADO SE ACTUALIZA LA DEUDA DEL PROVEEDOR
+        if(destinatario){
+            const nuevaDeudaProveedor = props.proveedores[destinatario].datos.deuda+parseFloat(valor)
+            database().ref().child(props.user.uid).child('proveedores').child(`${destinatario}`).child('datos').update({
+                deuda:nuevaDeudaProveedor
+            })  
         }
-        guardarPago(nombre,idCheque)
+
     }
     
-    const guardarPago = (cliente,cheque) =>{
+    const guardarPago = (cliente,cheque,destinatario) =>{
+
+        // FUNCIONES DE ESTRUCTURA
+        const calcularDeudaActualizada = type =>{
+            if(type == 'cliente'){
+                return getDeudaPasada(type) + parseFloat(props.cheques[cheque].valor)
+            }
+            else if(type == 'proveedor'){
+                return getDeudaPasada(type) + parseFloat(props.cheques[cheque].valor)
+            }
+        }
+        const getDeudaPasada = type =>{
+            if(type == 'cliente'){
+                return props.clientes[cliente].datos.deuda
+            }
+            else if(type == 'proveedor'){
+                return props.proveedores[destinatario].datos.deuda
+
+            }
+        }
+        // ESTRUCTURA DEL PAGO
         let aux={
+            deudaPasada:getDeudaPasada('cliente'),
+            deudaActualizada:calcularDeudaActualizada('cliente'),
             cheques:[props.cheques[cheque].numero],
             fecha:obtenerFecha(),
             total:-(props.cheques[cheque].valor),
         }
+        // ACTUALIZA DB CLIENTE
         database().ref().child(props.user.uid).child('clientes').child(cliente).child('pagos').push(aux)
-        if(props.cheques[cheque].destinatario){
-            database().ref().child(props.user.uid).child('proveedores').child(props.cheques[cheque].destinatario).child('pagos').push(aux)  
+        
+        // ACTUALIZA DB PROVEEDOR
+        if(destinatario){
+            aux.deudaPasada=getDeudaPasada('proveedor')
+            aux.deudaActualizada=calcularDeudaActualizada('proveedor')
+            database().ref().child(props.user.uid).child('proveedores').child(destinatario).child('pagos').push(aux)  
         }
     }
     
@@ -127,6 +129,7 @@ const Cheques=(props)=>{
             setLoading(false)
         })
     }
+    
 
     // VALIDACION DE BUSQUEDA PREVIA
     useEffect(()=>{
@@ -143,14 +146,6 @@ const Cheques=(props)=>{
                 <Grid container justify='center' alignItems='center' spacing={3}>
                     {/* SEARCH BAR */}
                     <Grid container item xs={12} justify='center' alignItems='center' >
-                        <Grid item>
-                                <Link 
-                                    to='/Nuevo-Cheque'>
-                                    <IconButton>
-                                        <PersonAdd/>
-                                    </IconButton>
-                                </Link>
-                        </Grid>
                         <Grid item>
                             <TextField
                                 value={search}

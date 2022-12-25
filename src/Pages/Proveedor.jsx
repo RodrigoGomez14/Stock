@@ -29,12 +29,12 @@ const Proveedor=(props)=>{
             setshowSnackbar('El Proveedor Se Elimino Correctamente')
             setTimeout(() => {
                 setLoading(false)
-                props.history.replace('/Proveedores')
             }, 2000);
         })
         .catch(()=>{
             setLoading(false)
         })
+        props.history.replace('/Proveedores')
     }
     const eliminarPedido = (id) =>{
         setLoading(true)

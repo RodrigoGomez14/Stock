@@ -98,49 +98,63 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
     }
 
     // FUNCTIONS 
-    const guardarCheques =() =>{
-        let chequesList= []
-        if(cheques.length){
-            cheques.map(cheque=>{
-                chequesList.push(cheque.numero)
-                let auxCheque = {
-                    ingreso:fechaDetallada(),
-                    nombre:cheque.nombre,
-                    numero:cheque.numero,
-                    vencimiento:cheque.vencimiento,
-                    banco:cheque.banco,
-                    valor:cheque.valor
-                }
-                database().ref().child(props.user.uid).child('cheques').push(auxCheque)
-            })
-        }
-        return chequesList
-    }
     const enviarPedido = async () =>{
         setLoading(true)
         const id = props.history.location.search.slice(1)
+
+        // DESCONTAR PRODUCTOS
         await descontarProductos(id)
+        
+        // AGREGA CADA CHEQUE A DB
         let chequesList = guardarCheques()
+        
+        // FUNCIONES DE ESTRUCTURA
+        const calcularDeudaActualizada = () =>{
+            return props.clientes[props.pedidos[id].cliente].datos.deuda + parseFloat(calcularAdeudado())
+        }
+        const calcularPagado = () =>{
+            return total + (efectivo?parseFloat(efectivo):0)
+        }     
+        const calcularAdeudado = () =>{
+            return props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0))
+        }        
+        const calcularTotal = () =>{
+            return ((efectivo?parseFloat(efectivo):0)+total)?((efectivo?parseFloat(efectivo):0)+total):null
+        }        
+        // ESTRUCTURA DEL PEDIDO
         let aux={
             fecha:fechaDetallada(),
             articulos:props.pedidos[id].productos,
             metodoDePago:{
                 efectivo:efectivo?efectivo:null,
                 cheques:chequesList,
-                fecha:(efectivo||total?fechaDetallada():null),
-                total:((efectivo?parseFloat(efectivo):0)+total)?((efectivo?parseFloat(efectivo):0)+total):null,
+                fecha:fechaDetallada(),
+                total:calcularTotal(),
                 deudaPasada:props.clientes[props.pedidos[id].cliente].datos.deuda,
-                pagado:total + (efectivo?parseFloat(efectivo):0),
-                adeudado:props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0))
+                deudaActualizada: calcularDeudaActualizada(),
+                pagado:calcularPagado(),
+                adeudado:calcularAdeudado()
             },
             metodoDeEnvio:expreso?{expreso:expreso,remito:remito,precio:precio}:'Particular',
             total:props.history.location.props.total,
         }
+
+        // ACTUALIZA LA DEUDA DEL CLIENTE
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
+        
+        //AGREGA LA VENTA AL LISTADO DE FACTURACION
         agregarAListaDeIva(aux.total)
+
+        // AGREGA EL PEDIDO A DB PARA OBTENER ID
         let idLink = database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push()
-        agregarPagoAlHistorial(aux.metodoDePago,idLink.key)
+        
+        // MODELA Y AGREGA EL PAGO AL HISTORIAL
+        agregarPagoAlHistorial(aux.metodoDePago,idLink.key,id)
+
+        // FEEDBACK DEL PROCESO
         setshowSnackbar('El pedido se envió correctamente!')
+        
+        // ACTUALIZA DB ENVIANDO TODA LA INFO
         idLink.update(aux) 
             .then(()=>{
                 props.history.replace('/Pedidos')
@@ -161,6 +175,58 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 setLoading(false)
             })
     }
+    
+    const descontarProductos = async id =>{
+        const articulos = props.pedidos[id].productos
+        // RECORRE LOS ARTICULOS DEL PEDIDO
+        articulos.map(async articulo=>{
+            // RECORRE LOS ARTICULOS DE LOS PRODUCTOS COMPUESTOS
+            if(props.productos[articulo.producto].composicion){
+                props.productos[articulo.producto].composicion.map(async producto=>{
+                    const nuevaCantidad = props.productos[producto].cantidad-articulo.cantidad
+                    await database().ref().child(props.user.uid).child('productos').child(producto).update({cantidad:nuevaCantidad})
+                })
+            }
+            // DESCUENTA LA CANTIDAD DE PRODUCTOS SIMPLES
+            else{
+                const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)-parseInt(articulo.cantidad)
+                await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
+            }
+        })
+    }
+    const guardarCheques =() =>{
+        let chequesList= []
+        if(cheques.length){
+            // RECORRE LA LISTA DE CHEQUES 
+            cheques.map(cheque=>{
+                // GUARDA EL NUMERO DE CHEQUE
+                chequesList.push(cheque.numero)
+                // ESTRUCTURA DEL CHEQUE
+                let auxCheque = {
+                    ingreso:fechaDetallada(),
+                    nombre:cheque.nombre,
+                    numero:cheque.numero,
+                    vencimiento:cheque.vencimiento,
+                    banco:cheque.banco,
+                    valor:cheque.valor
+                }
+                // GUARDA EN LA LISTA DE CHQUES CADA UNO
+                database().ref().child(props.user.uid).child('cheques').push(auxCheque)
+            })
+        }
+        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
+        return chequesList
+    }
+    const actualizarDeuda = (totalPedido,totalRecibido) =>{
+        const id = props.history.location.search.slice(1)
+        const deudaPasada = props.clientes[props.pedidos[id].cliente].datos.deuda
+        if(totalPedido>totalRecibido){
+            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('datos').update({deuda:(deudaPasada)+(totalPedido-totalRecibido)})
+        }
+        else{
+            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('datos').update({deuda:(deudaPasada)-(totalRecibido-totalPedido)})
+        }
+    }
     const agregarAListaDeIva = (aux) =>{
         if(props.history.location.props.facturacion){
             database().ref().child(props.user.uid).child('iva').child('ventas').push({
@@ -169,38 +235,11 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 total:aux
             })
         }
-    }
-    const descontarProductos = async pedido =>{
-        const id = props.history.location.search.slice(1)
-        const articulos = props.pedidos[id].productos
-        articulos.map(async articulo=>{
-            if(props.productos[articulo.producto].composicion){
-                props.productos[articulo.producto].composicion.map(async producto=>{
-                    const nuevaCantidad = props.productos[producto].cantidad-articulo.cantidad
-                    await database().ref().child(props.user.uid).child('productos').child(producto).update({cantidad:nuevaCantidad})
-                })
-            }
-            else{
-                const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)-parseInt(articulo.cantidad)
-                await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
-            }
-        })
-    }
-    const actualizarDeuda = (totalPedido,totalRecibido) =>{
-        const id = props.history.location.search.slice(1)
-        if(totalPedido>totalRecibido){
-            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('datos').update({deuda:(props.clientes[props.pedidos[id].cliente].datos.deuda)+(totalPedido-totalRecibido)})
-        }
-        else{
-            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('datos').update({deuda:(props.clientes[props.pedidos[id].cliente].datos.deuda)-(totalRecibido-totalPedido)})
-        }
-    }
-    const agregarPagoAlHistorial = (pago,idLink) =>{
+    }    
+    const agregarPagoAlHistorial = (pago,idLink,idPedido) =>{
+        // AGREGA EL ID DEL PEDIDO AL PAGO
         let aux= {...pago,idPedido:idLink}
-        const id = props.history.location.search.slice(1)
-        if((efectivo?parseFloat(efectivo):0)+total){
-            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pagos').push(aux)
-        }
+        database().ref().child(props.user.uid).child('clientes').child(props.pedidos[idPedido].cliente).child('pagos').push(aux)
     }
     return(
         props.history.location.props?

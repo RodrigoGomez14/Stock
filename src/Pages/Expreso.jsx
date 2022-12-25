@@ -29,12 +29,12 @@ const Expreso=(props)=>{
         .then(()=>{
             setshowSnackbar('El Expreso Se Elimino Correctamente')
             setTimeout(() => {
-                props.history.replace('/Expresos')
             }, 2000);
         })
         .catch(()=>{
             setLoading(false)
         })
+        props.history.replace('/Expresos')
     }
     const asentarLlegada = (key) =>{
         setLoading(true)

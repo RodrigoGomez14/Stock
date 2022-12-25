@@ -135,7 +135,7 @@ export const CardPedido = ({pedido,id,searchPedido}) =>{
                                 <ListItemText
                                     primary={<Chip
                                         className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaPasada+pedido.metodoDePago.adeudado)}`}
+                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaActualizada)}`}
                                     />}
                                     secondary='Deuda Actualizada'
                                 />

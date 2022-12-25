@@ -26,17 +26,17 @@ const Cliente=(props)=>{
     // FUNCTIONS
     const eliminarCliente = () =>{
         setLoading(true)
-        database().ref().child(props.user.uid).child('clientes').child(cliente.datos.nombre).remove()
+        const ref = database().ref().child(props.user.uid).child('clientes').child(cliente.datos.nombre).remove()
         .then(()=>{
             setshowSnackbar('El cliente ha sido eliminado!')
             setTimeout(() => {
                 setLoading(false)
-                props.history.replace('/Clientes')
             }, 2000);
         })
         .catch(()=>{
             setLoading(false)
         })
+        props.history.replace('/Clientes')
     }
     const eliminarPedido = (id) =>{
         setLoading(true)

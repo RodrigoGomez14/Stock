@@ -7,7 +7,7 @@ import Alert from '@material-ui/lab/Alert';
 import {Redirect} from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Pago/Step'
 import {database} from 'firebase'
-import {checkSearch, formatMoney,fechaDetallada} from '../utilities'
+import {checkSearch, formatMoney,fechaDetallada,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
   
 const NuevoPagoProveedor=(props)=>{
@@ -38,6 +38,7 @@ const NuevoPagoProveedor=(props)=>{
                 setdatos={setefectivo}
                 total={total}
                 settotal={settotal}
+                chequesList={props.cheques}
             /> 
             );
         case 1:
@@ -49,6 +50,8 @@ const NuevoPagoProveedor=(props)=>{
                 total={total}
                 settotal={settotal}
                 cliente={checkSearch(props.history.location.search)}
+                addCheque={addCheque}
+                chequesList={props.cheques}
             /> 
           );
       }
@@ -66,60 +69,6 @@ const NuevoPagoProveedor=(props)=>{
                 break;
             default:
                 break;
-        }
-    }
-
-    // FUNCTIONS
-    const guardarCheques = () =>{
-        let chequesList =[]
-        if(cheques.length){
-            cheques.map(cheque=>{
-                chequesList.push(cheque.numero)
-                let auxCheque = {
-                    ingreso:fechaDetallada(),
-                    nombre:cheque.nombre,
-                    numero:cheque.numero,
-                    vencimiento:cheque.vencimiento,
-                    banco:cheque.banco,
-                    valor:cheque.valor
-                }
-                database().ref().child(props.user.uid).child('cheques').push(auxCheque)
-            })
-        }
-        return chequesList
-    }
-    const actualizarDeuda = () =>{
-        let deudaActual = props.clientes[checkSearch(props.history.location.search)].datos.deuda
-        deudaActual-=total+(efectivo?parseFloat(efectivo):0)
-        database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('datos').update({deuda:deudaActual})
-    }
-    const guardarPago = () =>{
-        setLoading(true)
-        const chequesList = guardarCheques()
-        actualizarDeuda()
-        let aux={
-            efectivo:efectivo?efectivo:null,
-            cheques:chequesList.length?chequesList:null,
-            fecha:efectivo||cheques?fechaDetallada():null,
-            total:efectivo||cheques?total+(efectivo?parseFloat(efectivo):0):null,
-            deudaPasada:props.clientes[checkSearch(props.history.location.search)].datos.deuda,
-        }
-        let pagos = []
-        if(props.clientes[checkSearch(props.history.location.search)].pagos){
-            pagos=props.clientes[checkSearch(props.history.location.search)].pagos
-        }
-        if(aux){
-            pagos.push(aux)
-            database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('pagos').update(pagos)
-            .then(()=>{
-                    setshowSnackbar('El pago se agregó correctamente!')
-                setTimeout(() => {
-                    props.history.replace(`/Historial-Cliente?${checkSearch(props.history.location.search)}`)
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
         }
     }
     function getStepLabel(label,index) {
@@ -150,8 +99,89 @@ const NuevoPagoProveedor=(props)=>{
                 );
         }
     }
+
+    // FUNCTIONS
+    const guardarPago = () =>{
+        setLoading(true)
+
+        // ACTUALIZA CADA CHEQUE EN DB
+        const chequesList = actualizarCheques()
+
+        // FUNCIONES DE ESTRUCTURA
+        const calcularDeudaActualizada = () =>{
+            return (getDeudaPasada() - calcularTotal())
+        }
+        const calcularTotal = () =>{
+            return efectivo||cheques?total+(efectivo?parseFloat(efectivo):0):null
+        }
+        const getDeudaPasada = () =>{
+            return props.proveedores[checkSearch(props.history.location.search)].datos.deuda
+        }
+        // ESTRUCTURA DEL PAGO
+        let aux={
+            efectivo:efectivo?efectivo:null,
+            cheques:chequesList.length?chequesList:null,
+            fecha:fechaDetallada(),
+            total:calcularTotal(),
+            deudaPasada:getDeudaPasada(),
+            deudaActualizada:calcularDeudaActualizada(),
+        }
+
+        // ACTUALIZA LA DEUDA CON EL PROVEEDOR 
+        actualizarDeuda()
+        
+        // ENVIA TODO A DB
+        if(aux){
+            database().ref().child(props.user.uid).child('proveedores').child(checkSearch(props.history.location.search)).child('pagos').push(aux)
+            .then(()=>{
+                    setshowSnackbar('El pago se agregó correctamente!')
+                setTimeout(() => {
+                    props.history.replace(`/Historial-Proveedor?${checkSearch(props.history.location.search)}`)
+                }, 2000);
+            })
+            .catch(()=>{
+                setLoading(false)
+            })
+        }
+    }
+    const actualizarCheques = () =>{
+        let chequesList =[]
+        if(cheques.length){
+            // RECORRE LA LISTA DE CHEQUES 
+            cheques.map(cheque=>{
+                // ACTUALIZA EL CHEQUE EN DB
+                database().ref().child(props.user.uid).child('cheques').child(cheque).update({
+                    egreso:obtenerFecha(),
+                    destinatario:props.proveedores[props.history.location.search.slice(1)].datos.nombre,
+                })
+                // GUARDA EL NUMERO DE CHEQUE
+                chequesList.push(props.cheques[cheque].numero)
+            })
+        }
+        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
+        return chequesList
+    }
+    const actualizarDeuda = () =>{
+        let deudaActual = props.proveedores[checkSearch(props.history.location.search)].datos.deuda
+        deudaActual-=total+(efectivo?parseFloat(efectivo):0)
+        database().ref().child(props.user.uid).child('proveedores').child(checkSearch(props.history.location.search)).child('datos').update({deuda:deudaActual})
+    }
+    
+    const addCheque = key =>{
+        const index = cheques.indexOf(key)
+        let aux = [...cheques]
+        if(index !== -1){
+            aux.splice(index,1)
+            settotal(parseFloat(total)-parseFloat(props.cheques[key].valor))
+        }
+        else{
+            aux.push(key)
+            settotal(parseFloat(total)+parseFloat(props.cheques[key].valor))
+        }
+        setcheques(aux)
+    }
     return(
-        <Layout history={props.history} page={props.history.location.search?'Editar Pago':'Nuevo Pago'} user={props.user.uid} blockGoBack={true}>
+        <Layout history={props.history} page='Nuevo Pago' user={props.user.uid} blockGoBack={true}>
             {/* CONTENT */}
             <Paper className={classes.content}>
                     {/* STEPPER */}
@@ -212,7 +242,8 @@ const NuevoPagoProveedor=(props)=>{
 const mapStateToProps = state =>{
     return{
         user:state.user,
-        clientes:state.clientes,
+        proveedores:state.proveedores,
+        cheques:state.cheques
     }
 }
 export default connect(mapStateToProps,null)(NuevoPagoProveedor)

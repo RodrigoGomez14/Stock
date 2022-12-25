@@ -68,55 +68,6 @@ const NuevoPagoCliente=(props)=>{
                 break;
         }
     }
-
-    // FUNCTIONS
-    const guardarCheques = () =>{
-        let chequesList =[]
-        if(cheques.length){
-            cheques.map(cheque=>{
-                chequesList.push(cheque.numero)
-                let auxCheque = {
-                    ingreso:fechaDetallada(),
-                    nombre:cheque.nombre,
-                    numero:cheque.numero,
-                    vencimiento:cheque.vencimiento,
-                    banco:cheque.banco,
-                    valor:cheque.valor
-                }
-                database().ref().child(props.user.uid).child('cheques').push(auxCheque)
-            })
-        }
-        return chequesList
-    }
-    const actualizarDeuda = () =>{
-        let deudaActual = props.clientes[checkSearch(props.history.location.search)].datos.deuda
-        deudaActual-=total+(efectivo?parseFloat(efectivo):0)
-        database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('datos').update({deuda:deudaActual})
-    }
-    const guardarPago = () =>{
-        setLoading(true)
-        const chequesList = guardarCheques()
-        actualizarDeuda()
-        let aux={
-            efectivo:efectivo?efectivo:null,
-            cheques:chequesList.length?chequesList:null,
-            fecha:efectivo||cheques?fechaDetallada():null,
-            total:efectivo||cheques?total+(efectivo?parseFloat(efectivo):0):null,
-            deudaPasada:props.clientes[checkSearch(props.history.location.search)].datos.deuda,
-        }
-        if(aux){
-            database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('pagos').push(aux)
-            .then(()=>{
-                    setshowSnackbar('El pago se agregó correctamente!')
-                setTimeout(() => {
-                    props.history.replace(`/Historial-Cliente?${checkSearch(props.history.location.search)}`)
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-        }
-    }
     function getStepLabel(label,index) {
         switch (index) {
             case 0:
@@ -145,8 +96,81 @@ const NuevoPagoCliente=(props)=>{
                 );
         }
     }
+
+    // FUNCTIONS
+    const guardarPago = () =>{
+        setLoading(true)
+
+        // ACTUALIZA CADA CHEQUE EN DB
+        const chequesList = guardarCheques()
+
+        // FUNCIONES DE ESTRUCTURA
+        const calcularDeudaActualizada = () =>{
+            return (getDeudaPasada() - calcularTotal())
+        }
+        const calcularTotal = () =>{
+            return efectivo||cheques?total+(efectivo?parseFloat(efectivo):0):null
+        }
+        const getDeudaPasada = () =>{
+            return props.clientes[checkSearch(props.history.location.search)].datos.deuda
+        }
+        // ESTRUCTURA DEL PAGO
+        let aux={
+            efectivo:efectivo?efectivo:null,
+            cheques:chequesList.length?chequesList:null,
+            fecha:fechaDetallada(),
+            total:calcularTotal(),
+            deudaPasada:getDeudaPasada(),
+            deudaActualizada:calcularDeudaActualizada(),
+        }
+
+        // ACTUALIZA LA DEUDA DEL CLIENTE 
+        actualizarDeuda()
+
+        // ENVIA TODO A DB
+        if(aux){
+            database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('pagos').push(aux)
+            .then(()=>{
+                    setshowSnackbar('El pago se agregó correctamente!')
+                setTimeout(() => {
+                    props.history.replace(`/Historial-Cliente?${checkSearch(props.history.location.search)}`)
+                }, 2000);
+            })
+            .catch(()=>{
+                setLoading(false)
+            })
+        }
+    }
+    const guardarCheques = () =>{
+        let chequesList =[]
+        if(cheques.length){
+            // RECORRE LA LISTA DE CHEQUES 
+            cheques.map(cheque=>{
+                // GUARDA EL NUMERO DE CHEQUE
+                chequesList.push(cheque.numero)
+                // ESTRUCTURA DEL CHEQUE
+                let auxCheque = {
+                    ingreso:fechaDetallada(),
+                    nombre:cheque.nombre,
+                    numero:cheque.numero,
+                    vencimiento:cheque.vencimiento,
+                    banco:cheque.banco,
+                    valor:cheque.valor
+                }
+                // GUARDA EN LA LISTA DE CHQUES CADA UNO
+                database().ref().child(props.user.uid).child('cheques').push(auxCheque)
+            })
+        }
+        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
+        return chequesList
+    }
+    const actualizarDeuda = () =>{
+        let deudaActual = props.clientes[checkSearch(props.history.location.search)].datos.deuda
+        deudaActual-=total+(efectivo?parseFloat(efectivo):0)
+        database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('datos').update({deuda:deudaActual})
+    }
     return(
-        <Layout history={props.history} page={props.history.location.search?'Editar Pago':'Nuevo Pago'} user={props.user.uid} blockGoBack={true}>
+        <Layout history={props.history} page='Nuevo Pago' user={props.user.uid} blockGoBack={true}>
             {/* CONTENT */}
             <Paper className={classes.content}>
                     {/* STEPPER */}

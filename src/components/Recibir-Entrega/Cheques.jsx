@@ -21,7 +21,8 @@ export const Cheques = ({chequesList,cheques,addCheque}) =>{
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {Object.keys(chequesList).reverse().map((cheque,i)=>(
+                            {chequesList?
+                            Object.keys(chequesList).reverse().map((cheque,i)=>(
                                 !chequesList[cheque].dadoDeBaja && !chequesList[cheque].destinatario?
                                     <TableRow onClick={()=>{addCheque(cheque)}} style={{cursor:'pointer'}}>
                                             <TableCell>
@@ -38,7 +39,10 @@ export const Cheques = ({chequesList,cheques,addCheque}) =>{
                                     </TableRow>
                                     :
                                     null
-                            ))}
+                            ))
+                            :
+                            null
+                            }
                         </TableBody>
                     </Table>
                 </TableContainer>
