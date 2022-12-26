@@ -47,7 +47,6 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
                                             open={Boolean(anchorEl)}
                                             onClose={handleClose}
                                         >
-                                            
                                             <MenuItem>Editar</MenuItem>
                                             {!cheque.dadoDeBaja?
                                                 <MenuItem onClick={()=>{
@@ -58,12 +57,7 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
                                                 </MenuItem>
                                                 :
                                                 null
-                                            }
-                                            <MenuItem onClick={()=>{
-                                                setAnchorEl(null)
-                                            }}>
-                                                Eliminar
-                                            </MenuItem>
+                                        }
                                         </Menu>
                                     </>
                                 }

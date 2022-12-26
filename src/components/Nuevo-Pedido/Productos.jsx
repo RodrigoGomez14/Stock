@@ -3,6 +3,7 @@ import {Grid,Paper,Typography,ListItem,ListItemText,ListItemSecondaryAction,Icon
 import {EditOutlined,DeleteOutlineOutlined} from '@material-ui/icons'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
+import Empty from '../../images/Empty.png'
 
 export const Productos = ({productos,seteditIndex,showDialog,openDialogDelete}) =>{
     const classes = content()
@@ -53,8 +54,13 @@ export const Productos = ({productos,seteditIndex,showDialog,openDialogDelete}) 
                 </TableContainer>
             </Grid>
             :
-            <Grid container item xs={12} alignItems='center' justify='center'>
-                <Typography>Aun no hay productos seleccionados</Typography>
+            <Grid container xs={12} justify='center' spacing={2}>
+                <Grid container item xs={12} justify='center'>
+                    <Typography variant='h5'>No Hay Productos Seleccionados</Typography>
+                </Grid>
+                <Grid item>
+                    <img src={Empty} alt="" height='300px'/>
+                </Grid>
             </Grid>
         
     )

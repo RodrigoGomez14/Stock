@@ -6,7 +6,7 @@ import {CardPedido} from './CardPedido'
 import {content} from '../../Pages/styles/styles'
 import Empty from '../../images/Empty.png'
 {/* COMPONENT */}
-export const ListaDePedidos = ({pedidos,searchPedido}) =>{
+export const ListaDePedidos = ({pedidos,searchPedido,searchRemito}) =>{
     const classes = content()
     const [articulos,setArticulos]=useState(undefined)
     const [metodoDePago,setMetodoDePago]=useState(undefined)
@@ -26,6 +26,7 @@ export const ListaDePedidos = ({pedidos,searchPedido}) =>{
                         <>
                             {console.log(searchPedido,pedido)}
                             <CardPedido
+                                searchRemito={searchRemito}
                                 searchPedido={searchPedido}
                                 pedido={pedidos[pedido]}
                                 id={pedido}

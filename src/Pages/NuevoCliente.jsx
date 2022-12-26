@@ -187,16 +187,41 @@ const NuevoCliente=(props)=>{
                 infoExtra:infoExtra?infoExtra:null,
             },
         }}
-        database().ref().child(props.user.uid).child('clientes').update(aux)
+        if(props.history.location.search){
+            let newAux = props.clientes[checkSearch(props.history.location.search)]
+            newAux['datos']=aux[nombre].datos
+            
+            // COPIA PEDIDOS E HISTORIAL
+            database().ref().child(props.user.uid).child('clientes').child(props.history.location.search.slice(1)).remove()
             .then(()=>{
-                setshowSnackbar(props.history.location.search?'El Cliente Se Edito Correctamente!':'El Cliente Se Agrego Correctamente!')
-                setTimeout(() => {
-                    props.history.replace(`/Cliente?${nombre}`)
-                }, 2000);
+                database().ref().child(props.user.uid).child('clientes').child(nombre).update(newAux)
+                .then(()=>{
+                    setshowSnackbar(props.history.location.search?'El Cliente Se Edito Correctamente!':'El Cliente Se Agrego Correctamente!')
+                        setTimeout(() => {
+                            setLoading(false)
+                            props.history.replace(`/Cliente?${nombre}`)
+                        }, 2000);
+                })
+                .catch(()=>{
+                    setLoading(false)
+                })
             })
             .catch(()=>{
                 setLoading(false)
             })
+        }
+        else{
+            database().ref().child(props.user.uid).child('clientes').update(aux)
+                .then(()=>{
+                    setshowSnackbar(props.history.location.search?'El Cliente Se Edito Correctamente!':'El Cliente Se Agrego Correctamente!')
+                    setTimeout(() => {
+                        props.history.replace(`/Cliente?${nombre}`)
+                    }, 2000);
+                })
+                .catch(()=>{
+                    setLoading(false)
+                })
+        }
     }
 
     // FILL FOR EDIT

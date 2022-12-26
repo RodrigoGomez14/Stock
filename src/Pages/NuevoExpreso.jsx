@@ -172,17 +172,42 @@ const NuevoExpreso=(props)=>{
                 infoExtra:infoExtra?infoExtra:null,
             },
         }}
-        database().ref().child(props.user.uid).child('expresos').update(aux)
+        if(props.history.location.search){
+            let newAux = props.expresos[checkSearch(props.history.location.search)]
+            newAux['datos']=aux[nombre].datos
+            console.log(newAux)
+            // COPIA PEDIDOS E HISTORIAL
+            database().ref().child(props.user.uid).child('expresos').child(props.history.location.search.slice(1)).remove()
             .then(()=>{
-                setshowSnackbar(props.history.location.search?'El expreso se edito correctamente!':'El nuevo expreso ha sido agregado!')
-                setTimeout(() => {
-                    props.history.replace(`/Expreso?${nombre}`)
-                }, 2000);
+                database().ref().child(props.user.uid).child('expresos').child(nombre).update(newAux)
+                .then(()=>{
+                    setshowSnackbar(props.history.location.search?'El Expreso Se Edito Correctamente!':'El Expreso Se Agrego Correctamente!')
+                        setTimeout(() => {
+                            setLoading(false)
+                            props.history.replace(`/Expreso?${nombre}`)
+                        }, 2000);
+                })
+                .catch(()=>{
+                    setLoading(false)
+                })
             })
             .catch(()=>{
                 setLoading(false)
             })
-    }
+        }
+        else{
+            database().ref().child(props.user.uid).child('expresos').update(aux)
+                .then(()=>{
+                    setshowSnackbar(props.history.location.search?'El Expreso Se Edito Correctamente!':'El Expreso Se Agrego Correctamente!')
+                    setTimeout(() => {
+                        props.history.replace(`/Expreso?${nombre}`)
+                    }, 2000);
+                })
+                .catch(()=>{
+                    setLoading(false)
+                })
+        }
+        }
 
     // VALIDACION EDITAR EXPRESO
     useEffect(()=>{

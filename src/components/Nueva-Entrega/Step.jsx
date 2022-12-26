@@ -49,15 +49,19 @@ export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,to
                                 </Button>
                         </Grid>
                         <Productos productos={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
-                        <Grid container justify='center'>
-                            <Grid item justify='center'>
-                                <Paper elevation={3} className={classes.cardTotalPedidoDanger}>
-                                    <Typography variant='h5'>
-                                        Total $ {formatMoney(total)}
-                                    </Typography>
-                                </Paper>
+                        {datos.length?
+                            <Grid container justify='center'>
+                                <Grid item justify='center'>
+                                    <Paper elevation={3} className={classes.cardTotalPedidoDanger}>
+                                        <Typography variant='h5'>
+                                            Total $ {formatMoney(total)}
+                                        </Typography>
+                                    </Paper>
+                                </Grid>
                             </Grid>
-                        </Grid>
+                            :
+                            null
+                        }
 
                         {/* DIALOGS */}
                         <DialogNuevoProducto 

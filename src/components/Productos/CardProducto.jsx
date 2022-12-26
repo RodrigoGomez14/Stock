@@ -20,8 +20,9 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
     // CONTENT
     return(
         <Grid item xs={8} sm={6} md={4} lg={3} className={!search?null:name.toLowerCase().search(search.toLowerCase()) == -1 ? classes.displayNone:classes.display}>
-                <Card className={classes.cardCliente}>
+                <Card>
                     <CardHeader
+                        className={classes.cardCliente}
                         action={
                             <>
                                 <IconButton onClick={()=>{setExpanded(!expanded)}}>
@@ -59,21 +60,9 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                                 </Menu>
                             </>
                         }
-                        title={
-                            <Grid container xs={12} justify='flex-start' spacing={3}>
-                                <Grid item xs={12}>
-                                    <Typography variant='h5'>
-                                        {name}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12} >
-                                    <Chip
-                                        className={classes.cardProductoChip}
-                                        label={cantidad}
-                                    />
-                                </Grid>
-                            </Grid>
-                        }
+                        title={[name,<Chip color='inherit' label={cantidad} style={{marginLeft:'8px'}}/>]}
+                        subheader={`$ ${formatMoney(precio)} c/u`}
+
                     />
                     <Collapse in={expanded} timeout='auto' unmountOnExit>
                         <CardContent>

@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react'
 import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
-import {database} from 'firebase'
+import {Alert} from '@material-ui/lab'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
@@ -21,7 +21,7 @@ export const CardEnvio = ({envio,search,asentarLlegada}) =>{
     return(
         <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:envio.remito.search(search) == -1 ? classes.displayNone:classes.display} >
             <Card>
-                <Paper elevation={3} className={classes.cardPedidoHeader}>
+                <Paper elevation={3} className={envio.fechaDeLlegada?classes.cardEnvioHeaderSuccess:''}>
                     <CardHeader
                         className={classes.header}
                         action={
@@ -48,7 +48,7 @@ export const CardEnvio = ({envio,search,asentarLlegada}) =>{
                                         :
                                         null
                                     }
-                                    <MenuItem className={classes.deleteButton} onClick={()=>{}}>Eliminar</MenuItem>
+                                    <MenuItem className={classes.deleteButton} disabled={true} onClick={()=>{}}>Asentar Inconveniente</MenuItem>
                                 </Menu>
                             </>
                         }
@@ -65,28 +65,36 @@ export const CardEnvio = ({envio,search,asentarLlegada}) =>{
                                 </Grid>
                             </Grid>
                         }
-                        subheader={envio.fecha}
+                        subheader={
+                            <Link 
+                                style={{color:'#fff',textDecoration:'none'}}
+                                className={classes.textWhite}
+                                to={{pathname:'/Cliente',search:`${envio.cliente}`,props:{remito:envio.id}}}>
+                                Remito Nº {envio.remito}
+                            </Link>
+                        }
                     />
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
+                        {envio.fechaDeLlegada?
+                            <Grid container xs={12} justify='center'>
+                                <Grid container item xs={12}>
+                                    <Alert variant="filled" severity="success" className={classes.alertCheque}>
+                                        El paquete llego a destino el {envio.fechaDeLlegada}
+                                    </Alert>
+                                </Grid>
+                            </Grid>
+                            :
+                            null
+                        }
                         <List>
                             <ListItem>
                                 <ListItemText primary={envio.fecha} secondary='Fecha de Salida'/>
                             </ListItem>
-                            <ListItem>
-                                <ListItemText primary={!envio.fechaDeLlegada?'-':envio.fechaDeLlegada} secondary='Fecha de LLegada'/>
-                            </ListItem>
                         </List>
                     </CardContent>
                 </Collapse>
-                <Paper elevation={3} className={classes.cardPedidoActions}>
-                    <CardActions>
-                        <Grid container justify='space-around'>
-                            <Typography variant='h5'>Remito {envio.remito}</Typography>
-                        </Grid>
-                    </CardActions>
-                </Paper>
             </Card>
         </Grid>
     )

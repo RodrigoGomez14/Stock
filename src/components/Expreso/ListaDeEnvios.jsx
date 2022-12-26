@@ -4,6 +4,7 @@ import {Clear, MoreVert} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardEnvio} from './CardEnvio'
 import {content} from '../../Pages/styles/styles'
+import Empty from '../../images/Empty.png'
 
 {/* COMPONENT */}
 export const ListaDeEnvios = ({envios,search,setSearch,asentarLlegada}) =>{
@@ -52,10 +53,13 @@ export const ListaDeEnvios = ({envios,search,setSearch,asentarLlegada}) =>{
                     </Grid>
                 </>
                 :
-                <Grid container item xs={12} justify='center'>
-                    <Typography className={classes.textWhite} variant='h6'>
-                        El expreso no realizo ningun envio
-                    </Typography>
+                <Grid container xs={12} justify='center' spacing={2}>
+                    <Grid item>
+                        <img src={Empty} alt="" height='600px'/>
+                    </Grid>
+                    <Grid container item xs={12} justify='center'>
+                        <Typography variant='h5'>El Expreso No Hizo Ningun Envio</Typography>
+                    </Grid>
                 </Grid>
             }
         </Grid>

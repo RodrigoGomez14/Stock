@@ -52,7 +52,6 @@ export const content =makeStyles(theme=>({
         // CARD CLIENT
         cardCliente:{
             backgroundColor:theme.palette.primary.main,
-            width:'300px'
         },
         titleCardCliente:{
             color: theme.palette.primary.contrastText,
@@ -75,6 +74,17 @@ export const content =makeStyles(theme=>({
     cardPedidoActions:{
         backgroundColor:theme.palette.primary.dark
     },
+    containerProductos:{
+        overflow:'scroll',
+        flexWrap:'nowrap'
+    },
+    cardDeudaRedCardPedido:{
+        backgroundColor:theme.palette.danger.main
+    },
+    cardDeudaGreenCardPedido:{
+        backgroundColor:theme.palette.success.main
+    },
+
     // NUEVO-PEDIDO
     cardTotalPedidoDanger:{
         padding:'15px',
@@ -84,7 +94,16 @@ export const content =makeStyles(theme=>({
         padding:'15px',
         backgroundColor:theme.palette.success.main
     },
-    
+    // CARD ENVIO
+    cardEnvioHeaderSuccess:{
+        backgroundColor:theme.palette.success.main
+    },
+    cardEnvioHeaderDanger:{
+        backgroundColor:theme.palette.danger.dark
+    },
+    cardEnvioHeaderWarning:{
+        backgroundColor:theme.palette.warning.main
+    },
     //CARD PRODUCTO
     cardProducto:{
         backgroundColor:theme.palette.primary.main,

@@ -2,11 +2,12 @@ import React, {useState,useEffect} from 'react'
 import {Grid,Card,CardContent,IconButton,Typography,Chip,ListSubheader,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,ListItemSecondaryAction, CardActions} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
-import {database} from 'firebase'
+import {Alert} from '@material-ui/lab'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
+import { ProductoCardPedido } from './ProductoCardPedido'
 
-export const CardPedido = ({pedido,id,searchPedido}) =>{
+export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -22,8 +23,17 @@ export const CardPedido = ({pedido,id,searchPedido}) =>{
         setAnchorEl(null);
     };
 
+    const getClassNameSearch = () =>{
+        if(searchRemito){
+            return !searchRemito?null:id.search(searchRemito) == -1 ? classes.displayNone:classes.display
+        }
+        else{
+            return !searchPedido?null:id.search(searchPedido) == -1 ? classes.displayNone:classes.display 
+        }
+    }
+
     return(
-        <Grid item xs={11} sm={8} md={6} lg={4} className={!searchPedido?null:id.search(searchPedido) == -1 ? classes.displayNone:classes.display}>
+        <Grid item xs={11} sm={8} md={6} lg={4} className={getClassNameSearch()}>
             <Card>
                 <Paper elevation={3} className={classes.cardPedidoHeader}>
                     <CardHeader
@@ -52,68 +62,45 @@ export const CardPedido = ({pedido,id,searchPedido}) =>{
                                 </Menu>
                             </>
                         }
-                        subheader={
-                            <List>
-                                <ListItem>
-                                    <ListItemText 
-                                        primary={pedido.metodoDeEnvio=="Particular"?
-                                        'Envio'
-                                        :
-                                        <ListItemText 
-                                            primary={
-                                                <Link
-                                                    style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                                    to={{
-                                                    pathname:'/Expreso',
-                                                    search:pedido.metodoDeEnvio.expreso,
-                                                    props:{
-                                                        remito:pedido.metodoDeEnvio.remito
-                                                    }
-                                                }}>
-                                                    <Chip className={classes.cardProductoChip} label={pedido.metodoDeEnvio.expreso}/>
-                                                </Link>
-                                        }/>
-                                    } 
-                                    secondary={pedido.metodoDeEnvio=="Particular"?'Particular': pedido.metodoDeEnvio.remito}/>
-                                </ListItem>
-                            </List>
-                        }
                         title={pedido.fecha}
+                        subheader={`$ ${formatMoney(pedido.total)}`}
                     />
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
-                        <List
-                            subheader={
-                                <ListSubheader component="div" id="nested-list-subheader">
-                                  Productos
-                                </ListSubheader>
-                              }
-                        >
-                            {pedido.articulos.map(producto=>(
-                                <ListItem>
-                                    <ListItemText primary={producto.producto} secondary={`${producto.cantidad} u, $ ${producto.precio}`}/>
-                                    {producto.discount?
-                                        <ListItemText primary={<Chip className={classes.cardProductoChip} label={`-${producto.discount}%`}/>}/>
-                                        :
-                                        null
-                                    }
-                                    {producto.increase?
-                                        <ListItemText primary={<Chip className={classes.cardProductoChip} label={`+${producto.increase}%`}/>}/>
-                                        :
-                                        null
-                                    }
-                                </ListItem>
-                            ))}
-                        </List>
+                        <Grid container xs={12} spacing={2} >
+                            {pedido.metodoDeEnvio.expreso?
+                                <Grid container item xs={12}>
+                                    <Grid container item xs={12}>
+                                            <Alert variant="filled" severity="success" className={classes.alertCheque}>
+                                        <Link
+                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                            to={{
+                                            pathname:'/Expreso',
+                                            search:pedido.metodoDeEnvio.expreso,
+                                            props:{
+                                                remito:pedido.metodoDeEnvio.remito
+                                            }
+                                        }}>
+                                            Enviado con {pedido.metodoDeEnvio.expreso} Remito Nº {pedido.metodoDeEnvio.remito}
+                                        </Link>
+                                            </Alert>
+                                    </Grid>
+                                </Grid>
+                                :
+                                null
+                            }
+                                {pedido.articulos.map(producto=>(
+                                    <Grid container item xs={12} spacing={2}>
+                                        <ProductoCardPedido producto={producto}/>
+                                    </Grid>
+                                ))}
+                        </Grid>
                         <List>
                             <Divider/>
                             <ListItem>
                                 <ListItemText
-                                    primary={<Chip
-                                        className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.metodoDePago.pagado)}`}
-                                    />}
+                                    primary={`$ ${formatMoney(pedido.metodoDePago.pagado)}`}
                                     secondary='Pagado'
                                 />
                                 <ListItemText
@@ -126,17 +113,11 @@ export const CardPedido = ({pedido,id,searchPedido}) =>{
                             </ListItem>
                             <ListItem>
                                 <ListItemText
-                                    primary={<Chip
-                                        className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaPasada)}`}
-                                    />}
+                                    primary={`$ ${formatMoney(pedido.metodoDePago.deudaPasada)}`}
                                     secondary='Deuda Anterior'
                                 />
                                 <ListItemText
-                                    primary={<Chip
-                                        className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.metodoDePago.deudaActualizada)}`}
-                                    />}
+                                    primary={`$ ${formatMoney(pedido.metodoDePago.deudaActualizada)}`}
                                     secondary='Deuda Actualizada'
                                 />
                             </ListItem>   
@@ -144,79 +125,51 @@ export const CardPedido = ({pedido,id,searchPedido}) =>{
                         </List>
                         {pedido.metodoDePago.pagado > 0?
                         <Card>
-                            <CardHeader className={classes.titleDetallesCard} title='Detalles de pago' action={<IconButton onClick={()=>{setExpandedPago(!expandedPago)}}>{expandedPago?<ExpandLess/>:<ExpandMore/>}</IconButton>}/>
-                            <Collapse in={expandedPago} timeout='auto' unmountOnExit>
-                                <CardContent>
+                            <CardHeader className={classes.titleDetallesCard} title='Detalles de pago'/>
+                            <CardContent>
+                                <List>
                                     {pedido.metodoDePago.efectivo?
-                                        <List>
-                                            <ListItem>
-                                                <ListItemText primary={`$ ${formatMoney(pedido.metodoDePago.efectivo)}`} secondary='Efectivo'/>
-                                            </ListItem>
-                                        </List>
+                                        <ListItem>
+                                            <ListItemText primary={`$ ${formatMoney(pedido.metodoDePago.efectivo)}`} secondary='Efectivo'/>
+                                        </ListItem>
                                         :
                                         null
                                     }
                                     {pedido.metodoDePago.cheques?
-                                        <Card>
-                                            <CardHeader
-                                            className={classes.titleDetallesCard}
-                                            title={
-                                                <List>
-                                                    <ListItem>
-                                                        <ListItemText primary={`${pedido.metodoDePago.cheques.length} ${pedido.metodoDePago.cheques.length>1?'Cheques':'Cheque'} $ ${formatMoney(pedido.metodoDePago.total-(pedido.metodoDePago.efectivo?pedido.metodoDePago.efectivo:0))}`}/>
-                                                        <ListItemSecondaryAction>
-                                                            <IconButton 
-                                                                onClick={()=>{
-                                                                    setExpandedCheques(!expandedCheques)
-                                                                 }}>
-                                                                    {expandedCheques?<ExpandLess/>:<ExpandMore/>}
-                                                            </IconButton>                           
-                                                        </ListItemSecondaryAction>
-                                                    </ListItem>
-                                                </List>
-                                                }/>
-                                            <Collapse in={expandedCheques} timeout='auto' unmountOnExit>
-                                                <CardContent>
-                                                    <List>
-                                                        {pedido.metodoDePago.cheques.map(cheque=>(
-                                                           <ListItem>
-                                                                <ListItemText 
-                                                                    primary={
-                                                                        <Link
-                                                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                                                            to={{
-                                                                            pathname:'/Cheques',
-                                                                            search:cheque
-                                                                        }}>
-                                                                            {cheque}
-                                                                        </Link>}
-                                                                    />
-                                                           </ListItem> 
-                                                        ))}
-                                                    </List>
-                                                </CardContent>
-                                            </Collapse>
-                                        </Card>
-                                        :
-                                        null
+                                    <>
+                                        {pedido.metodoDePago.efectivo?<Divider/>:null}
+                                        <ListItem>
+                                            <ListItemText
+                                                primary={`$ ${formatMoney(pedido.metodoDePago.total-(pedido.metodoDePago.efectivo?pedido.metodoDePago.efectivo:0))}`}
+                                                secondary={`${pedido.metodoDePago.cheques.length} ${pedido.metodoDePago.cheques.length>1?'Cheques':'Cheque'}`}/>
+                                        </ListItem>
+                                        <ListItem>
+                                            {pedido.metodoDePago.cheques.map(cheque=>(
+                                                <ListItemText
+                                                    primary={
+                                                    <Link
+                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                        to={{
+                                                        pathname:'/Cheques',
+                                                        search:cheque}}>
+                                                            N° {cheque}
+                                                    </Link>
+                                                    }
+                                                />
+                                            ))}
+                                        </ListItem>
+                                    </>
+                                    :
+                                    null
                                     }
-                                </CardContent>
-                            </Collapse>
+                                </List>
+                            </CardContent>
                         </Card>
                             :
                             null
                         }
                     </CardContent>
                 </Collapse>
-                <Paper elevation={3} className={classes.cardPedidoActions}>
-                    <CardActions>
-                        <Grid container justify='space-around'>
-                            <Typography variant='h5'>
-                                    {`$ ${formatMoney(pedido.total)}`}
-                            </Typography>
-                        </Grid>
-                    </CardActions>
-                </Paper>
             </Card>
         </Grid>
     )

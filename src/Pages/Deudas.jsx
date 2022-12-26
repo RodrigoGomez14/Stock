@@ -1,20 +1,35 @@
 import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper,Button,Card,CardContent,Typography,TextField,CardActions,Grid,Chip,IconButton,Link as LinkComponent} from '@material-ui/core'
+import {makeStyles,Paper,Button,Card,ListItem,Typography,TextField,List,Grid,Chip,Divider,Link as LinkComponent} from '@material-ui/core'
 import {AttachMoney,PersonAdd} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import CardDeudaCliente from '../components/Deudas/CardDeudaCliente'
 import CardDeudaProveedor from '../components/Deudas/CardDeudaProveedor'
+import { useEffect } from 'react'
 
 // COMPONENT
 const Deudas=(props)=>{
     const classes = content()
     let [searchCliente,setSearchCliente]=useState('')
     let [searchProveedor,setSearchProveedor]=useState('')
+    let [totalClientes,setTotalClientes]=useState(0)
+    let [totalProveedores,setTotalProveedores]=useState(0)
 
+    useEffect(()=>{
+        Object.values(props.clientes).map(cliente=>{
+            if(cliente.datos.deuda>0){
+                setTotalClientes(totalClientes + cliente.datos.deuda)
+            }
+        })
+        Object.values(props.proveedores).map(proveedor=>{
+            if(proveedor.datos.deuda>0){
+                setTotalProveedores(totalProveedores + proveedor.datos.deuda)
+            }
+        })
+    },[])
     return(
         <Layout history={props.history} page="Deudas" user={props.user.uid}>
             {/* CONTENT */}
@@ -24,8 +39,8 @@ const Deudas=(props)=>{
                         {props.clientes?
                             <Grid container item xs={12} justify='center' alignItems='center' spacing={3}>
                                 <Grid container item xs={12} justify='center'>
-                                    <Typography  variant='h4' textAlign='center'>
-                                        Clientes
+                                    <Typography  variant='h5' textAlign='center'>
+                                        Clientes ${formatMoney(totalClientes)}
                                     </Typography>
                                 </Grid>
                                 <Grid container item xs={12} justify='center'>
@@ -41,7 +56,7 @@ const Deudas=(props)=>{
                                 <Grid container justify='center' alignItems='center' spacing={4}>
                                     {Object.keys(props.clientes).map(key=>(
                                         props.clientes[key].datos.deuda != 0 ?
-                                        <CardDeudaCliente nombre={key} search={searchCliente} deuda={props.clientes[key].datos.deuda}/>
+                                            <CardDeudaCliente nombre={key} search={searchCliente} deuda={props.clientes[key].datos.deuda}/>
                                         :
                                         null
                                     ))}
@@ -60,8 +75,8 @@ const Deudas=(props)=>{
                         {props.proveedores?
                             <Grid container item xs={12} justify='center' alignItems='center' spacing={3}>
                                 <Grid container item xs={12} justify='center'>
-                                    <Typography  variant='h4' textAlign='center'>
-                                        Proveedores
+                                    <Typography  variant='h5' textAlign='center'>
+                                        Proveedores  ${formatMoney(totalProveedores)}
                                     </Typography>
                                 </Grid>
                                 <Grid container item xs={12} justify='center'>

@@ -75,8 +75,7 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                                 </Grid>
                                 <Grid item>
                                     <Chip
-                                        className={deuda>0?classes.cardDeudaRed:classes.cardDeudaGreen}
-                                        variant="outlined"
+                                        className={deuda>0?classes.cardDeudaRedCardPedido:classes.cardDeudaGreenCardPedido}
                                         icon={<AttachMoney/>}
                                         label={deuda?formatMoney(deuda):formatMoney(0)}
                                     />

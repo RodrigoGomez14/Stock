@@ -21,6 +21,7 @@ const Cliente=(props)=>{
     const [loading, setLoading] = useState(false);
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
     const [searchPedido, setSearchPedido] = useState(props.location.props?props.location.props.searchPedido:'');
+    const [searchRemito, setSearchRemito] = useState(props.location.props?props.location.props.remito:'');
 
 
     // FUNCTIONS
@@ -61,7 +62,7 @@ const Cliente=(props)=>{
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...cliente.datos}/>
                         <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre}/>
-                        <ListaDePedidos pedidos={cliente.pedidos} eliminarPedido={eliminarPedido} searchPedido={searchPedido}/>
+                        <ListaDePedidos pedidos={cliente.pedidos} eliminarPedido={eliminarPedido} searchPedido={searchPedido} searchRemito={searchRemito}/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>
                                 <Link to={{
