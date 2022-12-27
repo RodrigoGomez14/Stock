@@ -1,13 +1,19 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,CardHeader,Collapse,Menu,MenuItem,makeStyles,ExpansionPanel,ExpansionPanelSummary,ExpansionPanelDetails,Paper,List,ListItem,ListItemText} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,ExpansionPanel,ExpansionPanelSummary,ExpansionPanelDetails,Paper,List,ListItem,ListItemText} from '@material-ui/core'
 import {MoreVert,ExpandMore,ExpandLess} from '@material-ui/icons'
-import {formatMoney} from '../../utilities'
+import {formatMoney, obtenerFecha} from '../../utilities'
 import {Link} from 'react-router-dom'
 import {content} from '../..//Pages/styles/styles'
-export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos}) =>{
+import { StepperNuevoProducto } from '../Nuevo-Producto/StepperNuevoProducto'
+import firebase from 'firebase'
+
+export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,isSubproducto,subproductosList,useruid}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
+    const [loading,setLoading] = useState(false)
     const [expanded, setExpanded] = useState(false);
+    const [showSnackbar, setshowSnackbar] = useState('');
+
 
     // MENU DESPLEGABLE
     const handleClick = (event) => {
@@ -17,6 +23,28 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
         setAnchorEl(null);
     };
 
+    const iniciarCadena = () =>{
+        setLoading(true)
+        let aux = []
+        aux.producto = name
+        aux.cantidad = 500
+        aux['procesos'] = []
+        cadenaDeProduccion.map(proceso=>{
+            aux['procesos'].push(proceso)
+            aux['procesos'][0].fechaDeInicio = obtenerFecha()
+        })
+        setLoading(true)
+        firebase.database().ref().child(useruid).child('cadenasActivas').push(aux)
+        .then(()=>{
+            setshowSnackbar('La cadena se inicio correctamente!!')
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000);
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
     // CONTENT
     return(
         <Grid item xs={8} sm={6} md={4} lg={3} className={!search?null:name.toLowerCase().search(search.toLowerCase()) == -1 ? classes.displayNone:classes.display}>
@@ -25,13 +53,17 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                         className={classes.cardCliente}
                         action={
                             <>
-                                <IconButton onClick={()=>{setExpanded(!expanded)}}>
-                                    {expanded?
-                                        <ExpandLess/>
-                                        :
-                                        <ExpandMore/>
-                                    }
-                                </IconButton>
+                                {subproductos || cadenaDeProduccion ?
+                                    <IconButton onClick={()=>{setExpanded(!expanded)}}>
+                                        {expanded?
+                                            <ExpandLess/>
+                                            :
+                                            <ExpandMore/>
+                                        }
+                                    </IconButton>
+                                    :
+                                    null
+                                }
                                 <IconButton aria-label="settings" onClick={handleClick}>
                                     <MoreVert/>
                                 </IconButton>
@@ -48,11 +80,18 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                                         to={{
                                             pathname:'/Editar-Producto',
                                             search:`${name}`,
-                                            props:{producto:name}
+                                            props:{isSubproducto:(isSubproducto?isSubproducto:null)}
                                         }}
                                     >
                                         <MenuItem>Editar</MenuItem>
                                     </Link>
+                                    {cadenaDeProduccion?
+                                        <MenuItem
+                                            onClick={()=>{iniciarCadena()}}
+                                        >Iniciar Cadena de produccion</MenuItem>
+                                        :
+                                        null
+                                    }
                                     <MenuItem onClick={()=>{
                                         setAnchorEl(null)
                                         eliminarProducto()
@@ -67,20 +106,48 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                     <Collapse in={expanded} timeout='auto' unmountOnExit>
                         <CardContent>
                             <Grid container xs={12} justify='flex-start' spacing={3}>
-                                    <Grid item xs={12}>
-                                        {subproductos?
+                                {subproductos?
+                                    <Grid container item xs={12}>
+                                        <Grid item xs={12}>
                                             <List>
-                                                {Object.keys(subproductos).map(key=>(
-                                                    <ListItem>
-                                                        <ListItemText primary={key} secondary={subproductos[key]}
-                                                        />
-                                                    </ListItem> 
+                                                <Divider/>
+                                                <ListSubheader>
+                                                    Subproductos
+                                                </ListSubheader>
+                                                <Divider/>
+                                                {subproductos.map(subproducto=>(
+                                                    <>
+                                                        {console.log(subproducto)}
+                                                        <ListItem>
+                                                            <ListItemText primary={subproducto} secondary={subproductosList[subproducto].cantidad}
+                                                            />
+                                                        </ListItem> 
+                                                    </>
                                                 ))}
                                             </List>
-                                            :
-                                            null
-                                        }
+                                        </Grid>
                                     </Grid>
+                                    :
+                                    null
+                                }
+                                {cadenaDeProduccion?
+                                    <Grid container xs={12}>
+                                        <Grid item xs={12}>
+                                            <List>
+                                                <Divider/>
+                                                <ListSubheader>
+                                                    Cadena de Produccion
+                                                </ListSubheader>
+                                                <Divider/>
+                                            </List>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <StepperNuevoProducto cadenaDeProduccion={cadenaDeProduccion}/>
+                                        </Grid>
+                                    </Grid>
+                                    :
+                                    null
+                                }
                                 </Grid>
                         </CardContent>
                     </Collapse>

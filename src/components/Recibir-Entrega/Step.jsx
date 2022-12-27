@@ -5,7 +5,7 @@ import {Cheques} from './Cheques'
 import {content} from '../../Pages/styles/styles'
 import { DialogElegirCheque } from './Dialogs/DialogElegirCheque'
 
-export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,expreso,setexpreso,remito,setremito,tipoDeDato,expresosList,total,settotal,precio,setprecio,setsumarEnvio,sumarEnvio,nombre,chequesList}) =>{
+export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,expreso,setexpreso,remito,setremito,tipoDeDato,expresosList,total,settotal,precio,setprecio,setsumarEnvio,sumarEnvio,nombre,chequesList,tipo}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)

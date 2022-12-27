@@ -20,14 +20,10 @@ const Deudas=(props)=>{
 
     useEffect(()=>{
         Object.values(props.clientes).map(cliente=>{
-            if(cliente.datos.deuda>0){
-                setTotalClientes(totalClientes + cliente.datos.deuda)
-            }
+            setTotalClientes(totalClientes + cliente.datos.deuda)
         })
         Object.values(props.proveedores).map(proveedor=>{
-            if(proveedor.datos.deuda>0){
-                setTotalProveedores(totalProveedores + proveedor.datos.deuda)
-            }
+            setTotalProveedores(totalProveedores + proveedor.datos.deuda)
         })
     },[])
     return(

@@ -19,6 +19,15 @@ export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,to
         setdeleteIndex(index)
         setshowDialogDelete(true)
     }
+    const getProductos = () =>{
+        let aux = []
+        Object.values(productosList).map(producto=>{
+            if(!producto.cadenaDeProduccion){
+                aux.push(producto)
+            }
+        })
+        return aux
+    }
     const renderStep = () =>{
         switch (tipoDeDato) {
             case 'Destinatario':
@@ -72,7 +81,7 @@ export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,to
                                 edit={editIndex!=-1} 
                                 editIndex={editIndex} 
                                 seteditIndex={seteditIndex} 
-                                productosList={productosList}
+                                productosList={getProductos()}
                                 total={total}
                                 settotal={settotal}
                             />

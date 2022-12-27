@@ -8,7 +8,19 @@ export const ProductoCardPedido = ({producto}) =>{
     const classes = content()
     const [expanded,setExpanded]=useState(false)
 
-
+    const getPrecioAnterior = () =>{
+        if(producto.discount){
+            return (producto.precio/(1-(producto.discount/100)))
+        }
+        else{
+            return (producto.precio/(1+(producto.increase/100)))
+        }
+    }
+    const getPriceDiference = () =>{
+        console.log(getPrecioAnterior(),producto.precio)
+            return formatMoney(producto.precio-getPrecioAnterior())
+    }
+    
     return(
         <Grid container item xs={12}>
             <Card style={{width:'100%'}}>
@@ -28,13 +40,13 @@ export const ProductoCardPedido = ({producto}) =>{
                         <CardContent>
                             <List>
                                 <ListItem>
-                                    <ListItemText primary='-$' secondary='Precio Anterior'/>
+                                    <ListItemText primary={`$ ${(formatMoney(getPrecioAnterior()))}`} secondary={`Precio Anterior `}/>
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText primary={producto.discount?`- %${producto.discount}`:`+ %${producto.increase}`} secondary='% modificado'/>
+                                    <ListItemText primary={`$ ${getPriceDiference()}`} secondary='$ Modificado'/>
                                 </ListItem>
                                 <ListItem>
-                                    <ListItemText primary='-$' secondary='Precio Actualizado'/>
+                                    <ListItemText primary={producto.discount?`- ${producto.discount}%`:`+ ${producto.increase}%`} secondary='% modificado'/>
                                 </ListItem>
                             </List>
                         </CardContent>

@@ -1,4 +1,4 @@
-import {makeStyles,Paper} from '@material-ui/core'
+import {CardHeader, makeStyles,Paper} from '@material-ui/core'
 
 //STYLES
 export const content =makeStyles(theme=>({
@@ -154,5 +154,22 @@ export const content =makeStyles(theme=>({
     },
     alertCheque:{
         width:'100%'
+    },
+
+    //CARD CADENA DE PRODUCCION
+    cardCadena:{
+        width:'100%'
+    },
+    cardHeaderCadena:{
+        backgroundColor:theme.palette.primary.main,
+    },
+    cardCadenaStep:{
+        width:'350px'
+    },
+    cardHeaderCadenaStep:{
+        backgroundColor:theme.palette.primary.main,
+    },
+    cardHeaderCadenaStepGreen:{
+        backgroundColor:theme.palette.success.main,
     }
 }))

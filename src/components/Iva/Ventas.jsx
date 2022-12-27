@@ -1,6 +1,8 @@
 import React, {useState,useEffect} from 'react'
 import {Grid,makeStyles,Paper,Typography,List,ListItem,ListItemText} from '@material-ui/core'
 import {Tabla} from './Tabla'
+import { formatMoney } from '../../utilities'
+
 const useStyles = makeStyles(theme=>({
     card:{
         minHeight:'180px',
@@ -27,13 +29,13 @@ const useStyles = makeStyles(theme=>({
         overflow:'auto'
     }
 }))
-export const Ventas = ({data}) =>{
+export const Ventas = ({data,totalVentas}) =>{
     const classes = useStyles()
     return(
         <Paper className={classes.paper}>
             <Grid container>
                 <Grid item xs={12}>
-                    <Typography align='center' variant='h4'>Ventas</Typography>
+                    <Typography align='center' variant='h4'>Ventas $ {formatMoney(totalVentas)}</Typography>
                 </Grid>
                 <Grid item xs={12}>
                     <Tabla data={data} ventas={true}/>

@@ -62,6 +62,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
         setproductos(aux)
     }
 
+
     useEffect(()=>{
         if(edit){
             setproducto(productos[editIndex].producto)
@@ -79,13 +80,13 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                 }
             </DialogTitle>
             <DialogContent>
-                <Grid container direction='column' alignItems='center'>
+                <Grid container direction='column' alignItems='center' spacing={3}>
                     <Grid item>
                         <Autocomplete
                             freeSolo
                             value={producto}
-                            options={Object.keys(productosList)}
-                            getOptionLabel={(option) => productosList[option].nombre}
+                            options={productosList}
+                            getOptionLabel={(option) => option.nombre}
                             onChange={(e)=>{
                                 setproducto(e.target.value) 
                             }}
@@ -121,15 +122,13 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                         </Grid>
                     }
                     <Grid container item xs={12} justify='center'>
-                        <Grid item>
+                        <Paper className={classes.totalProductoNuevoPedido} elevation={3}>
                             <List>
-                                <Paper className={classes.titleDetallesCard} elevation={3}>
-                                    <ListItem>
-                                            <ListItemText primary={'Total'} secondary={`$ ${cantidad*precio?formatMoney(cantidad*precio):'-'}`}/>
-                                    </ListItem>
-                                </Paper>
+                                <ListItem>
+                                        <ListItemText primary={'Total'} secondary={`$ ${cantidad*precio?formatMoney(cantidad*precio):'-'}`}/>
+                                </ListItem>
                             </List>
-                        </Grid>
+                        </Paper>
                     </Grid>
                 </Grid>
             </DialogContent>

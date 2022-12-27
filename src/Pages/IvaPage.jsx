@@ -92,10 +92,10 @@ const IvaPage=(props)=>{
                     </Grid>
                     <Grid container justify='space-around'>
                         <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
-                            <Compras data={props.iva.compras}/>
+                            <Compras data={props.iva.compras} totalCompras={totalCompras}/>
                         </Grid>
                         <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
-                            <Ventas data={props.iva.ventas}/>
+                            <Ventas data={props.iva.ventas} totalVentas={totalVentas}/>
                         </Grid>
                     </Grid>
                 </Grid>

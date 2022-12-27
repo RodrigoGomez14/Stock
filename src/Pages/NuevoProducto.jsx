@@ -1,7 +1,8 @@
 import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography} from '@material-ui/core'
+import {makeStyles,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography} from '@material-ui/core'
+import {List,Link as LinkIcon, AccountTree} from '@material-ui/icons'
 import Alert from '@material-ui/lab/Alert';
 import {Redirect} from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
@@ -12,11 +13,14 @@ import {checkSearch} from '../utilities'
 // COMPONENT  
 const NuevoProducto=(props)=>{
     const classes = content()
+    
+    const [isSubproducto,setIsSubproducto]=useState(props.history.location.props?true:false)
+    const [subproductos,setSubproductos]=useState([])
+    
     const [nombre,setnombre]=useState('')
     const [precio,setprecio]=useState(0)
     const [cantidad,setcantidad]=useState(0)
     const [cadenaDeProduccion,setcadenaDeProduccion]=useState([])
-    const [composicion,setcomposicion]=useState([])
 
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -42,22 +46,27 @@ const NuevoProducto=(props)=>{
                 setprecio={setprecio}
                 cantidad={cantidad}
                 setcantidad={setcantidad}
-                disableCantidad={props.history.location.props?true:false}
+                disableCantidad={props.history.location.searchx?true:false}
+                isSubproducto={isSubproducto}
+                setIsSubproducto={setIsSubproducto}
             /> 
         );
         case 1:
             return (
             <StepComponent 
-                tipoDeDato='Producto Compuesto'
-                listaDeProductos={obtenerListaDeProductos()}
-                composicion={composicion}
-                setcomposicion={setcomposicion}
+                tipoDeDato='Cadena De Produccion'
+                cadenaDeProduccion={cadenaDeProduccion}
+                setcadenaDeProduccion={setcadenaDeProduccion}
+                proveedoresList={props.proveedores}
             /> 
         );
         case 2:
             return (
             <StepComponent 
-                tipoDeDato='Cadena De Produccion'
+                tipoDeDato='Subproductos'
+                subproductos={subproductos}
+                setSubproductos={setSubproductos}
+                subproductosList={props.subproductos}
             /> 
         );
       }
@@ -77,18 +86,19 @@ const NuevoProducto=(props)=>{
     }
     function getSteps() {
         //return ['Detalles', 'Producto Compuesto' , 'Cadena De Produccion' ];
-        return ['Detalles' ];
+        return ['Detalles','Cadena De Produccion','Subproductos' ];
     }
 
     // FUNCTIONS
     const guardarProducto = () =>{
         setLoading(true)
-        database().ref().child(props.user.uid).child('productos').update({
+        database().ref().child(props.user.uid).child(isSubproducto?'subproductos':'productos').update({
             [nombre]:{
-                cantidad:composicion.length?null:parseInt(cantidad),
+                cantidad:parseInt(cantidad),
                 precio:parseFloat(precio),
-                composicion:composicion,
-                nombre:nombre
+                nombre:nombre,
+                cadenaDeProduccion:cadenaDeProduccion.length?cadenaDeProduccion:null,
+                subproductos:subproductos
             }
         })
         .then(()=>{
@@ -102,38 +112,66 @@ const NuevoProducto=(props)=>{
             setLoading(false)
         })
     }
-    const obtenerListaDeProductos = () =>{
-        let aux = []
-        if(props.productos){
-            Object.keys(props.productos).map(nombre=>{
-                aux.push(`${nombre}`)
-            })
+    function getStepLabel(label,index) {
+        switch (index) {
+            case 0:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<List/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 1:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<LinkIcon/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 2:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<AccountTree/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
         }
-        return aux
     }
 
     // FILL FOR EDIT
     useEffect(()=>{
-        if(props.history.location.props){
-            console.log(props.history.location.props.producto)
-            const {nombre,precio,cantidad,cadenaDeProduccion,composicion} = props.productos[props.history.location.props.producto]
+        if(props.history.location.search){
+            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos} = isSubproducto?props.subproductos[props.history.location.search.slice(1)]:props.productos[props.history.location.search.slice(1)]
             nombre&&setnombre(nombre)
             precio&&setprecio(precio)
             cantidad&&setcantidad(cantidad)
             cadenaDeProduccion&&setcadenaDeProduccion(cadenaDeProduccion)
-            composicion&&setcomposicion(composicion)
+            subproductos&&setSubproductos(subproductos)
         }
     },[])
     return(
-        <Layout history={props.history} page={props.history.location.props?'Editar Producto':'Nuevo Producto'} user={props.user.uid} blockGoBack={true}>
+        <Layout history={props.history} page={props.history.location.search?'Editar Producto':'Nuevo Producto'} user={props.user.uid} blockGoBack={true}>
             <Paper className={classes.content}>
                 {/* STEPPER */}
                 <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
                     {steps.map((label,index)=>(
                         <Step>
-                            <StepLabel>
-                                {label}
-                            </StepLabel>
+                            {getStepLabel(label,index)}
                             <StepContent>
                                 <Grid container xs={12} justify='center' spacing={3}>
                                     {getStepContent(index)}
@@ -153,7 +191,7 @@ const NuevoProducto=(props)=>{
                                                 disabled={setDisabled(activeStep)}
                                                 onClick={activeStep === steps.length - 1 ? guardarProducto : handleNext}
                                             >
-                                                {activeStep === steps.length - 1 ? `${props.history.location.props?'Guardar Edicion':'Guardar Producto'}` : 'Siguiente'}
+                                                {activeStep === steps.length - 1 ? `${props.history.location.search?'Guardar Edicion':'Guardar Producto'}` : 'Siguiente'}
                                             </Button>
                                         </Grid>
                                     </Grid>
@@ -180,7 +218,9 @@ const NuevoProducto=(props)=>{
 const mapStateToProps = state =>{
     return{
         user:state.user,
-        productos:state.productos
+        productos:state.productos,
+        proveedores:state.proveedores,
+        subproductos:state.subproductos
     }
 }
 export default connect(mapStateToProps,null)(NuevoProducto)

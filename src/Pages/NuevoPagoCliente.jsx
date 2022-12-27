@@ -38,6 +38,7 @@ const NuevoPagoCliente=(props)=>{
                 setdatos={setefectivo}
                 total={total}
                 settotal={settotal}
+                tipo='Cliente'
             /> 
             );
         case 1:
@@ -49,6 +50,7 @@ const NuevoPagoCliente=(props)=>{
                 total={total}
                 settotal={settotal}
                 cliente={checkSearch(props.history.location.search)}
+                tipo='Cliente'
             /> 
           );
       }

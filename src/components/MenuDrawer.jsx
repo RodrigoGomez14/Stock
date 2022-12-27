@@ -213,7 +213,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                         <ListItemIcon>
                             <LinkIcon/>
                         </ListItemIcon>
-                        <ListItemText  primary={'Nuevo Pedido'} />
+                        <ListItemText  primary={'Cadenas de Produccion'} />
                     </ListItem> 
                 </Link>
                 <Divider />

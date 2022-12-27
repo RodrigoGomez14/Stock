@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Grid, Button,makeStyles,Select,Input,Chip,MenuItem,InputLabel,FormControl} from '@material-ui/core'
+import {Grid, Button,makeStyles,Select,Input,Typography,MenuItem,InputLabel,FormControl} from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 import {Telefonos} from './Telefonos'
 import {Direccion} from './Direccion'
@@ -11,6 +11,7 @@ import { DialogNuevoTelefono } from './Dialogs/DialogNuevoTelefono'
 import { DialogNuevaInfoExtra } from './Dialogs/DialogNuevaInfoExtra'
 import { DialogNuevoMail } from './Dialogs/DialogNuevoMail'
 import { DialogEliminarElemento } from './Dialogs/DialogEliminarElemento'
+import Empty from '../../images/Empty.png'
 
 export const Step = ({datos,setDatos,tipoDeDato,Expresos}) =>{
     const [showDialog,setshowDialog]=useState(false)
@@ -42,7 +43,14 @@ export const Step = ({datos,setDatos,tipoDeDato,Expresos}) =>{
                                 <Direccion direcciones={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                             </Grid>
                             :
-                            null
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>No Hay Direcciones Guardadas</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='200px'/>
+                                </Grid>
+                            </Grid>
                         }
 
                         {/* DIALOGS */}
@@ -64,7 +72,14 @@ export const Step = ({datos,setDatos,tipoDeDato,Expresos}) =>{
                                 <Telefonos telefonos={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                             </Grid>
                             :
-                            null
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>No Hay Telefonos Guardadas</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='200px'/>
+                                </Grid>
+                            </Grid>
                         }
                         <DialogNuevoTelefono open={showDialog} setOpen={setshowDialog} telefonos={datos} settelefonos={setDatos} edit={editIndex!=-1} editIndex={editIndex} seteditIndex={seteditIndex}/>
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={datos} setDatos={setDatos} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Telefono'/>
@@ -84,7 +99,14 @@ export const Step = ({datos,setDatos,tipoDeDato,Expresos}) =>{
                                 <InfoExtra infoExtra={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                             </Grid>
                             :
-                            null
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>No Hay Informacion Extra Guardadas</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='200px'/>
+                                </Grid>
+                            </Grid>
                         }
                         <DialogNuevaInfoExtra open={showDialog} setOpen={setshowDialog} infoExtra={datos} setinfoExtra={setDatos} edit={editIndex!=-1} editIndex={editIndex} seteditIndex={seteditIndex}/>
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={datos} setDatos={setDatos} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Info Extra'/>
@@ -104,7 +126,14 @@ export const Step = ({datos,setDatos,tipoDeDato,Expresos}) =>{
                                 <Mails mails={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                             </Grid>
                             :
-                            null
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>No Hay E-Mails Guardadas</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='200px'/>
+                                </Grid>
+                            </Grid>
                         }
                         <DialogNuevoMail open={showDialog} setOpen={setshowDialog} mails={datos} setmails={setDatos} edit={editIndex!=-1} editIndex={editIndex} seteditIndex={seteditIndex}/>
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={datos} setDatos={setDatos} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Mail'/>

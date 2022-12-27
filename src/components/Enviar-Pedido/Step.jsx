@@ -52,84 +52,91 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
         switch (tipoDeDato) {
             case 'Metodo De Pago': 
                 return(
-                    <>
-                    <AppBar position="static">
-                        <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                            <Tab label="Efectivo" />
-                            <Tab label="Cheques" />
-                        </Tabs>
-                    </AppBar>
-                    <TabPanel value={value} index={0}>
-                        <Grid container justify='center' alignItems='center' direction='column'>
-                            <Grid item xs={12}>
-                                <Typography variant='h6'>
-                                    Ingrese la cantidad
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    autoFocus   
-                                    style={{ width: '250px' }}
-                                    value={efectivo}
-                                    variant='outlined'
-                                    type='number'
-                                    onChange={e=>{
-                                        setefectivo(e.target.value)
-                                    }}
-                                    InputProps={{
-                                        startAdornment: (
-                                          <InputAdornment position="start">
-                                            <AttachMoney />
-                                          </InputAdornment>
-                                        ),
-                                      }}
-                                />
+                    <Grid container xs={12}>
+                        <Grid container item xs={12} justify='center'>
+                            <Grid item>
+                            <AppBar position="static">
+                                <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                                    <Tab label="Efectivo" />
+                                    <Tab label="Cheques" />
+                                </Tabs>
+                            </AppBar>
                             </Grid>
                         </Grid>
-                    </TabPanel>
-                    <TabPanel value={value} index={1}>
-                        <Grid container justify='center' spacing={3}>
-                            <Grid container item xs={12} justify='center'>
-                                <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
-                                    Agregar Cheque
-                                </Button>
+                        <Grid container item xs={12} justify='center'>
+                            <Grid item>
+                                <TabPanel value={value} index={0}>
+                                        <Grid item xs={12}>
+                                            <Typography variant='h6'>
+                                                Ingrese la cantidad
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                autoFocus   
+                                                style={{ width: '250px' }}
+                                                value={efectivo}
+                                                variant='outlined'
+                                                type='number'
+                                                onChange={e=>{
+                                                    setefectivo(e.target.value)
+                                                }}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <AttachMoney />
+                                                    </InputAdornment>
+                                                    ),
+                                                }}
+                                            />
+                                        </Grid>
+                                </TabPanel>
                             </Grid>
-                            {cheques.length?
-                                <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                                    <Cheques cheques={cheques} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
-                                </Grid>
-                                :
-                                null
-                            }
+                            <Grid item>
+                                <TabPanel value={value} index={1}>
+                                    <Grid container justify='center' spacing={3}>
+                                        <Grid container item xs={12} justify='center'>
+                                            <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
+                                                Agregar Cheque
+                                            </Button>
+                                        </Grid>
+                                        {cheques.length?
+                                            <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
+                                                <Cheques cheques={cheques} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                                            </Grid>
+                                            :
+                                            null
+                                        }
 
-                            {/* DIALOGS */}
-                            <DialogNuevoCheque 
-                                open={showDialog} 
-                                setOpen={setshowDialog} 
-                                datos={cheques} 
-                                setdatos={setcheques}
-                                edit={editIndex!=-1} 
-                                editIndex={editIndex} 
-                                seteditIndex={seteditIndex}
-                                total={total}
-                                settotal={settotal}
-                                cliente={nombre}
-                            />
-                            <DialogEliminarCheque 
-                                open={showDialogDelete} 
-                                setopen={setshowDialogDelete} 
-                                datos={cheques} 
-                                setDatos={setcheques} 
-                                index={deleteIndex} 
-                                setdeleteIndex={setdeleteIndex} 
-                                tipoDeElemento='Cheque'
-                                total={total}
-                                settotal={settotal}
-                            />
+                                        {/* DIALOGS */}
+                                        <DialogNuevoCheque 
+                                            open={showDialog} 
+                                            setOpen={setshowDialog} 
+                                            datos={cheques} 
+                                            setdatos={setcheques}
+                                            edit={editIndex!=-1} 
+                                            editIndex={editIndex} 
+                                            seteditIndex={seteditIndex}
+                                            total={total}
+                                            settotal={settotal}
+                                            cliente={nombre}
+                                        />
+                                        <DialogEliminarCheque 
+                                            open={showDialogDelete} 
+                                            setopen={setshowDialogDelete} 
+                                            datos={cheques} 
+                                            setDatos={setcheques} 
+                                            index={deleteIndex} 
+                                            setdeleteIndex={setdeleteIndex} 
+                                            tipoDeElemento='Cheque'
+                                            total={total}
+                                            settotal={settotal}
+                                        />
+                                    </Grid>
+                                </TabPanel>
+                            </Grid>
                         </Grid>
-                    </TabPanel>
-                    
-                    </>
+                    </Grid>
                 )
             case 'Metodo De Envio':
                 return(

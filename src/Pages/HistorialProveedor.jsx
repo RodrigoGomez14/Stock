@@ -112,7 +112,7 @@ const HistorialProveedor=(props)=>{
                                                                         pathname:'/Proveedor',
                                                                         search:props.history.location.search,
                                                                         props:{
-                                                                            searchPedido:proveedor[pago].idEntrega
+                                                                            searchEntrega:proveedor[pago].idEntrega
                                                                         }
                                                                     }}>
                                                                         <Button variant='outlined'>

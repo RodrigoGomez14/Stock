@@ -39,6 +39,7 @@ const NuevoPagoProveedor=(props)=>{
                 total={total}
                 settotal={settotal}
                 chequesList={props.cheques}
+                tipo='Proveedor'
             /> 
             );
         case 1:
@@ -52,6 +53,7 @@ const NuevoPagoProveedor=(props)=>{
                 cliente={checkSearch(props.history.location.search)}
                 addCheque={addCheque}
                 chequesList={props.cheques}
+                tipo='Proveedor'
             /> 
           );
       }

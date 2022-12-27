@@ -19,6 +19,7 @@ const Proveedor=(props)=>{
     const [proveedor,setProveedor]= useState(props.proveedores[checkSearch(props.history.location.search)])
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [searchEntrega, setSearchEntrega] = useState(props.location.props?props.location.props.searchEntrega:'');
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
 
     // FUNCTIONS
@@ -58,7 +59,7 @@ const Proveedor=(props)=>{
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...proveedor.datos}/>
                         <Deuda deuda={proveedor.datos.deuda} id={proveedor.datos.nombre}/>
-                        <ListaDePedidos pedidos={proveedor.entregas} eliminarPedido={eliminarPedido}/>
+                        <ListaDePedidos pedidos={proveedor.entregas} eliminarPedido={eliminarPedido} searchPedido={searchEntrega}/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>
                                 <Link to={{
