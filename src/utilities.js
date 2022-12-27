@@ -41,3 +41,28 @@ const checkWhiteSpace =(text)=>{
   }
   return aux
 }
+
+// OBTENER LISTA DE PRODUCTOS Y SUBPRODUCTOS
+export const getProductosList = (productos) =>{
+  let aux = []
+  if(productos){
+      Object.keys(productos).map(key=>{
+          if(!productos[key].isSubproducto){
+              aux.push(productos[key])
+          }
+      })
+  }
+  return aux
+
+}
+export const getSubproductosList = (subproducto) =>{
+  let aux = []
+  if(subproducto){
+      Object.keys(subproducto).map(key=>{
+          if(subproducto[key].isSubproducto){
+              aux.push(subproducto[key])
+          }
+      })
+  }
+  return aux
+}

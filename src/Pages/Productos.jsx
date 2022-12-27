@@ -8,20 +8,20 @@ import {Link} from 'react-router-dom'
 import {CardProducto} from '../components/Productos/CardProducto'
 import {database} from 'firebase'
 import {content} from './styles/styles'
+import {getProductosList,getSubproductosList} from '../utilities'
 
 // COMPONENT
 const Productos=(props)=>{
     const classes = content()
     const [search,setSearch]=useState('')
-    const [searchSubproducto,setSearchSubproducto]=useState('')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
 
     //FUNCTIONS
-    const eliminarProducto = (key,destiny) =>{
+    const eliminarProducto = (key) =>{
         setLoading(true)
-        database().ref().child(props.user.uid).child(destiny?'productos':'subproductos').child(key).remove()
+        database().ref().child(props.user.uid).child('productos').child(key).remove()
         .then(()=>{
             setshowSnackbar('El producto se eliminó correctamente')
             setTimeout(() => {
@@ -68,17 +68,17 @@ const Productos=(props)=>{
 
                     {/* PRODUCT LIST */}
                     <Grid container item xs={12} justify='center' alignItems='center' spacing={2} >
-                        {props.productos?
-                            (Object.keys(props.productos).map(key=>(
+                        {getProductosList(props.productos)?
+                            (getProductosList(props.productos).map(producto=>(
                                 <CardProducto 
                                     search={search} 
-                                    precio={props.productos[key].precio} 
-                                    cadenaDeProduccion={props.productos[key].cadenaDeProduccion} 
-                                    cantidad={props.productos[key].cantidad}
-                                    subproductos={props.productos[key].subproductos}
-                                    subproductosList={props.subproductos}
-                                    name={key}
-                                    eliminarProducto={()=>{eliminarProducto(key,true)}}
+                                    precio={producto.precio} 
+                                    cadenaDeProduccion={producto.cadenaDeProduccion} 
+                                    isSubproducto={false}
+                                    cantidad={producto.cantidad}
+                                    subproductos={producto.subproductos?producto.subproductos:null}
+                                    name={producto.nombre}
+                                    eliminarProducto={()=>{eliminarProducto(producto.nombre)}}
                                     useruid={props.user.uid}
                                 />)))
                             :
@@ -88,48 +88,26 @@ const Productos=(props)=>{
                         }
                     </Grid>
 
-                    {/* SEARCH BAR */}
+                    {/* SUBPRODUCT LIST */}
                     <Grid container item xs={12} justify='center' alignItems='center'>
                         <Grid container item xs={12} justify='center'>
                             <Typography variant='h5'>
                                 Subproductos
                             </Typography>
                         </Grid>
-                        <Grid item>
-                            <Link 
-                                to={{
-                                    pathname:'/Nuevo-Producto',
-                            }}>
-                                <IconButton>
-                                    <AddOutlined/>
-                                </IconButton>
-                            </Link>
-                        </Grid>
-                        <Grid item>
-                            <TextField
-                                value={searchSubproducto}
-                                onChange={e=>{
-                                    setSearchSubproducto(e.target.value)
-                                }}
-                                disabled={!props.subproductos}
-                                label='Buscar Subproducto'
-                            />
-                        </Grid>
                     </Grid>
 
-                    {/* PRODUCT LIST */}
                     <Grid container item xs={12} justify='center' alignItems='center' spacing={2} >
-                        {props.subproductos?
-                            (Object.keys(props.subproductos).map(key=>(
+                        {getSubproductosList(props.productos)?
+                            (getSubproductosList(props.productos).map(subproducto=>(
                                 <CardProducto 
-                                    search={searchSubproducto}
-                                    precio={props.subproductos[key].precio} 
-                                    cadenaDeProduccion={props.subproductos[key].cadenaDeProduccion} 
-                                    cantidad={props.subproductos[key].cantidad}
-                                    name={key}
-                                    subproductos={props.subproductos[key].subproductos}
-                                    subproductosList={props.subproductos}
-                                    eliminarProducto={()=>{eliminarProducto(key,false)}}
+                                    search={search}
+                                    precio={subproducto.precio} 
+                                    cadenaDeProduccion={subproducto.cadenaDeProduccion} 
+                                    cantidad={subproducto.cantidad}
+                                    name={subproducto.nombre}
+                                    subproductos={subproducto.subproductos?subproducto.subproductos:null}
+                                    eliminarProducto={()=>{eliminarProducto(subproducto.nombre)}}
                                     isSubproducto={true}
                                     useruid={props.user.uid}
                                 />)))
@@ -161,7 +139,6 @@ const mapStateToProps = state =>{
     return{
         user:state.user,
         productos:state.productos,
-        subproductos:state.subproductos
     }
 }
 export default connect(mapStateToProps,null)(Productos)

@@ -17,9 +17,11 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                 return(
                     <Grid container item xs={12} direction='column' alignItems='center' spacing={3}>
                         <Grid item>
+                            {console.log(isSubproducto)}
                             <FormControlLabel 
                                 control={
-                                    <Switch  
+                                    <Switch
+                                        checked={isSubproducto}
                                         value={isSubproducto}
                                         color='default'
                                         onChange={e=>{
@@ -100,15 +102,16 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                     <Grid container item xs={12} sm={10} md={8} justify='center'>     
                         <FormControl fullWidth>
                             <InputLabel id="demo-mutiple-name-label">Subproductos</InputLabel>
+                            {console.log(subproductosList)}
                             <Select
                                 multiple
                                 value={subproductos}
                                 onChange={(e)=>{setSubproductos(e.target.value)}}
                                 input={<Input />}
                             >
-                                {Object.keys(subproductosList).map(subproducto => (
-                                    <MenuItem key={subproductosList[subproducto].nombre} value={subproductosList[subproducto].nombre}>
-                                        {subproductosList[subproducto].nombre}
+                                {subproductosList.map(subproducto => (
+                                    <MenuItem key={subproducto.nombre} value={subproducto.nombre}>
+                                        {subproducto.nombre}
                                     </MenuItem>
                                 ))}
                             </Select>

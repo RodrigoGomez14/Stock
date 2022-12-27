@@ -6,7 +6,7 @@ export const StepperNuevoProducto = ({cadenaDeProduccion}) =>{
     const classes = content()
 
     return(
-        <Stepper activeStep={1} alternativeLabel>
+        <Stepper activeStep={-1} alternativeLabel>
             {cadenaDeProduccion.map((proceso) => (
                 <Step key={proceso.proceso}>
                     <StepLabel>{proceso.proceso}<br/>{proceso.proveedor?proceso.proveedor:null}</StepLabel>

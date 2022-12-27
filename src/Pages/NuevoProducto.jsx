@@ -9,12 +9,14 @@ import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
 import {database} from 'firebase'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
+import {getProductosList,getSubproductosList} from '../utilities'
+
   
 // COMPONENT  
 const NuevoProducto=(props)=>{
     const classes = content()
     
-    const [isSubproducto,setIsSubproducto]=useState(props.history.location.props?true:false)
+    const [isSubproducto,setIsSubproducto]=useState(undefined)
     const [subproductos,setSubproductos]=useState([])
     
     const [nombre,setnombre]=useState('')
@@ -66,7 +68,7 @@ const NuevoProducto=(props)=>{
                 tipoDeDato='Subproductos'
                 subproductos={subproductos}
                 setSubproductos={setSubproductos}
-                subproductosList={props.subproductos}
+                subproductosList={getSubproductosList(props.productos)}
             /> 
         );
       }
@@ -74,9 +76,16 @@ const NuevoProducto=(props)=>{
     const setDisabled=(step)=>{
         switch (step) {
             case 0:
+                if(isSubproducto){
+                    if(!nombre){
+                        return true
+                    }
+                }
+                else{
                     if(!nombre || !precio){
                         return true
                     }
+                }
                 break;
             case 1:
                 break;
@@ -92,12 +101,13 @@ const NuevoProducto=(props)=>{
     // FUNCTIONS
     const guardarProducto = () =>{
         setLoading(true)
-        database().ref().child(props.user.uid).child(isSubproducto?'subproductos':'productos').update({
+        database().ref().child(props.user.uid).child('productos').update({
             [nombre]:{
                 cantidad:parseInt(cantidad),
                 precio:parseFloat(precio),
                 nombre:nombre,
                 cadenaDeProduccion:cadenaDeProduccion.length?cadenaDeProduccion:null,
+                isSubproducto:isSubproducto?isSubproducto:null,
                 subproductos:subproductos
             }
         })
@@ -156,11 +166,12 @@ const NuevoProducto=(props)=>{
     // FILL FOR EDIT
     useEffect(()=>{
         if(props.history.location.search){
-            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos} = isSubproducto?props.subproductos[props.history.location.search.slice(1)]:props.productos[props.history.location.search.slice(1)]
+            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos,isSubproducto} = props.productos[props.history.location.search.slice(1)]
             nombre&&setnombre(nombre)
             precio&&setprecio(precio)
             cantidad&&setcantidad(cantidad)
             cadenaDeProduccion&&setcadenaDeProduccion(cadenaDeProduccion)
+            isSubproducto&&setIsSubproducto(isSubproducto)
             subproductos&&setSubproductos(subproductos)
         }
     },[])
@@ -220,7 +231,6 @@ const mapStateToProps = state =>{
         user:state.user,
         productos:state.productos,
         proveedores:state.proveedores,
-        subproductos:state.subproductos
     }
 }
 export default connect(mapStateToProps,null)(NuevoProducto)

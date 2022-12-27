@@ -14,14 +14,6 @@ const CadenasDeProduccion=(props)=>{
         <Layout history={props.history} page="Cadenas De Produccion" user={props.user.uid}>
             <Paper className={classes.content}>
                 <Grid container xs={12} justify='center' spacing={2}>
-                    <Grid container item xs={12} justify='center'>
-                        <Button
-                            variant='contained'
-                            color='primary'
-                        >
-                            Iniciar Cadena de Produccion
-                        </Button>
-                    </Grid>
                     {props.cadenasActivas?
                         Object.keys(props.cadenasActivas).map(cadena=>(
                             <Cadena cadena={props.cadenasActivas[cadena]}/>

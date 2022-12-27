@@ -7,7 +7,7 @@ import {content} from '../..//Pages/styles/styles'
 import { StepperNuevoProducto } from '../Nuevo-Producto/StepperNuevoProducto'
 import firebase from 'firebase'
 
-export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,isSubproducto,subproductosList,useruid}) =>{
+export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,useruid,isSubproducto}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading,setLoading] = useState(false)
@@ -27,7 +27,7 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
         setLoading(true)
         let aux = []
         aux.producto = name
-        aux.cantidad = 500
+        aux.fechaDeInicio = obtenerFecha()
         aux['procesos'] = []
         cadenaDeProduccion.map(proceso=>{
             aux['procesos'].push(proceso)
@@ -80,7 +80,6 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                                         to={{
                                             pathname:'/Editar-Producto',
                                             search:`${name}`,
-                                            props:{isSubproducto:(isSubproducto?isSubproducto:null)}
                                         }}
                                     >
                                         <MenuItem>Editar</MenuItem>
@@ -100,7 +99,7 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                             </>
                         }
                         title={[name,<Chip color='inherit' label={cantidad} style={{marginLeft:'8px'}}/>]}
-                        subheader={`$ ${formatMoney(precio)} c/u`}
+                        subheader={!isSubproducto?`$ ${formatMoney(precio)} c/u`:null}
 
                     />
                     <Collapse in={expanded} timeout='auto' unmountOnExit>
@@ -117,9 +116,8 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                                                 <Divider/>
                                                 {subproductos.map(subproducto=>(
                                                     <>
-                                                        {console.log(subproducto)}
                                                         <ListItem>
-                                                            <ListItemText primary={subproducto} secondary={subproductosList[subproducto].cantidad}
+                                                            <ListItemText primary={subproducto}
                                                             />
                                                         </ListItem> 
                                                     </>
