@@ -34,10 +34,31 @@ export const checkSearch =(search)=>{
   let aux = checkWhiteSpace(search.slice(1).toString())
   return aux
 }
+
+export const checkSearchProducto =(search)=>{
+  let aux = checkWhiteSpace(search.slice(1).toString())
+  return checkCode(aux)
+}
 const checkWhiteSpace =(text)=>{
   var aux = text
   while(aux.indexOf('%20')!=-1){
       aux = aux.slice(0,aux.indexOf('%20')) + ' ' + aux.slice(aux.indexOf('%20')+3)
+  }
+  return aux
+}
+const checkCode =(text)=>{
+  var aux = text
+  while(aux.indexOf('%C2%BD')!=-1){
+      aux = aux.slice(0,aux.indexOf('%C2%BD')) + ' ½' + aux.slice(aux.indexOf('%C2%BD')+6)
+  }
+  while(aux.indexOf('%C2%BC')!=-1){
+    aux = aux.slice(0,aux.indexOf('%C2%BC')) + ' ¼' + aux.slice(aux.indexOf('%C2%BC')+6)
+  }
+  while(aux.indexOf('%C2%BE')!=-1){
+    aux = aux.slice(0,aux.indexOf('%C2%BE')) + ' ¾' + aux.slice(aux.indexOf('%C2%BE')+6)
+  }
+  while(aux.indexOf('%22')!=-1){
+    aux = aux.slice(0,aux.indexOf('%22')) + '"' + aux.slice(aux.indexOf('%22')+3)
   }
   return aux
 }

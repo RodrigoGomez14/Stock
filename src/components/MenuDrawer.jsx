@@ -86,6 +86,10 @@ const checkSelected = (icon,page) =>{
     else if(icon==='Expresos'&& (page=='Nuevo-Expreso'||page=='Editar-Expreso'||page.slice(0,7)=='Expreso')){
         return true
     }
+    // CADENAS DE PRODUCCION
+    else if(icon==='Cadenas De Produccion'&& (page.slice(0,23)=='Historial De Produccion'||page=='Finalizar Proceso')){
+        return true
+    }
     else{
         return false
     }

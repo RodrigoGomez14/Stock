@@ -8,12 +8,13 @@ import {Link} from 'react-router-dom'
 import {CardProducto} from '../components/Productos/CardProducto'
 import {database} from 'firebase'
 import {content} from './styles/styles'
-import {getProductosList,getSubproductosList} from '../utilities'
+import {getProductosList,getSubproductosList,obtenerFecha} from '../utilities'
+import firebase from 'firebase'
 
 // COMPONENT
 const Productos=(props)=>{
     const classes = content()
-    const [search,setSearch]=useState('')
+    const [search,setSearch]=useState(props.location.search.slice(1)?props.location.search.slice(1):'')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
@@ -32,7 +33,29 @@ const Productos=(props)=>{
             setLoading(false)
         })
     }
-
+    const iniciarCadena = (nombre) =>{
+        setLoading(true)
+        let aux = []
+        aux.producto = nombre
+        aux.fechaDeInicio = obtenerFecha()
+        aux['procesos'] = []
+        props.productos[nombre].cadenaDeProduccion.map(proceso=>{
+            aux['procesos'].push(proceso)
+            aux['procesos'][0].fechaDeInicio = obtenerFecha()
+        })
+        setLoading(true)
+        firebase.database().ref().child(props.user.uid).child('cadenasActivas').push(aux)
+        .then(()=>{
+            setshowSnackbar('La cadena se inicio correctamente!!')
+            setTimeout(() => {
+                props.history.replace('/Cadenas-De-Produccion')
+                setLoading(false)
+            }, 2000);
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
     return(
         <Layout history={props.history} page="Productos" user={props.user.uid}>
             <Paper className={classes.content}>
@@ -79,7 +102,8 @@ const Productos=(props)=>{
                                     subproductos={producto.subproductos?producto.subproductos:null}
                                     name={producto.nombre}
                                     eliminarProducto={()=>{eliminarProducto(producto.nombre)}}
-                                    useruid={props.user.uid}
+                                    iniciarCadena={(i)=>{iniciarCadena(i)}}
+                                    historialDeProduccion={producto.historialDeCadenas}
                                 />)))
                             :
                             <Typography variant='h5'>
@@ -109,7 +133,9 @@ const Productos=(props)=>{
                                     subproductos={subproducto.subproductos?subproducto.subproductos:null}
                                     eliminarProducto={()=>{eliminarProducto(subproducto.nombre)}}
                                     isSubproducto={true}
-                                    useruid={props.user.uid}
+                                    iniciarCadena={(i)=>{iniciarCadena(i)}}
+                                    historialDeProduccion={subproducto.historialDeCadenas}
+
                                 />)))
                             :
                             <Typography variant='h5'>

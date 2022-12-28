@@ -102,7 +102,6 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                     <Grid container item xs={12} sm={10} md={8} justify='center'>     
                         <FormControl fullWidth>
                             <InputLabel id="demo-mutiple-name-label">Subproductos</InputLabel>
-                            {console.log(subproductosList)}
                             <Select
                                 multiple
                                 value={subproductos}

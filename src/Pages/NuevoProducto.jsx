@@ -8,7 +8,7 @@ import {Redirect} from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
 import {database} from 'firebase'
 import {content} from './styles/styles'
-import {checkSearch} from '../utilities'
+import {checkSearchProducto} from '../utilities'
 import {getProductosList,getSubproductosList} from '../utilities'
 
   
@@ -101,26 +101,51 @@ const NuevoProducto=(props)=>{
     // FUNCTIONS
     const guardarProducto = () =>{
         setLoading(true)
-        database().ref().child(props.user.uid).child('productos').update({
-            [nombre]:{
-                cantidad:parseInt(cantidad),
-                precio:parseFloat(precio),
-                nombre:nombre,
-                cadenaDeProduccion:cadenaDeProduccion.length?cadenaDeProduccion:null,
-                isSubproducto:isSubproducto?isSubproducto:null,
-                subproductos:subproductos
+        let aux={[nombre]:{
+            cantidad:parseInt(cantidad),
+            precio:parseFloat(precio),
+            nombre:nombre,
+            cadenaDeProduccion:cadenaDeProduccion.length?cadenaDeProduccion:null,
+            isSubproducto:isSubproducto?isSubproducto:null,
+            subproductos:subproductos
+        }}
+        if(props.history.location.search){
+            let newAux = props.productos[checkSearchProducto(props.history.location.search)]
+            if(newAux.historialDeCadenas){
+                aux[nombre]['historialDeCadenas']=newAux.historialDeCadenas
             }
-        })
-        .then(()=>{
-            setshowSnackbar(props.history.location.search?'El Producto Se Edito Correctamente!':'El Producto Se Agrego Correctamente!')
-            setTimeout(() => {
+            
+            // COPIA PEDIDOS E HISTORIAL
+            database().ref().child(props.user.uid).child('productos').child(props.history.location.search.slice(1)).remove()
+            .then(()=>{
+                database().ref().child(props.user.uid).child('productos').update(aux)
+                .then(()=>{
+                    setshowSnackbar(props.history.location.search?'El Producto Se Edito Correctamente!':'El Producto Se Agrego Correctamente!')
+                        setTimeout(() => {
+                            setLoading(false)
+                            props.history.replace('/Productos')
+                        }, 2000);
+                })
+                .catch(()=>{
+                    setLoading(false)
+                })
+            })
+            .catch(()=>{
                 setLoading(false)
-                props.history.replace('/Productos')
-            }, 2000);
-        })
-        .catch(()=>{
-            setLoading(false)
-        })
+            })
+        }
+        else{
+            database().ref().child(props.user.uid).child('productos').update(aux)
+                .then(()=>{
+                    setshowSnackbar(props.history.location.search?'El Producto Se Edito Correctamente!':'El Producto Se Agrego Correctamente!')
+                    setTimeout(() => {
+                        props.history.replace('/Productos')
+                    }, 2000);
+                })
+                .catch(()=>{
+                    setLoading(false)
+                })
+        }
     }
     function getStepLabel(label,index) {
         switch (index) {

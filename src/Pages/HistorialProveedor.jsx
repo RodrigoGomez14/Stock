@@ -89,7 +89,7 @@ const HistorialProveedor=(props)=>{
                                                                $ {proveedor[pago].efectivo?formatMoney(proveedor[pago].efectivo):'-'}
                                                             </TableCell>
                                                             <TableCell align='right'>
-                                                                $ {formatMoney(calcularTotal(proveedor[pago].total,proveedor[pago].efectivo))}
+                                                                $ {formatMoney(proveedor[pago].pagado?proveedor[pago].pagado-parseInt(proveedor[pago].efectivo):0)}
                                                                 {proveedor[pago].cheques?
                                                                     <>
                                                                         <MenuCheques pago={proveedor[pago]}/>

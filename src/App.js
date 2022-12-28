@@ -34,6 +34,8 @@ import { createMuiTheme,ThemeProvider } from '@material-ui/core/styles';
 import NuevoPagoProveedor from './Pages/NuevoPagoProveedor';
 import NuevoPagoCliente from './Pages/NuevoPagoCliente';
 import CadenasDeProduccion from './Pages/CadenasDeProduccion';
+import HistorialDeProduccion from './Pages/HistorialDeProduccion';
+import FinalizarProceso from './Pages/FinalizarProceso';
 
 let store 
 let data
@@ -162,6 +164,8 @@ class App extends Component {
                     <Route exact path='/Nuevo-Pago-Proveedor' component={NuevoPagoProveedor}/>
 
                     <Route exact path='/Cadenas-De-Produccion' component={CadenasDeProduccion}/>
+                    <Route exact path='/Historial-De-Produccion' component={HistorialDeProduccion}/>
+                    <Route exact path='/Finalizar-Proceso' component={FinalizarProceso}/>
     
                     <Route component={NotFound}/>
                   </Switch>

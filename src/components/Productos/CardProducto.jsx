@@ -5,9 +5,8 @@ import {formatMoney, obtenerFecha} from '../../utilities'
 import {Link} from 'react-router-dom'
 import {content} from '../..//Pages/styles/styles'
 import { StepperNuevoProducto } from '../Nuevo-Producto/StepperNuevoProducto'
-import firebase from 'firebase'
 
-export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,useruid,isSubproducto}) =>{
+export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading,setLoading] = useState(false)
@@ -23,28 +22,6 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
         setAnchorEl(null);
     };
 
-    const iniciarCadena = () =>{
-        setLoading(true)
-        let aux = []
-        aux.producto = name
-        aux.fechaDeInicio = obtenerFecha()
-        aux['procesos'] = []
-        cadenaDeProduccion.map(proceso=>{
-            aux['procesos'].push(proceso)
-            aux['procesos'][0].fechaDeInicio = obtenerFecha()
-        })
-        setLoading(true)
-        firebase.database().ref().child(useruid).child('cadenasActivas').push(aux)
-        .then(()=>{
-            setshowSnackbar('La cadena se inicio correctamente!!')
-            setTimeout(() => {
-                setLoading(false)
-            }, 2000);
-        })
-        .catch(()=>{
-            setLoading(false)
-        })
-    }
     // CONTENT
     return(
         <Grid item xs={8} sm={6} md={4} lg={3} className={!search?null:name.toLowerCase().search(search.toLowerCase()) == -1 ? classes.displayNone:classes.display}>
@@ -86,8 +63,28 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                                     </Link>
                                     {cadenaDeProduccion?
                                         <MenuItem
-                                            onClick={()=>{iniciarCadena()}}
-                                        >Iniciar Cadena de produccion</MenuItem>
+                                            onClick={()=>{
+                                                setAnchorEl(null)
+                                                iniciarCadena(name)
+                                            }}>
+                                                Iniciar Cadena de produccion
+                                            </MenuItem>
+                                        :
+                                        null
+                                    }
+                                    {historialDeProduccion?
+                                        <MenuItem>
+                                                <Link
+                                                    className={classes.link}
+                                                    style={{color:'#fff',textDecoration:'none'}}
+                                                    to={{
+                                                        pathname:'/Historial-De-Produccion',
+                                                        search:`${name}`,
+                                                    }}
+                                                >
+                                                Historial de Produccion
+                                                </Link>
+                                            </MenuItem>
                                         :
                                         null
                                     }

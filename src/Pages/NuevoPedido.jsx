@@ -8,7 +8,8 @@ import {database} from 'firebase'
 import {content} from './styles/styles'
 import { fechaDetallada } from '../utilities';
 import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
-  
+import {getProductosList,getSubproductosList} from '../utilities'
+
 // COMPONENT
 const NuevoPedido=(props)=>{
     const classes = content()
@@ -48,7 +49,7 @@ const NuevoPedido=(props)=>{
                 tipoDeDato='Productos'
                 datos={productos}
                 setDatos={setproductos}
-                productosList={props.productos}
+                productosList={getProductosList(props.productos)}
                 total={total}
                 settotal={settotal}
             /> 

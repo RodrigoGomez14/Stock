@@ -164,7 +164,7 @@ export const content =makeStyles(theme=>({
         backgroundColor:theme.palette.primary.main,
     },
     cardCadenaStep:{
-        width:'350px'
+        width:'300px'
     },
     cardHeaderCadenaStepActive:{
         backgroundColor:theme.palette.primary.main,

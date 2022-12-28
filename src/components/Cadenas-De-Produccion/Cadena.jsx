@@ -5,10 +5,10 @@ import {CardStep} from './CardStep'
 import {Link} from 'react-router-dom'
 import {Alert} from '@material-ui/lab'
 import {content} from '../../Pages/styles/styles'
-import { formatMoney } from '../../utilities'
+import { checkSearch } from '../../utilities'
 
 
-export const Cadena = ({cadena}) =>{
+export const Cadena = ({cadena,id,iniciarProceso}) =>{
     const classes = content()
     
     const [expanded,setExpanded] = useState(false)
@@ -28,7 +28,14 @@ export const Cadena = ({cadena}) =>{
         <Grid container item xs={12}>
             <Card className={classes.cardCadena}>
                 <CardHeader 
-                    title={cadena.producto} subheader={cadena.fechaDeInicio} className={classes.cardHeaderCadena}
+                    title={
+                        <Link 
+                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                            to={{pathname:'/Productos',search:`${checkSearch('-'+cadena.producto)}`}
+                        }>
+                            {cadena.producto}
+                        </Link>
+                    } subheader={`${cadena.cantidad?`${cadena.cantidad} u. -`:''} ${cadena.fechaDeInicio}`} className={classes.cardHeaderCadena}
                     action={
                         <IconButton onClick={()=>{setExpanded(!expanded)}}>
                             {expanded?
@@ -42,12 +49,12 @@ export const Cadena = ({cadena}) =>{
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
                         <Stepper activeStep={getStep()} alternativeLabel>
-                            {cadena.procesos.map((proceso) => (
+                            {cadena.procesos.map((proceso,i) => (
                                 <Step key={proceso.proceso}>
                                     <StepLabel>
                                         <Grid container xs={12}>
                                             <Grid container item xs={12} justify='center'>
-                                                <CardStep proceso={proceso}/>
+                                                <CardStep proceso={proceso} id={id} iniciarProceso={iniciarProceso} index={i} activeStep={getStep}/>
                                             </Grid>
                                         </Grid>
                                     </StepLabel>
