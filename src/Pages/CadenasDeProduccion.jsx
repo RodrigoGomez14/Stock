@@ -19,7 +19,6 @@ const CadenasDeProduccion=(props)=>{
         setLoading(true)
         let aux= props.cadenasActivas[id].procesos
         aux[step]={...aux[step],fechaDeInicio:obtenerFecha()}
-        console.log(aux)
         database().ref().child(props.user.uid).child('cadenasActivas').child(id).child('procesos').update(aux)
         .then(()=>{
             setshowSnackbar('El Proceso Inicio Correctamente!')

@@ -182,17 +182,6 @@ export const Detalles = ({dni,cuit,direcciones,telefonos,mails,infoExtra,expreso
                     </Paper>
                 </Grid>
             }
-            {!dni && !cuit && !direcciones && !telefonos && !mails && !infoExtra && !expresos?
-                <Grid container item xs={12} justify='center' spacing={6}>
-                    <Grid item>
-                        <Typography variant='h6' className={classes.textWhite}>
-                            No hay informacion del cliente
-                        </Typography>
-                    </Grid>
-                </Grid>
-                :
-                null
-            }
         </Grid>
     )
 }

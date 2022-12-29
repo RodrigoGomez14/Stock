@@ -63,9 +63,14 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
         setproductos(aux)
     }
     const obtenerPrecio =producto=>{
-        if(productosList[producto]){
-            return productosList[producto].precio
-        }
+        let precio 
+        productosList.map(i=>{
+            if(i.nombre==producto){
+                console.log(i.precio)
+                precio = i.precio
+            }
+        })
+        return precio
     }
     const getDiscountPrice = (precio,porcentaje) =>{
         return precio - (porcentaje*precio/100)
@@ -108,11 +113,12 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             <DialogContent>
                 <Grid container direction='column' alignItems='center' spacing={3}>
                     <Grid item>
+                        {console.log(productosList)}
                         <Autocomplete
                             freeSolo
                             value={producto}
-                            options={Object.keys(productosList)}
-                            getOptionLabel={(option) => productosList[option].nombre}
+                            options={productosList}
+                            getOptionLabel={(option) => option.nombre}
                             onChange={(e)=>{
                                 setproducto(e.target.value) 
                                 setprecio(obtenerPrecio(e.target.value))

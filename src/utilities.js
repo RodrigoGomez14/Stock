@@ -76,6 +76,18 @@ export const getProductosList = (productos) =>{
   return aux
 
 }
+export const getProductosListWithPrice = (productos) =>{
+  let aux = []
+  if(productos){
+      Object.keys(productos).map(key=>{
+          if(!productos[key].isSubproducto){
+              aux.push({nombre:productos[key].nombre,precio:productos[key].precio})
+          }
+      })
+  }
+  return aux
+
+}
 export const getSubproductosList = (subproducto) =>{
   let aux = []
   if(subproducto){

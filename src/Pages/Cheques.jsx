@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {FormControl,InputLabel,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Link as LinkComponent,Snackbar,Select,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem} from '@material-ui/core'
+import {FormControl,InputLabel,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {PersonAdd} from '@material-ui/icons'
 import {MoreVert,DeleteOutlineOutlined} from '@material-ui/icons'
@@ -20,6 +20,8 @@ const Cheques=(props)=>{
     const [search,setSearch]=useState(props.location.search?props.location.search.slice(1):'')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
+    const [totalBlanco,setTotalBlanco] = useState('')
+    const [totalNegro,setTotalNegro] = useState('')
     const [openDialog,setOpenDialog]=useState(false)
 
     // FUNCTIONS 
@@ -110,33 +112,45 @@ const Cheques=(props)=>{
             database().ref().child(props.user.uid).child('proveedores').child(destinatario).child('pagos').push(aux)  
         }
     }
-    
-    const guardarEntregaDeCheque = (id,diaDeEnvio,destinatario) =>{
+    const guardarChequeEnGrupo = (id,grupo) =>{
         setLoading(true)
-        console.log(id,diaDeEnvio,destinatario) 
         database().ref().child(props.user.uid).child('cheques').child(id).update({
-            diaDeEnvio:diaDeEnvio,
-            destinatario:destinatario
+                grupo:grupo
         })
         .then(()=>{
-            setshowSnackbar('El cheque se entrego correctamente!')
+            setshowSnackbar('El cheque Se Agrego Al Grupo!')
             setTimeout(() => {
                 setLoading(false)
                 setshowSnackbar('')
             }, 2000);
         })
-        .catch(()=>{
-            setLoading(false)
-        })
     }
     
-
+    const obtenerTotalGrupos = (cheques) =>{
+        let auxBlanco = 0
+        let auxNegro = 0
+        Object.keys(cheques).map(cheque=>{
+            if(!cheques[cheque].destinatario && !cheques[cheque].dadoDeBaja){
+                if(cheques[cheque].grupo){
+                    if(cheques[cheque].grupo=='Blanco'){
+                        auxBlanco+=parseFloat(cheques[cheque].valor)
+                    }
+                    else{
+                        auxNegro+=parseFloat(cheques[cheque].valor)
+                    }
+                }
+            }
+        })
+        setTotalBlanco(auxBlanco)
+        setTotalNegro(auxNegro)
+    }
     // VALIDACION DE BUSQUEDA PREVIA
     useEffect(()=>{
+        obtenerTotalGrupos(props.cheques)
         if(props.history.location.search){
             setSearch(props.history.location.search.slice(1))
         }
-    },[])
+    },[props.cheques])
 
     return(
         <Layout history={props.history} page="Cheques" user={props.user.uid}>
@@ -144,6 +158,22 @@ const Cheques=(props)=>{
             <Paper className={classes.content}>
                 {/* CHEQUES TABLE */}
                 <Grid container justify='center' alignItems='center' spacing={3}>
+                    <Grid container item xs={12} justify='space-around'>
+                        <Grid item>
+                            <Card>
+                                <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
+                                    <CardHeader title={`$ ${formatMoney(totalBlanco)}`} subheader='Blanco'/>
+                                </Paper>
+                            </Card>
+                        </Grid>
+                        <Grid item>
+                            <Card>
+                                <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
+                                    <CardHeader title={`$ ${formatMoney(totalNegro)}`} subheader='Negro'/>
+                                </Paper>
+                            </Card>
+                        </Grid>
+                    </Grid>
                     {/* SEARCH BAR */}
                     <Grid container item xs={12} justify='center' alignItems='center' >
                         <Grid item>
@@ -157,11 +187,12 @@ const Cheques=(props)=>{
                             />
                         </Grid>
                     </Grid>
+
                     {/* TABLE */}
                     <Grid container justify='center' alignItems='center' spacing={3}>
                         {props.cheques?
                             Object.keys(props.cheques).reverse().map((key,i)=>(
-                                <Cheque cheque={props.cheques[key]} id={key} search={search} guardarChequeRebotado={guardarChequeRebotado}/>    
+                                <Cheque cheque={props.cheques[key]} id={key} search={search} guardarChequeRebotado={guardarChequeRebotado} guardarChequeEnGrupo={guardarChequeEnGrupo}/>    
                             ))
                         :
                         <Typography variant='h5'>

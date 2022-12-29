@@ -21,7 +21,7 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                             <FormControlLabel 
                                 control={
                                     <Switch
-                                        checked={isSubproducto}
+                                        checked={Boolean(isSubproducto)}
                                         value={isSubproducto}
                                         color='default'
                                         onChange={e=>{

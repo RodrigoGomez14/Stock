@@ -6,10 +6,11 @@ import {Alert} from '@material-ui/lab'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const CardEnvio = ({envio,search,asentarLlegada}) =>{
+export const CardEnvio = ({envio,search,asentarLlegada,success}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [expanded, setExpanded] = useState(false);
+    const [cardState,setCardState] = useState(success)
 
     //Menu More
     const handleClick = (event) => {
@@ -21,7 +22,8 @@ export const CardEnvio = ({envio,search,asentarLlegada}) =>{
     return(
         <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:envio.remito.search(search) == -1 ? classes.displayNone:classes.display} >
             <Card>
-                <Paper elevation={3} className={envio.fechaDeLlegada?classes.cardEnvioHeaderSuccess:''}>
+                {console.log(envio)}
+                <Paper elevation={3} className={cardState?classes.cardEnvioHeaderSuccess:null}>
                     <CardHeader
                         className={classes.header}
                         action={
@@ -44,7 +46,11 @@ export const CardEnvio = ({envio,search,asentarLlegada}) =>{
                                     onClose={handleClose}
                                 >
                                     {!envio.fechaDeLlegada?
-                                        <MenuItem onClick={()=>{asentarLlegada()}}>Asentar llegada</MenuItem>
+                                        <MenuItem onClick={()=>{
+                                            handleClose()
+                                            setCardState(true)
+                                            asentarLlegada()
+                                        }}>Asentar llegada</MenuItem>
                                         :
                                         null
                                     }

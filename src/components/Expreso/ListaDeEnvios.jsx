@@ -48,6 +48,7 @@ export const ListaDeEnvios = ({envios,search,setSearch,asentarLlegada}) =>{
                                 search={search}
                                 envio={envios[envio]}
                                 asentarLlegada={()=>{asentarLlegada(envio)}}
+                                success={Boolean(envios[envio].fechaDeLlegada)}
                             />
                         ))}
                     </Grid>

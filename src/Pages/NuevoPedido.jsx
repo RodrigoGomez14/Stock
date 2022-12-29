@@ -6,9 +6,8 @@ import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Pedido/Step'
 import {database} from 'firebase'
 import {content} from './styles/styles'
-import { fechaDetallada } from '../utilities';
+import { fechaDetallada, getProductosListWithPrice } from '../utilities';
 import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
-import {getProductosList,getSubproductosList} from '../utilities'
 
 // COMPONENT
 const NuevoPedido=(props)=>{
@@ -49,7 +48,7 @@ const NuevoPedido=(props)=>{
                 tipoDeDato='Productos'
                 datos={productos}
                 setDatos={setproductos}
-                productosList={getProductosList(props.productos)}
+                productosList={getProductosListWithPrice(props.productos)}
                 total={total}
                 settotal={settotal}
             /> 

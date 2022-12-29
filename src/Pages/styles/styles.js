@@ -155,6 +155,10 @@ export const content =makeStyles(theme=>({
     alertCheque:{
         width:'100%'
     },
+    CardHeaderGrupoCheques:{
+        backgroundColor:theme.palette.primary.main,
+        padding:theme.spacing(2)
+    },
 
     //CARD CADENA DE PRODUCCION
     cardCadena:{

@@ -7,7 +7,7 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
+export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGrupo}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -47,7 +47,24 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
                                             open={Boolean(anchorEl)}
                                             onClose={handleClose}
                                         >
-                                            <MenuItem>Editar</MenuItem>
+                                            {!cheque.grupo?
+                                                <>
+                                                    <MenuItem onClick={()=>{
+                                                        guardarChequeEnGrupo(id,'Blanco')
+                                                        setAnchorEl(null)
+                                                    }}>
+                                                        Guardar Blanco
+                                                    </MenuItem>
+                                                    <MenuItem onClick={()=>{
+                                                        guardarChequeEnGrupo(id,'Negro')
+                                                        setAnchorEl(null)
+                                                    }}>
+                                                        Guardar Negro
+                                                    </MenuItem>
+                                                </>
+                                                :
+                                                null
+                                            }
                                             {!cheque.dadoDeBaja?
                                                 <MenuItem onClick={()=>{
                                                     guardarChequeRebotado(id)
@@ -108,6 +125,13 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id}) =>{
                                     }
                                 </Grid>
                                 <List>
+                                    {cheque.grupo?
+                                        <ListItem>
+                                            <ListItemText primary={cheque.grupo} secondary='Grupo'/>
+                                        </ListItem>
+                                        :
+                                        null
+                                    }
                                     <Link 
                                         style={{color:'#fff',textDecoration:'none'}}
                                         className={classes.textWhite}

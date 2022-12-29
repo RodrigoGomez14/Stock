@@ -142,6 +142,12 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         // ACTUALIZA LA DEUDA DEL CLIENTE
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
         
+        //ACTUALIZA LOS PRECIOS PARA FACTURACION
+        if(props.location.props.facturacion){
+            aux.articulos = actualizarPrecios(aux.articulos)
+        }
+
+        
         //AGREGA LA VENTA AL LISTADO DE FACTURACION
         agregarAListaDeIva(aux.total)
 
@@ -174,6 +180,14 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
             .catch(()=>{
                 setLoading(false)
             })
+    }
+
+    const actualizarPrecios = (articulos) =>{
+        let aux =articulos
+        aux.map(articulo=>{
+            articulo.precio=articulo.precio/0.79
+        })
+        return aux
     }
     
     const descontarProductos = async id =>{
