@@ -75,7 +75,7 @@ export const CardProveedor = ({datos,search}) =>{
                                     className={datos.deuda>0?classes.chipCardDangerCliente:classes.chipCardSuccessCliente}
                                     variant="outlined"
                                     icon={<AttachMoney/>}
-                                    label={datos.deuda?formatMoney(datos.deuda):formatMoney(0)}
+                                    label={datos.deuda?formatMoney(datos.deuda>=0?datos.deuda:-datos.deuda):formatMoney(0)}
                                 />
                             </Link>
                         </Grid>

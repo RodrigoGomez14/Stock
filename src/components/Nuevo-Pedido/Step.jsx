@@ -28,11 +28,13 @@ export const Step = ({datos,setDatos,tipoDeDato,clientesList,productosList,total
                             <Grid item xs={12} justify='center'>
                                 <Autocomplete
                                     freeSolo
-                                    options={Object.keys(clientesList)}
+                                    disabled={!clientesList}
+                                    options={clientesList?Object.keys(clientesList):{}}
                                     getOptionLabel={(option) => option}
                                     onSelect={(e)=>{setDatos(e.target.value)}}
                                     onChange={(e)=>{setDatos(e.target.value)}}
                                     style={{ width: 300 }}
+                                    value={datos}
                                     renderInput={(params) => <TextField {...params} label="Destinatario" variant="outlined" />}
                                 />
                             </Grid>

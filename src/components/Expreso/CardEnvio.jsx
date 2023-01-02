@@ -3,14 +3,15 @@ import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {Alert} from '@material-ui/lab'
-import {formatMoney} from '../../utilities'
+import {formatMoney, obtenerFecha} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
+import {DialogAsentarInconveniente} from './Dialogs/DialogAsentarInconveniente'
 
-export const CardEnvio = ({envio,search,asentarLlegada,success}) =>{
+export const CardEnvio = ({envio,search,asentarLlegada,asentarResolucionInconveniente,asentarInconveniente}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [expanded, setExpanded] = useState(false);
-    const [cardState,setCardState] = useState(success)
+    const [showDialogAsentarInconveniente, setshowDialogAsentarInconveniente] = useState(false);
 
     //Menu More
     const handleClick = (event) => {
@@ -22,40 +23,68 @@ export const CardEnvio = ({envio,search,asentarLlegada,success}) =>{
     return(
         <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:envio.remito.search(search) == -1 ? classes.displayNone:classes.display} >
             <Card>
-                {console.log(envio)}
-                <Paper elevation={3} className={cardState?classes.cardEnvioHeaderSuccess:null}>
+                <Paper elevation={3} className={envio.fechaDeLlegada?classes.cardEnvioHeaderSuccess:(envio.inconveniente?classes.cardEnvioHeaderWarning:classes.cardEnvioHeader)}>
                     <CardHeader
                         className={classes.header}
                         action={
                             <>
                                 <IconButton onClick={()=>{setExpanded(!expanded)}}>
                                     {expanded?
-                                        <ExpandLess/>
+                                        <ExpandLess className={envio.fechaDeLlegada?classes.cardEnvioHeaderIconSuccess:(envio.inconveniente?classes.cardEnvioHeaderIconWarning:null)}/>
                                         :
-                                        <ExpandMore/>
+                                        <ExpandMore className={envio.fechaDeLlegada?classes.cardEnvioHeaderIconSuccess:(envio.inconveniente?classes.cardEnvioHeaderIconWarning:null)}/>
                                     }
                                 </IconButton>
-                                <IconButton aria-label="settings" onClick={handleClick}>
-                                    <MoreVert/>
-                                </IconButton>
-                                <Menu
-                                    id="simple-menu"
-                                    anchorEl={anchorEl}
-                                    keepMounted
-                                    open={Boolean(anchorEl)}
-                                    onClose={handleClose}
-                                >
-                                    {!envio.fechaDeLlegada?
-                                        <MenuItem onClick={()=>{
-                                            handleClose()
-                                            setCardState(true)
-                                            asentarLlegada()
-                                        }}>Asentar llegada</MenuItem>
-                                        :
-                                        null
-                                    }
-                                    <MenuItem className={classes.deleteButton} disabled={true} onClick={()=>{}}>Asentar Inconveniente</MenuItem>
-                                </Menu>
+                                {!envio.fechaDeLlegada?
+                                    <>
+                                        <IconButton aria-label="settings" onClick={handleClick} className={envio.fechaDeLlegada?classes.cardEnvioHeaderIconSuccess:(envio.inconveniente?classes.cardEnvioHeaderIconWarning:null)}>
+                                            <MoreVert/>
+                                        </IconButton>
+                                        <Menu
+                                            id="simple-menu"
+                                            anchorEl={anchorEl}
+                                            keepMounted
+                                            open={Boolean(anchorEl)}
+                                            onClose={handleClose}
+                                        >
+                                            {!envio.fechaDeLlegada?
+                                                <MenuItem onClick={()=>{
+                                                    handleClose()
+                                                    asentarLlegada()
+                                                }}>Asentar llegada</MenuItem>
+                                                :
+                                                null
+                                            }
+                                            {!envio.inconveniente && !envio.fechaDeLlegada ?
+                                                <MenuItem 
+                                                    className={classes.deleteButton}
+                                                    onClick={()=>{
+                                                        handleClose()
+                                                        setshowDialogAsentarInconveniente(true)
+                                                        //asentarInconveniente({descripcion:'Se pedieron 10 Tapas',fecha:obtenerFecha()})
+                                                    }}>
+                                                    Asentar Inconveniente
+                                                </MenuItem>
+                                                :
+                                                null
+                                            }
+                                            {envio.inconveniente && !envio.resolucionInconveniente ?
+                                                <MenuItem 
+                                                    className={classes.deleteButton}
+                                                    onClick={()=>{
+                                                        handleClose()
+                                                        asentarResolucionInconveniente({fecha:obtenerFecha()})
+                                                    }}>
+                                                    Inconveniente Resuelto
+                                                </MenuItem>
+                                                :
+                                                null
+                                            }
+                                        </Menu>
+                                    </>
+                                    :
+                                    null
+                                }
                             </>
                         }
                         title={
@@ -63,7 +92,7 @@ export const CardEnvio = ({envio,search,asentarLlegada,success}) =>{
                                 <Grid item>
                                     <Link 
                                         style={{color:'#fff',textDecoration:'none'}}
-                                        className={classes.textWhite}
+                                        className={envio.fechaDeLlegada?classes.cardEnvioHeaderTextSuccess:(envio.inconveniente?classes.cardEnvioHeaderTextWarning:null)}
                                         to={{pathname:'/Cliente',search:`${envio.cliente}`}
                                     }>
                                         {envio.cliente}
@@ -74,7 +103,7 @@ export const CardEnvio = ({envio,search,asentarLlegada,success}) =>{
                         subheader={
                             <Link 
                                 style={{color:'#fff',textDecoration:'none'}}
-                                className={classes.textWhite}
+                                className={envio.fechaDeLlegada?classes.cardEnvioHeaderTextSuccess:(envio.inconveniente?classes.cardEnvioHeaderTextWarning:null)}
                                 to={{pathname:'/Cliente',search:`${envio.cliente}`,props:{remito:envio.id}}}>
                                 Remito Nº {envio.remito}
                             </Link>
@@ -83,17 +112,35 @@ export const CardEnvio = ({envio,search,asentarLlegada,success}) =>{
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
-                        {envio.fechaDeLlegada?
-                            <Grid container xs={12} justify='center'>
+                        <Grid container xs={12} justify='center' spacing={3}>
+                            {envio.fechaDeLlegada?
                                 <Grid container item xs={12}>
                                     <Alert variant="filled" severity="success" className={classes.alertCheque}>
                                         El paquete llego a destino el {envio.fechaDeLlegada}
                                     </Alert>
                                 </Grid>
-                            </Grid>
-                            :
-                            null
-                        }
+                                :
+                                null
+                            }
+                            {envio.resolucionInconveniente?
+                                <Grid container item xs={12}>
+                                    <Alert variant="filled" severity="success" className={classes.alertCheque}>
+                                        El {envio.resolucionInconveniente.fecha} se resolvio el inconveniente
+                                    </Alert>
+                                </Grid>
+                                :
+                                null
+                            }
+                            {envio.inconveniente?
+                                <Grid container item xs={12}>
+                                    <Alert variant="filled" severity="warning" className={classes.alertEnvioInconveniente}>
+                                        El {envio.inconveniente.fecha} {envio.inconveniente.descripcion}
+                                    </Alert>
+                                </Grid>
+                                :
+                                null
+                            }
+                        </Grid>
                         <List>
                             <ListItem>
                                 <ListItemText primary={envio.fecha} secondary='Fecha de Salida'/>
@@ -102,6 +149,7 @@ export const CardEnvio = ({envio,search,asentarLlegada,success}) =>{
                     </CardContent>
                 </Collapse>
             </Card>
+            <DialogAsentarInconveniente open={showDialogAsentarInconveniente} setOpen={setshowDialogAsentarInconveniente} asentarInconveniente={asentarInconveniente}/>
         </Grid>
     )
 }

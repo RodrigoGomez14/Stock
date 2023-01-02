@@ -17,7 +17,7 @@ export const Deuda = ({deuda,id}) =>{
                                 Balance
                             </Typography>
                             <Typography variant="h4" component="h2">
-                                $ {formatMoney(deuda)}
+                                $ {formatMoney(deuda>=0?deuda:-deuda)}
                             </Typography>
                         </>
                     }

@@ -151,11 +151,15 @@ export const Step = ({datos,setDatos,tipoDeDato,Expresos}) =>{
                             onChange={handleChange}
                             input={<Input />}
                             >
-                            {Object.keys(Expresos).map(expreso => (
-                                <MenuItem key={Expresos[expreso].datos.nombre} value={Expresos[expreso].datos.nombre}>
-                                    {Expresos[expreso].datos.nombre}
-                                </MenuItem>
-                            ))}
+                            {Expresos?
+                                Object.keys(Expresos).map(expreso => (
+                                    <MenuItem key={Expresos[expreso].datos.nombre} value={Expresos[expreso].datos.nombre}>
+                                        {Expresos[expreso].datos.nombre}
+                                    </MenuItem>
+                                ))
+                                :
+                                null
+                            }
                             </Select>
                             {console.log(datos)}
                         </FormControl>

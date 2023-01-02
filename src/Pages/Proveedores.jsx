@@ -6,7 +6,7 @@ import {AttachMoney,PersonAdd} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {content} from './styles/styles'
 import {CardProveedor} from '../components/Proveedores/CardProveedor'
-
+import Empty from '../images/Empty.png'
 // COMPONENT
 const Proveedores=(props)=>{
     const classes = content()
@@ -43,9 +43,14 @@ const Proveedores=(props)=>{
                                 <CardProveedor datos={props.proveedores[key].datos} search={search}/>
                             ))
                             :
-                            <Typography variant='h5'>
-                                Aun no hay ningun Proveedor ingresado
-                            </Typography>
+                            <>
+                            <Grid item>
+                                <img src={Empty} alt="" height='500px'/>
+                            </Grid>
+                            <Grid container item xs={12} justify='center'>
+                                <Typography variant='h4'>No hay Proveedores Ingresados</Typography>
+                            </Grid>
+                            </>
                         }
                     </Grid>
                 </Grid>

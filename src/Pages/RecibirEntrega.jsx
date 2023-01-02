@@ -106,7 +106,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         const id = props.history.location.search.slice(1)
 
         // AUMENTAR PRDODUCTOS
-        await aumentarProductos(id)
+        aumentarProductos(props.entregas[id].productos)
 
         // ACTUALIZA CADA CHEQUE EN DB
         let chequesList = actualizarCheques()
@@ -130,6 +130,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
             fecha:obtenerFecha(),
             articulos:props.entregas[id].productos,
             metodoDePago:{
+                facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
                 efectivo:efectivo?efectivo:null,
                 cheques:chequesList,
                 fecha:obtenerFecha(),
@@ -148,7 +149,10 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
        
         // AGREGA LA ENTREGA A DB PARA OBTENER ID
         let idLink = database().ref().child(props.user.uid).child('proveedores').child(props.entregas[id].proveedor).child('entregas').push()
-        
+    
+        // AGREGA A LISTA DE COMPRAS
+        agregarAListaDeCompras(aux,idLink.key)
+
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
         agregarPagoAlHistorial(aux.metodoDePago,idLink.key,id)
         
@@ -172,24 +176,12 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                 setLoading(false)
             })
     }
-    const aumentarProductos = async pedido =>{
-        const articulos = props.entregas[pedido].productos
+    const aumentarProductos = articulos =>{
+        const aux = articulos
         // RECORRE LOS ARTICULOS DEL PEDIDO
-        articulos.map(async articulo=>{
-                // RECORRE LOS ARTICULOS DE LOS PRODUCTOS COMPUESTOS
-            if(props.productos[articulo.producto].cadenaDeProduccion){
-                //props.productos[articulo.producto].cadenaDeProduccion.map(async (producto,i)=>{
-                    //if(producto)
-                    //const nuevaCantidad = props.productos[producto].cantidad-articulo.cantidad
-                    //await database().ref().child(props.user.uid).child('productos').child(producto).update({cantidad:nuevaCantidad})
-                //})
-            }
-            else{
-                // DESCUENTA LA CANTIDAD DE PRODUCTOS SIMPLES
-                console.log(props.productos[articulo.producto].cantidad,articulo.cantidad)
+        aux.map((articulo)=>{
                 const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)+parseInt(articulo.cantidad)
-                await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
-            }
+                database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
         })
     }
     const actualizarCheques =() =>{
@@ -223,7 +215,11 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         let aux= {...pago,idEntrega:idLink}
         database().ref().child(props.user.uid).child('proveedores').child(props.entregas[idEntrega].proveedor).child('pagos').push(aux)
     }
-
+    const agregarAListaDeCompras = (entrega,idLink) =>{
+        let aux=entrega
+        aux['idEntrega']=idLink
+        database().ref().child(props.user.uid).child('compras').push(aux)
+    }
 
     const addCheque = key =>{
         const index = cheques.indexOf(key)

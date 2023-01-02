@@ -56,7 +56,7 @@ const CardDeudaCliente=({nombre,search,deuda})=>{
                             className={deuda>0?classes.chipCardDangerCliente:classes.chipCardSuccessCliente}
                             variant="outlined"
                             icon={<AttachMoney/>}
-                            label={formatMoney(deuda)}
+                            label={formatMoney(deuda>=0?deuda:-deuda)}
                         />
                     </Grid>
                 </CardContent>

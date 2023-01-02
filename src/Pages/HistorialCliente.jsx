@@ -9,6 +9,7 @@ import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
+import Empty from '../images/Empty.png'
 
 // COMPONENT
 const HistorialCliente=(props)=>{
@@ -55,7 +56,7 @@ const HistorialCliente=(props)=>{
                                         <Table stickyHeader>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell className={classes.titleDetallesCard}>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
                                                         Fecha
                                                     </TableCell>
                                                     <TableCell className={classes.titleDetallesCard} align='right'>
@@ -78,21 +79,14 @@ const HistorialCliente=(props)=>{
                                             <TableBody>
                                                     {Object.keys(cliente).reverse().map(pago=>(
                                                         <TableRow> 
-                                                            <TableCell>
+                                                            <TableCell align='right'>
                                                                 {cliente[pago].fecha}
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 $ {cliente[pago].efectivo?formatMoney(cliente[pago].efectivo):'-'}
                                                             </TableCell>
                                                             <TableCell align='right'>
-                                                                $ {formatMoney(calcularTotal(cliente[pago].total,cliente[pago].efectivo))}
-                                                                {cliente[pago].cheques?
-                                                                    <>
-                                                                        <MenuCheques pago={cliente[pago]}/>
-                                                                    </>
-                                                                    :
-                                                                    null
-                                                                }
+                                                                <MenuCheques pago={cliente[pago]}/>
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 $ {formatMoney(cliente[pago].deudaPasada)}
@@ -127,9 +121,14 @@ const HistorialCliente=(props)=>{
                                 </Paper>
                             </Grid>
                             :
-                            <Typography variant='h6'>
-                                {props.clientes[checkSearch(props.history.location.search)].datos.nombre} no tiene un historial de pagos
-                            </Typography>
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>{checkSearch(props.location.search)} no tiene historial de pagos</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='600px'/>
+                                </Grid>
+                            </Grid>
                         }
                 </Grid>
             </Paper>

@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,makeStyles,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
+import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,Select,FormControl,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
 import {Autocomplete} from '@material-ui/lab'
 import DateFnsUtils from '@date-io/date-fns';
 import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker,} from '@material-ui/pickers';
@@ -9,12 +9,15 @@ export const DialogAgregarProceso = ({edit,setEdit,open,setOpen,proveedoresList,
     const classes = content()
     const [nombre, setNombre] = useState(undefined)
     const [proveedor, setProveedor] = useState(undefined)
+    const [step, setStep] = useState(0)
     
     // FUNCTIONS
     
     // FILL FOR EDIT
     useEffect(()=>{
-        if(edit){
+        if(edit!=-1){
+            setNombre(cadenaDeProduccion[edit].proceso)
+            setProveedor(cadenaDeProduccion[edit].proveedor)
         }
     },[edit])
 
@@ -22,7 +25,7 @@ export const DialogAgregarProceso = ({edit,setEdit,open,setOpen,proveedoresList,
     return(
         <Dialog open={open} maxWidth='md'>
             <DialogTitle>
-                {edit?
+                {edit!=-1?
                     'Editar Proceso'
                     :
                     'Agregar Proceso'
@@ -35,6 +38,7 @@ export const DialogAgregarProceso = ({edit,setEdit,open,setOpen,proveedoresList,
                             freeSolo
                             options={['Fundido','Mecanizado','Pintado','Ensamblado']}
                             getOptionLabel={(option) => option}
+                            value={nombre}
                             onSelect={(e)=>{setNombre(e.target.value)}}
                             onChange={(e)=>{setNombre(e.target.value)}}
                             style={{ width: 300 }}
@@ -45,8 +49,10 @@ export const DialogAgregarProceso = ({edit,setEdit,open,setOpen,proveedoresList,
                         {console.log(proveedoresList)}
                         <Autocomplete
                             freeSolo
-                            options={Object.keys(proveedoresList)}
+                            options={proveedoresList?Object.keys(proveedoresList):{}}
+                            disabled={!proveedoresList}
                             getOptionLabel={(option) => option}
+                            value={proveedor}
                             onSelect={(e)=>{setProveedor(e.target.value)}}
                             onChange={(e)=>{setProveedor(e.target.value)}}
                             style={{ width: 300 }}
@@ -58,8 +64,8 @@ export const DialogAgregarProceso = ({edit,setEdit,open,setOpen,proveedoresList,
             <DialogActions>
                 <Button 
                     onClick={()=>{
-                        if(edit){
-                            setEdit(0)
+                        if(edit!=-1){
+                            setEdit(-1)
                         }
                         setOpen(false)
                     }}
@@ -69,20 +75,24 @@ export const DialogAgregarProceso = ({edit,setEdit,open,setOpen,proveedoresList,
                 <Button
                     disabled={!nombre || !proveedor}
                     onClick={()=>{
-                        if(edit){
-                            setEdit(0)
+                        if(edit!=-1){
+                            let aux = cadenaDeProduccion
+                            aux[edit]={proceso:nombre,proveedor:proveedor}
+                            setcadenaDeProduccion(aux)
                         }
                         else{
                             let proceso = {proceso:nombre,proveedor:proveedor}
                             let aux = cadenaDeProduccion
                             aux.push(proceso)
-                            console.log(aux)
                             setcadenaDeProduccion(aux)
                         }
+                        setNombre(undefined)
+                        setProveedor(undefined)
+                        setEdit(-1)
                         setOpen(false)
                     }}
                 >
-                    {edit?
+                    {edit!=-1?
                         'Editar'
                         :
                         'Agregar'

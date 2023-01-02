@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,Paper,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
+import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,Paper,ListItemSecondaryAction,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
 import {CheckCircle, EditOutlined} from '@material-ui/icons'
 import {formatMoney} from '../../../utilities'
 import {content} from '../../../Pages/styles/styles'
@@ -133,11 +133,18 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                     </Grid>
                     {producto&&
                         <Grid container item xs={12} justify='flex-start' spacing={3} >
-                            <List>
+                            <List style={{width:'100%'}}>
                                 <ListItem>
                                     <ListItemText 
                                         primary={`$ ${formatMoney(precio)} c/u`} 
                                         secondary={editarPrecio&&(discount||increase)?`$ ${editarPrecio=='discount'?'-':'+'}${formatMoney(editarPrecio=='discount'?getDiscount(precio,discount):getIncrease(precio,increase))}`:null}/>
+                                    <ListItemSecondaryAction>
+                                        <IconButton onClick={()=>{
+                                            
+                                        }}>
+                                            <EditOutlined/>
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
                                 </ListItem>
                                 {editarPrecio && (discount||increase)?
                                     <ListItem>

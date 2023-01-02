@@ -14,18 +14,14 @@ import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
+import Empty from '../images/Empty.png'
 
 // COMPONENT
 const HistorialProveedor=(props)=>{
     const classes = content()
     const [proveedor,setProveedor]= useState(props.proveedores[checkSearch(props.history.location.search)].pagos)
-   
 
-    const calcularTotal = (total,efectivo) =>{
-        const auxEfectivo = efectivo?efectivo:0
-    
-        return total-auxEfectivo!=0?total-auxEfectivo:0
-    }
+   
 
     return(
         <Layout history={props.history} page={`Historial ${props.proveedores[checkSearch(props.history.location.search)].datos.nombre}`} user={props.user.uid}>
@@ -59,17 +55,17 @@ const HistorialProveedor=(props)=>{
                                         <Table stickyHeader>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell className={classes.titleDetallesCard}>
+                                                    <TableCell className={classes.titleDetallesCard} align="left">
                                                         Fecha
                                                     </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='left'>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
                                                         Efectivo
                                                     </TableCell>
                                                     <TableCell className={classes.titleDetallesCard} align='right'>
                                                         Cheques
                                                     </TableCell>
                                                     <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Deuda Pasado
+                                                        Deuda Pasada
                                                     </TableCell>
                                                     <TableCell className={classes.titleDetallesCard}   align='right'>
                                                         Deuda Actualizada
@@ -82,21 +78,14 @@ const HistorialProveedor=(props)=>{
                                             <TableBody>
                                                     {Object.keys(proveedor).reverse().map(pago=>(
                                                         <TableRow> 
-                                                            <TableCell>
+                                                            <TableCell align='left'>
                                                                 {proveedor[pago].fecha}
                                                             </TableCell>
-                                                            <TableCell align='left'>
+                                                            <TableCell align='right'>
                                                                $ {proveedor[pago].efectivo?formatMoney(proveedor[pago].efectivo):'-'}
                                                             </TableCell>
                                                             <TableCell align='right'>
-                                                                $ {formatMoney(proveedor[pago].pagado?proveedor[pago].pagado-parseInt(proveedor[pago].efectivo):0)}
-                                                                {proveedor[pago].cheques?
-                                                                    <>
-                                                                        <MenuCheques pago={proveedor[pago]}/>
-                                                                    </>
-                                                                    :
-                                                                    null
-                                                                }                                                            
+                                                                <MenuCheques pago={proveedor[pago]}/>                                                
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 $ {formatMoney(proveedor[pago].deudaPasada)}
@@ -131,9 +120,14 @@ const HistorialProveedor=(props)=>{
                                 </Paper>
                             </Grid>
                             :
-                            <Typography variant='h6'>
-                                {props.proveedores[checkSearch(props.history.location.search)].datos.nombre} no tiene un historial de pagos
-                            </Typography>
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>{checkSearch(props.location.search)} no tiene historial de pagos</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='600px'/>
+                                </Grid>
+                            </Grid>
                         }
                 </Grid>
             </Paper>

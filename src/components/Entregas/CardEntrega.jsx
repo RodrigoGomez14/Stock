@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,CardActions, List,ListItem, ListItemText,Collapse} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,CardActions, List,ListItem, ListItemText,Collapse,FormControlLabel,Switch} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore, ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../../utilities'
@@ -9,6 +9,7 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [expanded, setExpanded] = useState(false);
+    const [facturacion,setFacturacion]=useState(false)
 
     //Menu More
     const handleClick = (event) => {
@@ -101,10 +102,20 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                             <Typography variant='h5'>
                                 $ {formatMoney(entrega.total)}
                             </Typography>
+                            <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={facturacion}
+                                    onChange={e=>{
+                                        setFacturacion(e.target.checked)
+                                    }}
+                                />
+                            }
+                                label="Facturacion "/>
                             <Link
                                 style={{color:'#fff',textDecoration:'none'}}
                                 className={classes.textWhite}
-                                to={{pathname:'/Recibir-Entrega',search:`${id}`,props:{total:entrega.total}}
+                                to={{pathname:'/Recibir-Entrega',search:`${id}`,props:{total:entrega.total,facturacion:facturacion}}
                             }>
                                 <Button
                                     variant='outlined'

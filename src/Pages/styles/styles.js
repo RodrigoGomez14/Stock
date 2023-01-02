@@ -84,6 +84,14 @@ export const content =makeStyles(theme=>({
     cardDeudaGreenCardPedido:{
         backgroundColor:theme.palette.success.main
     },
+    alertPedidoFacturado:{
+        width:'100%',
+        color:'#000 !important'
+    },
+    alertEnvioInconveniente:{
+        width:'100%',
+        color:'#000 !important'
+    },
 
     // NUEVO-PEDIDO
     cardTotalPedidoDanger:{
@@ -95,6 +103,9 @@ export const content =makeStyles(theme=>({
         backgroundColor:theme.palette.success.main
     },
     // CARD ENVIO
+    cardEnvioHeader:{
+        backgroundColor:theme.palette.primary.main
+    },
     cardEnvioHeaderSuccess:{
         backgroundColor:theme.palette.success.main
     },
@@ -102,16 +113,36 @@ export const content =makeStyles(theme=>({
         backgroundColor:theme.palette.danger.dark
     },
     cardEnvioHeaderWarning:{
-        backgroundColor:theme.palette.warning.main
+        backgroundColor:theme.palette.warning.main,
+        color:'#000 !important'
     },
+    cardEnvioHeaderTextSuccess:{
+        color:'#fff',
+        textDecoration:'none',
+    },
+    cardEnvioHeaderTextWarning:{
+        color:'#000',
+        textDecoration:'none',    
+    },
+    cardEnvioHeaderIconSuccess:{
+        color:'#fff',
+    },
+    cardEnvioHeaderIconWarning:{
+        color:'#000',
+    },
+    
     //CARD PRODUCTO
     cardProducto:{
         backgroundColor:theme.palette.primary.main,
         width:'300px'
     },
-    cardProductoChip:{
-        backgroundColor:theme.palette.info.main,
-        color:theme.palette.info.contrastText
+    cardProductoChipAdeudado:{
+        backgroundColor:theme.palette.danger.main,
+        color:theme.palette.danger.contrastText
+    },
+    cardProductoChipAfavor:{
+        backgroundColor:theme.palette.success.main,
+        color:theme.palette.success.contrastText
     },
 
     //ENVIAR PEDIDO
@@ -147,10 +178,16 @@ export const content =makeStyles(theme=>({
         backgroundColor:theme.palette.success.dark,
         color:'#000'
     },
+    cardHeaderChequeIconDanger:{
+        color:'#000'
+    },
+    cardHeaderChequeIconSuccess:{
+        color:'#fff'
+    },
 
     // CHEQUES
     cardChequeChip:{
-        color:theme.palette.primary.contrastText
+        color:theme.palette.success.contrastText
     },
     alertCheque:{
         width:'100%'
@@ -158,6 +195,10 @@ export const content =makeStyles(theme=>({
     CardHeaderGrupoCheques:{
         backgroundColor:theme.palette.primary.main,
         padding:theme.spacing(2)
+    },
+    CardMonthCheques:{
+        width:'100%',
+        backgroundColor:theme.palette.primary.main
     },
 
     //CARD CADENA DE PRODUCCION
@@ -175,5 +216,15 @@ export const content =makeStyles(theme=>({
     },
     cardHeaderCadenaStepGreen:{
         backgroundColor:theme.palette.success.main,
+    },
+
+    // DEUDAS
+    tabPanelDeuda:{
+        width:'100% !important'
+    },
+
+    // NUEVO PRODUCTO
+    cardHeaderStep:{
+        backgroundColor:theme.palette.primary.main
     }
 }))

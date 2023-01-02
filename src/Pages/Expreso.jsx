@@ -12,6 +12,7 @@ import {database} from 'firebase'
 import {Link} from 'react-router-dom'
 import {content} from './styles/styles'
 import {checkSearch, obtenerFecha} from '../utilities'
+import { useEffect } from 'react'
 
 // COMPONENT
 const Expreso=(props)=>{
@@ -21,6 +22,7 @@ const Expreso=(props)=>{
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
+    
 
     // FUNCTIONS
     const eliminarExpreso = () =>{
@@ -49,6 +51,36 @@ const Expreso=(props)=>{
             setLoading(false)
         })
     }
+    const asentarInconveniente = (key,inconveniente) =>{
+        setLoading(true)
+        console.log(key)
+        console.log(inconveniente)
+        database().ref().child(props.user.uid).child('expresos').child(expreso.datos.nombre).child('envios').child(key).update({inconveniente:inconveniente}).then(()=>{
+            setshowSnackbar('Se Asento el Inconveniente!')
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000);
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
+    const asentarResolucionInconveniente = (key,inconveniente) =>{
+        setLoading(true)
+        database().ref().child(props.user.uid).child('expresos').child(expreso.datos.nombre).child('envios').child(key).update({resolucionInconveniente:inconveniente}).then(()=>{
+            setshowSnackbar('Se Asento La Resolucion del Inconveniente!')
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000);
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
+    
+    useEffect(()=>{
+        setExpreso(props.expresos[checkSearch(props.history.location.search)])
+    },[props.expresos])
     return(
         expreso?
             <Layout history={props.history} page={`${expreso.datos.nombre}`} user={props.user.uid}>
@@ -57,7 +89,7 @@ const Expreso=(props)=>{
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...expreso.datos}/>
-                        <ListaDeEnvios envios={expreso.envios} search={search} setSearch={setSearch} asentarLlegada={asentarLlegada}/>
+                        <ListaDeEnvios envios={expreso.envios} search={search} setSearch={setSearch} asentarLlegada={asentarLlegada} asentarInconveniente={asentarInconveniente} asentarResolucionInconveniente={asentarResolucionInconveniente}/>
                         <Grid item xs={12} sm={8} >
                             <Link to={{
                                 pathname: '/Editar-Expreso',
@@ -87,12 +119,12 @@ const Expreso=(props)=>{
             </Layout>
             :
             <>
-                {props.history.replace('/Expresos')}
+            {props.history.replace('/Expresos')}
             </>
-    )
-}
+            )
+        }
 
-//REDUX STATE TO PROPS
+        //REDUX STATE TO PROPS
 const mapStateToProps = state =>{
     return{
         user:state.user,

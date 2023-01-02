@@ -7,7 +7,7 @@ import {Alert} from '@material-ui/lab'
 import {Compras} from '../components/Iva/Compras'
 import {Ventas} from '../components/Iva/Ventas'
 import {database} from 'firebase'
-import {formatMoney} from '../utilities'
+import {formatMoney,getActualMonth} from '../utilities'
 import {content} from './styles/styles'
 import { set } from 'date-fns'
 
@@ -16,8 +16,8 @@ const IvaPage=(props)=>{
     const [loading,setLoading]=useState(false)
     const [showSnackbar,setshowSnackbar]=useState(false)
     const [totalCompras, setTotalCompras]= useState(0)
-    const [ivaCompras, setIvaCompras]= useState(0)
     const [totalVentas, setTotalVentas]= useState(0)
+    const [ivaCompras, setIvaCompras]= useState(0)
     const [ivaVentas, setIvaVentas]= useState(0)
 
     //FUNCTIONS
@@ -29,7 +29,7 @@ const IvaPage=(props)=>{
             total:10000
         }
         setLoading(true)
-        database().ref().child(props.user.uid).child('iva').child('compras').push(aux)
+        database().ref().child(props.user.uid).child('compras').push(aux)
             .then(()=>{
                 setshowSnackbar('La Compra Se Agrego Correctamente!')
                 setTimeout(() => {
@@ -40,6 +40,21 @@ const IvaPage=(props)=>{
                 setLoading(false)
             })
     }
+
+    const calcularTotalVentas =() =>{
+        let i =0
+        let actualMonth = getActualMonth() 
+
+        Object.keys(props.ventas).map(venta=>{
+            console.log(getActualMonth(props.ventas[venta].fecha))
+            console.log(actualMonth)
+            if(getActualMonth(props.ventas[venta].fecha) == actualMonth){
+                i += props.ventas[venta].total
+            }
+        })
+        setTotalVentas(i)
+    }
+
     const calcularTotal =(type) =>{
         let i =0
         if(props.iva[type]){
@@ -71,10 +86,7 @@ const IvaPage=(props)=>{
 
     //
     useEffect(()=>{
-        calcularTotal('compras')
-        calcularTotal('ventas')
-        calcularIva('compras')
-        calcularIva('ventas')
+        calcularTotalVentas()
     },)
 
     return(
@@ -83,7 +95,7 @@ const IvaPage=(props)=>{
             <Paper className={classes.content}>
                 <Grid container justify='center' className={classes.container}>
                     <Grid item xs={12}>
-                        <Typography align='center' variant='h2' className={ivaCompras-ivaVentas>=0? classes.positive:classes.negative}>$ {formatMoney(ivaCompras-ivaVentas)}</Typography>
+                        <Typography align='center' variant='h2' className={ivaCompras-ivaVentas>=0? classes.positive:classes.negative}>$ {formatMoney(totalVentas)}</Typography>
                     </Grid>
                     <Grid item xs={12} justify='center'>
                         <Button startIcon={<Add/>} onClick={()=>{agregarCompra()}}>
@@ -92,10 +104,9 @@ const IvaPage=(props)=>{
                     </Grid>
                     <Grid container justify='space-around'>
                         <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
-                            <Compras data={props.iva.compras} totalCompras={totalCompras}/>
                         </Grid>
                         <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
-                            <Ventas data={props.iva.ventas} totalVentas={totalVentas}/>
+                            <Ventas data={props.ventas} totalVentas={totalVentas}/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -115,7 +126,8 @@ const IvaPage=(props)=>{
 const mapStateToProps = state =>{
     return{
         user:state.user,
-        iva:state.iva
+        compras:state.compras,
+        ventas:state.ventas
     }
 }
 export default connect(mapStateToProps,null)(IvaPage)

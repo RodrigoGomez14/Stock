@@ -6,7 +6,7 @@ import {AttachMoney,PersonAdd} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {content} from './styles/styles'
 import {CardExpreso} from '../components/Expresos/CardExpreso'
-
+import Empty from '../images/Empty.png'
 // COMPONENT
 const Expresos=(props)=>{
     const classes = content()
@@ -46,9 +46,14 @@ const Expresos=(props)=>{
                                 <CardExpreso datos={props.expresos[key].datos} search={search}/>
                             ))
                             :
-                            <Typography variant='h5'>
-                                Aun no hay ningun expreso ingresado
-                            </Typography>
+                            <>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='500px'/>
+                                </Grid>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h4'>No hay Expresos Ingresados</Typography>
+                                </Grid>
+                            </>
                         }
                     </Grid>
                 </Grid>

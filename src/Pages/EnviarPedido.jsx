@@ -5,7 +5,7 @@ import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,St
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Enviar-Pedido/Step'
 import {database} from 'firebase'
-import {formatMoney,fechaDetallada} from '../utilities'
+import {formatMoney,obtenerFecha} from '../utilities'
 import {Redirect} from 'react-router-dom'
 import {content} from './styles/styles'
 import { AttachMoney, LocalShipping } from '@material-ui/icons';
@@ -123,12 +123,13 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         }        
         // ESTRUCTURA DEL PEDIDO
         let aux={
-            fecha:fechaDetallada(),
+            fecha:obtenerFecha(),
             articulos:props.pedidos[id].productos,
             metodoDePago:{
+                facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
                 efectivo:efectivo?efectivo:null,
                 cheques:chequesList,
-                fecha:fechaDetallada(),
+                fecha:obtenerFecha(),
                 total:calcularTotal(),
                 deudaPasada:props.clientes[props.pedidos[id].cliente].datos.deuda,
                 deudaActualizada: calcularDeudaActualizada(),
@@ -154,6 +155,9 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         // AGREGA EL PEDIDO A DB PARA OBTENER ID
         let idLink = database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push()
         
+        // AGREGA LA FACTURA A LISTA DE VENTASa
+        agregarAListaDeVentas(aux,idLink.key)
+
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
         agregarPagoAlHistorial(aux.metodoDePago,idLink.key,id)
 
@@ -167,7 +171,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 database().ref().child(props.user.uid).child('pedidos').child(id).remove().then(()=>{
                     setTimeout(() => {
                         if(expreso){
-                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:fechaDetallada(),id:idLink.key,remito:remito,cliente:props.location.props.nombre}).then(()=>{
+                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:obtenerFecha(),id:idLink.key,remito:remito,cliente:props.location.props.nombre}).then(()=>{
                                 setLoading(false)
                             }) 
                         }
@@ -185,7 +189,8 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
     const actualizarPrecios = (articulos) =>{
         let aux =articulos
         aux.map(articulo=>{
-            articulo.precio=articulo.precio/0.79
+            articulo.precio=articulo.precio+articulo.precio*0.21
+            articulo.total = parseFloat(articulo.cantidad) * articulo.precio
         })
         return aux
     }
@@ -217,7 +222,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 chequesList.push(cheque.numero)
                 // ESTRUCTURA DEL CHEQUE
                 let auxCheque = {
-                    ingreso:fechaDetallada(),
+                    ingreso:obtenerFecha(),
                     nombre:cheque.nombre,
                     numero:cheque.numero,
                     vencimiento:cheque.vencimiento,
@@ -244,12 +249,17 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
     const agregarAListaDeIva = (aux) =>{
         if(props.history.location.props.facturacion){
             database().ref().child(props.user.uid).child('iva').child('ventas').push({
-                fecha:fechaDetallada(),
+                fecha:obtenerFecha(),
                 iva:aux-(aux/1.21),
                 total:aux
             })
         }
     }    
+    const agregarAListaDeVentas = (pedido,idLink) =>{
+        let aux=pedido
+        aux['idPedido']=idLink
+        database().ref().child(props.user.uid).child('ventas').push(aux)
+    }
     const agregarPagoAlHistorial = (pago,idLink,idPedido) =>{
         // AGREGA EL ID DEL PEDIDO AL PAGO
         let aux= {...pago,idPedido:idLink}

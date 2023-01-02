@@ -1,18 +1,18 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {FormControl,InputLabel,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem} from '@material-ui/core'
+import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {PersonAdd} from '@material-ui/icons'
 import {MoreVert,DeleteOutlineOutlined} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardPedido} from '../components/Pedidos/CardPedido'
 import {database} from 'firebase'
-import {formatMoney,obtenerFecha} from '../utilities'
+import {formatMoney,obtenerFecha,monthsList} from '../utilities'
 import {DialogEntregarCheque} from '../components/Cheques/DialogEntregarCheque'
 import {content} from './styles/styles'
 import { Cheque } from '../components/Cheques/Cheque'
-
+import Empty from '../images/Empty.png'
 
 // COMPONENT
 const Cheques=(props)=>{
@@ -22,7 +22,7 @@ const Cheques=(props)=>{
     const [loading, setLoading] = useState(false);
     const [totalBlanco,setTotalBlanco] = useState('')
     const [totalNegro,setTotalNegro] = useState('')
-    const [openDialog,setOpenDialog]=useState(false)
+    const [sortedCheques,setSortedCheques] = useState(undefined)
 
     // FUNCTIONS 
 
@@ -100,6 +100,7 @@ const Cheques=(props)=>{
             deudaActualizada:calcularDeudaActualizada('cliente'),
             cheques:[props.cheques[cheque].numero],
             fecha:obtenerFecha(),
+            pagado:-(props.cheques[cheque].valor),
             total:-(props.cheques[cheque].valor),
         }
         // ACTUALIZA DB CLIENTE
@@ -129,27 +130,61 @@ const Cheques=(props)=>{
     const obtenerTotalGrupos = (cheques) =>{
         let auxBlanco = 0
         let auxNegro = 0
-        Object.keys(cheques).map(cheque=>{
-            if(!cheques[cheque].destinatario && !cheques[cheque].dadoDeBaja){
-                if(cheques[cheque].grupo){
-                    if(cheques[cheque].grupo=='Blanco'){
-                        auxBlanco+=parseFloat(cheques[cheque].valor)
-                    }
-                    else{
-                        auxNegro+=parseFloat(cheques[cheque].valor)
+        if(cheques){
+            Object.keys(cheques).map(cheque=>{
+                if(!cheques[cheque].destinatario && !cheques[cheque].dadoDeBaja){
+                    if(cheques[cheque].grupo){
+                        if(cheques[cheque].grupo=='Blanco'){
+                            auxBlanco+=parseFloat(cheques[cheque].valor)
+                        }
+                        else{
+                            auxNegro+=parseFloat(cheques[cheque].valor)
+                        }
                     }
                 }
-            }
-        })
+            })
+        }
         setTotalBlanco(auxBlanco)
         setTotalNegro(auxNegro)
     }
-    // VALIDACION DE BUSQUEDA PREVIA
+
+    // FILTRADO DE INFORMACION 
+    const filtrarCheques = () =>{
+        const months = {};
+        const year = new Date().getFullYear()
+            Object.keys(props.cheques).forEach((cheque) => {
+                const yearOfCheque = props.cheques[cheque].vencimiento.split('/')[2]
+                if(year==yearOfCheque){
+                    const month = props.cheques[cheque].vencimiento.split('/')[1];
+                    if (!months[month]) {
+                        months[month] = { total: 0,totalDisponible:0, cheques: [] };
+                    }
+                    if(!props.cheques[cheque].dadoDeBaja){
+                        months[month].total += parseInt(props.cheques[cheque].valor, 10);
+                        if(!props.cheques[cheque].destinatario){
+                            months[month].totalDisponible += parseInt(props.cheques[cheque].valor, 10);
+                        }
+                    }
+        
+                    months[month].cheques={...months[month].cheques,[`${cheque}`]:props.cheques[cheque]}
+                    console.log(months[month].cheques)
+                }
+            });
+        return months
+    }
+
     useEffect(()=>{
+        setLoading(true)
+        if(props.cheques){
+            const auxSortedCheques = filtrarCheques()
+            setSortedCheques(auxSortedCheques)
+        }
+
         obtenerTotalGrupos(props.cheques)
         if(props.history.location.search){
             setSearch(props.history.location.search.slice(1))
         }
+        setLoading(false)
     },[props.cheques])
 
     return(
@@ -158,22 +193,26 @@ const Cheques=(props)=>{
             <Paper className={classes.content}>
                 {/* CHEQUES TABLE */}
                 <Grid container justify='center' alignItems='center' spacing={3}>
-                    <Grid container item xs={12} justify='space-around'>
-                        <Grid item>
-                            <Card>
-                                <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
-                                    <CardHeader title={`$ ${formatMoney(totalBlanco)}`} subheader='Blanco'/>
-                                </Paper>
-                            </Card>
+                    {props.cheques?
+                        <Grid container item xs={12} justify='space-around'>
+                            <Grid item>
+                                <Card>
+                                    <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
+                                        <CardHeader title={`$ ${formatMoney(totalBlanco)}`} subheader='Blanco'/>
+                                    </Paper>
+                                </Card>
+                            </Grid>
+                            <Grid item>
+                                <Card>
+                                    <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
+                                        <CardHeader title={`$ ${formatMoney(totalNegro)}`} subheader='Negro'/>
+                                    </Paper>
+                                </Card>
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <Card>
-                                <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
-                                    <CardHeader title={`$ ${formatMoney(totalNegro)}`} subheader='Negro'/>
-                                </Paper>
-                            </Card>
-                        </Grid>
-                    </Grid>
+                        :
+                        null
+                    }
                     {/* SEARCH BAR */}
                     <Grid container item xs={12} justify='center' alignItems='center' >
                         <Grid item>
@@ -188,17 +227,38 @@ const Cheques=(props)=>{
                         </Grid>
                     </Grid>
 
-                    {/* TABLE */}
+                    {/* LIST */}
                     <Grid container justify='center' alignItems='center' spacing={3}>
-                        {props.cheques?
-                            Object.keys(props.cheques).reverse().map((key,i)=>(
-                                <Cheque cheque={props.cheques[key]} id={key} search={search} guardarChequeRebotado={guardarChequeRebotado} guardarChequeEnGrupo={guardarChequeEnGrupo}/>    
-                            ))
+                        {sortedCheques?
+                            <Grid container xs={12} justify='center' spacing={3}>
+                                {Object.keys(sortedCheques).reverse().map((month)=>(
+                                    <>
+                                        <Grid container item xs={12} justify='center'>
+                                            <Card className={classes.CardMonthCheques}>
+                                                <CardHeader
+                                                    title={`$ ${formatMoney(sortedCheques[month].totalDisponible)} ($ ${formatMoney(sortedCheques[month].total)})`}
+                                                    subheader={monthsList[month-1]}
+                                                />
+                                            </Card>
+                                        </Grid>
+                                        <Grid container item xs={12} justify='center' spacing={3}>
+                                            {Object.keys(sortedCheques[month].cheques).map(cheque=>(
+                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search} guardarChequeRebotado={guardarChequeRebotado} guardarChequeEnGrupo={guardarChequeEnGrupo}/>    
+                                            ))}
+                                        </Grid>
+                                    </>
+                                ))}
+                            </Grid>
                         :
-                        <Typography variant='h5'>
-                            Aun no hay ningun cheque ingresado
-                        </Typography>
-                    }
+                            <>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='500px'/>
+                                </Grid>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h4'>No hay Cheques Ingresados</Typography>
+                                </Grid>
+                            </>
+                        }
                     </Grid>
                 </Grid>
             </Paper>

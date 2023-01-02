@@ -23,6 +23,42 @@ const Cliente=(props)=>{
     const [searchPedido, setSearchPedido] = useState(props.location.props?props.location.props.searchPedido:'');
     const [searchRemito, setSearchRemito] = useState(props.location.props?props.location.props.remito:'');
 
+    const [filteredPedidos,setFilteredPedidos] = useState(undefined)
+
+    // FILTRADO DE INFORMACION 
+    useEffect(()=>{
+        setLoading(true)
+        const years = {};
+        const keyCliente = checkSearch(props.location.search)
+        if(props.clientes[keyCliente].pedidos){
+            Object.keys(props.clientes[keyCliente].pedidos).reverse().forEach((pedido) => {
+                const year = props.clientes[keyCliente].pedidos[pedido].fecha.split('/')[2];
+                const month = props.clientes[keyCliente].pedidos[pedido].fecha.split('/')[1];
+            
+                // Si aún no tenemos el año en el objeto "years", lo agregamos
+                if (!years[year]) {
+                years[year] = { total: 0, months: {} };
+                }
+            
+                // Si aún no tenemos el mes en el objeto "months", lo agregamos
+                if (!years[year].months[month]) {
+                years[year].months[month] = { total: 0, pedidos: [] };
+                }
+            
+                // Agregamos la compra al objeto "compras" del mes correspondiente
+                years[year].months[month].pedidos.push(props.clientes[keyCliente].pedidos[pedido]);
+            
+                // Actualizamos el total del mes y del año
+                years[year].months[month].total += parseInt(props.clientes[keyCliente].pedidos[pedido].total, 10);
+                years[year].total += parseInt(props.clientes[keyCliente].pedidos[pedido].total, 10);
+            });
+    
+            const sortedPedidos = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
+    
+            setFilteredPedidos(sortedPedidos)
+        }
+        setLoading(false)
+    },[props.clientes])
 
     // FUNCTIONS
     const eliminarCliente = () =>{
@@ -62,7 +98,7 @@ const Cliente=(props)=>{
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...cliente.datos}/>
                         <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre}/>
-                        <ListaDePedidos pedidos={cliente.pedidos} eliminarPedido={eliminarPedido} searchPedido={searchPedido} searchRemito={searchRemito}/>
+                        <ListaDePedidos pedidos={filteredPedidos} eliminarPedido={eliminarPedido} searchPedido={searchPedido} searchRemito={searchRemito} tipo='pedido'/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>
                                 <Link to={{

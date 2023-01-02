@@ -17,12 +17,12 @@ const NuevoProducto=(props)=>{
     const classes = content()
     
     const [isSubproducto,setIsSubproducto]=useState(undefined)
-    const [subproductos,setSubproductos]=useState([])
     
     const [nombre,setnombre]=useState('')
     const [precio,setprecio]=useState(0)
     const [cantidad,setcantidad]=useState(0)
     const [cadenaDeProduccion,setcadenaDeProduccion]=useState([])
+    const [subproductos,setSubproductos]=useState([])
 
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -191,7 +191,7 @@ const NuevoProducto=(props)=>{
     // FILL FOR EDIT
     useEffect(()=>{
         if(props.history.location.search){
-            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos,isSubproducto} = props.productos[props.history.location.search.slice(1)]
+            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos,isSubproducto} = props.productos[checkSearchProducto(props.history.location.search)]
             nombre&&setnombre(nombre)
             precio&&setprecio(precio)
             cantidad&&setcantidad(cantidad)

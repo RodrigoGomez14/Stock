@@ -30,34 +30,6 @@ return(
                             <Typography variant="h5" className={classes.titleCardCliente}>
                                 {datos.nombre}
                             </Typography>
-                        }
-                        action={
-                            <>
-                                <IconButton aria-label="settings" onClick={handleClick}>
-                                        <MoreVert/>
-                                </IconButton>
-                                <Menu
-                                    id="simple-menu"
-                                    anchorEl={anchorEl}
-                                    keepMounted
-                                    open={Boolean(anchorEl)}
-                                    onClose={handleClose}
-                                >   
-                                    <Link 
-                                        style={{color:'#fff',textDecoration:'none'}}
-                                        to={{
-                                        pathname:'/Editar-Cliente',
-                                        search:datos.nombre
-                                    }}>
-                                        <MenuItem>Editar</MenuItem>
-                                    </Link>
-                                    <MenuItem className={classes.deleteButton} onClick={()=>{
-
-                                    }}>
-                                        Eliminar
-                                    </MenuItem>
-                                </Menu>
-                            </>
                         }/>
                 </Card>
         </Link>

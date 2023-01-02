@@ -24,21 +24,22 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
     return(
         <>
             <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:(cheque.numero).search(search) == -1 ? classes.displayNone:classes.display}>
+                    {console.log(cheque)}
                     <Card>
                         <Paper elevation={3} className={cheque.dadoDeBaja?classes.cardChequeHeaderBaja:(cheque.destinatario?classes.cardChequeEnviadoHeader:classes.cardChequeHeader)}>
                             <CardHeader
-                                className={classes.header}
+                                className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.destinatario?classes.cardHeaderChequeIconSuccess:null)}
                                 action={
                                     <>
                                         <IconButton onClick={()=>{setExpanded(!expanded)}}>
                                             {expanded?
-                                                <ExpandLess/>
+                                                <ExpandLess className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.destinatario?classes.cardHeaderChequeIconSuccess:null)}/>
                                                 :
-                                                <ExpandMore/>
+                                                <ExpandMore className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.destinatario?classes.cardHeaderChequeIconSuccess:null)}/>
                                             }
                                         </IconButton>
                                         <IconButton aria-label="settings" onClick={handleClick}>
-                                            <MoreVert/>
+                                            <MoreVert className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.destinatario?classes.cardHeaderChequeIconSuccess:null)}/>
                                         </IconButton>
                                         <Menu
                                             id="simple-menu"
@@ -86,7 +87,6 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                         <Grid item>
                                             <Chip
                                                 className={classes.cardChequeChip}
-                                                variant="outlined"
                                                 color="primary"
                                                 icon={<AttachMoney/>}
                                                 label={cheque.valor?formatMoney(cheque.valor):formatMoney(0)}
@@ -116,7 +116,7 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                                 Entregado a <Link 
                                                                 style={{color:'#fff',textDecoration:'none'}}
                                                                 className={classes.textWhite}
-                                                                to={{pathname:'/Proveedor',search:`${cheque.nombre}`}
+                                                                to={{pathname:'/Proveedor',search:`${cheque.destinatario}`}
                                                             }>{cheque.destinatario}</Link> el {cheque.egreso}
                                             </Alert>
                                         </Grid>

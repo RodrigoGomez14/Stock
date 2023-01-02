@@ -123,7 +123,8 @@ const NuevoPagoProveedor=(props)=>{
         let aux={
             efectivo:efectivo?efectivo:null,
             cheques:chequesList.length?chequesList:null,
-            fecha:fechaDetallada(),
+            fecha:obtenerFecha(),
+            pagado:calcularTotal(),
             total:calcularTotal(),
             deudaPasada:getDeudaPasada(),
             deudaActualizada:calcularDeudaActualizada(),
@@ -154,7 +155,7 @@ const NuevoPagoProveedor=(props)=>{
                 // ACTUALIZA EL CHEQUE EN DB
                 database().ref().child(props.user.uid).child('cheques').child(cheque).update({
                     egreso:obtenerFecha(),
-                    destinatario:props.proveedores[props.history.location.search.slice(1)].datos.nombre,
+                    destinatario:props.proveedores[checkSearch(props.history.location.search)].datos.nombre,
                 })
                 // GUARDA EL NUMERO DE CHEQUE
                 chequesList.push(props.cheques[cheque].numero)
@@ -198,8 +199,11 @@ const NuevoPagoProveedor=(props)=>{
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0)) }
+                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0)) }/ $ {formatMoney(props.proveedores[checkSearch(props.location.search)].datos.deuda) } 
                                                     </Typography>
+                                                </Grid>
+                                                <Grid container item xs={12} justify='center'>
+                                                    <Chip label={`$ ${formatMoney( parseFloat(props.proveedores[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0)) ) }`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>

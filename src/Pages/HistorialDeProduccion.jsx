@@ -10,6 +10,7 @@ import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import {Cadena} from '../components/Cadenas-De-Produccion/Cadena'
 import {checkSearch,checkSearchProducto} from '../utilities'
+import Empty from '../images/Empty.png'
 
 // COMPONENT
 const HistorialDeProduccion=(props)=>{
@@ -20,17 +21,22 @@ const HistorialDeProduccion=(props)=>{
         <Layout history={props.history} page={`Historial De Produccion ${checkSearchProducto(props.location.search)}`} user={props.user.uid}>
             {/* CONTENT */}            
             <Paper className={classes.content}>
-                <Grid container xs={12} justify='center' spacing={3}>
+                <Grid container xs={12} justify='center'>
                     {historial? 
-                        <Grid container item xs={12}>
+                        <Grid container item xs={12} spacing={3}>
                             {Object.keys(historial).reverse().map(key=>(
                                 <Cadena cadena={historial[key]} id={key}/>
                             ))}
                         </Grid>
                         :
-                        <Typography variant='h6'>
-                            {props.location.search} no tiene un historial de produccion
-                        </Typography>
+                        <Grid container xs={12} justify='center' spacing={2}>
+                            <Grid container item xs={12} justify='center'>
+                                <Typography variant='h5'>{checkSearchProducto(props.location.search)} no tiene historial de produccion</Typography>
+                            </Grid>
+                            <Grid item>
+                                <img src={Empty} alt="" height='600px'/>
+                            </Grid>
+                        </Grid>
                     }
                 </Grid>
             </Paper>

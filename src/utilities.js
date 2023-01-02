@@ -63,6 +63,19 @@ const checkCode =(text)=>{
   return aux
 }
 
+export const getActualMonth = (date) =>{
+  if(date){
+    let month = date.slice(date.indexOf('/')+1)
+    if(month.indexOf('/')){
+      month = month.slice(0,month.indexOf('/'))
+    }
+    return month
+  }
+  else{
+    return new Date().getMonth()+1
+  }
+}
+
 // OBTENER LISTA DE PRODUCTOS Y SUBPRODUCTOS
 export const getProductosList = (productos) =>{
   let aux = []
@@ -73,6 +86,7 @@ export const getProductosList = (productos) =>{
           }
       })
   }
+  console.log(aux)
   return aux
 
 }
@@ -99,3 +113,4 @@ export const getSubproductosList = (subproducto) =>{
   }
   return aux
 }
+export const monthsList = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]

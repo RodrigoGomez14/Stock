@@ -7,7 +7,7 @@ import Alert from '@material-ui/lab/Alert';
 import {Redirect} from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Pago/Step'
 import {database} from 'firebase'
-import {checkSearch, formatMoney,fechaDetallada} from '../utilities'
+import {checkSearch, formatMoney,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
   
 const NuevoPagoCliente=(props)=>{
@@ -120,7 +120,8 @@ const NuevoPagoCliente=(props)=>{
         let aux={
             efectivo:efectivo?efectivo:null,
             cheques:chequesList.length?chequesList:null,
-            fecha:fechaDetallada(),
+            fecha:obtenerFecha(),
+            pagado:calcularTotal(),
             total:calcularTotal(),
             deudaPasada:getDeudaPasada(),
             deudaActualizada:calcularDeudaActualizada(),
@@ -152,7 +153,7 @@ const NuevoPagoCliente=(props)=>{
                 chequesList.push(cheque.numero)
                 // ESTRUCTURA DEL CHEQUE
                 let auxCheque = {
-                    ingreso:fechaDetallada(),
+                    ingreso:obtenerFecha(),
                     nombre:cheque.nombre,
                     numero:cheque.numero,
                     vencimiento:cheque.vencimiento,
@@ -187,8 +188,11 @@ const NuevoPagoCliente=(props)=>{
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0)) }
+                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0)) }/ $ {formatMoney(props.clientes[checkSearch(props.location.search)].datos.deuda) } 
                                                     </Typography>
+                                                </Grid>
+                                                <Grid container item xs={12} justify='center'>
+                                                    <Chip label={`$ ${formatMoney( parseFloat(props.clientes[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0)) ) }`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>

@@ -7,12 +7,12 @@ import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import { CardCliente } from '../components/Clientes/CardCliente'
-
+import Empty from '../images/Empty.png'
 // COMPONENT
 const Clientes=(props)=>{
     const classes = content()
-    let [search,setSearch]=useState('')
-
+    const [search,setSearch]=useState('')
+    
     return(
         <Layout history={props.history} page="Clientes" user={props.user.uid}>
             {/* CONTENT */}
@@ -47,9 +47,14 @@ const Clientes=(props)=>{
                                 <CardCliente datos={props.clientes[key].datos} search={search}/>
                             ))
                             :
-                            <Typography variant='h5'>
-                                Aun no hay ningun cliente ingresado
-                            </Typography>
+                            <>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='600px'/>
+                                </Grid>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h4'>No hay Clientes Ingresados</Typography>
+                                </Grid>
+                            </>
                         }
                     </Grid>
                 </Grid>

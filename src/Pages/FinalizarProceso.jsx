@@ -130,25 +130,26 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         }        
         // ESTRUCTURA DE LA ENTREGA
         let aux={
-            fecha:obtenerFecha(),
-            articulos:[{
-                cantidad:cantidad,
-                precio:precio/cantidad,
-                producto:props.cadenasActivas[id].producto,
-                total:precio}],
-            metodoDePago:{
-                efectivo:efectivo?efectivo:null,
-                cheques:chequesList,
                 fecha:obtenerFecha(),
+                articulos:[{
+                    cantidad:cantidad,
+                    precio:precio/cantidad,
+                    producto:props.cadenasActivas[id].producto,
+                    total:precio}],
+                metodoDePago:{
+                    facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
+                    efectivo:efectivo?efectivo:null,
+                    cheques:chequesList,
+                    fecha:obtenerFecha(),
+                    total:precio,
+                    deudaPasada:props.proveedores[cadena[step].proveedor].datos.deuda,
+                    deudaActualizada:calcularDeudaActualizada(),
+                    pagado:calcularPagado(),
+                    adeudado:calcularAdeudado()
+                },
+                metodoDeEnvio:'Particular',
                 total:precio,
-                deudaPasada:props.proveedores[cadena[step].proveedor].datos.deuda,
-                deudaActualizada:calcularDeudaActualizada(),
-                pagado:calcularPagado(),
-                adeudado:calcularAdeudado()
-            },
-            metodoDeEnvio:'Particular',
-            total:precio,
-        }
+            }
         
         // ACTUALIZA LA DEUDA DEL PROVEEDOR
         actualizarDeuda(aux.total, aux.metodoDePago.pagado,cadena[step].proveedor)
@@ -156,6 +157,9 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // AGREGA LA ENTREGA A DB PARA OBTENER ID
         let idLink = database().ref().child(props.user.uid).child('proveedores').child(cadena[step].proveedor).child('entregas').push()
         
+        // AGREGA LA FACTURA A LISTA DE COMPRAS
+        agregarAListaDeCompras(aux,idLink.key)
+
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
         agregarPagoAlHistorial(aux.metodoDePago,idLink.key,cadena[step].proveedor)
         
@@ -197,8 +201,8 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // DESCUENTA LA CANTIDAD DE PRODUCTOS
         if(subproductos){
             subproductos.map(async subproducto=>{
-                const nuevaCantidad = parseInt(props.productos[subproducto].cantidad)-cantidad
-                await database().ref().child(props.user.uid).child('productos').child(subproducto).update({cantidad:nuevaCantidad})
+                const nuevaCantidad = parseInt(props.productos[subproducto.nombre].cantidad)-(cantidad*subproducto.cantidad)
+                await database().ref().child(props.user.uid).child('productos').child(subproducto.nombre).update({cantidad:nuevaCantidad})
             })
         }
     }
@@ -231,6 +235,11 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
     const agregarPagoAlHistorial = (pago,idLink,id) =>{
         let aux= {...pago,idEntrega:idLink}
         database().ref().child(props.user.uid).child('proveedores').child(id).child('pagos').push(aux)
+    }
+    const agregarAListaDeCompras = (entrega,idLink) =>{
+        let aux=entrega
+        aux['idEntrega']=idLink
+        database().ref().child(props.user.uid).child('compras').push(aux)
     }
     const actualizarCadenaDeProduccion = (id,step,precio,cantidad,idEntrega) =>{
         let aux = props.cadenasActivas[id]

@@ -7,7 +7,7 @@ import {content} from '../../Pages/styles/styles'
 import Empty from '../../images/Empty.png'
 
 {/* COMPONENT */}
-export const ListaDeEnvios = ({envios,search,setSearch,asentarLlegada}) =>{
+export const ListaDeEnvios = ({envios,search,setSearch,asentarLlegada,asentarInconveniente,asentarResolucionInconveniente}) =>{
     const classes = content()
 
     // CONTENT
@@ -44,12 +44,16 @@ export const ListaDeEnvios = ({envios,search,setSearch,asentarLlegada}) =>{
                     {/* LIST */}
                     <Grid container item xs={12} justify='center' spacing= {3}>
                         {Object.keys(envios).reverse().map(envio=>(
-                            <CardEnvio
-                                search={search}
-                                envio={envios[envio]}
-                                asentarLlegada={()=>{asentarLlegada(envio)}}
-                                success={Boolean(envios[envio].fechaDeLlegada)}
-                            />
+                            <>
+                                <CardEnvio
+                                    search={search}
+                                    envio={envios[envio]}
+                                    asentarInconveniente={(inconveniente)=>{asentarInconveniente(envio,inconveniente)}}
+                                    asentarResolucionInconveniente={(inconveniente)=>{asentarResolucionInconveniente(envio,inconveniente)}}
+                                    asentarLlegada={()=>{asentarLlegada(envio)}}
+                                    success={Boolean(envios[envio].fechaDeLlegada)}
+                                />
+                            </>
                         ))}
                     </Grid>
                 </>

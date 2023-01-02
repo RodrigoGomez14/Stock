@@ -3,13 +3,23 @@ import {Grid, Button,Switch,InputLabel,Select,Input,MenuItem,Paper,FormControl, 
 import {AddOutlined} from '@material-ui/icons'
 import {content} from '../../Pages/styles/styles'
 import { StepperNuevoProducto } from './StepperNuevoProducto'
-import { DialogAgregarProceso } from './Dialogs/DialogAgregarProceso'
+import {Subproductos} from './Subproductos'
+import {DialogAgregarProceso} from './Dialogs/DialogAgregarProceso'
+import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
+import {DialogNuevoSubproducto} from './Dialogs/DialogNuevoSubproducto'
+import Empty from '../../images/Empty.png'
 
 export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setcantidad,proveedoresList,disableCantidad,cadenaDeProduccion,setcadenaDeProduccion,isSubproducto,setIsSubproducto,subproductos,setSubproductos,subproductosList}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
-    const [editIndex,seteditIndex]=useState(0)
+    const [editIndex,seteditIndex]=useState(-1)
+    const [showDialogDelete,setshowDialogDelete]=useState(false)
+    const [deleteIndex,setdeleteIndex]=useState(undefined)
 
+    const openDialogDelete = (index) =>{
+        setdeleteIndex(index)
+        setshowDialogDelete(true)
+    }
 
     const renderStep = () =>{
         switch (tipoDeDato) {
@@ -80,11 +90,18 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                         {cadenaDeProduccion.length?
                             <Grid container item xs={12} justify='center'>
                                 <Grid item xs={12}>
-                                    <StepperNuevoProducto cadenaDeProduccion={cadenaDeProduccion}/>
+                                    <StepperNuevoProducto cadenaDeProduccion={cadenaDeProduccion} seteditIndex={seteditIndex} setshowDialog={setshowDialog} setshowDialogDelete={setshowDialogDelete} setdeleteIndex={setdeleteIndex}/>
                                 </Grid>
                             </Grid>
                             :
-                            null
+                            <Grid container iterm xs={12} justify='center'>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='300px'/>
+                                </Grid>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h4'>No Posee Cadena de Produccion</Typography>
+                                </Grid>
+                            </Grid>
                         }
                         <DialogAgregarProceso
                             edit={editIndex}
@@ -95,26 +112,33 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                             cadenaDeProduccion={cadenaDeProduccion}
                             setcadenaDeProduccion={setcadenaDeProduccion}
                         />
+                        <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={cadenaDeProduccion} setDatos={setcadenaDeProduccion} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Proceso'/>
                     </Grid>
                 )
             case 'Subproductos': 
                 return(
-                    <Grid container item xs={12} sm={10} md={8} justify='center'>     
-                        <FormControl fullWidth>
-                            <InputLabel id="demo-mutiple-name-label">Subproductos</InputLabel>
-                            <Select
-                                multiple
-                                value={subproductos}
-                                onChange={(e)=>{setSubproductos(e.target.value)}}
-                                input={<Input />}
-                            >
-                                {subproductosList.map(subproducto => (
-                                    <MenuItem key={subproducto.nombre} value={subproducto.nombre}>
-                                        {subproducto.nombre}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                    <Grid container item xs={12} justify='center' spacing={3}>
+                        <Grid container item xs={12} justify='center' >
+                            <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
+                                Agregar Subproducto
+                            </Button>
+                        </Grid>
+                        {subproductos.length?
+                            <Grid container item xs={12} justify='center' >
+                                <Subproductos subproductos={subproductos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                            </Grid>
+                            :
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>No Posee Subproductos</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='200px'/>
+                                </Grid>
+                            </Grid>
+                        }
+                        <DialogNuevoSubproducto open={showDialog} setOpen={setshowDialog} subproductos={subproductos} setSubproductos={setSubproductos} subproductosList={subproductosList} edit={editIndex!=-1} editIndex={editIndex} seteditIndex={seteditIndex}/>
+                        <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={subproductos} setDatos={setSubproductos} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Subproducto'/>
                     </Grid>
                 )
             

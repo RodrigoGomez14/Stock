@@ -22,6 +22,43 @@ const Proveedor=(props)=>{
     const [searchEntrega, setSearchEntrega] = useState(props.location.props?props.location.props.searchEntrega:'');
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
 
+    const [filteredEntregas,setFilteredEntregas] = useState(undefined)
+
+    // FILTRADO DE INFORMACION 
+    useEffect(()=>{
+        setLoading(true)
+        const years = {};
+        const keyProveedor = checkSearch(props.location.search)
+        if(props.proveedores[keyProveedor].entregas){
+            Object.keys(props.proveedores[keyProveedor].entregas).reverse().forEach((entrega) => {
+                const year = props.proveedores[keyProveedor].entregas[entrega].fecha.split('/')[2];
+                const month = props.proveedores[keyProveedor].entregas[entrega].fecha.split('/')[1];
+            
+                // Si aún no tenemos el año en el objeto "years", lo agregamos
+                if (!years[year]) {
+                years[year] = { total: 0, months: {} };
+                }
+            
+                // Si aún no tenemos el mes en el objeto "months", lo agregamos
+                if (!years[year].months[month]) {
+                years[year].months[month] = { total: 0, entregas: [] };
+                }
+            
+                // Agregamos la compra al objeto "compras" del mes correspondiente
+                years[year].months[month].entregas.push(props.proveedores[keyProveedor].entregas[entrega]);
+            
+                // Actualizamos el total del mes y del año
+                years[year].months[month].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total, 10);
+                years[year].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total, 10);
+            });
+    
+            const sortedEntregas = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
+            setFilteredEntregas(sortedEntregas)
+        }
+
+        setLoading(false)
+    },[props.proveedores])
+
     // FUNCTIONS
     const eliminarProveedor = () =>{
         setLoading(true)
@@ -59,7 +96,7 @@ const Proveedor=(props)=>{
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...proveedor.datos}/>
                         <Deuda deuda={proveedor.datos.deuda} id={proveedor.datos.nombre}/>
-                        <ListaDePedidos pedidos={proveedor.entregas} eliminarPedido={eliminarPedido} searchPedido={searchEntrega}/>
+                        <ListaDePedidos pedidos={filteredEntregas} eliminarPedido={eliminarPedido} searchPedido={searchEntrega} tipo='entrega'/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>
                                 <Link to={{

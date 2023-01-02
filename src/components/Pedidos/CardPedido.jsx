@@ -124,7 +124,7 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                         <Grid container justify='space-around'>
                             <Typography variant='h5'>
                                 {facturacion?
-                                    `$ ${formatMoney(pedido.total/0.79)}`
+                                    `$ ${formatMoney(pedido.total+pedido.total*0.21)}`
                                     :
                                     `$ ${formatMoney(pedido.total)}`
                                 }
@@ -146,7 +146,7 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                                     pathname:'/Enviar-Pedido',
                                     search:`${id}`,
                                     props:{
-                                        total: facturacion?pedido.total/0.79 : pedido.total,
+                                        total: facturacion?pedido.total+(pedido.total*0.21) : pedido.total,
                                         facturacion:facturacion,
                                         nombre:pedido.cliente
                                     }}

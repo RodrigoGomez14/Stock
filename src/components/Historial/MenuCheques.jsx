@@ -2,6 +2,7 @@ import React,{useState} from 'react'
 import {Button,Menu,MenuItem,Divider,makeStyles,IconButton} from '@material-ui/core'
 import {Link} from 'react-router-dom'
 import {ArrowDropDown} from '@material-ui/icons'
+import { formatMoney } from '../../utilities'
 
 const useStyles = makeStyles(theme=>({
     link:{
@@ -20,12 +21,17 @@ export const MenuCheques = ({pago}) =>{
     const handleClose = () => {
       setAnchorEl(null);
     };
+
+    const calcularTotal = (total,efectivo) =>{
+        const auxEfectivo = efectivo?efectivo:0
+        return total-auxEfectivo!=0?total-auxEfectivo:0
+    }
     return(
-        pago.cheques.length?
+        pago.cheques?
             <>
-                <IconButton aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-                    <ArrowDropDown/>
-                </IconButton>
+                <Button onClick={handleClick} startIcon={<ArrowDropDown/>}>
+                    {formatMoney(calcularTotal(pago.pagado,pago.efectivo))}
+                </Button>
                 <Menu
                     anchorEl={anchorEl}
                     keepMounted
@@ -34,6 +40,7 @@ export const MenuCheques = ({pago}) =>{
                 >
                     {pago.cheques.map(cheque=>(
                         <Link
+                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
                             className={classes.link} 
                             to={{
                                 pathname:'/Cheques',
@@ -46,6 +53,6 @@ export const MenuCheques = ({pago}) =>{
                 </Menu>
             </>
             :
-            '-'
+            '$ -' 
     )
 }

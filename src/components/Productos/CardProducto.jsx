@@ -4,7 +4,7 @@ import {MoreVert,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {formatMoney, obtenerFecha} from '../../utilities'
 import {Link} from 'react-router-dom'
 import {content} from '../..//Pages/styles/styles'
-import { StepperNuevoProducto } from '../Nuevo-Producto/StepperNuevoProducto'
+import { StepperCadena } from '../Productos/StepperCadena'
 
 export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena}) =>{
     const classes = content()
@@ -114,7 +114,7 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                                                 {subproductos.map(subproducto=>(
                                                     <>
                                                         <ListItem>
-                                                            <ListItemText primary={subproducto}
+                                                            <ListItemText primary={subproducto.nombre} secondary={subproducto.cantidad}
                                                             />
                                                         </ListItem> 
                                                     </>
@@ -137,7 +137,7 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                                             </List>
                                         </Grid>
                                         <Grid item xs={12}>
-                                            <StepperNuevoProducto cadenaDeProduccion={cadenaDeProduccion}/>
+                                            <StepperCadena cadenaDeProduccion={cadenaDeProduccion}/>
                                         </Grid>
                                     </Grid>
                                     :

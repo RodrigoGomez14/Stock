@@ -27,7 +27,9 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
         if(searchRemito){
             return !searchRemito?null:id.search(searchRemito) == -1 ? classes.displayNone:classes.display
         }
-        else{
+        else if(searchPedido){
+            console.log(id)
+            console.log(searchPedido)
             return !searchPedido?null:id.search(searchPedido) == -1 ? classes.displayNone:classes.display 
         }
     }
@@ -90,9 +92,18 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                 :
                                 null
                             }
+                            {pedido.metodoDePago.facturacion?
+                                <Grid container item xs={12}>
+                                        <Alert variant="filled" severity="info" className={classes.alertPedidoFacturado}>
+                                            Pedido Facturado
+                                        </Alert>
+                                </Grid>
+                                :
+                                null
+                            }
                                 {pedido.articulos.map(producto=>(
                                     <Grid container item xs={12} spacing={2}>
-                                        <ProductoCardPedido producto={producto}/>
+                                        <ProductoCardPedido producto={producto} factura={pedido.metodoDePago.facturacion}/>
                                     </Grid>
                                 ))}
                         </Grid>
@@ -105,10 +116,10 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                 />
                                 <ListItemText
                                     primary={<Chip
-                                        className={classes.cardProductoChip}
-                                        label={`$ ${formatMoney(pedido.metodoDePago.adeudado)}`}
+                                        className={pedido.metodoDePago.adeudado>0?classes.cardProductoChipAdeudado:classes.cardProductoChipAfavor}
+                                        label={`$ ${formatMoney(pedido.metodoDePago.adeudado>0?pedido.metodoDePago.adeudado:-pedido.metodoDePago.adeudado)}`}
                                     />}
-                                    secondary='Adeudado'
+                                    secondary={pedido.metodoDePago.adeudado>0?'Adeudado':'A favor'}
                                 />
                             </ListItem>
                             <ListItem>
@@ -124,47 +135,47 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                             <Divider/>
                         </List>
                         {pedido.metodoDePago.pagado > 0?
-                        <Card>
-                            <CardHeader className={classes.titleDetallesCard} title='Detalles de pago'/>
-                            <CardContent>
-                                <List>
-                                    {pedido.metodoDePago.efectivo?
-                                        <ListItem>
-                                            <ListItemText primary={`$ ${formatMoney(pedido.metodoDePago.efectivo)}`} secondary='Efectivo'/>
-                                        </ListItem>
+                            <Card>
+                                <CardHeader className={classes.titleDetallesCard} title='Detalles de pago'/>
+                                <CardContent>
+                                    <List>
+                                        {pedido.metodoDePago.efectivo?
+                                            <ListItem>
+                                                <ListItemText primary={`$ ${formatMoney(pedido.metodoDePago.efectivo)}`} secondary='Efectivo'/>
+                                            </ListItem>
+                                            :
+                                            null
+                                        }
+                                        {pedido.metodoDePago.cheques?
+                                        <>
+                                            {pedido.metodoDePago.efectivo?<Divider/>:null}
+                                            <ListItem>
+                                                <ListItemText
+                                                    primary={`$ ${formatMoney(pedido.metodoDePago.pagado-(pedido.metodoDePago.efectivo?pedido.metodoDePago.efectivo:0))}`}
+                                                    secondary={`${pedido.metodoDePago.cheques.length} ${pedido.metodoDePago.cheques.length>1?'Cheques':'Cheque'}`}/>
+                                            </ListItem>
+                                            <ListItem>
+                                                {pedido.metodoDePago.cheques.map(cheque=>(
+                                                    <ListItemText
+                                                        primary={
+                                                        <Link
+                                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                            to={{
+                                                            pathname:'/Cheques',
+                                                            search:cheque}}>
+                                                                N° {cheque}
+                                                        </Link>
+                                                        }
+                                                    />
+                                                ))}
+                                            </ListItem>
+                                        </>
                                         :
                                         null
-                                    }
-                                    {pedido.metodoDePago.cheques?
-                                    <>
-                                        {pedido.metodoDePago.efectivo?<Divider/>:null}
-                                        <ListItem>
-                                            <ListItemText
-                                                primary={`$ ${formatMoney(pedido.metodoDePago.total-(pedido.metodoDePago.efectivo?pedido.metodoDePago.efectivo:0))}`}
-                                                secondary={`${pedido.metodoDePago.cheques.length} ${pedido.metodoDePago.cheques.length>1?'Cheques':'Cheque'}`}/>
-                                        </ListItem>
-                                        <ListItem>
-                                            {pedido.metodoDePago.cheques.map(cheque=>(
-                                                <ListItemText
-                                                    primary={
-                                                    <Link
-                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                                        to={{
-                                                        pathname:'/Cheques',
-                                                        search:cheque}}>
-                                                            N° {cheque}
-                                                    </Link>
-                                                    }
-                                                />
-                                            ))}
-                                        </ListItem>
-                                    </>
-                                    :
-                                    null
-                                    }
-                                </List>
-                            </CardContent>
-                        </Card>
+                                        }
+                                    </List>
+                                </CardContent>
+                            </Card>
                             :
                             null
                         }
