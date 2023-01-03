@@ -5,6 +5,8 @@ import {formatMoney, obtenerFecha} from '../../utilities'
 import {Link} from 'react-router-dom'
 import {content} from '../..//Pages/styles/styles'
 import { StepperCadena } from '../Productos/StepperCadena'
+import ApexCharts from 'react-apexcharts';
+
 
 export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena}) =>{
     const classes = content()
@@ -21,6 +23,41 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const generateChartSubproductos = (subproductos) => {
+
+        const series = []
+        const labels = []
+    
+        subproductos.map(subproducto=>{
+            series.push(parseInt(subproducto.cantidad))
+            labels.push(subproducto.nombre)
+        })
+
+        // Define la configuración del gráfico
+        const options = {
+            series:series,
+            labels:labels,
+            theme:{
+                colors:{
+                    title: '#ffffff',
+                    yaxis: {
+                        labels: '#ffffff'
+                    }
+                }
+            },
+            chart:{
+                sparkline:{
+                    enabled:true
+                }
+            }
+            
+        };
+        console.log(series)
+        console.log(labels)
+        // Renderiza el gráfico
+        return (<ApexCharts options={options} series={series}  type='donut' width={300} />)
+    }
 
     // CONTENT
     return(
@@ -104,22 +141,8 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                             <Grid container xs={12} justify='flex-start' spacing={3}>
                                 {subproductos?
                                     <Grid container item xs={12}>
-                                        <Grid item xs={12}>
-                                            <List>
-                                                <Divider/>
-                                                <ListSubheader>
-                                                    Subproductos
-                                                </ListSubheader>
-                                                <Divider/>
-                                                {subproductos.map(subproducto=>(
-                                                    <>
-                                                        <ListItem>
-                                                            <ListItemText primary={subproducto.nombre} secondary={subproducto.cantidad}
-                                                            />
-                                                        </ListItem> 
-                                                    </>
-                                                ))}
-                                            </List>
+                                        <Grid container item xs={12} justify='center'>
+                                            {generateChartSubproductos(subproductos)}
                                         </Grid>
                                     </Grid>
                                     :

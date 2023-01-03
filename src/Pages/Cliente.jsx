@@ -18,7 +18,7 @@ const Cliente=(props)=>{
     const classes = content()
     const [cliente,setCliente]= useState(props.clientes[checkSearch(props.history.location.search)])
     const [showSnackbar, setshowSnackbar] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
     const [searchPedido, setSearchPedido] = useState(props.location.props?props.location.props.searchPedido:'');
     const [searchRemito, setSearchRemito] = useState(props.location.props?props.location.props.remito:'');
@@ -27,7 +27,6 @@ const Cliente=(props)=>{
 
     // FILTRADO DE INFORMACION 
     useEffect(()=>{
-        setLoading(true)
         const years = {};
         const keyCliente = checkSearch(props.location.search)
         if(props.clientes[keyCliente].pedidos){
@@ -57,7 +56,9 @@ const Cliente=(props)=>{
     
             setFilteredPedidos(sortedPedidos)
         }
-        setLoading(false)
+        setTimeout(() => {
+            setLoading(false)
+        }, 500);
     },[props.clientes])
 
     // FUNCTIONS

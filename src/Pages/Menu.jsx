@@ -53,6 +53,9 @@ const Menu=(props)=>{
             theme:{
                 textColor:'#000'
             },
+            tooltip:{
+                theme:'dark'
+            },
             stroke: {
                 curve: 'smooth'
             },

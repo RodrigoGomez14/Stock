@@ -184,7 +184,9 @@ const Cheques=(props)=>{
         if(props.history.location.search){
             setSearch(props.history.location.search.slice(1))
         }
-        setLoading(false)
+        setTimeout(() => {
+            setLoading(false)
+        }, 500);
     },[props.cheques])
 
     return(

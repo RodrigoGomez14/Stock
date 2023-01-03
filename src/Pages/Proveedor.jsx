@@ -55,8 +55,9 @@ const Proveedor=(props)=>{
             const sortedEntregas = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
             setFilteredEntregas(sortedEntregas)
         }
-
-        setLoading(false)
+        setTimeout(() => {
+            setLoading(false)
+        }, 500);
     },[props.proveedores])
 
     // FUNCTIONS
