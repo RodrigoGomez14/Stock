@@ -21,15 +21,15 @@ const Menu=(props)=>{
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
         const actualYear = new Date().getFullYear()
 
-        const compras = [];
-        const ventas = [];
+        const compras = [0,0,0,0,0,0,0,0,0,0,0,0];
+        const ventas = [0,0,0,0,0,0,0,0,0,0,0,0];
     
         // Itera sobre cada año en sortedCompras y sortedVentas
         for (const [year, data] of sortedCompras) {
             // Itera sobre cada mes en el año
             for (const [month, dataMonth] of Object.entries(data.months)) {
             if(year == actualYear){
-                compras.push(dataMonth.total);
+                compras[month-1]=(dataMonth.total);
             }
             }
         }
@@ -38,7 +38,7 @@ const Menu=(props)=>{
             // Itera sobre cada mes en el año
             for (const [month, dataMonth] of Object.entries(data.months)) {
             if(year == actualYear){
-                ventas.push(dataMonth.total);
+                ventas[month-1]=(dataMonth.total);
             }
             }
         }
@@ -46,21 +46,22 @@ const Menu=(props)=>{
         // Define la configuración del gráfico
         const options = {
             labels:['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep','Oct','Nov',"Dic"],
+            title: {
+                text: 'Compras y Ventas Por Mes',
+                align: 'left'
+            },
             theme:{
                 textColor:'#000'
             },
-            chart: {
-            
-            },
             stroke: {
-                curve: 'straight'
+                curve: 'smooth'
             },
             grid: {
                 row: {
                   colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
                   opacity: 0.5
                 },
-            }
+            },
         };
     
         // Define los datos a visualizar
@@ -76,16 +77,9 @@ const Menu=(props)=>{
         ];
     
         // Renderiza el gráfico
-        return <ApexCharts options={options} series={series} height={350} width={700} theme={{
-            colors:{
-                title: '#000000',
-                yaxis: {
-                  labels: '#000000'
-                }
-            }
-          }} />;
+        return <ApexCharts options={options} series={series} type='area' height={350} width={700} />;
     }
-    const generateChartAnualProducts = () => {
+    const generateChartAnualProductsValue = () => {
         const actualYear = new Date().getFullYear()
 
         const series = [];
@@ -100,7 +94,113 @@ const Menu=(props)=>{
             series:series,
             labels:labels,
             title: {
-                text: 'Productos Vendidos el ultimo año',
+                text: 'Ingresos Por Producto',
+                align: 'left'
+            },
+            theme:{
+                colors:{
+                    title: '#ffffff',
+                    yaxis: {
+                        labels: '#ffffff'
+                    }
+                }
+            },
+            
+        };
+    
+    
+        // Renderiza el gráfico
+        return (<ApexCharts options={options} series={series} type='donut'   width={500} />)
+    }
+    const generateChartMonthSalesUnits = () => {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+        const series = [
+            {
+            name: 'Compras',
+            data: Array.from({ length: daysInMonth }, () => 0),
+            },
+        ];
+        
+    
+
+        for (const [year, data] of sortedVentas) {
+            // Itera sobre cada mes en el año
+            for (const [month, dataMonth] of Object.entries(data.months)) {
+                if(year == currentYear){
+                    if(month-1==currentMonth){
+                        dataMonth.ventas.map((venta,i)=>{
+                            series[0].data[dataMonth.ventas[i].fecha.split('/')[0]-1] += 1
+                        })
+                    }
+                }
+            }
+        }
+
+        // Define la configuración del gráfico
+        const options = {
+            labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
+            title: {
+                text: 'Ventas del mes',
+                align: 'left'
+            },
+            theme:{
+                textColor:'#000'
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            chart:{
+                sparkline: {
+                    enabled: true
+                },
+            },
+            grid: {
+                row: {
+                  colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                  opacity: 0.5
+                },
+            },
+        };
+    
+        let totalMonth = 0
+
+        series.map(serie=>(
+            totalMonth+= serie
+        ))
+        // Renderiza el gráfico
+        return (
+            <Grid container xs={12}>
+                <Grid container item xs={12}>
+                    <Typography>
+                    Total {totalMonth}
+
+                    </Typography>
+                </Grid>
+                <Grid container item xs={12}>
+                    <ApexCharts options={options} series={series} width={300} />
+                </Grid>
+            </Grid>
+        )
+    }
+    const generateChartAnualProductsUnits = () => {
+        const actualYear = new Date().getFullYear()
+
+        const series = [];
+        const labels = [];
+        
+        sortedProductos.map((d)=>{
+            series.push(d.cantidad)
+            labels.push(d.producto)
+        })
+        // Define la configuración del gráfico
+        const options = {
+            series:series,
+            labels:labels,
+            title: {
+                text: 'Ventas por producto',
                 align: 'left'
             },
             theme:{
@@ -209,12 +309,15 @@ const Menu=(props)=>{
         }
     }
     useEffect(()=>{
+        setLoading(true)
+
         const auxSortedCompras = filtrarCompras()
         const auxSortedVentas = filtrarVentas()
         const auxSortedProductos = filtrarProductos(auxSortedVentas)
         setSortedCompras(auxSortedCompras)
         setSortedVentas(auxSortedVentas)
         setSortedProductos(auxSortedProductos)
+
         setLoading(false)
     },[props.compras,props.ventas])
 
@@ -227,12 +330,30 @@ const Menu=(props)=>{
             <Paper className={classes.content}>
                 <Grid container item xs={12}>
                     {!loading && props.ventas?
-                        <>
-                            <Paper style={{backgroundColor:'#fff'}}>
-                                {generateChartAnualSales()}
-                            </Paper>
-                            {generateChartAnualProducts()}
-                        </>
+                        <Grid container xs={12} spacing={3}>
+                            <Grid container item xs={12}>
+                                <Paper style={{backgroundColor:'#fff'}}>
+                                    {generateChartAnualSales()}
+                                </Paper>
+                            </Grid>
+                            <Grid container item xs={12} justify='center' spacing={3}>
+                                <Grid item>
+                                    <Paper style={{backgroundColor:'#fff'}}>
+                                        {generateChartAnualProductsValue()}
+                                    </Paper>
+                                </Grid>
+                                <Grid item>
+                                    <Paper style={{backgroundColor:'#fff'}}>
+                                        {generateChartAnualProductsUnits()}
+                                    </Paper>
+                                </Grid>
+                                <Grid item>
+                                    <Paper style={{backgroundColor:'#fff'}}>
+                                        {generateChartMonthSalesUnits()}
+                                    </Paper>
+                                </Grid>
+                            </Grid>
+                        </Grid>
                         :
                         null
                     }
