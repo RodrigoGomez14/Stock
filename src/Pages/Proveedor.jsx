@@ -12,6 +12,8 @@ import {database} from 'firebase'
 import {Link} from 'react-router-dom'
 import {content} from './styles/styles'
 import { checkSearch } from '../utilities'
+import ApexCharts from 'react-apexcharts';
+
 
 // COMPONENT
 const Proveedor=(props)=>{
@@ -24,6 +26,172 @@ const Proveedor=(props)=>{
 
     const [filteredEntregas,setFilteredEntregas] = useState(undefined)
 
+    const generateChartDeudas = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        const keyProveedor = checkSearch(props.location.search)
+        const initialMonth = new Date(Date.now());
+        initialMonth.setMonth(initialMonth.getMonth() - 6);
+        let deudas = []
+        let labels = []
+        if(props.proveedores[keyProveedor].pagos){
+            Object.keys(props.proveedores[keyProveedor].pagos).map(pago=>{
+                const [day,month,year] = (props.proveedores[keyProveedor].pagos[pago].fecha).split('/')
+                const auxFecha = new Date(0);
+                auxFecha.setFullYear(year, month - 1, day);
+                if(auxFecha>initialMonth){
+                    deudas.push(props.proveedores[keyProveedor].pagos[pago].deudaActualizada)
+                    labels.push(props.proveedores[keyProveedor].pagos[pago].fecha)
+                }
+            })
+        }
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            theme:{
+                textColor:'#000'
+            },
+            chart:{
+                sparkline: {
+                    enabled: true
+                },
+            },
+            tooltip:{
+                theme:'dark'
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+        };
+    
+        // Define los datos a visualizar
+        const series = [
+            {
+            name: 'Deuda',
+            data: deudas,
+            },
+        ];
+    
+        // Renderiza el gráfico
+        return <ApexCharts options={options} series={series} type='area' height={150}/>;
+    }
+    const generateChartProductos = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        const keyProveedor = checkSearch(props.location.search)
+        let series = []
+        let labels = []
+        if(props.proveedores[keyProveedor].entregas){
+            Object.keys(props.proveedores[keyProveedor].entregas).reverse().forEach((pedido) => {
+                props.proveedores[keyProveedor].entregas[pedido].articulos.map(articulo=>{
+                    const pos = labels.indexOf(articulo.producto);
+                    if (pos !== -1) {
+                    series[pos] += parseInt(articulo.cantidad);
+                    } else {
+                    series.push(parseInt(articulo.cantidad));
+                    labels.push(articulo.producto);
+                    }
+                })
+            });
+        }
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            title: {
+                text: 'Ventas Por Producto',
+                align: 'left'
+            },
+            chart:{
+                sparkline:{
+                    enabled:true
+                }
+            },
+            theme:{
+                textColor:'#fff'
+            },
+            tooltip:{
+                theme:'dark'
+            },
+        };
+    
+    
+        // Renderiza el gráfico
+        return <ApexCharts options={options} series={series} type='donut'  />;
+    }
+    const generateChartAnualSales = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        const actualYear = new Date().getFullYear()
+
+        let sales = []
+        let salesUltimoAnio
+        let labelsUltimoAnio =  []
+
+        if(filteredEntregas){
+            const fechaActual = new Date();
+            const mesActual = fechaActual.getMonth();
+            const anioActual = fechaActual.getFullYear();
+
+
+            const mesesDesdeUltimoAnio = 12;
+            let mesInicio = mesActual - mesesDesdeUltimoAnio;
+            console.log(mesInicio)
+            let anioInicio = anioActual;
+            if (mesInicio < 0) {
+                mesInicio += 12;
+                anioInicio -= 1;
+            }
+            const initialDate = new Date(0)
+            initialDate.setFullYear(anioInicio,mesInicio,1)
+            for (const [year, data] of filteredEntregas) {
+                // Itera sobre cada mes en el año
+                for (const [month, dataMonth] of Object.entries(data.months)) {
+                        const auxFecha = new Date(0);
+                        auxFecha.setFullYear(year, month - 1, 1);
+                        if(auxFecha>initialDate){
+                            sales.push(dataMonth.total)
+                        }
+                }
+            }
+            const aux = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            const arr1 = aux.slice(mesInicio);
+            const arr2 = aux.slice(0,mesInicio);
+            
+            arr1.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+            arr2.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+        }
+        console.log(sales)
+        console.log(labelsUltimoAnio)
+        // Define la configuración del gráfico
+        const options = {
+            labels:labelsUltimoAnio,
+            title: {
+                text: 'Ventas Por Mes',
+                align: 'left'
+            },
+            theme:{
+                textColor:'#fff'
+            },
+            tooltip:{
+                theme:'dark'
+            },
+            grid: {
+                row: {
+                  colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                  opacity: 0.5
+                },
+            },
+        };
+        const series=[{
+            name:'Compras',
+            data:sales.reverse()
+        }
+        ]
+    
+        // Renderiza el gráfico
+        return <ApexCharts options={options} type='bar' series={series} width={450}/>;
+    }
     // FILTRADO DE INFORMACION 
     useEffect(()=>{
         setLoading(true)
@@ -96,7 +264,17 @@ const Proveedor=(props)=>{
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...proveedor.datos}/>
-                        <Deuda deuda={proveedor.datos.deuda} id={proveedor.datos.nombre}/>
+                        <Grid container item xs={12} justify='center'>
+                            <Grid item>
+                                {generateChartProductos()}
+                            </Grid>
+                            <Grid item>
+                                <Deuda deuda={proveedor.datos.deuda} id={proveedor.datos.nombre} generateChartDeudas={generateChartDeudas}/>
+                            </Grid>
+                            <Grid item>
+                                {generateChartAnualSales()}
+                            </Grid>
+                        </Grid>
                         <ListaDePedidos pedidos={filteredEntregas} eliminarPedido={eliminarPedido} searchPedido={searchEntrega} tipo='entrega'/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>

@@ -36,7 +36,7 @@ export const ListaDePedidos = ({pedidos,searchPedido,searchRemito,tipo}) =>{
                             </Card>
                         </Grid>
                         <Grid container item xs={12} justify='center' spacing={3}>
-                            {Object.keys(indexYear[1].months).map(month=>(
+                            {Object.keys(indexYear[1].months).reverse().map(month=>(
                                 <>
                                     <Grid container item xs={12} justify='center'>
                                         <Grid item>

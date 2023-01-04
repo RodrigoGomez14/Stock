@@ -9,7 +9,6 @@ export const Detalles = ({dni,cuit,direcciones,telefonos,mails,infoExtra,expreso
     const classes = content()
     return(
         <Grid container item xs={12} className={classes.containerDetallesCliente} spacing={3} alignItems='flex-start'>
-            {console.log('detalles')}
             {dni || cuit ?
                 <Grid item xs={10} md={4}>
                     <Paper elevation={6} className={classes.paperCliente}>

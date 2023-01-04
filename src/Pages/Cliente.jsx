@@ -12,6 +12,8 @@ import {database} from 'firebase'
 import {Link} from 'react-router-dom'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
+import ApexCharts from 'react-apexcharts';
+
 
 // COMPONENT
 const Cliente=(props)=>{
@@ -25,6 +27,143 @@ const Cliente=(props)=>{
 
     const [filteredPedidos,setFilteredPedidos] = useState(undefined)
 
+
+    const generateChartDeudas = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        const keyCliente = checkSearch(props.location.search)
+        let deudas = []
+        let labels = []
+        const initialMonth = new Date(Date.now());
+        initialMonth.setMonth(initialMonth.getMonth() - 6);
+        if(props.clientes[keyCliente].pagos){
+            Object.keys(props.clientes[keyCliente].pagos).map(pago=>{
+                const [day,month,year] = (props.clientes[keyCliente].pagos[pago].fecha).split('/')
+                const auxFecha = new Date(0);
+                auxFecha.setFullYear(year, month - 1, day);
+                if(auxFecha>initialMonth){
+                    deudas.push(props.clientes[keyCliente].pagos[pago].deudaActualizada)
+                    labels.push(props.clientes[keyCliente].pagos[pago].fecha)
+                }
+            })
+        }
+    
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            theme:{
+                textColor:'#000'
+            },
+            chart:{
+                sparkline: {
+                    enabled: true
+                },
+            },
+            tooltip:{
+                theme:'dark'
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+        };
+    
+        // Define los datos a visualizar
+        const series = [
+            {
+            name: 'Deuda',
+            data: deudas,
+            },
+        ];
+    
+        // Renderiza el gráfico
+        return <ApexCharts options={options} series={series} type='area' height={150}/>;
+    }
+    const generateChartProductos = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        const keyCliente = checkSearch(props.location.search)
+        let series = []
+        let labels = []
+        if(props.clientes[keyCliente].pedidos){
+            Object.keys(props.clientes[keyCliente].pedidos).reverse().forEach((pedido) => {
+                props.clientes[keyCliente].pedidos[pedido].articulos.map(articulo=>{
+                    const pos = labels.indexOf(articulo.producto);
+                    if (pos !== -1) {
+                    series[pos] += parseInt(articulo.cantidad);
+                    } else {
+                    series.push(parseInt(articulo.cantidad));
+                    labels.push(articulo.producto);
+                    }
+                })
+            });
+        }
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            title: {
+                text: 'Ventas Por Producto',
+                align: 'left'
+            },
+            chart:{
+                sparkline:{
+                    enabled:true
+                }
+            },
+            theme:{
+                textColor:'#fff'
+            },
+            tooltip:{
+                theme:'dark'
+            },
+        };
+    
+    
+        // Renderiza el gráfico
+        return <ApexCharts options={options} series={series} type='donut' />;
+    }
+    const generateChartAnualSales = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        const actualYear = new Date().getFullYear()
+
+        let sales = [0,0,0,0,0,0,0,0,0,0,0,0]
+        if(filteredPedidos){
+            for (const [year, data] of filteredPedidos) {
+                // Itera sobre cada mes en el año
+                for (const [month, dataMonth] of Object.entries(data.months)) {
+                if(year == actualYear.toString()){
+                    console.log(month)
+                    sales[month-1]=(dataMonth.total);
+                }
+                }
+            }
+        }
+        // Define la configuración del gráfico
+        const options = {
+            labels:['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep','Oct','Nov',"Dic"],
+            title: {
+                text: 'Ventas Por Mes',
+                align: 'left'
+            },
+            theme:{
+                textColor:'#fff'
+            },
+            tooltip:{
+                theme:'dark'
+            },
+            grid: {
+                row: {
+                  colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                  opacity: 0.5
+                },
+            },
+        };
+        const series=[{
+            name:'Ventas',
+            data:sales
+        }
+        ]
+    
+        // Renderiza el gráfico
+        return <ApexCharts options={options} type='bar' series={series} width={450}/>;
+    }
     // FILTRADO DE INFORMACION 
     useEffect(()=>{
         const years = {};
@@ -50,7 +189,7 @@ const Cliente=(props)=>{
                 // Actualizamos el total del mes y del año
                 years[year].months[month].total += parseInt(props.clientes[keyCliente].pedidos[pedido].total, 10);
                 years[year].total += parseInt(props.clientes[keyCliente].pedidos[pedido].total, 10);
-            });
+            }); 
     
             const sortedPedidos = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
     
@@ -98,7 +237,17 @@ const Cliente=(props)=>{
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...cliente.datos}/>
-                        <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre}/>
+                        <Grid container item xs={12} justify='center' spacing={4}>
+                            <Grid item>
+                                {generateChartProductos()}
+                            </Grid>
+                            <Grid item>
+                                <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre} generateChartDeudas={generateChartDeudas}/>
+                            </Grid>
+                            <Grid item>
+                                {generateChartAnualSales()}
+                            </Grid>
+                        </Grid>
                         <ListaDePedidos pedidos={filteredPedidos} eliminarPedido={eliminarPedido} searchPedido={searchPedido} searchRemito={searchRemito} tipo='pedido'/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>
