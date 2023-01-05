@@ -59,7 +59,7 @@ const checkSelected = (icon,page) =>{
     if(icon==page){
         return true
     }
-    else if(icon=='Menu' && page== ''){
+    else if(icon=='Inicio' && page== ''){
         return true
     }
     // PRODUCTOS
@@ -120,11 +120,11 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
             <Divider />
             <List>
                 <Link className={classes.link} to='/'>
-                    <ListItem button key={'Menu'} selected={checkSelected('Menu',history.location.pathname.slice(1))}>
+                    <ListItem button key={'Inicio'} selected={checkSelected('Inicio',history.location.pathname.slice(1))}>
                         <ListItemIcon>
                             <Home/>
                         </ListItemIcon>
-                        <ListItemText primary={'Menu'} />
+                        <ListItemText primary={'Inicio'} />
                     </ListItem>
                 </Link>
             <Divider />

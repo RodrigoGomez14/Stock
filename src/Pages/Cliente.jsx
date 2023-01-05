@@ -13,6 +13,7 @@ import {Link} from 'react-router-dom'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
 import ApexCharts from 'react-apexcharts';
+import {formatMoney} from '../utilities'
 
 
 // COMPONENT
@@ -50,19 +51,19 @@ const Cliente=(props)=>{
         // Define la configuración del gráfico
         const options = {
             labels:labels,
-            theme:{
-                textColor:'#000'
-            },
             chart:{
                 sparkline: {
                     enabled: true
                 },
             },
-            tooltip:{
-                theme:'dark'
-            },
             stroke: {
                 curve: 'smooth'
+            },
+            tooltip:{
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                },
+                theme:'dark'
             },
         };
     
@@ -108,45 +109,93 @@ const Cliente=(props)=>{
                 }
             },
             theme:{
-                textColor:'#fff'
-            },
-            tooltip:{
-                theme:'dark'
+                mode:'dark'
             },
         };
     
     
         // Renderiza el gráfico
-        return <ApexCharts options={options} series={series} type='donut' />;
+        return <ApexCharts options={options} series={series} type='donut' width={350} />;
     }
     const generateChartAnualSales = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
         const actualYear = new Date().getFullYear()
 
-        let sales = [0,0,0,0,0,0,0,0,0,0,0,0]
+        let sales = []
+        let labelsUltimoAnio =  []
+
         if(filteredPedidos){
+            const fechaActual = new Date();
+            const mesActual = fechaActual.getMonth();
+            const anioActual = fechaActual.getFullYear();
+            let auxSales = []
+
+            const mesesDesdeUltimoAnio = 12;
+            let mesInicio = mesActual - mesesDesdeUltimoAnio;
+            let anioInicio = anioActual;
+            if (mesInicio < 0) {
+                mesInicio += 12;
+                anioInicio -= 1;
+            }
+            const initialDate = new Date(0)
+            initialDate.setFullYear(anioInicio,mesInicio,1)
+            console.log(filteredPedidos)
             for (const [year, data] of filteredPedidos) {
                 // Itera sobre cada mes en el año
                 for (const [month, dataMonth] of Object.entries(data.months)) {
-                if(year == actualYear.toString()){
-                    console.log(month)
-                    sales[month-1]=(dataMonth.total);
-                }
+                        const auxFecha = new Date(0);
+                        auxFecha.setFullYear(year, month - 1, 1);
+                        if(auxFecha>initialDate && auxFecha<fechaActual){
+                            auxSales.push(dataMonth.total)
+                        }
                 }
             }
+            if(auxSales.length<12){
+                console.log(auxSales)
+                const padding = new Array(12 - auxSales.length).fill(0);
+                padding.map(i=>{
+                    auxSales.push(i)
+                })
+            }
+            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            const arr1Meses = auxMeses.slice(mesInicio+1);
+            const arr2Meses = auxMeses.slice(0,mesInicio+1);
+
+            
+            const arr1Sales = auxSales.slice(mesInicio+1);
+            const arr2Sales = auxSales.slice(0,mesInicio+1);
+            
+            
+            arr1Meses.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+            arr2Meses.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+            
+            console.log(sales)
+            arr1Sales.map(i=>{
+                sales.push(i)
+            })
+            arr2Sales.map(i=>{
+                sales.push(i)
+            })
+            console.log(sales)
+            console.log(labelsUltimoAnio)
+
         }
         // Define la configuración del gráfico
         const options = {
-            labels:['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep','Oct','Nov',"Dic"],
+            labels:labelsUltimoAnio,
             title: {
                 text: 'Ventas Por Mes',
                 align: 'left'
             },
             theme:{
-                textColor:'#fff'
+                mode:'dark'
             },
-            tooltip:{
-                theme:'dark'
+            stroke: {
+                curve: 'smooth'
             },
             grid: {
                 row: {
@@ -154,15 +203,34 @@ const Cliente=(props)=>{
                   opacity: 0.5
                 },
             },
+            tooltip:{
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                }
+            },
+            dataLabels:{
+                dropShadow: {
+                    enabled: true,
+                    left: 2,
+                    top: 2,
+                    opacity: 0.5
+                },
+                formatter: val=> `$ ${formatMoney(val)}`
+            },
+            yaxis:{
+                labels:{
+                    formatter: val => `$ ${formatMoney(val)}`,
+                }
+            }
         };
         const series=[{
-            name:'Ventas',
+            name:'Compras',
             data:sales
         }
         ]
     
         // Renderiza el gráfico
-        return <ApexCharts options={options} type='bar' series={series} width={450}/>;
+        return <ApexCharts options={options} type='area' series={series} width={450}/>;
     }
     // FILTRADO DE INFORMACION 
     useEffect(()=>{
@@ -173,14 +241,21 @@ const Cliente=(props)=>{
                 const year = props.clientes[keyCliente].pedidos[pedido].fecha.split('/')[2];
                 const month = props.clientes[keyCliente].pedidos[pedido].fecha.split('/')[1];
             
-                // Si aún no tenemos el año en el objeto "years", lo agregamos
                 if (!years[year]) {
-                years[year] = { total: 0, months: {} };
-                }
-            
-                // Si aún no tenemos el mes en el objeto "months", lo agregamos
-                if (!years[year].months[month]) {
-                years[year].months[month] = { total: 0, pedidos: [] };
+                    years[year] = { total: 0, months: {
+                        1:{ total: 0, pedidos: [] },
+                        2:{ total: 0, pedidos: [] },
+                        3:{ total: 0, pedidos: [] },
+                        4:{ total: 0, pedidos: [] },
+                        5:{ total: 0, pedidos: [] },
+                        6:{ total: 0, pedidos: [] },
+                        7:{ total: 0, pedidos: [] },
+                        8:{ total: 0, pedidos: [] },
+                        9:{ total: 0, pedidos: [] },
+                        10:{ total: 0, pedidos: [] },
+                        11:{ total: 0, pedidos: [] },
+                        12:{ total: 0, pedidos: [] }
+                    }}
                 }
             
                 // Agregamos la compra al objeto "compras" del mes correspondiente
@@ -192,7 +267,8 @@ const Cliente=(props)=>{
             }); 
     
             const sortedPedidos = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
-    
+            
+            console.log(sortedPedidos)
             setFilteredPedidos(sortedPedidos)
         }
         setTimeout(() => {
@@ -237,17 +313,23 @@ const Cliente=(props)=>{
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>
                         <Detalles {...cliente.datos}/>
-                        <Grid container item xs={12} justify='center' spacing={4}>
-                            <Grid item>
-                                {generateChartProductos()}
+                        {!loading && filteredPedidos?
+                            <Grid container item xs={12} justify='center' spacing={4}>
+                                <Grid item>
+                                        {generateChartProductos()}
+                                </Grid>
+                                <Grid item>
+                                    <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre} generateChartDeudas={generateChartDeudas}/>
+                                </Grid>
+                                <Grid item>
+                                    <Paper>
+                                        {generateChartAnualSales()}
+                                    </Paper>
+                                </Grid>
                             </Grid>
-                            <Grid item>
-                                <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre} generateChartDeudas={generateChartDeudas}/>
-                            </Grid>
-                            <Grid item>
-                                {generateChartAnualSales()}
-                            </Grid>
-                        </Grid>
+                            :
+                            null
+                        }
                         <ListaDePedidos pedidos={filteredPedidos} eliminarPedido={eliminarPedido} searchPedido={searchPedido} searchRemito={searchRemito} tipo='pedido'/>
                         <Grid item xs={12} sm={8}>
                             <Grid container item xs={12} justify='space-around' alignItems='flex-end'>

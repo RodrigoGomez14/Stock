@@ -10,7 +10,7 @@ import Expresos from './Pages/Expresos'
 import Expreso from './Pages/Expreso'
 import NuevoExpreso from './Pages/NuevoExpreso'
 import NuevoPedido from './Pages/NuevoPedido'
-import Menu from './Pages/Menu'
+import Inicio from './Pages/Inicio'
 import Deudas from './Pages/Deudas'
 import Cheques from './Pages/Cheques'
 import Productos from './Pages/Productos'
@@ -128,7 +128,7 @@ class App extends Component {
               <Provider store={this.state.store}>
                 <BrowserRouter>
                   <Switch>
-                    <Route exact path='/' component={Menu}/>
+                    <Route exact path='/' component={Inicio}/>
                     <Route exact path='/Clientes' component={Clientes}/>
                     <Route exact path='/Cliente' component={Cliente}/>
                     <Route exact path='/Nuevo-Cliente' component={NuevoCliente}/>

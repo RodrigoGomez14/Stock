@@ -38,18 +38,22 @@ export const ListaDePedidos = ({pedidos,searchPedido,searchRemito,tipo}) =>{
                         <Grid container item xs={12} justify='center' spacing={3}>
                             {Object.keys(indexYear[1].months).reverse().map(month=>(
                                 <>
-                                    <Grid container item xs={12} justify='center'>
-                                        <Grid item>
-                                            <Paper>
-                                                <Card>
-                                                    <CardHeader
-                                                        title={`$ ${formatMoney(indexYear[1].months[month].total)}`}
-                                                        subheader={monthsList[month-1]}
-                                                    />
-                                                </Card>
-                                            </Paper>
+                                    {indexYear[1].months[month].total!==0?
+                                        <Grid container item xs={12} justify='center'>
+                                            <Grid item>
+                                                <Paper>
+                                                    <Card>
+                                                        <CardHeader
+                                                            title={`$ ${formatMoney(indexYear[1].months[month].total)}`}
+                                                            subheader={monthsList[month-1]}
+                                                        />
+                                                    </Card>
+                                                </Paper>
+                                            </Grid>
                                         </Grid>
-                                    </Grid>
+                                        :
+                                        null
+                                    }
                                     
                                     {tipo=='pedido'?
                                         Object.keys(indexYear[1].months[month].pedidos).map((keyPedido)=>(

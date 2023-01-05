@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem} from '@material-ui/core'
+import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {PersonAdd} from '@material-ui/icons'
 import {MoreVert,DeleteOutlineOutlined} from '@material-ui/icons'
@@ -13,6 +13,7 @@ import {DialogEntregarCheque} from '../components/Cheques/DialogEntregarCheque'
 import {content} from './styles/styles'
 import { Cheque } from '../components/Cheques/Cheque'
 import Empty from '../images/Empty.png'
+import ApexCharts from 'react-apexcharts';
 
 // COMPONENT
 const Cheques=(props)=>{
@@ -148,6 +149,39 @@ const Cheques=(props)=>{
         setTotalNegro(auxNegro)
     }
 
+
+    // CHARTS
+    const generateChartGrupos = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        let series = [totalBlanco,totalNegro]
+        let labels = ['blanco','negro']
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            theme:{
+                mode:'dark',
+                palette:'palette3'
+            },
+            tooltip:{
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                }
+            },
+            dataLabels:{
+                dropShadow: {
+                    enabled: true,
+                    left: 2,
+                    top: 2,
+                    opacity: 0.5
+                },
+            }
+        };
+    
+    
+        // Renderiza el gráfico
+        return <ApexCharts options={options} series={series} type='donut' width={350} />;
+    }
+
     // FILTRADO DE INFORMACION 
     const filtrarCheques = () =>{
         const months = {};
@@ -199,16 +233,10 @@ const Cheques=(props)=>{
                         <Grid container item xs={12} justify='space-around'>
                             <Grid item>
                                 <Card>
-                                    <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
-                                        <CardHeader title={`$ ${formatMoney(totalBlanco)}`} subheader='Blanco'/>
-                                    </Paper>
-                                </Card>
-                            </Grid>
-                            <Grid item>
-                                <Card>
-                                    <Paper elevation={3} className={classes.CardHeaderGrupoCheques}>
-                                        <CardHeader title={`$ ${formatMoney(totalNegro)}`} subheader='Negro'/>
-                                    </Paper>
+                                    <CardHeader title='Grupos de Cheques'/>
+                                    <CardContent>
+                                        {generateChartGrupos()}
+                                    </CardContent>
                                 </Card>
                             </Grid>
                         </Grid>

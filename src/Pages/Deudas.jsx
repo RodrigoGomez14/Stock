@@ -1,7 +1,8 @@
 import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper,Button,Tab,Typography,TextField,Grid,AppBar,Box,Tabs,Link as LinkComponent} from '@material-ui/core'
+import {Backdrop,Paper,CircularProgress,Tab,Typography,TextField,Grid,AppBar,Box,Tabs,Link as LinkComponent,Snackbar,Card,CardHeader,CardContent} from '@material-ui/core'
+import {Alert} from '@material-ui/lab'
 import {AttachMoney,PersonAdd} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
@@ -9,11 +10,15 @@ import {content} from './styles/styles'
 import CardDeudaCliente from '../components/Deudas/CardDeudaCliente'
 import CardDeudaProveedor from '../components/Deudas/CardDeudaProveedor'
 import { useEffect } from 'react'
+import ApexCharts from 'react-apexcharts';
+
 
 // COMPONENT
 const Deudas=(props)=>{
     const classes = content()
     const [search,setSearch]=useState('')
+    const [showSnackbar,setshowSnackbar]=useState('')
+    const [loading,setLoading]=useState(true)
     const [totalClientes,setTotalClientes]=useState(0)
     const [totalProveedores,setTotalProveedores]=useState(0)
     const [value,setValue]=useState(0)
@@ -40,21 +45,121 @@ const Deudas=(props)=>{
         )
     }
 
+    // CHARTS 
+    const generateChartDeudasClientes = () => {
+
+        let series = []
+        let labels = []
+
+        Object.keys(props.clientes).map(cliente=>{
+            if(props.clientes[cliente].datos.deuda>0){
+                series.push(props.clientes[cliente].datos.deuda)
+                labels.push(props.clientes[cliente].datos.nombre)
+            }
+        })
+
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            series:series,
+            theme:{
+                mode:'dark',
+                palette:'palette3'
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            tooltip:{
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                }
+            },
+            dataLabels:{
+                dropShadow: {
+                    enabled: true,
+                    left: 2,
+                    top: 2,
+                    opacity: 0.5
+                },
+            }
+        };
+    
+        // Renderiza el gráfico
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Deudas por Cliente'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='donut' width={400} />
+                </CardContent>
+            </Card>)
+    }
+    const generateChartDeudasProveedores = () => {
+
+        let series = []
+        let labels = []
+
+        Object.keys(props.proveedores).map(proveedor=>{
+            if(props.proveedores[proveedor].datos.deuda>0){
+                series.push(props.proveedores[proveedor].datos.deuda)
+                labels.push(props.proveedores[proveedor].datos.nombre)
+            }
+        })
+
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            series:series,
+            theme:{
+                mode:'dark',
+                palette:'palette3'
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            tooltip:{
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                }
+            },
+            dataLabels:{
+                dropShadow: {
+                    enabled: true,
+                    left: 2,
+                    top: 2,
+                    opacity: 0.5
+                },
+            }
+        };
+    
+        // Renderiza el gráfico
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Deudas por Proveedor'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='donut' width={400} />
+                </CardContent>
+            </Card>)
+    }
     useEffect(()=>{
-        let aux = 0
+        let auxFilteredDeudas = 0
         if(props.clientes){
             Object.values(props.clientes).map(cliente=>{
-                aux += cliente.datos.deuda
+                auxFilteredDeudas += cliente.datos.deuda
             })
-            setTotalClientes(aux)
-            aux=0
+            setTotalClientes(auxFilteredDeudas)
+            auxFilteredDeudas=0
         }
         if(props.proveedores){
             Object.values(props.proveedores).map(proveedor=>{
-                aux += proveedor.datos.deuda
+                auxFilteredDeudas += proveedor.datos.deuda
             })
-            setTotalProveedores(aux)
+            setTotalProveedores(auxFilteredDeudas)
         }
+        setLoading(false)
     },[])
     return(
         <Layout history={props.history} page="Deudas" user={props.user.uid}>
@@ -90,6 +195,9 @@ const Deudas=(props)=>{
                                             Total ${formatMoney(totalClientes)}
                                         </Typography>
                                     </Grid>
+                                    <Grid container item xs={12} justify='center'>
+                                        {generateChartDeudasClientes()}
+                                    </Grid>
                                     <Grid container justify='center' alignItems='center' spacing={4}>
                                         {Object.keys(props.clientes).map(key=>(
                                             props.clientes[key].datos.deuda != 0 ?
@@ -115,6 +223,9 @@ const Deudas=(props)=>{
                                             Total ${formatMoney(totalProveedores)}
                                         </Typography>
                                     </Grid>
+                                    <Grid container item xs={12} justify='center'>
+                                        {generateChartDeudasProveedores()}
+                                    </Grid>
                                     <Grid container item justify='center' alignItems='center' spacing={4}>
                                         {Object.keys(props.proveedores).map(key=>(
                                             props.proveedores[key].datos.deuda != 0 ?
@@ -132,6 +243,16 @@ const Deudas=(props)=>{
                     </TabPanel>
                 </Grid>
             </Paper>
+
+            {/* BACKDROP & SNACKBAR */}
+            <Backdrop className={classes.backdrop} open={loading}>
+                <CircularProgress color="inherit" />
+                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                    <Alert severity="success" variant='filled'>
+                        {showSnackbar}
+                    </Alert>
+                </Snackbar>
+            </Backdrop>
         </Layout>
     )
 }
