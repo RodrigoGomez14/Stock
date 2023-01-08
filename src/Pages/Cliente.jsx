@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper,Grid,List,Typography,IconButton,Backdrop,Snackbar,CircularProgress} from '@material-ui/core'
+import {Card,Paper,Grid,CardHeader,CardContent,IconButton,Backdrop,Snackbar,CircularProgress} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {EditOutlined,DeleteOutline} from '@material-ui/icons'
 import {Deuda} from '../components/Cliente/Deuda'
@@ -99,10 +99,6 @@ const Cliente=(props)=>{
         // Define la configuración del gráfico
         const options = {
             labels:labels,
-            title: {
-                text: 'Ventas Por Producto',
-                align: 'left'
-            },
             chart:{
                 sparkline:{
                     enabled:true
@@ -111,11 +107,22 @@ const Cliente=(props)=>{
             theme:{
                 mode:'dark'
             },
+            tooltip:{
+                fillSeriesColor:false
+            }
         };
     
     
         // Renderiza el gráfico
-        return <ApexCharts options={options} series={series} type='donut' width={350} />;
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Historico De Productos'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='donut' width={350} />
+                </CardContent>
+            </Card>)
     }
     const generateChartAnualSales = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
@@ -187,12 +194,9 @@ const Cliente=(props)=>{
         // Define la configuración del gráfico
         const options = {
             labels:labelsUltimoAnio,
-            title: {
-                text: 'Ventas Por Mes',
-                align: 'left'
-            },
             theme:{
-                mode:'dark'
+                mode:'dark',
+                palette:'palette2'
             },
             stroke: {
                 curve: 'smooth'
@@ -219,7 +223,7 @@ const Cliente=(props)=>{
             },
             yaxis:{
                 labels:{
-                    formatter: val => `$ ${formatMoney(val)}`,
+                    show:false
                 }
             }
         };
@@ -229,8 +233,15 @@ const Cliente=(props)=>{
         }
         ]
     
-        // Renderiza el gráfico
-        return <ApexCharts options={options} type='area' series={series} width={450}/>;
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Ventas - Ultimos 12 Meses'
+                />
+                <CardContent>
+                    <ApexCharts options={options} type='area' series={series} width={850} height={275}/>
+                </CardContent>
+            </Card>)
     }
     // FILTRADO DE INFORMACION 
     useEffect(()=>{
@@ -315,11 +326,11 @@ const Cliente=(props)=>{
                         <Detalles {...cliente.datos}/>
                         {!loading && filteredPedidos?
                             <Grid container item xs={12} justify='center' spacing={4}>
-                                <Grid item>
-                                        {generateChartProductos()}
+                                <Grid container item xs={12}>
+                                    <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre} generateChartDeudas={generateChartDeudas}/>
                                 </Grid>
                                 <Grid item>
-                                    <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre} generateChartDeudas={generateChartDeudas}/>
+                                        {generateChartProductos()}
                                 </Grid>
                                 <Grid item>
                                     <Paper>

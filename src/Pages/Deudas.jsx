@@ -66,21 +66,16 @@ const Deudas=(props)=>{
                 mode:'dark',
                 palette:'palette3'
             },
-            stroke: {
-                curve: 'smooth'
+            chart:{
+                sparkline:{
+                    enabled:true
+                }
             },
             tooltip:{
+                fillSeriesColor:false,
                 y:{
                     formatter: val=> `$ ${formatMoney(val)}`
                 }
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
             }
         };
     
@@ -91,7 +86,7 @@ const Deudas=(props)=>{
                     subheader='Deudas por Cliente'
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='donut' width={400} />
+                    <ApexCharts options={options} series={series} type='donut' width={300} />
                 </CardContent>
             </Card>)
     }
@@ -115,21 +110,16 @@ const Deudas=(props)=>{
                 mode:'dark',
                 palette:'palette3'
             },
-            stroke: {
-                curve: 'smooth'
+            chart:{
+                sparkline:{
+                    enabled:true
+                }
             },
             tooltip:{
+                fillSeriesColor:false,
                 y:{
                     formatter: val=> `$ ${formatMoney(val)}`
                 }
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
             }
         };
     
@@ -140,7 +130,7 @@ const Deudas=(props)=>{
                     subheader='Deudas por Proveedor'
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='donut' width={400} />
+                    <ApexCharts options={options} series={series} type='donut' width={300} />
                 </CardContent>
             </Card>)
     }

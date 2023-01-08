@@ -42,11 +42,11 @@ export const content =makeStyles(theme=>({
     },
     cardDeudaGreen:{
         backgroundColor:theme.palette.success.main,
-        width:'300px',
+        width:'100%',
     },
     cardDeudaRed:{
         backgroundColor:theme.palette.danger.main,
-        width:'300px',
+        width:'100%',
     },
 
         // CARD CLIENT

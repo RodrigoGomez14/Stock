@@ -10,16 +10,8 @@ export const Deuda = ({deuda,id,generateChartDeudas}) =>{
     return(
         <Card className={deuda>0?classes.cardDeudaRed:classes.cardDeudaGreen}>
             <CardHeader
-                title={
-                    <>
-                        <Typography variant="h5" component="h2">
-                            Balance
-                        </Typography>
-                        <Typography variant="h4" component="h2">
-                            $ {formatMoney(deuda)}
-                        </Typography>
-                    </>
-                }
+                title={`$ ${formatMoney(deuda>=0?deuda:-deuda)}`}
+                subheader='Balance - Ultimos 6 Meses'
                 action={
                     <>
                         <Link to={{

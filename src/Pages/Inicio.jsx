@@ -140,23 +140,18 @@ const Inicio=(props)=>{
         // Define la configuración del gráfico
         const options = {
             labels:labelsUltimoAnio,
-            title: {
-                text: 'Compras y Ventas a lo largo del año',
-                align: 'left',
-            },
             fill: {
-                colors: ['#1A73E8', 'transparent']
             },
             theme:{
                 mode:'dark',
-                palette:'palette2'
+                palette:'palette6'
             },
             stroke: {
                 curve: 'smooth'
             },
             grid: {
                 row: {
-                    colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                    colors: ['#c3c3c3', 'transparent'], // takes an array which will be repeated on columns
                     opacity: 0.5
                 },
             },
@@ -166,13 +161,7 @@ const Inicio=(props)=>{
                 }
             },
             dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
-                formatter: val=> `$ ${formatMoney(val)}`
+                enabled:false
             },
             yaxis:{
                 labels:{
@@ -191,7 +180,17 @@ const Inicio=(props)=>{
         },
         ]
         // Renderiza el gráfico
-        return <ApexCharts options={options} series={series} type='area'  height={400} width={1200} />;
+
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Compras & Ventas ultimos 12 meses'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='area'  height={400} width={1200} />
+                </CardContent>
+            </Card>
+        )
     }
     const generateChartAnualProductsValue = () => {
         const actualYear = new Date().getFullYear()
@@ -207,10 +206,6 @@ const Inicio=(props)=>{
         const options = {
             series:series,
             labels:labels,
-            title: {
-                text: 'Ingresos Por Producto Historico',
-                align: 'left'
-            },
             theme:{
                 mode:'dark',
                 palette:'palette2'
@@ -218,7 +213,8 @@ const Inicio=(props)=>{
             tooltip:{
                 y:{
                     formatter: val=> `$ ${formatMoney(val)}`
-                }
+                },
+                fillSeriesColor:false
             },
             dataLabels:{
                 dropShadow: {
@@ -227,13 +223,22 @@ const Inicio=(props)=>{
                     top: 2,
                     opacity: 0.5
                 },
-            }
+            },
+            
             
         };
     
     
         // Renderiza el gráfico
-        return (<ApexCharts options={options} series={series} type='donut'   width={450} />)
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Ingresos por Producto - Historico'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='donut'   width={450} />
+                </CardContent>
+            </Card>)
     }
     const generateChartAnualProductsUnits = () => {
         const actualYear = new Date().getFullYear()
@@ -249,10 +254,6 @@ const Inicio=(props)=>{
         const options = {
             series:series,
             labels:labels,
-            title: {
-                text: 'Ventas por Producto Historico',
-                align: 'left'
-            },
             theme:{
                 mode:'dark',
                 palette:'palette2'
@@ -265,12 +266,23 @@ const Inicio=(props)=>{
                     top: 2,
                     opacity: 0.5
                 },
+            },
+            tooltip:{
+                fillSeriesColor:false
             }
         };
     
     
         // Renderiza el gráfico
-        return (<ApexCharts options={options} series={series} type='donut'   width={450} />)
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Unidades Vendidas - Historico'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='donut'   width={450} />
+                </CardContent>
+            </Card>)
     }
     const generateChartMonthSalesUnits = () => {
         const currentMonth = new Date().getMonth();
@@ -325,7 +337,8 @@ const Inicio=(props)=>{
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
-                mode:'dark'
+                mode:'dark',
+                palette:'palette6'
             },
             stroke: {
                 curve: 'smooth'
@@ -335,6 +348,7 @@ const Inicio=(props)=>{
                     enabled: true
                 },
             },
+            
         };
     
         let totalMonthSales = 0
@@ -395,7 +409,8 @@ const Inicio=(props)=>{
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
-                mode:'dark'
+                mode:'dark',
+                palette:'palette6'
             },
             stroke: {
                 curve: 'smooth'
@@ -491,7 +506,8 @@ const Inicio=(props)=>{
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
-                mode:'dark'
+                mode:'dark',
+                palette:'palette6'
             },
             stroke: {
                 curve: 'smooth'
@@ -567,7 +583,8 @@ const Inicio=(props)=>{
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
-                mode:'dark'
+                mode:'dark',
+                palette:'palette6'
             },
             stroke: {
                 curve: 'smooth'
@@ -777,34 +794,34 @@ const Inicio=(props)=>{
                                         {generateChartAnualSales()}
                                     </Paper>
                                 </Grid>
-                                <Grid container item xs={12} justify='center'>
-                                    <Grid item>
-                                        <AppBar position="static">
-                                            <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                                                <Tab label="Valor" />
-                                                <Tab label="Cantidad" />
-                                            </Tabs>
-                                        </AppBar>
-                                    </Grid>
+                            </Grid>
+                            <Grid container item xs={12} justify='center'>
+                                <Grid item>
+                                    <AppBar position="static">
+                                        <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                                            <Tab label="Valor" />
+                                            <Tab label="Cantidad" />
+                                        </Tabs>
+                                    </AppBar>
+                                    <TabPanel value={value}  index={0}>
+                                        <Grid container spacing={3}>
+                                            <Grid item>
+                                                <Paper>
+                                                    {generateChartAnualProductsValue()}
+                                                </Paper>
+                                            </Grid>
+                                        </Grid>
+                                    </TabPanel>
+                                    <TabPanel value={value}  index={1}>
+                                        <Grid container spacing={3}>
+                                            <Grid item>
+                                                <Paper>
+                                                    {generateChartAnualProductsUnits()}
+                                                </Paper>
+                                            </Grid>
+                                        </Grid>
+                                    </TabPanel>
                                 </Grid>
-                                <TabPanel value={value}  index={0}>
-                                    <Grid container xs={12} md={4}item direction='column' spacing={3}>
-                                        <Grid item>
-                                            <Paper>
-                                                {generateChartAnualProductsValue()}
-                                            </Paper>
-                                        </Grid>
-                                    </Grid>
-                                </TabPanel>
-                                <TabPanel value={value}  index={1}>
-                                    <Grid container xs={12} md={4}item direction='column' spacing={3}>
-                                        <Grid item>
-                                            <Paper>
-                                                {generateChartAnualProductsUnits()}
-                                            </Paper>
-                                        </Grid>
-                                    </Grid>
-                                </TabPanel>
                             </Grid>
                         </Grid>
                         :

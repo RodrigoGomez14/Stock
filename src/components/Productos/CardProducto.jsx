@@ -39,12 +39,20 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
             series:series,
             labels:labels,
             theme:{
-                colors:{
-                    title: '#ffffff',
-                    yaxis: {
-                        labels: '#ffffff'
-                    }
-                }
+                mode:'dark',
+                palette:'palette2'
+
+            },
+            dataLabels:{
+                dropShadow: {
+                    enabled: true,
+                    left: 2,
+                    top: 2,
+                    opacity: 0.5
+                },
+            },
+            tooltip:{
+                fillSeriesColor:false
             },
             chart:{
                 sparkline:{
@@ -56,7 +64,22 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
         console.log(series)
         console.log(labels)
         // Renderiza el gráfico
-        return (<ApexCharts options={options} series={series}  type='donut' width={300} />)
+        return (
+            <>
+                <Grid container xs={12}>
+                    <Grid item xs={12}>
+                        <List>
+                            <Divider/>
+                            <ListSubheader>
+                                Componentes
+                            </ListSubheader>
+                            <Divider/>
+                        </List>
+                    </Grid>
+                </Grid>
+                <ApexCharts options={options} series={series}  type='donut' width={300} />
+            </>
+        )
     }
 
     // CONTENT

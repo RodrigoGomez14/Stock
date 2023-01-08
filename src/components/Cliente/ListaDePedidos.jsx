@@ -15,10 +15,9 @@ export const ListaDePedidos = ({pedidos,searchPedido,searchRemito,tipo}) =>{
     // CONTENT
     return(
         <Grid container justify='center' alignItems='center' spacing={3}>
-            {console.log(pedidos)}
             <Grid container item xs={12} justify='center'>
                 <Typography variant='h4'>
-                    Lista de Pedidos
+                    Historial de Pedidos
                 </Typography>
             </Grid>
         {/* LIST */}

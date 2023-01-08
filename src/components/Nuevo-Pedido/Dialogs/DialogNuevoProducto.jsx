@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
 import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,Paper,ListItemSecondaryAction,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
-import {CheckCircle, EditOutlined} from '@material-ui/icons'
+import {CancelRounded, CheckCircle, EditOutlined} from '@material-ui/icons'
 import {formatMoney} from '../../../utilities'
 import {content} from '../../../Pages/styles/styles'
 import { Autocomplete } from '@material-ui/lab'
@@ -138,13 +138,6 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                     <ListItemText 
                                         primary={`$ ${formatMoney(precio)} c/u`} 
                                         secondary={editarPrecio&&(discount||increase)?`$ ${editarPrecio=='discount'?'-':'+'}${formatMoney(editarPrecio=='discount'?getDiscount(precio,discount):getIncrease(precio,increase))}`:null}/>
-                                    <ListItemSecondaryAction>
-                                        <IconButton onClick={()=>{
-                                            
-                                        }}>
-                                            <EditOutlined/>
-                                        </IconButton>
-                                    </ListItemSecondaryAction>
                                 </ListItem>
                                 {editarPrecio && (discount||increase)?
                                     <ListItem>
@@ -179,6 +172,16 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                             <IconButton
                                                 disabled={!discount&&!increase}
                                                 onClick={e=>{
+                                                    seteditarPrecio(false)
+                                                    setIncrease(undefined)
+                                                    setDiscount(undefined)
+                                                }}
+                                            >
+                                                <CancelRounded/>
+                                            </IconButton>
+                                            <IconButton
+                                                disabled={!discount&&!increase}
+                                                onClick={e=>{
                                                     if(editarPrecio=='discount'){
                                                         setprecio(getDiscountPrice(precio,discount))
                                                     }
@@ -193,30 +196,33 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                         </Grid>
                                     </Grid>
                                     :
-                                    <Grid container item xs={12} justify='center' spacing={3}>
-                                        <Grid item>
-                                            <Button
-                                                color='primary'
-                                                variant='contained'
-                                                onClick={e=>{
-                                                    seteditarPrecio('discount')
-                                                }}
-                                            >
-                                                Descuento de precio
-                                            </Button>
-                                        </Grid>
+                                    !discount && !increase?
+                                        <Grid container item xs={12} justify='center' spacing={3}>
                                             <Grid item>
-                                            <Button
-                                                color='primary'
-                                                variant='contained'
-                                                onClick={e=>{
-                                                    seteditarPrecio('increase')
-                                                }}
-                                            >
-                                                Aumento de precio
-                                            </Button>
+                                                <Button
+                                                    color='primary'
+                                                    variant='contained'
+                                                    onClick={e=>{
+                                                        seteditarPrecio('discount')
+                                                    }}
+                                                >
+                                                    Descuento de precio
+                                                </Button>
                                             </Grid>
-                                    </Grid>
+                                                <Grid item>
+                                                <Button
+                                                    color='primary'
+                                                    variant='contained'
+                                                    onClick={e=>{
+                                                        seteditarPrecio('increase')
+                                                    }}
+                                                >
+                                                    Aumento de precio
+                                                </Button>
+                                                </Grid>
+                                        </Grid>
+                                        :
+                                        null
                                 }
                             </Grid>
                         </Grid>
@@ -261,7 +267,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                     Cancelar
                 </Button>
                 <Button
-                    disabled={!producto||!cantidad}
+                    disabled={(!producto||!cantidad)||editarPrecio}
                     onClick={()=>{
                         if(edit){
                             editarProducto()
