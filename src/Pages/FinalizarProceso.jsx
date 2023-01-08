@@ -131,11 +131,13 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // ESTRUCTURA DE LA ENTREGA
         let aux={
                 fecha:obtenerFecha(),
+                proveedor:cadena[step].proveedor,
                 articulos:[{
                     cantidad:cantidad,
                     precio:precio/cantidad,
                     producto:props.cadenasActivas[id].producto,
-                    total:precio}],
+                    total:precio
+                }],
                 metodoDePago:{
                     facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
                     efectivo:efectivo?efectivo:null,

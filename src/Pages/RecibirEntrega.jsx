@@ -129,6 +129,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         let aux={
             fecha:obtenerFecha(),
             articulos:props.entregas[id].productos,
+            proveedor:props.entregas[id].proveedor,
             metodoDePago:{
                 facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
                 efectivo:efectivo?efectivo:null,

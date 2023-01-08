@@ -124,6 +124,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         // ESTRUCTURA DEL PEDIDO
         let aux={
             fecha:obtenerFecha(),
+            cliente:props.pedidos[id].cliente,
             articulos:props.pedidos[id].productos,
             metodoDePago:{
                 facturacion:props.location.props.facturacion?props.location.props.facturacion:null,

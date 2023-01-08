@@ -118,6 +118,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             freeSolo
                             value={producto}
                             options={productosList}
+                            disabled={Boolean(producto)}
                             getOptionLabel={(option) => option.nombre}
                             onChange={(e)=>{
                                 setproducto(e.target.value) 
@@ -155,7 +156,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                     <Grid container item xs={12} justify='center' spacing={3}>
                                         <Grid item>
                                             <TextField
-                                                label='% Descuento'
+                                                label={discount?'% Descuento':'% Incremento'}
                                                 type='number'
                                                 value={discount?discount:increase}
                                                 onChange={e=>{
@@ -170,7 +171,6 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                         </Grid>
                                         <Grid item>
                                             <IconButton
-                                                disabled={!discount&&!increase}
                                                 onClick={e=>{
                                                     seteditarPrecio(false)
                                                     setIncrease(undefined)

@@ -17,6 +17,7 @@ const Inicio=(props)=>{
     const [sortedVentas,setSortedVentas] = useState(undefined)
     const [value,setValue]=useState(0)
     const [sortedProductos,setSortedProductos] = useState(undefined)
+    const [sortedClientes,setSortedClientes] = useState(undefined)
     const [valueTabProductos,setValueTabProductos]=useState(0)
 
     const handleChange = (event, newValue) => {
@@ -233,7 +234,55 @@ const Inicio=(props)=>{
         return (
             <Card>
                 <CardHeader
-                    subheader='Ingresos por Producto - Historico'
+                    subheader='Ingresos por Producto - Anual'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='donut'   width={450} />
+                </CardContent>
+            </Card>)
+    }
+    const generateChartClientValue = () => {
+        const actualYear = new Date().getFullYear()
+
+        const series = [];
+        const labels = [];
+        
+        sortedClientes.map((d)=>{
+            series.push(d.total)
+            labels.push(d.nombre)
+        })
+        // Define la configuración del gráfico
+        const options = {
+            series:series,
+            labels:labels,
+            theme:{
+                mode:'dark',
+                palette:'palette2'
+            },
+            tooltip:{
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                },
+                fillSeriesColor:false
+            },
+            dataLabels:{
+                dropShadow: {
+                    enabled: true,
+                    left: 2,
+                    top: 2,
+                    opacity: 0.5
+                },
+            },
+            
+            
+        };
+    
+    
+        // Renderiza el gráfico
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Ingresos por Cliente - Anual'
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='donut'   width={450} />
@@ -277,7 +326,7 @@ const Inicio=(props)=>{
         return (
             <Card>
                 <CardHeader
-                    subheader='Unidades Vendidas - Historico'
+                    subheader='Unidades Vendidas - Anual'
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='donut'   width={450} />
@@ -724,21 +773,21 @@ const Inicio=(props)=>{
             ventas.filter(([year]) => year === (currentYear).toString()).forEach(([_, yearData]) => {
                 Object.keys(yearData.months).map((month) => {
                     yearData.months[month].ventas.map((venta,i)=>{
-                        yearData.months[month].ventas[i].articulos.map((articulo,v)=>{
+                        if(yearData.months[month].ventas[i].cliente){
                             // Verificamos si ya tenemos el producto en el array
-                            const index = data.findIndex((d) => d.producto === yearData.months[month].ventas[i].articulos[v].producto);
+                            const index = data.findIndex((d) => d.nombre === yearData.months[month].ventas[i].cliente);
                             if (index === -1) {
                                 // Si no lo encontramos, lo agregamos
-                                data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:yearData.months[month].ventas[i].articulos[v].total });
+                                data.push({ nombre: yearData.months[month].ventas[i].cliente,total:yearData.months[month].ventas[i].total });
                             } else {
                                 // Si lo encontramos, sumamos la cantidad y el total
-                                data[index].cantidad += parseInt(yearData.months[month].ventas[i].articulos[v].cantidad);
-                                data[index].total += yearData.months[month].ventas[i].articulos[v].total;
+                                data[index].total += yearData.months[month].ventas[i].total;
                             }
-                        })
+                        }
                     })
                 });
             })
+            console.log(data)
             return data
         }
     }
@@ -748,9 +797,11 @@ const Inicio=(props)=>{
         const auxSortedCompras = filtrarCompras()
         const auxSortedVentas = filtrarVentas()
         const auxSortedProductos = filtrarProductos(auxSortedVentas)
+        const auxSortedClientes = filtrarClientes(auxSortedVentas)
         setSortedCompras(auxSortedCompras)
         setSortedVentas(auxSortedVentas)
         setSortedProductos(auxSortedProductos)
+        setSortedClientes(auxSortedClientes)
 
         setLoading(false)
     },[props.compras,props.ventas])
@@ -821,6 +872,13 @@ const Inicio=(props)=>{
                                             </Grid>
                                         </Grid>
                                     </TabPanel>
+                                </Grid>
+                            </Grid>
+                            <Grid container xs={12} justify='center'>
+                                <Grid container item xs={12} md={8} justify='center'>
+                                    <Paper>
+                                        {generateChartClientValue()}
+                                    </Paper>
                                 </Grid>
                             </Grid>
                         </Grid>

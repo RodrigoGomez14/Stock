@@ -124,6 +124,58 @@ const Cliente=(props)=>{
                 </CardContent>
             </Card>)
     }
+    const generateChartProductosValue = () => {
+        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
+        const keyCliente = checkSearch(props.location.search)
+        let series = []
+        let labels = []
+        if(props.clientes[keyCliente].pedidos){
+            Object.keys(props.clientes[keyCliente].pedidos).reverse().forEach((pedido) => {
+                props.clientes[keyCliente].pedidos[pedido].articulos.map(articulo=>{
+                    const pos = labels.indexOf(articulo.producto);
+                    if (pos !== -1) {
+                    series[pos] += parseInt(articulo.total);
+                    } else {
+                    series.push(parseInt(articulo.total));
+                    labels.push(articulo.producto);
+                    }
+                })
+            });
+        }
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            chart:{
+                sparkline:{
+                    enabled:true
+                }
+            },
+            theme:{
+                mode:'dark'
+            },
+            tooltip:{
+                fillSeriesColor:false
+            },
+            tooltip:{
+                fillSeriesColor:false,
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                }
+            },
+        };
+    
+    
+        // Renderiza el gráfico
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Ingreso Historico por Producto'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='donut' width={350} />
+                </CardContent>
+            </Card>)
+    }
     const generateChartAnualSales = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
         const actualYear = new Date().getFullYear()
@@ -328,6 +380,9 @@ const Cliente=(props)=>{
                             <Grid container item xs={12} justify='center' spacing={4}>
                                 <Grid container item xs={12}>
                                     <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre} generateChartDeudas={generateChartDeudas}/>
+                                </Grid>
+                                <Grid item>
+                                        {generateChartProductosValue()}
                                 </Grid>
                                 <Grid item>
                                         {generateChartProductos()}
