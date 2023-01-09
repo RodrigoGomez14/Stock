@@ -90,20 +90,6 @@ const Inicio=(props)=>{
                     }
                 }
             }
-            if(auxSales.length<12){
-                console.log(auxSales)
-                const padding = new Array(12 - auxSales.length).fill(0);
-                padding.map(i=>{
-                    auxSales.push(i)
-                })
-            }
-            if(auxPurchases.length<12){
-                console.log(auxPurchases)
-                const padding = new Array(12 - auxPurchases.length).fill(0);
-                padding.map(i=>{
-                    auxPurchases.push(i)
-                })
-            }
             const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
             const arr1Meses = auxMeses.slice(mesInicio+1);
             const arr2Meses = auxMeses.slice(0,mesInicio+1);
@@ -185,7 +171,7 @@ const Inicio=(props)=>{
         return (
             <Card>
                 <CardHeader
-                    subheader='Compras & Ventas ultimos 12 meses'
+                    subheader='Compras & Ventas - Ultimos 12 Meses'
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area'  height={400} width={1200} />
@@ -193,7 +179,259 @@ const Inicio=(props)=>{
             </Card>
         )
     }
+    const generateChartAnualProducts = () => {
+        // Asume que tienes los datos en dos variables: sortedVentas
+        const actualYear = new Date().getFullYear()
+
+        let products = []
+        let labelsUltimoAnio =  []
+
+        if(sortedVentas){
+            const fechaActual = new Date();
+            const mesActual = fechaActual.getMonth();
+            const anioActual = fechaActual.getFullYear();
+            let auxProducts = []
+
+            const mesesDesdeUltimoAnio = 12;
+            let mesInicio = mesActual - mesesDesdeUltimoAnio;
+            let anioInicio = anioActual;
+            if (mesInicio < 0) {
+                mesInicio += 12;
+                anioInicio -= 1;
+            }
+            const initialDate = new Date(0)
+            initialDate.setFullYear(anioInicio,mesInicio,1)
+            if(sortedVentas){
+                for (const [year, data] of sortedVentas) {
+                    // Itera sobre cada mes en el año
+                    for (const [month, dataMonth] of Object.entries(data.months)) {
+                            const auxFecha = new Date(0);
+                            auxFecha.setFullYear(year, month - 1, 1);
+                            if(auxFecha>initialDate && auxFecha<fechaActual){
+                                Object.keys(dataMonth.ventas).map(venta=>{
+                                    dataMonth.ventas[venta].articulos.map(articulo=>{
+                                        let auxData = [0,0,0,0,0,0,0,0,0,0,0,0]
+                                        const index = auxProducts.findIndex((d) => d.name === articulo.producto);
+                                        if (index === -1) {
+                                            // Si no lo encontramos, lo agregamos
+                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseInt(articulo.cantidad)
+                                            auxProducts.push({ name: articulo.producto, data:auxData});
+                                        } 
+                                        else {
+                                            auxData=auxProducts[index].data
+                                            // Si lo encontramos, sumamos la cantidad y el total
+                                            if(!auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)]){
+                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = 0
+                                            }
+                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseInt(articulo.cantidad);
+                                            auxProducts[index] = {...auxProducts[index],data:auxData}
+                                        }
+
+                                    })
+                                })
+                            }
+                    }
+                }
+            }
+            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            const arr1Meses = auxMeses.slice(mesInicio+1);
+            const arr2Meses = auxMeses.slice(0,mesInicio+1);
+            arr1Meses.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+            arr2Meses.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+
+            let finalProducts = auxProducts
+            finalProducts.map(product=>{
+                const arr1Products = product.data.slice(mesInicio+1);
+                const arr2Products = product.data.slice(0,mesInicio+1);
+
+                let auxFinalData = []
+                arr1Products.map(i=>{
+                    auxFinalData.push(i)
+                })
+                arr2Products.map(i=>{
+                    auxFinalData.push(i)
+                })
+                product.data = auxFinalData
+            })
+            console.log(auxProducts)
+            products=auxProducts
+        }
+
+        const series = products
+        // Define la configuración del gráfico
+        const options = {
+            labels:labelsUltimoAnio,
+            fill: {
+            },
+            theme:{
+                mode:'dark',
+                palette:'palette6'
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            grid: {
+                row: {
+                    colors: ['#c3c3c3', 'transparent'], // takes an array which will be repeated on columns
+                    opacity: 0.5
+                },
+            },
+            tooltip:{
+            },
+            dataLabels:{
+                enabled:false
+            },
+            yaxis:{
+            }
+        };
+        
+        // Renderiza el gráfico
+
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Ventas por Producto - Ultimos 12 Meses'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='area'  height={400} width={600} />
+                </CardContent>
+            </Card>
+        )
+    }
     const generateChartAnualProductsValue = () => {
+        // Asume que tienes los datos en dos variables: sortedVentas
+        const actualYear = new Date().getFullYear()
+
+        let products = []
+        let labelsUltimoAnio =  []
+
+        if(sortedVentas){
+            const fechaActual = new Date();
+            const mesActual = fechaActual.getMonth();
+            const anioActual = fechaActual.getFullYear();
+            let auxProducts = []
+
+            const mesesDesdeUltimoAnio = 12;
+            let mesInicio = mesActual - mesesDesdeUltimoAnio;
+            let anioInicio = anioActual;
+            if (mesInicio < 0) {
+                mesInicio += 12;
+                anioInicio -= 1;
+            }
+            const initialDate = new Date(0)
+            initialDate.setFullYear(anioInicio,mesInicio,1)
+            if(sortedVentas){
+                for (const [year, data] of sortedVentas) {
+                    // Itera sobre cada mes en el año
+                    for (const [month, dataMonth] of Object.entries(data.months)) {
+                            const auxFecha = new Date(0);
+                            auxFecha.setFullYear(year, month - 1, 1);
+                            if(auxFecha>initialDate && auxFecha<fechaActual){
+                                Object.keys(dataMonth.ventas).map(venta=>{
+                                    dataMonth.ventas[venta].articulos.map(articulo=>{
+                                        let auxData = [0,0,0,0,0,0,0,0,0,0,0,0]
+                                        const index = auxProducts.findIndex((d) => d.name === articulo.producto);
+                                        if (index === -1) {
+                                            // Si no lo encontramos, lo agregamos
+                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseInt(articulo.total)
+                                            auxProducts.push({ name: articulo.producto, data:auxData});
+                                        } 
+                                        else {
+                                            auxData=auxProducts[index].data
+                                            // Si lo encontramos, sumamos la cantidad y el total
+                                            if(!auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)]){
+                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = 0
+                                            }
+                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseInt(articulo.total);
+                                            auxProducts[index] = {...auxProducts[index],data:auxData}
+                                        }
+
+                                    })
+                                })
+                            }
+                    }
+                }
+            }
+            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            const arr1Meses = auxMeses.slice(mesInicio+1);
+            const arr2Meses = auxMeses.slice(0,mesInicio+1);
+            arr1Meses.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+            arr2Meses.map(i=>{
+                labelsUltimoAnio.push(i)
+            })
+
+            let finalProducts = auxProducts
+            finalProducts.map(product=>{
+                const arr1Products = product.data.slice(mesInicio+1);
+                const arr2Products = product.data.slice(0,mesInicio+1);
+
+                let auxFinalData = []
+                arr1Products.map(i=>{
+                    auxFinalData.push(i)
+                })
+                arr2Products.map(i=>{
+                    auxFinalData.push(i)
+                })
+                product.data = auxFinalData
+            })
+            console.log(auxProducts)
+            products=auxProducts
+        }
+
+        const series = products
+        // Define la configuración del gráfico
+        const options = {
+            labels:labelsUltimoAnio,
+            fill: {
+            },
+            theme:{
+                mode:'dark',
+                palette:'palette6'
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            grid: {
+                row: {
+                    colors: ['#c3c3c3', 'transparent'], // takes an array which will be repeated on columns
+                    opacity: 0.5
+                },
+            },
+            tooltip:{
+                y:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                }
+            },
+            dataLabels:{
+                enabled:false
+            },
+            yaxis:{
+                labels:{
+                    formatter: val=> `$ ${formatMoney(val)}`
+                }
+            }
+        };
+        
+        // Renderiza el gráfico
+
+        return (
+            <Card>
+                <CardHeader
+                    subheader='Ingresos por Producto - Ultimos 12 Meses'
+                />
+                <CardContent>
+                    <ApexCharts options={options} series={series} type='area'  height={400} width={600} />
+                </CardContent>
+            </Card>
+        )
+    }
+    const generateChartProductsValue = () => {
         const actualYear = new Date().getFullYear()
 
         const series = [];
@@ -375,7 +613,7 @@ const Inicio=(props)=>{
                         dataMonth.compras.map((compra,i)=>{
                             auxSales +=1
                             const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                            series[1].data[day] = (series[0].data[day])+1
+                            series[1].data[day] = (series[1].data[day])+1
                         })
                     }
                 }
@@ -414,7 +652,7 @@ const Inicio=(props)=>{
             <Card>
                 <CardHeader
                     title={`${totalMonthSales} - ${totalMonthPurchases}`}
-                    subheader='Ventas - Compras en el mes'
+                    subheader='Ventas & Compras - Mensual'
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={275} height={100}  />
@@ -486,7 +724,7 @@ const Inicio=(props)=>{
             <Card>
                 <CardHeader
                     title={`$ ${formatMoney(totalMonth)}`}
-                    subheader='Ventas en el mes'
+                    subheader='Ventas - Mensual'
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={275} height={100} />
@@ -578,7 +816,7 @@ const Inicio=(props)=>{
             <Card>
                 <CardHeader
                     title={`$ ${formatMoney(totalMonth)}`}
-                    subheader='Iva del Mes'
+                    subheader='Iva - Mensual'
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={275} height={100} />
@@ -655,7 +893,7 @@ const Inicio=(props)=>{
             <Card>
                 <CardHeader
                     title={`$ ${formatMoney(auxBalance)}`}
-                    subheader='Balance Del Mes'
+                    subheader='Balance - Mensual'
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={275} height={100} />
@@ -787,7 +1025,6 @@ const Inicio=(props)=>{
                     })
                 });
             })
-            console.log(data)
             return data
         }
     }
@@ -839,46 +1076,91 @@ const Inicio=(props)=>{
                                     </Paper>
                                 </Grid>
                             </Grid>
-                            <Grid container xs={12} justify='center'>
+                            <Grid container xs={12} justify='center' spacing={3}>
                                 <Grid container item xs={12} md={8} justify='center'>
                                     <Paper>
                                         {generateChartAnualSales()}
                                     </Paper>
                                 </Grid>
-                            </Grid>
-                            <Grid container item xs={12} justify='center'>
-                                <Grid item>
-                                    <AppBar position="static">
-                                        <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                                            <Tab label="Valor" />
-                                            <Tab label="Cantidad" />
-                                        </Tabs>
-                                    </AppBar>
-                                    <TabPanel value={value}  index={0}>
-                                        <Grid container spacing={3}>
-                                            <Grid item>
-                                                <Paper>
-                                                    {generateChartAnualProductsValue()}
-                                                </Paper>
-                                            </Grid>
-                                        </Grid>
-                                    </TabPanel>
-                                    <TabPanel value={value}  index={1}>
-                                        <Grid container spacing={3}>
-                                            <Grid item>
-                                                <Paper>
-                                                    {generateChartAnualProductsUnits()}
-                                                </Paper>
-                                            </Grid>
-                                        </Grid>
-                                    </TabPanel>
+                                <Grid container item xs={12} md={6} justify='center'>
+                                    <Paper>
+                                        {generateChartAnualProductsValue()}
+                                    </Paper>
+                                </Grid>
+                                <Grid container item xs={12} md={6} justify='center'>
+                                    <Paper>
+                                        {generateChartAnualProducts()}
+                                    </Paper>
                                 </Grid>
                             </Grid>
-                            <Grid container xs={12} justify='center'>
-                                <Grid container item xs={12} md={8} justify='center'>
-                                    <Paper>
-                                        {generateChartClientValue()}
-                                    </Paper>
+                            <Grid container item xs={12} justify='center' spacing={3}>
+                                <Grid item>
+                                    <Card>
+                                        <CardHeader
+                                            title={
+                                                <AppBar position="static">
+                                                    <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                                                        <Tab label="Valor" />
+                                                        <Tab label="Cantidad" />
+                                                    </Tabs>
+                                                </AppBar>
+                                            }
+                                        />
+                                        <CardContent>
+                                            <TabPanel value={value}  index={0}>
+                                                <Grid container spacing={3}>
+                                                    <Grid item>
+                                                        <Paper>
+                                                            {generateChartProductsValue()}
+                                                        </Paper>
+                                                    </Grid>
+                                                </Grid>
+                                            </TabPanel>
+                                            <TabPanel value={value}  index={1}>
+                                                <Grid container spacing={3}>
+                                                    <Grid item>
+                                                        <Paper>
+                                                            {generateChartAnualProductsUnits()}
+                                                        </Paper>
+                                                    </Grid>
+                                                </Grid>
+                                            </TabPanel>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                                <Grid item>
+                                    <Card>
+                                        <CardHeader
+                                            title={
+                                                <AppBar position="static">
+                                                    <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                                                        <Tab label="Valor" />
+                                                        <Tab label="Cantidad" />
+                                                    </Tabs>
+                                                </AppBar>
+                                            }
+                                        />
+                                        <CardContent>
+                                            <TabPanel value={value}  index={0}>
+                                                <Grid container spacing={3}>
+                                                    <Grid item>
+                                                        <Paper>
+                                                            {generateChartClientValue()}
+                                                        </Paper>
+                                                    </Grid>
+                                                </Grid>
+                                            </TabPanel>
+                                            <TabPanel value={value}  index={1}>
+                                                <Grid container spacing={3}>
+                                                    <Grid item>
+                                                        <Paper>
+                                                            {generateChartAnualProductsUnits()}
+                                                        </Paper>
+                                                    </Grid>
+                                                </Grid>
+                                            </TabPanel>
+                                        </CardContent>
+                                    </Card>
                                 </Grid>
                             </Grid>
                         </Grid>
