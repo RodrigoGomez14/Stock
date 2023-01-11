@@ -46,6 +46,10 @@ const Cliente=(props)=>{
                     labels.push(props.clientes[keyCliente].pagos[pago].fecha)
                 }
             })
+            if(deudas.length==1){
+                let auxdeudas= [props.clientes[keyCliente].datos.deuda!=0?props.clientes[keyCliente].datos.deuda:0,...deudas]
+                deudas=auxdeudas
+            }
         }
     
         // Define la configuración del gráfico

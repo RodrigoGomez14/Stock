@@ -37,7 +37,7 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
     return(
         <Grid item xs={11} sm={8} md={6} lg={4} className={getClassNameSearch()}>
             <Card>
-                <Paper elevation={3} className={classes.cardPedidoHeader}>
+                <Paper elevation={6} className={classes.cardPedidoHeader}>
                     <CardHeader
                         className={classes.header}
                         action={
