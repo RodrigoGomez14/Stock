@@ -137,6 +137,9 @@ const Inicio=(props)=>{
             labels:labelsUltimoAnio,
             fill: {
             },
+            chart:{
+                
+            },
             theme:{
                 mode:'dark',
                 palette:'palette6'
@@ -167,14 +170,17 @@ const Inicio=(props)=>{
         const series=[
         {
             name:'Ventas',
+            type:'line',
             data:sales
         },
         {
             name:'Compras',
+            type:'line',
             data:purchases
         },
         {
             name:'Balance',
+            type:'area',
             data:dif
         },
         ]
@@ -186,7 +192,7 @@ const Inicio=(props)=>{
                     subheader='Compras & Ventas - Ultimos 12 Meses'
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area'  height={400} width={1200} />
+                    <ApexCharts options={options} series={series}  height={400} width={1200} />
                 </CardContent>
             </Card>
         )
@@ -293,6 +299,9 @@ const Inicio=(props)=>{
             labels:labelsUltimoAnio,
             fill: {
             },
+            chart:{
+                
+            },
             theme:{
                 mode:'dark',
                 palette:'palette6'
@@ -323,14 +332,17 @@ const Inicio=(props)=>{
         const series=[
         {
             name:'Iva Ventas',
+            type:'line',
             data:sales
         },
         {
             name:'Iva Compras',
+            type:'line',
             data:purchases
         },
         {
             name:'Balance',
+            type:'area',
             data:dif
         },
         ]
@@ -342,7 +354,7 @@ const Inicio=(props)=>{
                     subheader='Iva Compras & Ventas - Ultimos 12 Meses'
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area'  height={400} width={1200} />
+                    <ApexCharts options={options} series={series}  height={400} width={1200} />
                 </CardContent>
             </Card>
         )
@@ -435,6 +447,9 @@ const Inicio=(props)=>{
             labels:labelsUltimoAnio,
             fill: {
             },
+            chart:{
+                
+            },
             theme:{
                 mode:'dark',
                 palette:'palette6'
@@ -465,7 +480,7 @@ const Inicio=(props)=>{
                     subheader='Ventas por Producto - Ultimos 12 Meses'
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area'  height={400} width={600} />
+                    <ApexCharts options={options} series={series} type='line'  height={400} width={600} />
                 </CardContent>
             </Card>
         )
@@ -570,6 +585,9 @@ const Inicio=(props)=>{
             labels:labelsUltimoAnio,
             fill: {
             },
+            chart:{
+                
+            },
             theme:{
                 mode:'dark',
                 palette:'palette6'
@@ -606,7 +624,7 @@ const Inicio=(props)=>{
                     subheader='Ingresos por Producto - Ultimos 12 Meses'
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area'  height={400} width={600} />
+                    <ApexCharts options={options} series={series} type='line'  height={400} width={600} />
                 </CardContent>
             </Card>
         )
@@ -817,6 +835,7 @@ const Inicio=(props)=>{
                 sparkline: {
                     enabled: true
                 },
+                
             },
             
         };
@@ -1061,6 +1080,7 @@ const Inicio=(props)=>{
                 sparkline: {
                     enabled: true
                 },
+                
             },
             tooltip:{
                 y:{

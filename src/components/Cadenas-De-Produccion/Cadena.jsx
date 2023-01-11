@@ -8,7 +8,7 @@ import {content} from '../../Pages/styles/styles'
 import { checkSearch } from '../../utilities'
 
 
-export const Cadena = ({cadena,id,iniciarProceso}) =>{
+export const Cadena = ({cadena,id,iniciarProceso,generateChartCadena}) =>{
     const classes = content()
     
     const [expanded,setExpanded] = useState(false)
@@ -48,6 +48,7 @@ export const Cadena = ({cadena,id,iniciarProceso}) =>{
                 />
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
+                        {generateChartCadena(id)}
                         <Stepper activeStep={getStep()} alternativeLabel>
                             {cadena.procesos.map((proceso,i) => (
                                 <Step key={proceso.proceso}>
