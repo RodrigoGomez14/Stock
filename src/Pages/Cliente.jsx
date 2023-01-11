@@ -138,10 +138,22 @@ const Cliente=(props)=>{
                 props.clientes[keyCliente].pedidos[pedido].articulos.map(articulo=>{
                     const pos = labels.indexOf(articulo.producto);
                     if (pos !== -1) {
-                    series[pos] += parseInt(articulo.total);
-                    } else {
-                    series.push(parseInt(articulo.total));
-                    labels.push(articulo.producto);
+                        if(props.clientes[keyCliente].pedidos[pedido].metodoDePago.facturacion){
+                            series[pos] += parseInt(articulo.total/1.21);
+                        }
+                        else{
+                            series[pos] += parseInt(articulo.total);
+                        }
+                    } 
+                    else {
+                        if(props.clientes[keyCliente].pedidos[pedido].metodoDePago.facturacion){
+                            series.push(parseInt(articulo.total/1.21));
+                            labels.push(articulo.producto);
+                        }
+                        else{
+                            series.push(parseInt(articulo.total));
+                            labels.push(articulo.producto);
+                        }
                     }
                 })
             });

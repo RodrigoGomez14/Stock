@@ -505,8 +505,14 @@ const Inicio=(props)=>{
                                         const index = auxProducts.findIndex((d) => d.name === articulo.producto);
                                         if (index === -1) {
                                             // Si no lo encontramos, lo agregamos
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseInt(articulo.total)
-                                            auxProducts.push({ name: articulo.producto, data:auxData});
+                                            if(dataMonth.ventas[venta].metodoDePago.facturacion){
+                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseInt(articulo.total/1.21)
+                                                auxProducts.push({ name: articulo.producto, data:auxData});
+                                            }
+                                            else{
+                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseInt(articulo.total/1.21)
+                                                auxProducts.push({ name: articulo.producto, data:auxData});
+                                            }
                                         } 
                                         else {
                                             auxData=auxProducts[index].data
@@ -514,8 +520,14 @@ const Inicio=(props)=>{
                                             if(!auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)]){
                                                 auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = 0
                                             }
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseInt(articulo.total);
-                                            auxProducts[index] = {...auxProducts[index],data:auxData}
+                                            if(dataMonth.ventas[venta].metodoDePago.facturacion){
+                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseInt(articulo.total/1.21);
+                                                auxProducts[index] = {...auxProducts[index],data:auxData}
+                                            }
+                                            else{
+                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseInt(articulo.total);
+                                                auxProducts[index] = {...auxProducts[index],data:auxData}
+                                            }
                                         }
 
                                     })
@@ -1252,11 +1264,22 @@ const Inicio=(props)=>{
                             const index = data.findIndex((d) => d.producto === yearData.months[month].ventas[i].articulos[v].producto);
                             if (index === -1) {
                                 // Si no lo encontramos, lo agregamos
-                                data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:yearData.months[month].ventas[i].articulos[v].total });
+                                if(yearData.months[month].ventas[i].metodoDePago.facturacion){
+                                    data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:(yearData.months[month].ventas[i].articulos[v].total/1.21) });
+                                }
+                                else{
+                                    data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:yearData.months[month].ventas[i].articulos[v].total });
+                                }
                             } else {
-                                // Si lo encontramos, sumamos la cantidad y el total
-                                data[index].cantidad += parseInt(yearData.months[month].ventas[i].articulos[v].cantidad);
-                                data[index].total += yearData.months[month].ventas[i].articulos[v].total;
+                                if(yearData.months[month].ventas[i].metodoDePago.facturacion){
+                                    data[index].cantidad += parseInt(yearData.months[month].ventas[i].articulos[v].cantidad);
+                                    data[index].total += (yearData.months[month].ventas[i].articulos[v].total/1.21);
+                                }
+                                else{
+                                    // Si lo encontramos, sumamos la cantidad y el total
+                                    data[index].cantidad += parseInt(yearData.months[month].ventas[i].articulos[v].cantidad);
+                                    data[index].total += yearData.months[month].ventas[i].articulos[v].total;
+                                }
                             }
                         })
                     })
@@ -1277,11 +1300,22 @@ const Inicio=(props)=>{
                             // Verificamos si ya tenemos el producto en el array
                             const index = data.findIndex((d) => d.nombre === yearData.months[month].ventas[i].cliente);
                             if (index === -1) {
+                                if(yearData.months[month].ventas[i].metodoDePago.facturacion){
+                                    data.push({ nombre: yearData.months[month].ventas[i].cliente,total:(yearData.months[month].ventas[i].total/1.21) });
+                                }
+                                else{
+                                    data.push({ nombre: yearData.months[month].ventas[i].cliente,total:yearData.months[month].ventas[i].total });
+                                }
                                 // Si no lo encontramos, lo agregamos
-                                data.push({ nombre: yearData.months[month].ventas[i].cliente,total:yearData.months[month].ventas[i].total });
-                            } else {
-                                // Si lo encontramos, sumamos la cantidad y el total
-                                data[index].total += yearData.months[month].ventas[i].total;
+                            } 
+                            else {
+                                if(yearData.months[month].ventas[i].metodoDePago.facturacion){
+                                    data[index].total += (yearData.months[month].ventas[i].total/1.21);
+                                }
+                                else{
+                                    // Si lo encontramos, sumamos la cantidad y el total
+                                    data[index].total += yearData.months[month].ventas[i].total;
+                                }
                             }
                         }
                     })
