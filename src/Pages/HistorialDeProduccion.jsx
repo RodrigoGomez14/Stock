@@ -8,7 +8,7 @@ import {DialogConfirmDelete} from '../components/Cliente/DialogConfirmDelete'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
-import {Cadena} from '../components/Cadenas-De-Produccion/Cadena'
+import {Cadena} from '../components/Historial-De-Produccion/Cadena'
 import {checkSearch,checkSearchProducto} from '../utilities'
 import ApexCharts from 'react-apexcharts';
 import Empty from '../images/Empty.png'

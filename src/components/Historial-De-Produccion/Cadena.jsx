@@ -1,14 +1,14 @@
 import React,{useState} from 'react'
 import {Grid,Card,CardHeader,CardContent,Collapse,Stepper,Step,StepLabel,IconButton,List,ListItemText,ListItem} from '@material-ui/core'
 import {ExpandMore,ExpandLess} from '@material-ui/icons'
-import {CardStep} from './CardStep'
+import {CardStep} from '../Cadenas-De-Produccion/CardStep'
 import {Link} from 'react-router-dom'
 import {Alert} from '@material-ui/lab'
 import {content} from '../../Pages/styles/styles'
 import { checkSearch } from '../../utilities'
 
 
-export const Cadena = ({cadena,id,iniciarProceso}) =>{
+export const Cadena = ({cadena,id,iniciarProceso,generateChartCadena}) =>{
     const classes = content()
     
     const [expanded,setExpanded] = useState(false)
@@ -48,6 +48,7 @@ export const Cadena = ({cadena,id,iniciarProceso}) =>{
                 />
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
+                        {generateChartCadena(id)}
                         <Stepper activeStep={getStep()} alternativeLabel>
                             {cadena.procesos.map((proceso,i) => (
                                 <Step key={proceso.proceso}>
