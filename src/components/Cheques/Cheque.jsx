@@ -7,7 +7,7 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGrupo}) =>{
+export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGrupo,guardarEnCuentaDeBanco}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -75,7 +75,16 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                                 </MenuItem>
                                                 :
                                                 null
-                                        }
+                                            }
+                                            {!cheque.destinatario?
+                                                <MenuItem onClick={()=>{
+                                                    guardarEnCuentaDeBanco(id)
+                                                }}>
+                                                    Depositar en Cuenta
+                                                </MenuItem>
+                                                :
+                                                null
+                                            }
                                         </Menu>
                                     </>
                                 }
@@ -113,7 +122,7 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                     {cheque.destinatario?
                                         <Grid container item xs={12}>
                                             <Alert variant="filled" severity="success" className={classes.alertCheque}>
-                                                Entregado a <Link 
+                                                {cheque.destinatario=='Cuenta Bancaria'?'Depositado en':'Entregado a'} <Link 
                                                                 style={{color:'#fff',textDecoration:'none'}}
                                                                 className={classes.textWhite}
                                                                 to={{pathname:'/Proveedor',search:`${cheque.destinatario}`}
