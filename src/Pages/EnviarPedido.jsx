@@ -200,18 +200,8 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         const articulos = props.pedidos[id].productos
         // RECORRE LOS ARTICULOS DEL PEDIDO
         articulos.map(async articulo=>{
-            // RECORRE LOS ARTICULOS DE LOS PRODUCTOS COMPUESTOS
-            if(props.productos[articulo.producto].composicion){
-                props.productos[articulo.producto].composicion.map(async producto=>{
-                    const nuevaCantidad = props.productos[producto].cantidad-articulo.cantidad
-                    await database().ref().child(props.user.uid).child('productos').child(producto).update({cantidad:nuevaCantidad})
-                })
-            }
-            // DESCUENTA LA CANTIDAD DE PRODUCTOS SIMPLES
-            else{
-                const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)-parseInt(articulo.cantidad)
-                await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
-            }
+            const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)-parseInt(articulo.cantidad)
+            await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
         })
     }
     const guardarCheques =() =>{

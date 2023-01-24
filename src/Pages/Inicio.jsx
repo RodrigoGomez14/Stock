@@ -6,7 +6,7 @@ import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader
 import {Alert} from '@material-ui/lab'
 import Home from '../images/Home.png'
 import ApexCharts from 'react-apexcharts';
-import {formatMoney} from '../utilities'
+import {formatMoney,getActualMonthDetailed} from '../utilities'
 
 //COMPONENT
 const Inicio=(props)=>{
@@ -287,10 +287,10 @@ const Inicio=(props)=>{
                 purchases.push(i)
             })
             sales.map(sale=>{
-                dif.push(sale)
+                dif.push(-sale)
             })
             purchases.map((purchase,i)=>{
-                dif[i]-=purchase
+                dif[i]+=purchase
             })
 
         }
@@ -769,7 +769,7 @@ const Inicio=(props)=>{
                 </CardContent>
             </Card>)
     }
-    const generateChartMonthSalesUnits = () => {
+        const generateChartMonthSalesUnits = () => {
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
         const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
@@ -854,7 +854,7 @@ const Inicio=(props)=>{
             <Card>
                 <CardHeader
                     title={`${totalMonthSales} - ${totalMonthPurchases}`}
-                    subheader='Ventas & Compras - Mensual'
+                    subheader={`Ventas & Compras - ${getActualMonthDetailed()}`}
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={200} height={100}  />
@@ -927,7 +927,7 @@ const Inicio=(props)=>{
             <Card>
                 <CardHeader
                     title={`$ ${formatMoney(totalMonth)}`}
-                    subheader='Ventas - Mensual'
+                    subheader={`Ventas - ${getActualMonthDetailed()}`}
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={200} height={100} />
@@ -998,7 +998,7 @@ const Inicio=(props)=>{
             <Card>
                 <CardHeader
                     title={`$ ${formatMoney(totalMonth)}`}
-                    subheader='Compras - Mensual'
+                    subheader={`Compras - ${getActualMonthDetailed()}`}
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={200} height={100} />
@@ -1011,28 +1011,26 @@ const Inicio=(props)=>{
         const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
         const series = [
             {
-            name: 'Iva Ventas',
+            name: 'Balance IVA',
             data: Array.from({ length: daysInMonth }, () => 0),
-            },
-            {
-            name: 'Iva Compras',
-            data: Array.from({ length: daysInMonth }, () => 0),
+            type:'area'
             },
         ];
         
-    
+    let auxData=[
+        Array.from({ length: daysInMonth }, () => 0),
+        Array.from({ length: daysInMonth }, () => 0)
+    ]
         if(sortedVentas){
             for (const [year, data] of sortedVentas) {
                 // Itera sobre cada mes en el año
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
-                            let auxSales= 0
                             dataMonth.ventas.map((venta,i)=>{
-                                auxSales +=1
                                 const day = dataMonth.ventas[i].fecha.split('/')[0]-1
                                 if(dataMonth.ventas[i].metodoDePago.facturacion){
-                                    series[0].data[day] = (series[0].data[day])+dataMonth.ventas[i].total-(dataMonth.ventas[i].total/1.21)
+                                    auxData[0][day] = (auxData[0][day])+dataMonth.ventas[i].total-(dataMonth.ventas[i].total/1.21)
                                 }
                             })
                         }
@@ -1046,12 +1044,10 @@ const Inicio=(props)=>{
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
-                            let auxSales= 0
                             dataMonth.compras.map((venta,i)=>{
-                                auxSales +=1
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
                                 if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    series[1].data[day] = (series[1].data[day]) + ((parseInt(dataMonth.compras[i].total)) - (parseInt(dataMonth.compras[i].total)/1.21))
+                                    auxData[1][day] = (auxData[1][day]) + ((parseInt(dataMonth.compras[i].total)) - (parseInt(dataMonth.compras[i].total)/1.21))
                                 }
                             })
                         }
@@ -1060,11 +1056,22 @@ const Inicio=(props)=>{
             }
         }
         let totalMonth = 0
-        series[0].data.map(i=>{
-            totalMonth+=i
+        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
+        auxData[0].map((val,i)=>{
+            auxBalance[i]-=val
+            totalMonth-=val
         })
-        series[1].data.map(i=>{
-            totalMonth-=i
+        auxData[1].map((val,i)=>{
+            auxBalance[i]+=val
+            totalMonth+=val
+        })
+        auxBalance.map((val,i)=>{
+            if(i==0){
+                series[0].data[i] = val
+            }
+            else{
+                series[0].data[i]= series[0].data[i-1] + val
+            }
         })
         // Define la configuración del gráfico
         const options = {
@@ -1077,6 +1084,7 @@ const Inicio=(props)=>{
                 curve: 'smooth'
             },
             chart:{
+                background:'transparent',
                 sparkline: {
                     enabled: true
                 },
@@ -1091,13 +1099,13 @@ const Inicio=(props)=>{
 
         // Renderiza el gráfico
         return (
-            <Card>
+            <Card className={totalMonth>=0?classes.cardBgGreen:classes.cardBgRed}>
                 <CardHeader
                     title={`$ ${formatMoney(totalMonth)}`}
-                    subheader='Iva - Mensual'
+                    subheader={`Iva - ${getActualMonthDetailed()}`}
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={200} height={100} />
+                    <ApexCharts options={options} series={series} width={200} height={100} />
                 </CardContent>
             </Card>)
     }
@@ -1171,6 +1179,7 @@ const Inicio=(props)=>{
                 curve: 'smooth'
             },
             chart:{
+                background:'transparent',
                 sparkline: {
                     enabled: true
                 },
@@ -1184,11 +1193,10 @@ const Inicio=(props)=>{
 
         // Renderiza el gráfico
         return (
-            <Card>
+            <Card className={auxBalance>0?classes.cardBgGreen:classes.cardBgRed}>
                 <CardHeader
                     title={`$ ${formatMoney(auxBalance)}`}
-                    subheader='Balance - Mensual'
-                />
+                    subheader={`Balance - ${getActualMonthDetailed()}`}                />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={200} height={100} />
                 </CardContent>

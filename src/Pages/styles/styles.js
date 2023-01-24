@@ -2,6 +2,12 @@ import {CardHeader, makeStyles,Paper} from '@material-ui/core'
 
 //STYLES
 export const content =makeStyles(theme=>({
+    cardBgGreen:{
+        backgroundColor:theme.palette.success.main
+    },
+    cardBgRed:{
+        backgroundColor:theme.palette.danger.main
+    },
     //LAYOUT
     content: {
         flexGrow: 1,

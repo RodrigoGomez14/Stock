@@ -65,7 +65,7 @@ const NuevoProducto=(props)=>{
         case 2:
             return (
             <StepComponent 
-                tipoDeDato='Subproductos'
+                tipoDeDato='Componentes'
                 subproductos={subproductos}
                 setSubproductos={setSubproductos}
                 subproductosList={getSubproductosList(props.productos)}
@@ -94,8 +94,7 @@ const NuevoProducto=(props)=>{
         }
     }
     function getSteps() {
-        //return ['Detalles', 'Producto Compuesto' , 'Cadena De Produccion' ];
-        return ['Detalles','Cadena De Produccion','Subproductos' ];
+        return ['Detalles','Cadena De Produccion','Componentes' ];
     }
 
     // FUNCTIONS

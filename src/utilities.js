@@ -75,6 +75,9 @@ export const getActualMonth = (date) =>{
     return new Date().getMonth()+1
   }
 }
+export const getActualMonthDetailed = (date) =>{
+    return monthsList[new Date().getMonth()]
+}
 
 // OBTENER LISTA DE PRODUCTOS Y SUBPRODUCTOS
 export const getProductosList = (productos) =>{

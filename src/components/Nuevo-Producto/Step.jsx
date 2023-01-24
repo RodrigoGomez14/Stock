@@ -115,7 +115,7 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={cadenaDeProduccion} setDatos={setcadenaDeProduccion} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Proceso'/>
                     </Grid>
                 )
-            case 'Subproductos': 
+            case 'Componentes': 
                 return(
                     <Grid container item xs={12} justify='center' spacing={3}>
                         <Grid container item xs={12} justify='center' >
@@ -130,7 +130,7 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                             :
                             <Grid container xs={12} justify='center' spacing={2}>
                                 <Grid container item xs={12} justify='center'>
-                                    <Typography variant='h5'>No Posee Subproductos</Typography>
+                                    <Typography variant='h5'>No Posee Componentes</Typography>
                                 </Grid>
                                 <Grid item>
                                     <img src={Empty} alt="" height='200px'/>

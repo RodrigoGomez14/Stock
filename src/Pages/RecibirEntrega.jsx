@@ -177,12 +177,12 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                 setLoading(false)
             })
     }
-    const aumentarProductos = articulos =>{
+    const aumentarProductos = async articulos =>{
         const aux = articulos
         // RECORRE LOS ARTICULOS DEL PEDIDO
-        aux.map((articulo)=>{
+        aux.map(async (articulo)=>{
                 const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)+parseInt(articulo.cantidad)
-                database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
+                await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
         })
     }
     const actualizarCheques =() =>{

@@ -46,11 +46,11 @@ const Proveedor=(props)=>{
                     deudas.push(props.proveedores[keyProveedor].pagos[pago].deudaActualizada)
                     labels.push(props.proveedores[keyProveedor].pagos[pago].fecha)
                 }
-                if(deudas.length==1){
-                    let auxdeudas= [props.proveedores[keyProveedor].datos.deuda!=0?props.proveedores[keyProveedor].datos.deuda:0,...deudas]
-                    deudas=auxdeudas
-                }
             })
+            if(deudas.length==1){
+                let auxdeudas= [props.proveedores[keyProveedor].datos.deuda!=0?props.proveedores[keyProveedor].datos.deuda:0,...deudas]
+                deudas=auxdeudas
+            }
         }
         // Define la configuración del gráfico
         const options = {
