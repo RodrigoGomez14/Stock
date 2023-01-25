@@ -1,7 +1,7 @@
 import React from 'react'
 import {auth} from 'firebase'
 import {Card,CardMedia,Drawer,List,makeStyles,ListItem,IconButton,ListItemIcon,ListItemText,Divider} from '@material-ui/core'
-import {ContactMailOutlined,MoveToInboxOutlined,Home,List as ListIcon,ExitToAppOutlined,Link as LinkIcon,AttachMoneyOutlined,LocalShippingOutlined,ChevronRight,LocalAtmOutlined,ShoppingCartOutlined} from '@material-ui/icons'
+import {MoveToInbox,Home,List as ListIcon,ExitToApp,Link as LinkIcon,AccountBalanceWallet,LocalShipping,ChevronRight,LocalAtm,ShoppingCart, AccountBalance, Contacts} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import logo from '../images/logo.png'
 import clsx from 'clsx';
@@ -140,7 +140,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                 <Link className={classes.link} to='/Pedidos'>
                     <ListItem button key={'Pedidos'} selected={checkSelected('Pedidos',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <MoveToInboxOutlined/>
+                            <MoveToInbox/>
                         </ListItemIcon>
                         <ListItemText primary={'Pedidos'} />
                     </ListItem>
@@ -149,7 +149,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                 <Link className={classes.link} to='/Entregas'>
                     <ListItem button key={'Entregas'} selected={checkSelected('Entregas',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <MoveToInboxOutlined/>
+                            <MoveToInbox/>
                         </ListItemIcon>
                         <ListItemText primary={'Entregas'} />
                     </ListItem>
@@ -158,7 +158,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                 <Link className={classes.link} to='/Clientes'>
                     <ListItem button key={'Clientes'} selected={checkSelected('Clientes',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <ContactMailOutlined/>
+                            <Contacts/>
                         </ListItemIcon>
                         <ListItemText primary={'Clientes'} />
                     </ListItem>
@@ -167,7 +167,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                 <Link className={classes.link} to='/Proveedores'>
                     <ListItem button key={'Proveedores'} selected={checkSelected('Proveedores',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <ContactMailOutlined/>
+                            <Contacts/>
                         </ListItemIcon>
                         <ListItemText primary={'Proveedores'} />
                     </ListItem>
@@ -176,7 +176,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                 <Link className={classes.link} to='/Expresos'>
                     <ListItem button key={'Expresos'} selected={checkSelected('Expresos',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <LocalShippingOutlined/>
+                            <LocalShipping/>
                         </ListItemIcon>
                         <ListItemText primary={'Expresos'} />
                     </ListItem>
@@ -185,7 +185,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
             <Link className={classes.link} to='/Deudas'>
                 <ListItem button key={'Deudas'} selected={checkSelected('Deudas',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <AttachMoneyOutlined/>
+                            <AccountBalanceWallet/>
                         </ListItemIcon>
                         <ListItemText primary={'Deudas'} />
                     </ListItem>
@@ -194,18 +194,18 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
             <Link className={classes.link} to='/Cheques'>
                 <ListItem button key={'Cheques'} selected={checkSelected('Cheques',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <LocalAtmOutlined/>
+                            <LocalAtm/>
                         </ListItemIcon>
                         <ListItemText primary={'Cheques'} />
                     </ListItem>
                 </Link>
             <Divider />
-            <Link className={classes.link} to='/IVA'>
-                <ListItem button key={'IVA'} selected={checkSelected('IVA',history.location.pathname.slice(1))}>
+            <Link className={classes.link} to='/Cuentas-Bancarias'>
+                <ListItem button key={'Cuentas Bancarias'} selected={checkSelected('Cuentas-Bancarias',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <LocalAtmOutlined/>
+                            <AccountBalance/>
                         </ListItemIcon>
-                        <ListItemText primary={'IVA'} />
+                        <ListItemText primary={'Cuentas Bancarias'} />
                     </ListItem>
                 </Link>
             <Divider />
@@ -224,7 +224,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                 <Link className={classes.link} to='/Nuevo-Pedido'>
                     <ListItem button key={'Nuevo Pedido'} selected={checkSelected('Nuevo-Pedido',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <ShoppingCartOutlined/>
+                            <ShoppingCart/>
                         </ListItemIcon>
                         <ListItemText  primary={'Nuevo Pedido'} />
                     </ListItem> 
@@ -233,7 +233,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                 <Link className={classes.link} to='/Nueva-Entrega'>
                     <ListItem button key={'Nueva Entrega'} selected={checkSelected('Nueva-Entrega',history.location.pathname.slice(1))}>
                         <ListItemIcon>
-                            <ShoppingCartOutlined/>
+                            <ShoppingCart/>
                         </ListItemIcon>
                         <ListItemText  primary={'Nueva Entrega'} />
                     </ListItem>    
@@ -244,7 +244,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                     auth().signOut()
                 }} >
                     <ListItemIcon>
-                        <ExitToAppOutlined color='error'/>
+                        <ExitToApp color='error'/>
                     </ListItemIcon>
                     <ListItemText  primary={'Cerrar sesion'} />
                 </ListItem>    
