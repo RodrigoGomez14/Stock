@@ -6,7 +6,7 @@ const CardCuentaBancaria=({cuenta})=>{
     const classes = content()
     
     return(
-        <Grid container item xs={12} justify='center'>
+        <Grid item>
             <Card>
                 <CardHeader
                     title={cuenta}

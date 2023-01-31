@@ -37,6 +37,7 @@ import CadenasDeProduccion from './Pages/CadenasDeProduccion';
 import HistorialDeProduccion from './Pages/HistorialDeProduccion';
 import FinalizarProceso from './Pages/FinalizarProceso';
 import CuentasBancarias from './Pages/CuentasBancarias';
+import DepositarCheque from './Pages/DepositarCheque';
 
 let store 
 let data
@@ -145,7 +146,10 @@ class App extends Component {
                     <Route exact path='/Nuevo-Expreso' component={NuevoExpreso}/>
                     <Route exact path='/Editar-Expreso' component={NuevoExpreso}/>
                     <Route exact path='/Deudas' component={Deudas}/>
+                    
                     <Route exact path='/Cheques' component={Cheques}/>
+                    <Route exact path='/Depositar-Cheque' component={DepositarCheque}/>
+
                     <Route exact path='/Productos' component={Productos}/>
                     <Route exact path='/Nuevo-Producto' component={NuevoProducto}/>
                     <Route exact path='/Editar-Producto' component={NuevoProducto}/>

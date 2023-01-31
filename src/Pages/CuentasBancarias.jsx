@@ -31,11 +31,13 @@ const CuentasBancarias=(props)=>{
                     </Grid>
 
                     {/* CLIENT LIST */}
-                    <Grid container item xs={12} justify='center' alignItems='center' spacing={2} >
+                    <Grid container item xs={12} spacing={2} >
                         {props.CuentasBancarias?
-                            Object.keys(props.CuentasBancarias).map(key=>(
-                                <CardCuentaBancaria cuenta={key}/>
-                            ))
+                            <Grid container xs={12} justify='space-around'>
+                                {Object.keys(props.CuentasBancarias).map(key=>(
+                                    <CardCuentaBancaria cuenta={key}/>
+                                ))}
+                            </Grid>
                             :
                             <>
                                 <Grid item>
