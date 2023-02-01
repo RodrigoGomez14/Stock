@@ -769,7 +769,7 @@ const Inicio=(props)=>{
                 </CardContent>
             </Card>)
     }
-        const generateChartMonthSalesUnits = () => {
+    const generateChartMonthSalesUnits = () => {
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
         const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
@@ -1055,6 +1055,7 @@ const Inicio=(props)=>{
                 }
             }
         }
+
         let totalMonth = 0
         let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
         auxData[0].map((val,i)=>{
@@ -1073,6 +1074,7 @@ const Inicio=(props)=>{
                 series[0].data[i]= series[0].data[i-1] + val
             }
         })
+        
         // Define la configuración del gráfico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
@@ -1275,7 +1277,8 @@ const Inicio=(props)=>{
             });
         
             const sortedVentas = Object.entries(yearsVentas).sort(([year1], [year2]) => year2 - year1);
-        
+            console.log(sortedVentas)
+
             return sortedVentas
         }
     }

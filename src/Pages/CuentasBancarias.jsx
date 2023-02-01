@@ -25,7 +25,7 @@ const CuentasBancarias=(props)=>{
                     <Grid container item xs={12} justify='center' alignItems='center'>
                         <Grid item>
                             <Link 
-                                to='/Nuevo-Cliente'>
+                                to='/Nueva-Cuenta-Bancaria'>
                                 <IconButton>
                                     <PersonAdd/>
                                 </IconButton>

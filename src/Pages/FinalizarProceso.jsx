@@ -15,12 +15,17 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
     const classes = content()
 
     const [cheques,setcheques]=useState([])
-    const [efectivo,setEfectivo]=useState(undefined)
     const [total, settotal] = useState(0);
+
+    const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
+    const [totalTransferencia, setTotalTransferencia] = useState(undefined);
+
+    const [efectivo,setEfectivo]=useState(undefined)
 
     const [precio, setPrecio] = useState(undefined);
     const [cantidad, setCantidad] = useState(props.cadenasActivas[props.location.search.slice(1)].cantidad?props.cadenasActivas[props.location.search.slice(1)].cantidad:undefined);
 
+    const [facturacion, setFacturacion] = useState(props.location.props.facturacion?props.location.props.facturacion:null);
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -50,6 +55,17 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
           case 1:
             return (
               <StepComponent
+                  tipoDeDato='Transferencia'
+                  cuentaTransferencia={cuentaTransferencia}
+                  setCuentaTransferencia={setCuentaTransferencia}
+                  totalTransferencia={totalTransferencia}
+                  setTotalTransferencia={setTotalTransferencia}
+                  cuentasBancarias={props.cuentasBancarias}
+                  />
+            );
+          case 2:
+            return (
+              <StepComponent
                 tipoDeDato='Metodo De Pago'
                 efectivo={efectivo}
                 setEfectivo={setEfectivo}
@@ -64,7 +80,7 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         }
     }
     function getSteps() {
-        return ['Detalles','Metodo De Pago'];
+        return ['Detalles',"Transferencia",'Metodo De Pago'];
     }
     function getStepLabel(label,index) {
         switch (index) {
@@ -81,6 +97,18 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                     </StepLabel>
                 );
             case 1:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<LocalAtm />} 
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                            label={label} 
+                            variant='default'
+                            onClick={()=>{setActiveStep(index)}}
+                        />
+                    </StepLabel>
+                );
+            case 2:
                 return (
                     <StepLabel>
                         <Chip 
@@ -123,10 +151,10 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
             return props.proveedores[cadena[step].proveedor].datos.deuda + parseFloat(calcularAdeudado())
         }
         const calcularPagado = () =>{
-            return total + (efectivo?parseFloat(efectivo):0)
+            return total + (efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0)
         }     
         const calcularAdeudado = () =>{
-            return precio - (total + (efectivo?parseFloat(efectivo):0))
+            return precio - (total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))
         }        
         // ESTRUCTURA DE LA ENTREGA
         let aux={
@@ -139,8 +167,10 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                     total:precio
                 }],
                 metodoDePago:{
-                    facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
+                    facturacion:facturacion,
                     efectivo:efectivo?efectivo:null,
+                    cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
+                    totalTransferencia:totalTransferencia?totalTransferencia:null,
                     cheques:chequesList,
                     fecha:obtenerFecha(),
                     total:precio,
@@ -165,6 +195,11 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
         agregarPagoAlHistorial(aux.metodoDePago,idLink.key,cadena[step].proveedor)
         
+        // MODELA Y AGREGA LA TRANSFERENCIA A LOS MOVIMIENTOS BANCARIOS
+        if(aux.metodoDePago.cuentaTransferencia){
+            guardarTransferenciaBancaria(aux.metodoDePago.cuentaTransferencia,aux.metodoDePago.totalTransferencia)
+        }
+
         // FEEDBACK DEL PROCESO
         setshowSnackbar('El Proceso Finalizo Correctamente')
 
@@ -256,7 +291,14 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
             database().ref().child(props.user.uid).child('cadenasActivas').child(id).update(aux)
         }
     }
-
+    const guardarTransferenciaBancaria = async (cuenta,total) =>{
+        const auxDeposito ={
+            fecha:obtenerFecha(),
+            tipo:'transferencia',
+            total:total
+        }
+        await database().ref().child(props.user.uid).child('CuentasBancarias').child(cuenta).child('egresos').push(auxDeposito)
+    }
     const addCheque = key =>{
         const index = cheques.indexOf(key)
         let aux = [...cheques]
@@ -288,11 +330,11 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0))} / $ {formatMoney(precio)}
+                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))} / $ {formatMoney(precio)}
                                                     </Typography>
                                                 </Grid>
                                                 <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney( precio - ( total + (efectivo?parseFloat(efectivo):0)) )}`}/>
+                                                    <Chip label={`$ ${formatMoney( precio - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) )}`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>
@@ -344,7 +386,8 @@ const mapStateToProps = state =>{
         productos:state.productos,
         proveedores:state.proveedores,
         cheques:state.cheques,
-        cadenasActivas:state.cadenasActivas
+        cadenasActivas:state.cadenasActivas,
+        cuentasBancarias:state.CuentasBancarias
     }
 }
 export default connect(mapStateToProps,null)(FinalizarEntrega)
