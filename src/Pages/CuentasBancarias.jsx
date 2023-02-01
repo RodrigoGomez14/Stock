@@ -8,13 +8,16 @@ import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import CardCuentaBancaria from '../components/Cuentas-Bancarias/CardCuentaBancaria'
 import Empty from '../images/Empty.png'
+import { useEffect } from 'react'
 // COMPONENT
 const CuentasBancarias=(props)=>{
     const classes = content()
     const [search,setSearch]=useState('')
-    
+    const [activeAccount,setActiveAccount]=useState(props.location.search?props.location.search.slice(1):undefined)
+
     return(
         <Layout history={props.history} page="Cuentas Bancarias" user={props.user.uid}>
+            {console.log(activeAccount)}
             {/* CONTENT */}
             <Paper className={classes.content}>
                 <Grid container spacing={4}>
@@ -35,7 +38,7 @@ const CuentasBancarias=(props)=>{
                         {props.CuentasBancarias?
                             <Grid container xs={12} justify='space-around'>
                                 {Object.keys(props.CuentasBancarias).map(key=>(
-                                    <CardCuentaBancaria cuenta={key}/>
+                                    <CardCuentaBancaria cuenta={key} active={key==activeAccount}/>
                                 ))}
                             </Grid>
                             :

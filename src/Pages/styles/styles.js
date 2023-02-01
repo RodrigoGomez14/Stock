@@ -232,5 +232,13 @@ export const content =makeStyles(theme=>({
     // NUEVO PRODUCTO
     cardHeaderStep:{
         backgroundColor:theme.palette.primary.main
-    }
+    },
+
+    //CARD CUENTA BANCARIA
+    activeBankAccountCard:{
+        backgroundColor:theme.palette.success.main
+    },
+    disabledBankAccountCard:{
+
+    },
 }))

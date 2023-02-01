@@ -7,7 +7,7 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGrupo,guardarEnCuentaDeBanco}) =>{
+export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGrupo}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -24,7 +24,6 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
     return(
         <>
             <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:(cheque.numero).search(search) == -1 ? classes.displayNone:classes.display}>
-                    {console.log(cheque)}
                     <Card>
                         <Paper elevation={3} className={cheque.dadoDeBaja?classes.cardChequeHeaderBaja:(cheque.destinatario?classes.cardChequeEnviadoHeader:classes.cardChequeHeader)}>
                             <CardHeader
@@ -77,10 +76,14 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                                 null
                                             }
                                             {!cheque.destinatario?
-                                                <MenuItem onClick={()=>{
-                                                    guardarEnCuentaDeBanco(id)
-                                                }}>
-                                                    Depositar en Cuenta
+                                                <MenuItem >
+                                                    <Link 
+                                                        style={{color:'#fff',textDecoration:'none'}}
+                                                        className={classes.textWhite}
+                                                        to={{pathname:'/Depositar-Cheque',search:`${id}`}
+                                                    }>
+                                                        Depositar en Cuenta Bancaria
+                                                    </Link>
                                                 </MenuItem>
                                                 :
                                                 null
@@ -122,11 +125,17 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                     {cheque.destinatario?
                                         <Grid container item xs={12}>
                                             <Alert variant="filled" severity="success" className={classes.alertCheque}>
-                                                {cheque.destinatario=='Cuenta Bancaria'?'Depositado en':'Entregado a'} <Link 
-                                                                style={{color:'#fff',textDecoration:'none'}}
-                                                                className={classes.textWhite}
-                                                                to={{pathname:'/Proveedor',search:`${cheque.destinatario}`}
-                                                            }>{cheque.destinatario}</Link> el {cheque.egreso}
+                                                {cheque.depositadoEnCuenta?'Depositado en Cuenta de ':'Entregado a '} 
+                                                <Link 
+                                                    style={{color:'#fff',textDecoration:'none'}}
+                                                    className={classes.textWhite}
+                                                    to={cheque.depositadoEnCuenta?
+                                                        {pathname:'/Cuentas-Bancarias',search:`${cheque.destinatario}`}
+                                                        :
+                                                        {pathname:'/Proveedor',search:`${cheque.destinatario}`}
+                                                }>
+                                                    {cheque.destinatario}
+                                                </Link> el {cheque.egreso}
                                             </Alert>
                                         </Grid>
                                         :

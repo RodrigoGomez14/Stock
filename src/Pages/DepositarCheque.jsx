@@ -60,8 +60,27 @@ const DepositarCheque=(props)=>{
     }
 
     // FUNCTIONS
-    const depositarCheque = () =>{
-        console.log(destinatario)
+    const depositarCheque = async () =>{
+        setLoading(true)
+        const auxDeposito ={
+            fecha:obtenerFecha(),
+            tipo:'cheque',
+            cheque:props.cheques[props.location.search.slice(1)].numero,
+            total:props.cheques[props.location.search.slice(1)].valor
+        }
+        actualizarCheque()
+        await database().ref().child(props.user.uid).child('CuentasBancarias').child(destinatario).child('ingresos').push(auxDeposito)
+        setshowSnackbar('El Cheque se Deposito Correctamente')
+        props.history.replace('/Cheques')
+        setLoading(false)
+    }
+    const actualizarCheque = async () =>{
+        const aux={
+            destinatario:destinatario,
+            depositadoEnCuenta:true,
+            egreso:obtenerFecha()
+        }
+        await database().ref().child(props.user.uid).child('cheques').child(props.location.search.slice(1)).update(aux)
     }
     return(
         <Layout history={props.history} page='Despositar Cheque' user={props.user.uid} blockGoBack={true}>
@@ -105,12 +124,12 @@ const DepositarCheque=(props)=>{
             {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
-                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                    <Alert severity="success" variant='filled'>
-                        {showSnackbar}
-                    </Alert>
-                </Snackbar>
             </Backdrop>
+            <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                <Alert severity="success" variant='filled'>
+                    {showSnackbar}
+                </Alert>
+            </Snackbar>
         </Layout>
     )
 }

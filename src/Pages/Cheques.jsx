@@ -57,26 +57,6 @@ const Cheques=(props)=>{
             setLoading(false)
         })
     }
-    const guardarEnCuentaDeBanco = id =>{
-        setLoading(true)
-        
-        database().ref().child(props.user.uid).child('cheques').child(id).update({
-            destinatario:'Cuenta Bancaria',
-            egreso:obtenerFecha()
-        })
-
-        // FEEDBACK DEL PROCESO
-        .then(()=>{
-            setshowSnackbar('El cheque se dio de baja correctamente!')
-            setTimeout(() => {
-                setLoading(false)
-                setshowSnackbar('')
-            }, 2000);
-        })
-        .catch(()=>{
-            setLoading(false)
-        })
-    }
 
     const actualizarDeuda = (valor,nombre,destinatario) =>{
         
@@ -293,7 +273,7 @@ const Cheques=(props)=>{
                                         </Grid>
                                         <Grid container item xs={12} justify='center' spacing={3}>
                                             {Object.keys(sortedCheques[month].cheques).map(cheque=>(
-                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search} guardarChequeRebotado={guardarChequeRebotado} guardarChequeEnGrupo={guardarChequeEnGrupo} guardarEnCuentaDeBanco={guardarEnCuentaDeBanco}/>    
+                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search} guardarChequeRebotado={guardarChequeRebotado} guardarChequeEnGrupo={guardarChequeEnGrupo} />    
                                             ))}
                                         </Grid>
                                     </>
