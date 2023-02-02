@@ -13,12 +13,18 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
   // COMPONENT
   const EnviarPedido=(props)=>{
     const classes = content()
+    
     const [cheques,setcheques]=useState([])
+    const [total, settotal] = useState(0);
     const [efectivo,setefectivo]=useState(undefined)
+    
+    const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
+    const [totalTransferencia, setTotalTransferencia] = useState(undefined);
+
     const [expreso,setexpreso]=useState('')
     const [remito, setremito] = useState('');
     const [precio, setprecio] = useState(0);
-    const [total, settotal] = useState(0);
+
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -61,6 +67,11 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 total={total}
                 settotal={settotal}
                 nombre={props.pedidos[props.history.location.search.slice(1)].cliente}
+                cuentaTransferencia={cuentaTransferencia}
+                setCuentaTransferencia={setCuentaTransferencia}
+                totalTransferencia={totalTransferencia}
+                setTotalTransferencia={setTotalTransferencia}
+                cuentasBancarias={props.cuentasBancarias}
             />
           );
       }
@@ -113,13 +124,13 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
             return props.clientes[props.pedidos[id].cliente].datos.deuda + parseFloat(calcularAdeudado())
         }
         const calcularPagado = () =>{
-            return total + (efectivo?parseFloat(efectivo):0)
+            return total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)
         }     
         const calcularAdeudado = () =>{
-            return props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0))
+            return props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))
         }        
         const calcularTotal = () =>{
-            return ((efectivo?parseFloat(efectivo):0)+total)?((efectivo?parseFloat(efectivo):0)+total):null
+            return ((efectivo?parseFloat(efectivo):0) + total + (totalTransferencia?parseFloat(totalTransferencia):0))?((efectivo?parseFloat(efectivo):0) + total + (totalTransferencia?parseFloat(totalTransferencia):0)):null
         }        
         // ESTRUCTURA DEL PEDIDO
         let aux={
@@ -129,6 +140,8 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
             metodoDePago:{
                 facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
                 efectivo:efectivo?efectivo:null,
+                cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
+                totalTransferencia:totalTransferencia?totalTransferencia:null,
                 cheques:chequesList,
                 fecha:obtenerFecha(),
                 total:calcularTotal(),
@@ -142,7 +155,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         }
 
         // ACTUALIZA LA DEUDA DEL CLIENTE
-        actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) )
+        actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0) )
         
         //ACTUALIZA LOS PRECIOS PARA FACTURACION
         if(props.location.props.facturacion){
@@ -161,6 +174,11 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
 
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
         agregarPagoAlHistorial(aux.metodoDePago,idLink.key,id)
+
+        // MODELA Y AGREGA LA TRANSFERENCIA A LOS MOVIMIENTOS BANCARIOS
+        if(aux.metodoDePago.cuentaTransferencia){
+            guardarTransferenciaBancaria(aux.metodoDePago.cuentaTransferencia,aux.metodoDePago.totalTransferencia)
+        }
 
         // FEEDBACK DEL PROCESO
         setshowSnackbar('El pedido se envió correctamente!')
@@ -256,6 +274,15 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         let aux= {...pago,idPedido:idLink}
         database().ref().child(props.user.uid).child('clientes').child(props.pedidos[idPedido].cliente).child('pagos').push(aux)
     }
+    const guardarTransferenciaBancaria = async (cuenta,total) =>{
+        console.log(cuenta,total)
+        const auxDeposito ={
+            fecha:obtenerFecha(),
+            tipo:'transferencia',
+            total:total
+        }
+        await database().ref().child(props.user.uid).child('CuentasBancarias').child(cuenta).child('ingresos').push(auxDeposito)
+    }
     return(
         props.history.location.props?
             <Layout history={props.history} page='Enviar Pedido' user={props.user.uid} blockGoBack={true}>
@@ -274,11 +301,11 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                                                 <Paper elevation={3} variant='body1' className={classes.paperTotalEnviarPedido}>
                                                     <Grid item xs={12}>
                                                         <Typography variant='h6'>
-                                                            Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0))} / $ {formatMoney( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) }
+                                                            Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))} / $ {formatMoney( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) }
                                                         </Typography>
                                                     </Grid>
                                                     <Grid container item xs={12} justify='center'>
-                                                        <Chip label={`$ ${formatMoney(( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) - ( total + (efectivo?parseFloat(efectivo):0)))}`}/>
+                                                        <Chip label={`$ ${formatMoney(( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)))}`}/>
                                                     </Grid>
                                                 </Paper>
                                             </Grid>
@@ -312,12 +339,12 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 {/* BACKDROP & SNACKBAR */}
                 <Backdrop className={classes.backdrop} open={loading}>
                     <CircularProgress color="inherit" />
-                    <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                        <Alert severity="success" variant='filled'>
-                            {showSnackbar}
-                        </Alert>
-                    </Snackbar>
                 </Backdrop>
+                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                    <Alert severity="success" variant='filled'>
+                        {showSnackbar}
+                    </Alert>
+                </Snackbar>
             </Layout>
             :
             <Redirect to='/Pedidos'/>
@@ -329,7 +356,8 @@ const mapStateToProps = state =>{
         expresos:state.expresos,
         pedidos:state.pedidos,
         productos:state.productos,
-        clientes:state.clientes
+        clientes:state.clientes,
+        cuentasBancarias:state.CuentasBancarias
     }
 }
 export default connect(mapStateToProps,null)(EnviarPedido)

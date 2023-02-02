@@ -12,9 +12,14 @@ import {content} from './styles/styles'
   
 const NuevoPagoCliente=(props)=>{
     const classes = content()
-    const [efectivo,setefectivo]=useState(undefined)
+
     const [cheques,setcheques]=useState([])
     const [total,settotal]=useState(0)
+    
+    const [efectivo,setefectivo]=useState(undefined)
+
+    const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
+    const [totalTransferencia, setTotalTransferencia] = useState(undefined);
 
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -43,6 +48,17 @@ const NuevoPagoCliente=(props)=>{
             );
         case 1:
             return (
+                <StepComponent
+                    tipoDeDato='Transferencia'
+                    cuentaTransferencia={cuentaTransferencia}
+                    setCuentaTransferencia={setCuentaTransferencia}
+                    totalTransferencia={totalTransferencia}
+                    setTotalTransferencia={setTotalTransferencia}
+                    cuentasBancarias={props.cuentasBancarias}
+                    />
+            );
+        case 2:
+            return (
                 <StepComponent 
                 tipoDeDato='Cheques'
                 datos={cheques}
@@ -56,14 +72,14 @@ const NuevoPagoCliente=(props)=>{
       }
     }
     function getSteps() {
-        return ['Efectivo', 'Cheques'];
+        return ['Efectivo','Transferencia', 'Cheques'];
     }
     const setDisabled=(step)=>{
         switch (step) {
             case 0:
                     
                 break;
-            case 1:
+            case 2:
                     return efectivo || cheques.length ? false : true
                 break;
             default:
@@ -96,6 +112,18 @@ const NuevoPagoCliente=(props)=>{
                         />
                     </StepLabel>
                 );
+            case 2:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<LocalAtm />} 
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                            label={label} 
+                            variant='default'
+                            onClick={()=>{setActiveStep(index)}}
+                        />
+                    </StepLabel>
+                );
         }
     }
 
@@ -111,7 +139,7 @@ const NuevoPagoCliente=(props)=>{
             return (getDeudaPasada() - calcularTotal())
         }
         const calcularTotal = () =>{
-            return efectivo||cheques?total+(efectivo?parseFloat(efectivo):0):null
+            return efectivo||cheques? total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0) :null
         }
         const getDeudaPasada = () =>{
             return props.clientes[checkSearch(props.history.location.search)].datos.deuda
@@ -120,6 +148,8 @@ const NuevoPagoCliente=(props)=>{
         let aux={
             efectivo:efectivo?efectivo:null,
             cheques:chequesList.length?chequesList:null,
+            cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
+            totalTransferencia:totalTransferencia?totalTransferencia:null,
             fecha:obtenerFecha(),
             pagado:calcularTotal(),
             total:calcularTotal(),
@@ -129,6 +159,11 @@ const NuevoPagoCliente=(props)=>{
 
         // ACTUALIZA LA DEUDA DEL CLIENTE 
         actualizarDeuda()
+
+        // MODELA Y AGREGA LA TRANSFERENCIA A LOS MOVIMIENTOS BANCARIOS
+        if(aux.cuentaTransferencia){
+            guardarTransferenciaBancaria(aux.cuentaTransferencia,aux.totalTransferencia)
+        }
 
         // ENVIA TODO A DB
         if(aux){
@@ -169,8 +204,16 @@ const NuevoPagoCliente=(props)=>{
     }
     const actualizarDeuda = () =>{
         let deudaActual = props.clientes[checkSearch(props.history.location.search)].datos.deuda
-        deudaActual-=total+(efectivo?parseFloat(efectivo):0)
+        deudaActual-=total+(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)
         database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('datos').update({deuda:deudaActual})
+    }
+    const guardarTransferenciaBancaria = async (cuenta,total) =>{
+        const auxDeposito ={
+            fecha:obtenerFecha(),
+            tipo:'transferencia',
+            total:total
+        }
+        await database().ref().child(props.user.uid).child('CuentasBancarias').child(cuenta).child('ingresos').push(auxDeposito)
     }
     return(
         <Layout history={props.history} page='Nuevo Pago' user={props.user.uid} blockGoBack={true}>
@@ -188,11 +231,11 @@ const NuevoPagoCliente=(props)=>{
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0)) }/ $ {formatMoney(props.clientes[checkSearch(props.location.search)].datos.deuda) } 
+                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) }/ $ {formatMoney(props.clientes[checkSearch(props.location.search)].datos.deuda) } 
                                                     </Typography>
                                                 </Grid>
                                                 <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney( parseFloat(props.clientes[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0)) ) }`}/>
+                                                    <Chip label={`$ ${formatMoney( parseFloat(props.clientes[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) ) }`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>
@@ -225,12 +268,12 @@ const NuevoPagoCliente=(props)=>{
             {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
-                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                    <Alert severity="success" variant='filled'>
-                        {showSnackbar}
-                    </Alert>
-                </Snackbar>
             </Backdrop>
+            <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                <Alert severity="success" variant='filled'>
+                    {showSnackbar}
+                </Alert>
+            </Snackbar>
         </Layout>
     )
 }
@@ -238,6 +281,7 @@ const mapStateToProps = state =>{
     return{
         user:state.user,
         clientes:state.clientes,
+        cuentasBancarias:state.CuentasBancarias
     }
 }
 export default connect(mapStateToProps,null)(NuevoPagoCliente)

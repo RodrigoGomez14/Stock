@@ -139,6 +139,13 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                 <CardHeader className={classes.titleDetallesCard} title='Detalles de pago'/>
                                 <CardContent>
                                     <List>
+                                        {pedido.metodoDePago.totalTransferencia?
+                                            <ListItem>
+                                                <ListItemText primary={`$ ${formatMoney(pedido.metodoDePago.totalTransferencia)}`} secondary={`Transferencia cuenta ${pedido.metodoDePago.cuentaTransferencia}`}/>
+                                            </ListItem>
+                                            :
+                                            null
+                                        }
                                         {pedido.metodoDePago.efectivo?
                                             <ListItem>
                                                 <ListItemText primary={`$ ${formatMoney(pedido.metodoDePago.efectivo)}`} secondary='Efectivo'/>

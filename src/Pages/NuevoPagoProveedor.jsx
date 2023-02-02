@@ -12,9 +12,14 @@ import {content} from './styles/styles'
   
 const NuevoPagoProveedor=(props)=>{
     const classes = content()
-    const [efectivo,setefectivo]=useState(undefined)
+    
     const [cheques,setcheques]=useState([])
     const [total,settotal]=useState(0)
+    
+    const [efectivo,setefectivo]=useState(undefined)
+
+    const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
+    const [totalTransferencia, setTotalTransferencia] = useState(undefined);
 
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -44,6 +49,17 @@ const NuevoPagoProveedor=(props)=>{
             );
         case 1:
             return (
+                <StepComponent
+                    tipoDeDato='Transferencia'
+                    cuentaTransferencia={cuentaTransferencia}
+                    setCuentaTransferencia={setCuentaTransferencia}
+                    totalTransferencia={totalTransferencia}
+                    setTotalTransferencia={setTotalTransferencia}
+                    cuentasBancarias={props.cuentasBancarias}
+                    />
+            );
+        case 2:
+            return (
                 <StepComponent 
                 tipoDeDato='Cheques'
                 datos={cheques}
@@ -59,7 +75,7 @@ const NuevoPagoProveedor=(props)=>{
       }
     }
     function getSteps() {
-        return ['Efectivo', 'Cheques'];
+        return ['Efectivo','Transferencia', 'Cheques'];
     }
     const setDisabled=(step)=>{
         switch (step) {
@@ -99,6 +115,18 @@ const NuevoPagoProveedor=(props)=>{
                         />
                     </StepLabel>
                 );
+            case 2:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<LocalAtm />} 
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                            label={label} 
+                            variant='default'
+                            onClick={()=>{setActiveStep(index)}}
+                        />
+                    </StepLabel>
+                );
         }
     }
 
@@ -114,7 +142,7 @@ const NuevoPagoProveedor=(props)=>{
             return (getDeudaPasada() - calcularTotal())
         }
         const calcularTotal = () =>{
-            return efectivo||cheques?total+(efectivo?parseFloat(efectivo):0):null
+            return efectivo||cheques?total+(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0):null
         }
         const getDeudaPasada = () =>{
             return props.proveedores[checkSearch(props.history.location.search)].datos.deuda
@@ -123,6 +151,8 @@ const NuevoPagoProveedor=(props)=>{
         let aux={
             efectivo:efectivo?efectivo:null,
             cheques:chequesList.length?chequesList:null,
+            cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
+            totalTransferencia:totalTransferencia?totalTransferencia:null,
             fecha:obtenerFecha(),
             pagado:calcularTotal(),
             total:calcularTotal(),
@@ -133,6 +163,11 @@ const NuevoPagoProveedor=(props)=>{
         // ACTUALIZA LA DEUDA CON EL PROVEEDOR 
         actualizarDeuda()
         
+        // MODELA Y AGREGA LA TRANSFERENCIA A LOS MOVIMIENTOS BANCARIOS
+        if(aux.cuentaTransferencia){
+            guardarTransferenciaBancaria(aux.cuentaTransferencia,aux.totalTransferencia)
+        }
+
         // ENVIA TODO A DB
         if(aux){
             database().ref().child(props.user.uid).child('proveedores').child(checkSearch(props.history.location.search)).child('pagos').push(aux)
@@ -166,8 +201,16 @@ const NuevoPagoProveedor=(props)=>{
     }
     const actualizarDeuda = () =>{
         let deudaActual = props.proveedores[checkSearch(props.history.location.search)].datos.deuda
-        deudaActual-=total+(efectivo?parseFloat(efectivo):0)
+        deudaActual-=total+(efectivo?parseFloat(efectivo):0)+(totalTransferencia?parseFloat(totalTransferencia):0)
         database().ref().child(props.user.uid).child('proveedores').child(checkSearch(props.history.location.search)).child('datos').update({deuda:deudaActual})
+    }
+    const guardarTransferenciaBancaria = async (cuenta,total) =>{
+        const auxDeposito ={
+            fecha:obtenerFecha(),
+            tipo:'transferencia',
+            total:total
+        }
+        await database().ref().child(props.user.uid).child('CuentasBancarias').child(cuenta).child('egresos').push(auxDeposito)
     }
     
     const addCheque = key =>{
@@ -199,11 +242,11 @@ const NuevoPagoProveedor=(props)=>{
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0)) }/ $ {formatMoney(props.proveedores[checkSearch(props.location.search)].datos.deuda) } 
+                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) }/ $ {formatMoney(props.proveedores[checkSearch(props.location.search)].datos.deuda) } 
                                                     </Typography>
                                                 </Grid>
                                                 <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney( parseFloat(props.proveedores[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0)) ) }`}/>
+                                                    <Chip label={`$ ${formatMoney( parseFloat(props.proveedores[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) ) }`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>
@@ -236,12 +279,12 @@ const NuevoPagoProveedor=(props)=>{
             {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
-                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                    <Alert severity="success" variant='filled'>
-                        {showSnackbar}
-                    </Alert>
-                </Snackbar>
             </Backdrop>
+            <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
+                <Alert severity="success" variant='filled'>
+                    {showSnackbar}
+                </Alert>
+            </Snackbar>
         </Layout>
     )
 }
@@ -249,7 +292,8 @@ const mapStateToProps = state =>{
     return{
         user:state.user,
         proveedores:state.proveedores,
-        cheques:state.cheques
+        cheques:state.cheques,
+        cuentasBancarias:state.CuentasBancarias
     }
 }
 export default connect(mapStateToProps,null)(NuevoPagoProveedor)

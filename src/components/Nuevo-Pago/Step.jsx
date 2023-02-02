@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import {Grid, Button,makeStyles,Select,Input,Chip,MenuItem,Paper,InputAdornment, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel} from '@material-ui/core'
 import {AddOutlined,AttachMoney} from '@material-ui/icons'
+import { Autocomplete } from '@material-ui/lab'
 import {DialogNuevoCheque} from './Dialogs/DialogNuevoCheque'
 import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
-import {Cheques  as ChequesProveedor} from '../Recibir-Entrega/Cheques'
+import {Cheques as ChequesProveedor} from '../Recibir-Entrega/Cheques'
 import {Cheques, Cheques  as ChequesCliente} from '../Enviar-Pedido/Cheques'
 import {content} from '../../Pages/styles/styles'
 
-export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque,chequesList,tipo,history}) =>{
+export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque,chequesList,tipo,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
@@ -44,6 +45,44 @@ export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque
                                         <InputAdornment position="start">
                                         <AttachMoney />
                                         </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+                )
+                case 'Transferencia': 
+                return(
+                    <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
+                        <Grid container item xs={12} justify='center'>
+                            <Autocomplete
+                                freeSolo
+                                options={cuentasBancarias?Object.keys(cuentasBancarias):{}}
+                                disabled={!cuentasBancarias}
+                                getOptionLabel={(option) => option}
+                                onSelect={(e)=>{setCuentaTransferencia(e.target.value)}}
+                                onChange={(e)=>{setCuentaTransferencia(e.target.value)}}
+                                value={cuentaTransferencia}
+                                style={{ width: 300 }}
+                                renderInput={(params) => <TextField {...params} label="Cuenta de Destino" variant="outlined" />}
+                            />
+                        </Grid>
+                        <Grid container item xs={12} justify='center'>
+                            <TextField
+                                autoFocus   
+                                style={{ width: '250px' }}
+                                value={totalTransferencia}
+                                variant='outlined'
+                                type='number'
+                                label="Monto"
+                                onChange={e=>{
+                                    setTotalTransferencia(e.target.value)
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                    <InputAdornment position="start">
+                                        <AttachMoney />
+                                    </InputAdornment>
                                     ),
                                 }}
                             />

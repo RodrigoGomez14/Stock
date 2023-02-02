@@ -7,7 +7,7 @@ import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
 import {Cheques} from './Cheques'
 import {content} from '../../Pages/styles/styles'
 
-export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso,remito,setremito,tipoDeDato,expresosList,total,settotal,precio,setprecio,setsumarEnvio,sumarEnvio,nombre}) =>{
+export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso,remito,setremito,tipoDeDato,expresosList,total,settotal,precio,setprecio,setsumarEnvio,sumarEnvio,nombre,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
@@ -58,6 +58,7 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
                             <AppBar position="static">
                                 <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
                                     <Tab label="Efectivo" />
+                                    <Tab label="Transferencia" />
                                     <Tab label="Cheques" />
                                 </Tabs>
                             </AppBar>
@@ -94,6 +95,44 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
                             </Grid>
                             <Grid item>
                                 <TabPanel value={value} index={1}>
+                                    <Grid container xs={12} spacing={3} justify='center'>
+                                        <Grid item xs={12}>
+                                            <Autocomplete
+                                                freeSolo
+                                                options={cuentasBancarias?Object.keys(cuentasBancarias):{}}
+                                                disabled={!cuentasBancarias}
+                                                getOptionLabel={(option) => option}
+                                                onSelect={(e)=>{setCuentaTransferencia(e.target.value)}}
+                                                value={cuentaTransferencia}
+                                                style={{ width: 300 }}
+                                                renderInput={(params) => <TextField {...params} label="Cuenta de Destino" variant="outlined" />}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                autoFocus   
+                                                style={{ width: '250px' }}
+                                                value={totalTransferencia}
+                                                variant='outlined'
+                                                type='number'
+                                                label='Monto'
+                                                onChange={e=>{
+                                                    setTotalTransferencia(e.target.value)
+                                                }}
+                                                InputProps={{
+                                                    startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <AttachMoney />
+                                                    </InputAdornment>
+                                                    ),
+                                                }}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </TabPanel>
+                            </Grid>
+                            <Grid item>
+                                <TabPanel value={value} index={2}>
                                     <Grid container justify='center' spacing={3}>
                                         <Grid container item xs={12} justify='center'>
                                             <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
