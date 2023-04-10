@@ -3,10 +3,11 @@ import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl
 import {AddOutlined,AttachMoney} from '@material-ui/icons'
 import { Autocomplete } from '@material-ui/lab'
 import {Cheques} from './Cheques'
+import {ChequesPersonales} from './ChequesPersonales'
 import {content} from '../../Pages/styles/styles'
-import { DialogElegirCheque } from './Dialogs/DialogElegirCheque'
+import { DialogNuevoChequePersonal } from './Dialogs/DialogNuevoChequePersonal'
 
-export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,expreso,setexpreso,remito,setremito,tipoDeDato,expresosList,total,settotal,precio,setprecio,setsumarEnvio,sumarEnvio,nombre,chequesList,tipo,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias}) =>{
+export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,chequesPersonales,setChequesPersonales,totalChequesPersonales,setTotalChequesPersonales,setexpreso,remito,setremito,tipoDeDato,setprecio,setsumarEnvio,sumarEnvio,nombre,chequesList,tipo,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
@@ -20,6 +21,10 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,expreso,
         setremito('')
         setprecio('')
         setsumarEnvio(false)
+    }
+    const openDialogDelete = (index) =>{
+        setdeleteIndex(index)
+        setshowDialogDelete(true)
     }
 
     useEffect(()=>{
@@ -92,8 +97,31 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,expreso,
                 )
             case 'Cheques': 
                 return(
-                    <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                        <Cheques cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
+                    <Grid container xs={12} spacing={3}>
+                        <Grid container item xs={12} justify='center'>
+                            <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
+                                Agregar Cheque
+                            </Button>
+                        </Grid>
+                        <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
+                            <ChequesPersonales cheques={chequesPersonales} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                        </Grid>
+                        <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
+                            <Cheques cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
+                        </Grid>
+                            {/* DIALOGS CHEQUES PERSONALES*/}
+                            <DialogNuevoChequePersonal
+                                open={showDialog} 
+                                setOpen={setshowDialog} 
+                                listaChequesPersonales={chequesPersonales}
+                                setListaChequesPersonales={setChequesPersonales}
+                                edit={editIndex!=-1} 
+                                editIndex={editIndex} 
+                                seteditIndex={seteditIndex}
+                                totalChequesPersonales={totalChequesPersonales}
+                                setTotalChequesPersonales={setTotalChequesPersonales}
+                                cliente={nombre}
+                            />
                     </Grid>
                 )
     }

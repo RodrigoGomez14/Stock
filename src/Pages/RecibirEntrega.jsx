@@ -18,6 +18,9 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
     const [cheques,setcheques]=useState([])
     const [total, settotal] = useState(0);
 
+    const [chequesPersonales,setChequesPersonales]=useState([])
+    const [totalChequesPersonales, setTotalChequesPersonales] = useState(0);
+
     const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
     const [totalTransferencia, setTotalTransferencia] = useState(undefined);
 
@@ -80,9 +83,13 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                       cheques={cheques}
                       setcheques={setcheques}
                       addCheque={addCheque}
+                      chequesPersonales={chequesPersonales}
+                      setChequesPersonales={setChequesPersonales}
                       tipoDeDato='Cheques'
                       total={total}
                       settotal={settotal}
+                      totalChequesPersonales={totalChequesPersonales}
+                      setTotalChequesPersonales={setTotalChequesPersonales}
                       nombre={props.entregas[props.history.location.search.slice(1)].proveedor}
                       chequesList={props.cheques}
                       />
@@ -144,19 +151,21 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         // ACTUALIZA CADA CHEQUE EN DB
         let chequesList = actualizarCheques()
         
+        // AGREGA CADA CHEQUE PERSONAL A LA LISTA 
+        let chequesPersonalesList = agregarChequesPersonales()
 
         // FUNCIONES DE ESTRUCTURA
         const calcularDeudaActualizada = () =>{
             return props.proveedores[props.entregas[id].proveedor].datos.deuda + parseFloat(calcularAdeudado())
         }
         const calcularPagado = () =>{
-            return total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)
+            return total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)
         }     
         const calcularAdeudado = () =>{
-            return props.history.location.props.total - (total + (efectivo?parseFloat(efectivo):0)) +(totalTransferencia?parseFloat(totalTransferencia):0)
+            return props.history.location.props.total - (total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0)) +(totalTransferencia?parseFloat(totalTransferencia):0)
         }        
         const calcularTotal = () =>{
-            return (total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0) )?( (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0) ) + total : null
+            return (total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0) )?( (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0) ) + total + totalChequesPersonales : null
         }       
 
         // ESTRUCTURA DE LA ENTREGA
@@ -170,6 +179,8 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                 cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
                 totalTransferencia:totalTransferencia?totalTransferencia:null,
                 cheques:chequesList,
+                chequesPersonales:chequesPersonalesList,
+                totalChequesPersonales:totalChequesPersonales,
                 fecha:obtenerFecha(),
                 total:calcularTotal(),
                 deudaPasada:props.proveedores[props.entregas[id].proveedor].datos.deuda,
@@ -182,7 +193,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         }
         
         // ACTUALIZA LA DEUDA DEL PROVEEDOR
-        actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0))
+        actualizarDeuda(aux.total, total + totalChequesPersonales + (efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0))
        
         // AGREGA LA ENTREGA A DB PARA OBTENER ID
         let idLink = database().ref().child(props.user.uid).child('proveedores').child(props.entregas[id].proveedor).child('entregas').push()
@@ -238,6 +249,28 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                 })
                 // GUARDA EL NUMERO DE CHEQUE
                 chequesList.push(props.cheques[cheque].numero)
+            })
+        }
+        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
+        return chequesList
+    }
+    const agregarChequesPersonales = () =>{
+        let chequesList= []
+        if(chequesPersonales.length){
+            // RECORRE LA LISTA DE CHEQUES 
+            chequesPersonales.map(cheque=>{
+                // GUARDA EL NUMERO DE CHEQUE
+                chequesList.push(cheque.numero)
+                // ESTRUCTURA DEL CHEQUE
+                let auxCheque = {
+                    egreso:obtenerFecha(),
+                    destinatario:cheque.destinatario,
+                    numero:cheque.numero,
+                    vencimiento:cheque.vencimiento,
+                    valor:cheque.valor
+                }
+                // GUARDA EN LA LISTA DE CHQUES CADA UNO
+                database().ref().child(props.user.uid).child('chequesPersonales').push(auxCheque)
             })
         }
         // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
@@ -302,11 +335,11 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))} / $ {formatMoney( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) }
+                                                        Total $ {formatMoney( total + totalChequesPersonales + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))} / $ {formatMoney( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) }
                                                     </Typography>
                                                 </Grid>
                                                 <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney(( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)))}`}/>
+                                                    <Chip label={`$ ${formatMoney(( parseFloat(props.history.location.props.total) + (sumarEnvio?precio?parseFloat(precio):0:0 ) ) - ( total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)))}`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>

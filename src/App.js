@@ -39,6 +39,7 @@ import FinalizarProceso from './Pages/FinalizarProceso';
 import CuentasBancarias from './Pages/CuentasBancarias';
 import NuevaCuentaBancaria from './Pages/NuevaCuentaBancaria';
 import DepositarCheque from './Pages/DepositarCheque';
+import ChequesPersonales from './Pages/ChequesPersonales';
 
 let store 
 let data
@@ -149,6 +150,7 @@ class App extends Component {
                     <Route exact path='/Deudas' component={Deudas}/>
                     
                     <Route exact path='/Cheques' component={Cheques}/>
+                    <Route exact path='/Cheques-Personales' component={ChequesPersonales}/>
                     <Route exact path='/Depositar-Cheque' component={DepositarCheque}/>
 
                     <Route exact path='/Productos' component={Productos}/>

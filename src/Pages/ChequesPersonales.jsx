@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent, Button} from '@material-ui/core'
+import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {PersonAdd} from '@material-ui/icons'
 import {MoreVert,DeleteOutlineOutlined} from '@material-ui/icons'
@@ -16,7 +16,7 @@ import Empty from '../images/Empty.png'
 import ApexCharts from 'react-apexcharts';
 
 // COMPONENT
-const Cheques=(props)=>{
+const ChequesPersonales=(props)=>{
     const classes = content()
     const [search,setSearch]=useState(props.location.search?props.location.search.slice(1):'')
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -224,18 +224,11 @@ const Cheques=(props)=>{
     },[props.cheques])
 
     return(
-        <Layout history={props.history} page="Cheques" user={props.user.uid}>
+        <Layout history={props.history} page="Cheques Personales" user={props.user.uid}>
             {/* CONTENT */}
             <Paper className={classes.content}>
                 {/* CHEQUES TABLE */}
                 <Grid container justify='center' alignItems='center' spacing={3}>
-                    <Link
-                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                        to={{
-                            pathname:'/Cheques-Personales',
-                    }}>
-                        <Button>Cheques Personales</Button>
-                    </Link>  
                     {/* props.cheques?
                         <Grid container item xs={12} justify='space-around'>
                             <Grid item>
@@ -316,9 +309,9 @@ const Cheques=(props)=>{
 const mapStateToProps = state =>{
     return{
         user:state.user,
-        cheques:state.cheques,
+        cheques:state.chequesPersonales,
         clientes:state.clientes,
         proveedores:state.proveedores
     }
 }
-export default connect(mapStateToProps,null)(Cheques)
+export default connect(mapStateToProps,null)(ChequesPersonales)

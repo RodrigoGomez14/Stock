@@ -147,7 +147,7 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
                                             null
                                         }
 
-                                        {/* DIALOGS */}
+                                        {/* DIALOGS CHEQUES*/}
                                         <DialogNuevoCheque 
                                             open={showDialog} 
                                             setOpen={setshowDialog} 

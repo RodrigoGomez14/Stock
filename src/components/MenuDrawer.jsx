@@ -87,7 +87,7 @@ const checkSelected = (icon,page) =>{
         return true
     }
      // CHEQUES
-     else if(icon==='Cheques'&& (page=='Depositar-Cheque')){
+     else if(icon==='Cheques'&& (page=='Depositar-Cheque' || page=='Cheques-Personales')){
         return true
     }
     // CADENAS DE PRODUCCION

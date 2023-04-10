@@ -5,10 +5,9 @@ import DateFnsUtils from '@date-io/date-fns';
 import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker,} from '@material-ui/pickers';
 import {content} from '../../../Pages/styles/styles'
 
-export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,seteditIndex,total,settotal,cliente}) =>{
+export const DialogNuevoChequePersonal = ({open,setOpen,listaCheques,setListaCheques,listaChequesPersonales,setListaChequesPersonales,totalChequesPersonales,setTotalChequesPersonales,edit,editIndex,seteditIndex,cliente}) =>{
     const classes = content()
     const [numero,setnumero]=useState(undefined)
-    const [banco,setbanco]=useState(undefined)
     const [vencimiento,setvencimiento]=useState(undefined)
     const [valor,setvalor]=useState(undefined)
     const [editarPrecio,seteditarPrecio]=useState(false)
@@ -17,35 +16,32 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
     // FUNCTIONS
     const resetTextFields = () =>{
         setnumero('')
-        setbanco('')
         setvencimiento(undefined)
         setvalor('')
     }
     const agregarCheque = () =>{
-        let aux = datos
+        let aux = listaChequesPersonales
         aux.push({
-            nombre:cliente,
+            destinatario:cliente,
             numero:numero,
-            banco:banco,
             vencimiento:vencimiento.toLocaleDateString(),
             valor:valor
         })
-        settotal(parseFloat(total)+parseFloat(valor))
-        setdatos(aux)
+        setTotalChequesPersonales(parseFloat(totalChequesPersonales)+parseFloat(valor))
+        setListaChequesPersonales(aux)
     }
     const editarCheque = () =>{
-        let aux = datos
-        let nuevoTotal = parseFloat(total) - parseFloat(aux[editIndex].valor) + parseFloat(valor)
-        const auxVencimiento = vencimiento === (convertirVencimiento(datos[editIndex].vencimiento)) ? convertirVencimiento(vencimiento):vencimiento.toLocaleDateString()
-        settotal(nuevoTotal)
+        let aux = listaChequesPersonales
+        let nuevoTotal = parseFloat(totalChequesPersonales) - parseFloat(aux[editIndex].valor) + parseFloat(valor)
+        const auxVencimiento = vencimiento === (convertirVencimiento(listaChequesPersonales[editIndex].vencimiento)) ? convertirVencimiento(vencimiento):vencimiento.toLocaleDateString()
+        setTotalChequesPersonales(nuevoTotal)
         aux[editIndex]={
-            nombre:cliente,
+            destinatario:cliente,
             numero:numero,
-            banco:banco,
             vencimiento:auxVencimiento,
             valor:valor
         }
-        setdatos(aux)
+        setListaChequesPersonales(aux)
     }
     const convertirVencimiento= (vencimiento)=>{
         return `${vencimiento.slice(vencimiento.indexOf('/')+1,vencimiento.lastIndexOf('/'))}/${vencimiento.slice(0,vencimiento.indexOf('/'))}${vencimiento.slice(vencimiento.lastIndexOf('/'))}`
@@ -54,10 +50,9 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
     // FILL FOR EDIT
     useEffect(()=>{
         if(edit){
-            setnumero(datos[editIndex].numero)
-            setbanco(datos[editIndex].banco)
-            setvencimiento(convertirVencimiento(datos[editIndex].vencimiento))
-            setvalor(datos[editIndex].valor)
+            setnumero(listaChequesPersonales[editIndex].numero)
+            setvencimiento(convertirVencimiento(listaChequesPersonales[editIndex].vencimiento))
+            setvalor(listaChequesPersonales[editIndex].valor)
         }
     },[edit])
 
@@ -81,16 +76,6 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
                             value={numero}
                             onChange={e=>{
                                 setnumero(e.target.value)
-                            }}
-                        />
-                    </Grid>
-                    <Grid item>
-                        <TextField
-                            fullWidth
-                            label='Banco'
-                            value={banco}
-                            onChange={e=>{
-                                setbanco(e.target.value)
                             }}
                         />
                     </Grid>
@@ -135,7 +120,7 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
                     Cancelar
                 </Button>
                 <Button
-                    disabled={!numero||!banco||!vencimiento||!valor}
+                    disabled={!numero||!vencimiento||!valor}
                     onClick={()=>{
                         if(edit){
                             editarCheque()

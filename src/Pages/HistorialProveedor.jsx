@@ -4,6 +4,7 @@ import {Layout} from './Layout'
 import {makeStyles,Paper,Grid,List,Typography,IconButton,Backdrop,Snackbar,CircularProgress,Table,TableHead,TableRow,TableCell,TableBody,TableContainer,Button,Menu,MenuItem,Divider} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {MenuCheques} from '../components/Historial/MenuCheques'
+import {MenuChequesPersonales} from '../components/Historial/MenuChequesPersonales'
 import {EditOutlined,ArrowDropDown, AddOutlined} from '@material-ui/icons'
 import {Deuda} from '../components/Cliente/Deuda'
 import {ListaDePedidos} from '../components/Cliente/ListaDePedidos'
@@ -65,6 +66,12 @@ const HistorialProveedor=(props)=>{
                                                         Cheques
                                                     </TableCell>
                                                     <TableCell className={classes.titleDetallesCard} align='right'>
+                                                        Cheques Personales
+                                                    </TableCell>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
+                                                        Total
+                                                    </TableCell>
+                                                    <TableCell className={classes.titleDetallesCard} align='right'>
                                                         Deuda Pasada
                                                     </TableCell>
                                                     <TableCell className={classes.titleDetallesCard}   align='right'>
@@ -86,6 +93,12 @@ const HistorialProveedor=(props)=>{
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 <MenuCheques pago={proveedor[pago]}/>                                                
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                <MenuChequesPersonales pago={proveedor[pago]}/>                                                
+                                                            </TableCell>
+                                                            <TableCell align='right'>
+                                                                $ {formatMoney(proveedor[pago].pagado)}
                                                             </TableCell>
                                                             <TableCell align='right'>
                                                                 $ {formatMoney(proveedor[pago].deudaPasada)}
