@@ -6,6 +6,9 @@ import {Cheques} from './Cheques'
 import {ChequesPersonales} from './ChequesPersonales'
 import {content} from '../../Pages/styles/styles'
 import { DialogNuevoChequePersonal } from './Dialogs/DialogNuevoChequePersonal'
+import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
+
+
 
 export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,chequesPersonales,setChequesPersonales,totalChequesPersonales,setTotalChequesPersonales,setexpreso,remito,setremito,tipoDeDato,setprecio,setsumarEnvio,sumarEnvio,nombre,chequesList,tipo,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias}) =>{
     const classes = content()
@@ -100,12 +103,17 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,chequesP
                     <Grid container xs={12} spacing={3}>
                         <Grid container item xs={12} justify='center'>
                             <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
-                                Agregar Cheque
+                                Agregar Cheque Personal
                             </Button>
                         </Grid>
-                        <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                            <ChequesPersonales cheques={chequesPersonales} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
-                        </Grid>
+                        {
+                            chequesPersonales.length?
+                                <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
+                                    <ChequesPersonales cheques={chequesPersonales} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                                </Grid>
+                                :
+                                null
+                        }
                         <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
                             <Cheques cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
                         </Grid>
@@ -121,6 +129,17 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,chequesP
                                 totalChequesPersonales={totalChequesPersonales}
                                 setTotalChequesPersonales={setTotalChequesPersonales}
                                 cliente={nombre}
+                            />
+                            <DialogEliminarCheque 
+                                open={showDialogDelete} 
+                                setopen={setshowDialogDelete} 
+                                datos={chequesPersonales} 
+                                setDatos={setChequesPersonales} 
+                                index={deleteIndex} 
+                                setdeleteIndex={setdeleteIndex} 
+                                tipoDeElemento='Cheque'
+                                total={totalChequesPersonales}
+                                settotal={setTotalChequesPersonales}
                             />
                     </Grid>
                 )

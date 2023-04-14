@@ -2,8 +2,11 @@ import React, { useState } from 'react'
 import {Grid, Button,makeStyles,Select,Input,Chip,MenuItem,Paper,InputAdornment, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel} from '@material-ui/core'
 import {AddOutlined,AttachMoney} from '@material-ui/icons'
 import { Autocomplete } from '@material-ui/lab'
+import {ChequesPersonales} from './ChequesPersonales'
 import {DialogNuevoCheque} from './Dialogs/DialogNuevoCheque'
 import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
+import {DialogNuevoChequePersonal} from './Dialogs/DialogNuevoChequePersonal'
+import {DialogEliminarChequePersonal} from './Dialogs/DialogEliminarChequePersonal'
 import {Cheques as ChequesProveedor} from '../Recibir-Entrega/Cheques'
 import {Cheques, Cheques  as ChequesCliente} from '../Enviar-Pedido/Cheques'
 import {content} from '../../Pages/styles/styles'
@@ -141,6 +144,48 @@ export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque
                         </Grid>
                     )
                 }
+            case 'Cheques Personales':
+                return(
+                    <Grid container xs={12} spacing={3}>
+                        <Grid container item xs={12} justify='center'>
+                            <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
+                                Agregar Cheque Personal
+                            </Button>
+                        </Grid>
+                        {
+                        datos.length?
+                            <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
+                                <ChequesPersonales cheques={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                            </Grid>
+                            :
+                            null
+                        }
+                        {/* DIALOGS */}
+                        <DialogNuevoChequePersonal 
+                            open={showDialog} 
+                            setOpen={setshowDialog} 
+                            listaChequesPersonales={datos} 
+                            setListaChequesPersonales={setdatos}
+                            edit={editIndex!=-1} 
+                            editIndex={editIndex} 
+                            seteditIndex={seteditIndex}
+                            totalChequesPersonales={total}
+                            setTotalChequesPersonales={settotal}
+                            cliente={cliente}
+                        />
+                        <DialogEliminarCheque
+                            open={showDialogDelete} 
+                            setopen={setshowDialogDelete} 
+                            datos={datos} 
+                            setDatos={setdatos} 
+                            index={deleteIndex} 
+                            setdeleteIndex={setdeleteIndex} 
+                            tipoDeElemento='Cheque'
+                            total={total}
+                            settotal={settotal}
+                        />
+                    </Grid>
+                )
         }
     }
 

@@ -16,6 +16,9 @@ const NuevoPagoProveedor=(props)=>{
     const [cheques,setcheques]=useState([])
     const [total,settotal]=useState(0)
     
+    const [chequesPersonales,setChequesPersonales]=useState([])
+    const [totalChequesPersonales, setTotalChequesPersonales] = useState(0);
+    
     const [efectivo,setefectivo]=useState(undefined)
 
     const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
@@ -72,10 +75,24 @@ const NuevoPagoProveedor=(props)=>{
                 tipo='Proveedor'
             /> 
           );
+          case 3:
+            return (
+                <StepComponent 
+                tipoDeDato='Cheques Personales'
+                datos={chequesPersonales}
+                setdatos={setChequesPersonales}
+                total={totalChequesPersonales}
+                settotal={setTotalChequesPersonales}
+                cliente={checkSearch(props.history.location.search)}
+                addCheque={addCheque}
+                chequesList={props.cheques}
+                tipo='Proveedor'
+            /> 
+          );
       }
     }
     function getSteps() {
-        return ['Efectivo','Transferencia', 'Cheques'];
+        return ['Efectivo','Transferencia', 'Cheques', 'Cheques Personales'];
     }
     const setDisabled=(step)=>{
         switch (step) {
@@ -127,6 +144,18 @@ const NuevoPagoProveedor=(props)=>{
                         />
                     </StepLabel>
                 );
+            case 3:
+                    return (
+                        <StepLabel>
+                            <Chip 
+                                avatar={<LocalAtm />} 
+                                className={activeStep==index?classes.iconLabelSelected:null}
+                                label={label} 
+                                variant='default'
+                                onClick={()=>{setActiveStep(index)}}
+                            />
+                        </StepLabel>
+                    );
         }
     }
 
@@ -137,12 +166,15 @@ const NuevoPagoProveedor=(props)=>{
         // ACTUALIZA CADA CHEQUE EN DB
         const chequesList = actualizarCheques()
 
+        // AGREGA CADA CHEQUE PERSONAL A LA LISTA 
+        let chequesPersonalesList = agregarChequesPersonales()
+
         // FUNCIONES DE ESTRUCTURA
         const calcularDeudaActualizada = () =>{
             return (getDeudaPasada() - calcularTotal())
         }
         const calcularTotal = () =>{
-            return efectivo||cheques?total+(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0):null
+            return efectivo||cheques?total+totalChequesPersonales+(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0):null
         }
         const getDeudaPasada = () =>{
             return props.proveedores[checkSearch(props.history.location.search)].datos.deuda
@@ -153,6 +185,8 @@ const NuevoPagoProveedor=(props)=>{
             cheques:chequesList.length?chequesList:null,
             cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
             totalTransferencia:totalTransferencia?totalTransferencia:null,
+            chequesPersonales:chequesPersonalesList,
+            totalChequesPersonales:totalChequesPersonales,
             fecha:obtenerFecha(),
             pagado:calcularTotal(),
             total:calcularTotal(),
@@ -199,9 +233,31 @@ const NuevoPagoProveedor=(props)=>{
         // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
         return chequesList
     }
+    const agregarChequesPersonales = () =>{
+        let chequesList= []
+        if(chequesPersonales.length){
+            // RECORRE LA LISTA DE CHEQUES 
+            chequesPersonales.map(cheque=>{
+                // GUARDA EL NUMERO DE CHEQUE
+                chequesList.push(cheque.numero)
+                // ESTRUCTURA DEL CHEQUE
+                let auxCheque = {
+                    egreso:obtenerFecha(),
+                    destinatario:cheque.destinatario,
+                    numero:cheque.numero,
+                    vencimiento:cheque.vencimiento,
+                    valor:cheque.valor
+                }
+                // GUARDA EN LA LISTA DE CHQUES CADA UNO
+                database().ref().child(props.user.uid).child('chequesPersonales').push(auxCheque)
+            })
+        }
+        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
+        return chequesList
+    }
     const actualizarDeuda = () =>{
         let deudaActual = props.proveedores[checkSearch(props.history.location.search)].datos.deuda
-        deudaActual-=total+(efectivo?parseFloat(efectivo):0)+(totalTransferencia?parseFloat(totalTransferencia):0)
+        deudaActual-=total+totalChequesPersonales+(efectivo?parseFloat(efectivo):0)+(totalTransferencia?parseFloat(totalTransferencia):0)
         database().ref().child(props.user.uid).child('proveedores').child(checkSearch(props.history.location.search)).child('datos').update({deuda:deudaActual})
     }
     const guardarTransferenciaBancaria = async (cuenta,total) =>{
@@ -242,11 +298,11 @@ const NuevoPagoProveedor=(props)=>{
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) }/ $ {formatMoney(props.proveedores[checkSearch(props.location.search)].datos.deuda) } 
+                                                        Total $ {formatMoney( total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) }/ $ {formatMoney(props.proveedores[checkSearch(props.location.search)].datos.deuda) } 
                                                     </Typography>
                                                 </Grid>
                                                 <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney( parseFloat(props.proveedores[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) ) }`}/>
+                                                    <Chip label={`$ ${formatMoney( parseFloat(props.proveedores[checkSearch(props.location.search)].datos.deuda) - ( total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) ) }`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>
