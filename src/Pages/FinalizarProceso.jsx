@@ -5,9 +5,8 @@ import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,St
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Finalizar-Proceso/Step'
 import {database} from 'firebase'
-import {formatMoney} from '../utilities'
 import {Redirect} from 'react-router-dom'
-import {obtenerFecha} from '../utilities'
+import {checkSearch, formatMoney,fechaDetallada,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
   
@@ -16,6 +15,9 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
 
     const [cheques,setcheques]=useState([])
     const [total, settotal] = useState(0);
+
+    const [chequesPersonales,setChequesPersonales]=useState([])
+    const [totalChequesPersonales, setTotalChequesPersonales] = useState(0);
 
     const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
     const [totalTransferencia, setTotalTransferencia] = useState(undefined);
@@ -77,10 +79,24 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                 chequesList={props.cheques}
                   />
             );
+        case 3:
+            return (
+                <StepComponent 
+                    tipoDeDato='Cheques Personales'
+                    chequesPersonales={chequesPersonales}
+                    setChequesPersonales={setChequesPersonales}
+                    totalChequesPersonales={totalChequesPersonales}
+                    setTotalChequesPersonales={setTotalChequesPersonales}
+                    cliente={checkSearch(props.history.location.search)}
+                    addCheque={addCheque}
+                    chequesList={props.cheques}
+                    tipo='Proveedor'
+                /> 
+          );
         }
     }
     function getSteps() {
-        return ['Detalles',"Transferencia",'Metodo De Pago'];
+        return ['Detalles',"Transferencia",'Metodo De Pago','Cheques Personales'];
     }
     function getStepLabel(label,index) {
         switch (index) {
@@ -120,6 +136,18 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                         />
                     </StepLabel>
                 );
+            case 3:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<AttachMoney />} 
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                            label={label} 
+                            variant='default'
+                            onClick={()=>{setActiveStep(index)}}
+                        />
+                    </StepLabel>
+                );
         }
     }
 
@@ -145,16 +173,18 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // ACTUALIZA CADA CHEQUE EN DB
         let chequesList = actualizarCheques(cadena[step].proveedor)
         
+        // AGREGA CADA CHEQUE PERSONAL A LA LISTA 
+        let chequesPersonalesList = agregarChequesPersonales()
 
         // FUNCIONES DE ESTRUCTURA
         const calcularDeudaActualizada = () =>{
             return props.proveedores[cadena[step].proveedor].datos.deuda + parseFloat(calcularAdeudado())
         }
         const calcularPagado = () =>{
-            return total + (efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0)
+            return total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0)
         }     
         const calcularAdeudado = () =>{
-            return precio - (total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))
+            return precio - (total + totalChequesPersonales + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))
         }        
         // ESTRUCTURA DE LA ENTREGA
         let aux={
@@ -172,6 +202,8 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                     cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
                     totalTransferencia:totalTransferencia?totalTransferencia:null,
                     cheques:chequesList,
+                    chequesPersonales:chequesPersonalesList,
+                    totalChequesPersonales:totalChequesPersonales,
                     fecha:obtenerFecha(),
                     total:precio,
                     deudaPasada:props.proveedores[cadena[step].proveedor].datos.deuda,
@@ -260,6 +292,28 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
         return chequesList
     }
+    const agregarChequesPersonales = () =>{
+        let chequesList= []
+        if(chequesPersonales.length){
+            // RECORRE LA LISTA DE CHEQUES 
+            chequesPersonales.map(cheque=>{
+                // GUARDA EL NUMERO DE CHEQUE
+                chequesList.push(cheque.numero)
+                // ESTRUCTURA DEL CHEQUE
+                let auxCheque = {
+                    egreso:obtenerFecha(),
+                    destinatario:cheque.destinatario,
+                    numero:cheque.numero,
+                    vencimiento:cheque.vencimiento,
+                    valor:cheque.valor
+                }
+                // GUARDA EN LA LISTA DE CHQUES CADA UNO
+                database().ref().child(props.user.uid).child('chequesPersonales').push(auxCheque)
+            })
+        }
+        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
+        return chequesList
+    }
     const actualizarDeuda = (totalPedido,totalRecibido,id) =>{
         const deudaPasada = props.proveedores[id].datos.deuda
         if(totalPedido>totalRecibido){
@@ -330,11 +384,11 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))} / $ {formatMoney(precio)}
+                                                        Total $ {formatMoney( total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))} / $ {formatMoney(precio)}
                                                     </Typography>
                                                 </Grid>
                                                 <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney( precio - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) )}`}/>
+                                                    <Chip label={`$ ${formatMoney( precio - ( total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) )}`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>
