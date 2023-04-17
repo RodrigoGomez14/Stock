@@ -81,17 +81,17 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
             );
         case 3:
             return (
-                <StepComponent 
-                    tipoDeDato='Cheques Personales'
-                    chequesPersonales={chequesPersonales}
-                    setChequesPersonales={setChequesPersonales}
-                    totalChequesPersonales={totalChequesPersonales}
-                    setTotalChequesPersonales={setTotalChequesPersonales}
-                    cliente={checkSearch(props.history.location.search)}
-                    addCheque={addCheque}
-                    chequesList={props.cheques}
-                    tipo='Proveedor'
-                /> 
+                    <StepComponent 
+                        tipoDeDato='Cheques Personales'
+                        chequesPersonales={chequesPersonales}
+                        setChequesPersonales={setChequesPersonales}
+                        totalChequesPersonales={totalChequesPersonales}
+                        setTotalChequesPersonales={setTotalChequesPersonales}
+                        cliente={props.cadenasActivas[props.location.search.slice(1)].procesos[checkStepProceso(props.history.location.search.slice(1))].proveedor}
+                        addCheque={addCheque}
+                        chequesList={props.cheques}
+                        tipo='Proveedor'
+                    />
           );
         }
     }
