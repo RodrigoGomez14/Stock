@@ -11,7 +11,7 @@ import {database} from 'firebase'
 import {formatMoney,obtenerFecha,monthsList} from '../utilities'
 import {DialogEntregarCheque} from '../components/Cheques/DialogEntregarCheque'
 import {content} from './styles/styles'
-import { Cheque } from '../components/Cheques/Cheque'
+import { Cheque } from '../components/Cheques/ChequePersonal'
 import Empty from '../images/Empty.png'
 import ApexCharts from 'react-apexcharts';
 
@@ -31,18 +31,17 @@ const ChequesPersonales=(props)=>{
         setLoading(true)
 
         let valor = props.cheques[id].valor
-        let cliente = props.cheques[id].nombre
-        let destinatario = props.cheques[id].destinatario?props.cheques[id].destinatario:undefined
+        let proveedor = props.cheques[id].destinatario
 
 
-        // GUARDA EL MOVIMIENTO EN LA LISTA DE PAGOS DEL CLIENTE Y DEL PROVEEDOR
-        guardarPago(cliente,id,destinatario)
+        // GUARDA EL MOVIMIENTO EN LA LISTA DE PAGOS DEL PROVEEDOR
+        guardarPago(proveedor,id)
 
-        // ACTUALIZA DEUDA DE CLIENTE Y PROVEEDOR 
-        actualizarDeuda(valor,cliente,destinatario)
+        // ACTUALIZA DEUDA DE PROVEEDOR 
+        actualizarDeuda(valor,proveedor)
 
         // ACTUALIZA EL CHEQUE EN LA DB
-        database().ref().child(props.user.uid).child('cheques').child(id).update({
+        database().ref().child(props.user.uid).child('chequesPersonales').child(id).update({
             dadoDeBaja:true
         })
         // FEEDBACK DEL PROCESO
@@ -57,62 +56,58 @@ const ChequesPersonales=(props)=>{
             setLoading(false)
         })
     }
+    const asentarAcreditacion = id =>{
+        setLoading(true)
 
-    const actualizarDeuda = (valor,nombre,destinatario) =>{
-        
-        // CLIENTE
-        const nuevaDeudaCliente = props.clientes[nombre].datos.deuda+parseFloat(valor)
-        database().ref().child(props.user.uid).child('clientes').child(nombre).child('datos').update({
-            deuda:nuevaDeudaCliente
+        let fecha = 
+
+        // ACTUALIZA EL CHEQUE EN LA DB
+        database().ref().child(props.user.uid).child('chequesPersonales').child(id).update({
+            acreditado:true,
+            fechaAcreditacion:obtenerFecha()
         })
-        // SI EL CHEQUE FUE ENTREGADO SE ACTUALIZA LA DEUDA DEL PROVEEDOR
-        if(destinatario){
-            const nuevaDeudaProveedor = props.proveedores[destinatario].datos.deuda+parseFloat(valor)
-            database().ref().child(props.user.uid).child('proveedores').child(`${destinatario}`).child('datos').update({
-                deuda:nuevaDeudaProveedor
-            })  
-        }
+        // FEEDBACK DEL PROCESO
+        .then(()=>{
+            setshowSnackbar('El cheque se acredito!')
+            setTimeout(() => {
+                setLoading(false)
+                setshowSnackbar('')
+            }, 2000);
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
 
+    const actualizarDeuda = (valor,proveedor) =>{
+            const nuevaDeudaProveedor = props.proveedores[proveedor].datos.deuda+parseFloat(valor)
+            database().ref().child(props.user.uid).child('proveedores').child(`${proveedor}`).child('datos').update({
+                deuda:nuevaDeudaProveedor
+            })
     }
     
-    const guardarPago = (cliente,cheque,destinatario) =>{
+    const guardarPago = (proveedor,cheque) =>{
 
         // FUNCIONES DE ESTRUCTURA
-        const calcularDeudaActualizada = type =>{
-            if(type == 'cliente'){
-                return getDeudaPasada(type) + parseFloat(props.cheques[cheque].valor)
-            }
-            else if(type == 'proveedor'){
-                return getDeudaPasada(type) + parseFloat(props.cheques[cheque].valor)
-            }
+        const calcularDeudaActualizada = () =>{
+                return getDeudaPasada() + parseFloat(props.cheques[cheque].valor)
         }
-        const getDeudaPasada = type =>{
-            if(type == 'cliente'){
-                return props.clientes[cliente].datos.deuda
-            }
-            else if(type == 'proveedor'){
-                return props.proveedores[destinatario].datos.deuda
-
-            }
+        const getDeudaPasada = () =>{
+                return props.proveedores[proveedor].datos.deuda
         }
         // ESTRUCTURA DEL PAGO
         let aux={
-            deudaPasada:getDeudaPasada('cliente'),
-            deudaActualizada:calcularDeudaActualizada('cliente'),
-            cheques:[props.cheques[cheque].numero],
+            deudaPasada:getDeudaPasada(),
+            deudaActualizada:calcularDeudaActualizada(),
+            totalChequesPersonales:-(props.cheques[cheque].valor),
+            chequesPersonales:[props.cheques[cheque].numero],
             fecha:obtenerFecha(),
             pagado:-(props.cheques[cheque].valor),
             total:-(props.cheques[cheque].valor),
         }
-        // ACTUALIZA DB CLIENTE
-        database().ref().child(props.user.uid).child('clientes').child(cliente).child('pagos').push(aux)
-        
         // ACTUALIZA DB PROVEEDOR
-        if(destinatario){
-            aux.deudaPasada=getDeudaPasada('proveedor')
-            aux.deudaActualizada=calcularDeudaActualizada('proveedor')
-            database().ref().child(props.user.uid).child('proveedores').child(destinatario).child('pagos').push(aux)  
-        }
+        database().ref().child(props.user.uid).child('proveedores').child(proveedor).child('pagos').push(aux)
+        
     }
     const guardarChequeEnGrupo = (id,grupo) =>{
         setLoading(true)
@@ -228,7 +223,7 @@ const ChequesPersonales=(props)=>{
             {/* CONTENT */}
             <Paper className={classes.content}>
                 {/* CHEQUES TABLE */}
-                <Grid container justify='center' alignItems='center' spacing={3}>
+                <Grid container justify='center' alignItems='center' spacing={6}>
                     {/* props.cheques?
                         <Grid container item xs={12} justify='space-around'>
                             <Grid item>
@@ -266,14 +261,14 @@ const ChequesPersonales=(props)=>{
                                         <Grid container item xs={12} justify='center'>
                                             <Card className={classes.CardMonthCheques}>
                                                 <CardHeader
-                                                    title={`$ ${formatMoney(sortedCheques[month].totalDisponible)} ($ ${formatMoney(sortedCheques[month].total)})`}
+                                                    title={`$ ${formatMoney(sortedCheques[month].total)}`}
                                                     subheader={monthsList[month-1]}
                                                 />
                                             </Card>
                                         </Grid>
                                         <Grid container item xs={12} justify='center' spacing={3}>
                                             {Object.keys(sortedCheques[month].cheques).map(cheque=>(
-                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search} guardarChequeRebotado={guardarChequeRebotado} guardarChequeEnGrupo={guardarChequeEnGrupo} />    
+                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search} guardarChequeRebotado={guardarChequeRebotado} asentarAcreditacion={asentarAcreditacion} guardarChequeEnGrupo={guardarChequeEnGrupo} />    
                                             ))}
                                         </Grid>
                                     </>

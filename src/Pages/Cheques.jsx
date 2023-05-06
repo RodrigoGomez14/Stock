@@ -4,7 +4,7 @@ import {Layout} from './Layout'
 import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent, Button} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {PersonAdd} from '@material-ui/icons'
-import {MoreVert,DeleteOutlineOutlined} from '@material-ui/icons'
+import {MoreVert,ArrowForward} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardPedido} from '../components/Pedidos/CardPedido'
 import {database} from 'firebase'
@@ -228,30 +228,11 @@ const Cheques=(props)=>{
             {/* CONTENT */}
             <Paper className={classes.content}>
                 {/* CHEQUES TABLE */}
-                <Grid container justify='center' alignItems='center' spacing={3}>
-                    <Link
-                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                        to={{
-                            pathname:'/Cheques-Personales',
-                    }}>
-                        <Button>Cheques Personales</Button>
-                    </Link>  
-                    {/* props.cheques?
-                        <Grid container item xs={12} justify='space-around'>
-                            <Grid item>
-                                <Card>
-                                    <CardHeader title='Grupos de Cheques'/>
-                                    <CardContent>
-                                        {generateChartGrupos()}
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        </Grid>
-                        :
-                        null
-                    */}
-                    {/* SEARCH BAR */}
-                    <Grid container item xs={12} justify='center' alignItems='center' >
+                <Grid container spacing={6}>
+                    <Grid container item xs={12} justify='space-around'>
+                        
+                        {/* SEARCH BAR */}
+                        
                         <Grid item>
                             <TextField
                                 value={search}
@@ -261,6 +242,18 @@ const Cheques=(props)=>{
                                 disabled={!props.cheques}
                                 label='Buscar Cheque'
                             />
+                        </Grid>
+
+
+                        {/* NAVIGATION TO CHEQUES PERSONALES */}
+                        <Grid item>
+                            <Link
+                                style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                to={{
+                                    pathname:'/Cheques-Personales',
+                            }}>
+                                <Button endIcon={<ArrowForward/>}>Cheques Personales</Button>
+                            </Link>  
                         </Grid>
                     </Grid>
 

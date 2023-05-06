@@ -153,6 +153,33 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                             :
                                             null
                                         }
+                                        {pedido.metodoDePago.chequesPersonales?
+                                        <>
+                                            {pedido.metodoDePago.efectivo?<Divider/>:null}
+                                            <ListItem>
+                                                <ListItemText
+                                                    primary={`$ ${formatMoney(pedido.metodoDePago.totalChequesPersonales)}`}
+                                                    secondary={`${pedido.metodoDePago.chequesPersonales.length} ${pedido.metodoDePago.chequesPersonales.length>1?'Cheques':'Cheque'}`}/>
+                                            </ListItem>
+                                            <ListItem>
+                                                {pedido.metodoDePago.chequesPersonales.map(cheque=>(
+                                                    <ListItemText
+                                                        primary={
+                                                        <Link
+                                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                            to={{
+                                                            pathname:'/Cheques-Personales',
+                                                            search:cheque}}>
+                                                                N° {cheque}
+                                                        </Link>
+                                                        }
+                                                    />
+                                                ))}
+                                            </ListItem>
+                                        </>
+                                        :
+                                        null
+                                        }
                                         {pedido.metodoDePago.cheques?
                                         <>
                                             {pedido.metodoDePago.efectivo?<Divider/>:null}

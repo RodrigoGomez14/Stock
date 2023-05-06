@@ -7,7 +7,7 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGrupo}) =>{
+export const Cheque = ({cheque,search,guardarChequeRebotado,asentarAcreditacion,id,guardarChequeEnGrupo}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -25,74 +25,53 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
         <>
             <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:(cheque.numero).search(search) == -1 ? classes.displayNone:classes.display}>
                     <Card>
-                        <Paper elevation={3} className={cheque.dadoDeBaja?classes.cardChequeHeaderBaja:(cheque.destinatario?classes.cardChequeEnviadoHeader:classes.cardChequeHeader)}>
+                        <Paper elevation={3} className={cheque.dadoDeBaja?classes.cardChequeHeaderBaja:(cheque.acreditado?classes.cardChequeEnviadoHeader:classes.cardChequeHeader)}>
                             <CardHeader
-                                className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.destinatario?classes.cardHeaderChequeIconSuccess:null)}
+                                className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.acreditado?classes.cardHeaderChequeIconSuccess:null)}
                                 action={
                                     <>
                                         <IconButton onClick={()=>{setExpanded(!expanded)}}>
                                             {expanded?
-                                                <ExpandLess className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.destinatario?classes.cardHeaderChequeIconSuccess:null)}/>
+                                                <ExpandLess className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.acreditado?classes.cardHeaderChequeIconSuccess:null)}/>
                                                 :
-                                                <ExpandMore className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.destinatario?classes.cardHeaderChequeIconSuccess:null)}/>
+                                                <ExpandMore className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.acreditado?classes.cardHeaderChequeIconSuccess:null)}/>
                                             }
                                         </IconButton>
-                                        {cheque.dadoDeBaja ?
-                                            null
-                                            :
-                                            <IconButton aria-label="settings" onClick={handleClick}>
-                                                <MoreVert className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.acreditado?classes.cardHeaderChequeIconSuccess:null)}/>
-                                            </IconButton>
-                                        }
-                                        <Menu
-                                            id="simple-menu"
-                                            anchorEl={anchorEl}
-                                            keepMounted
-                                            open={Boolean(anchorEl)}
-                                            onClose={handleClose}
-                                        >
-                                            {!cheque.grupo?
-                                                <>
+                                            {cheque.dadoDeBaja && cheque.acreditado ?
+                                                null
+                                                :
+                                                <IconButton aria-label="settings" onClick={handleClick}>
+                                                    <MoreVert className={cheque.dadoDeBaja?classes.cardHeaderChequeIconDanger:(cheque.acreditado?classes.cardHeaderChequeIconSuccess:null)}/>
+                                                </IconButton>
+                                            }
+                                            <Menu
+                                                id="simple-menu"
+                                                anchorEl={anchorEl}
+                                                keepMounted
+                                                open={Boolean(anchorEl)}
+                                                onClose={handleClose}
+                                            >
+                                                {!cheque.dadoDeBaja?
                                                     <MenuItem onClick={()=>{
-                                                        guardarChequeEnGrupo(id,'Blanco')
+                                                        guardarChequeRebotado(id)
                                                         setAnchorEl(null)
                                                     }}>
-                                                        Guardar Blanco
+                                                        Dar de Baja
                                                     </MenuItem>
+                                                    :
+                                                    null
+                                                }
+                                                {!cheque.acreditado?
                                                     <MenuItem onClick={()=>{
-                                                        guardarChequeEnGrupo(id,'Negro')
+                                                        asentarAcreditacion(id)
                                                         setAnchorEl(null)
                                                     }}>
-                                                        Guardar Negro
+                                                        Asentar Acreditacion
                                                     </MenuItem>
-                                                </>
-                                                :
-                                                null
-                                            }
-                                            {!cheque.dadoDeBaja?
-                                                <MenuItem onClick={()=>{
-                                                    guardarChequeRebotado(id)
-                                                    setAnchorEl(null)
-                                                }}>
-                                                    Dar de Baja
-                                                </MenuItem>
-                                                :
-                                                null
-                                            }
-                                            {!cheque.destinatario?
-                                                <MenuItem >
-                                                    <Link 
-                                                        style={{color:'#fff',textDecoration:'none'}}
-                                                        className={classes.textWhite}
-                                                        to={{pathname:'/Depositar-Cheque',search:`${id}`}
-                                                    }>
-                                                        Depositar en Cuenta Bancaria
-                                                    </Link>
-                                                </MenuItem>
-                                                :
-                                                null
-                                            }
-                                        </Menu>
+                                                    :
+                                                    null
+                                                }
+                                            </Menu>
                                     </>
                                 }
                                 title={
@@ -147,31 +126,16 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                     }
                                 </Grid>
                                 <List>
-                                    {cheque.grupo?
+                                    <ListItem>
+                                        <ListItemText primary={cheque.vencimiento} secondary='Vencimiento'/>
+                                    </ListItem>
+                                    {cheque.acreditado?
                                         <ListItem>
-                                            <ListItemText primary={cheque.grupo} secondary='Grupo'/>
+                                            <ListItemText primary={cheque.fechaAcreditacion} secondary='Fecha de Acreditacion'/>
                                         </ListItem>
                                         :
                                         null
                                     }
-                                    <Link 
-                                        style={{color:'#fff',textDecoration:'none'}}
-                                        className={classes.textWhite}
-                                        to={{pathname:'/Cliente',search:`${cheque.nombre}`}
-                                    }>
-                                        <ListItem>
-                                            <ListItemText primary={cheque.nombre} secondary='Entregado por'/>
-                                        </ListItem>
-                                    </Link>
-                                    <ListItem>
-                                        <ListItemText primary={cheque.ingreso} secondary='Fecha de Entrega'/>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemText primary={cheque.vencimiento} secondary='Vencimiento'/>
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemText primary={cheque.banco} secondary='Banco'/>
-                                    </ListItem>
                                 </List>
                             </CardContent>
                         </Collapse>
