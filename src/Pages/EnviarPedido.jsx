@@ -169,7 +169,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         // AGREGA EL PEDIDO A DB PARA OBTENER ID
         let idLink = database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push()
         
-        // AGREGA LA FACTURA A LISTA DE VENTASa
+        // AGREGA LA FACTURA A LISTA DE VENTAS
         agregarAListaDeVentas(aux,idLink.key)
 
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
@@ -267,7 +267,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
     const agregarAListaDeVentas = (pedido,idLink) =>{
         let aux=pedido
         aux['idPedido']=idLink
-        database().ref().child(props.user.uid).child('ventas').push(aux)
+        database().ref().child(props.user.uid).child('ventas').push(aux) 
     }
     const agregarPagoAlHistorial = (pago,idLink,idPedido) =>{
         // AGREGA EL ID DEL PEDIDO AL PAGO

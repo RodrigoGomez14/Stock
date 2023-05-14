@@ -71,7 +71,7 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
                         <Grid container xs={12} spacing={2} >
-                            {pedido.metodoDeEnvio.expreso?
+                            {pedido.metodoDeEnvio?
                                 <Grid container item xs={12}>
                                     <Grid container item xs={12}>
                                             <Alert variant="filled" severity="success" className={classes.alertCheque}>

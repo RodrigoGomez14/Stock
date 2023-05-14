@@ -7,7 +7,7 @@ import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Pedido/Step'
 import {database} from 'firebase'
 import {content} from './styles/styles'
-import { fechaDetallada, getClientList, getProductosListWithPrice } from '../utilities';
+import { convertirFecha, getClientList, getProductosListWithPrice } from '../utilities';
 import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
 
 // COMPONENT
@@ -135,36 +135,33 @@ const NuevoPedido=(props)=>{
         setLoading(true)
         let aux={
             cliente:nombre,
-            productos:productos,
-            total:total,
-            fecha:!fecha?fechaDetallada():fecha
-        }
-        //Editar Pedido
-        if(props.history.location.search){
-            database().ref().child(props.user.uid).child('pedidos').child(props.history.location.search.slice(1)).update(aux)
-            .then(()=>{
-                    setshowSnackbar('El pedido se editó correctamente!')
-                setTimeout(() => {
-                    props.history.replace(`/Pedidos`)
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
+            articulos:productos,
+            fecha:convertirFecha(fecha),
+            metodoDePago:{
+                facturacion:false
+            }
         }
         //Guardar Pedido Nuevo
-        else{
-            database().ref().child(props.user.uid).child('pedidos').push(aux)
-            .then(()=>{
-                setshowSnackbar('El pedido se agregó correctamente!')
-                setTimeout(() => {
-                    props.history.replace(`/Pedidos`)
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-        }
+        
+        // AGREGA EL PEDIDO A DB PARA OBTENER ID
+        let idLink = database().ref().child(props.user.uid).child('clientes').child(nombre).child('pedidos').push()
+        // AGREGA LA FACTURA A LISTA DE VENTAS
+        agregarAListaDeVentas(aux,idLink.key)
+        idLink.update(aux).then(()=>{
+            setshowSnackbar('El pedido se agregó correctamente!')
+            setTimeout(() => {
+                props.history.replace(`/Pedidos`)
+            }, 2000);    
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
+
+    const agregarAListaDeVentas = (pedido,idLink) =>{
+        let aux=pedido
+        aux['idPedido']=idLink
+        database().ref().child(props.user.uid).child('ventas').push(aux) 
     }
 
     //FILL FOR EDIT

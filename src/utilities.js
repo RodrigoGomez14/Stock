@@ -21,6 +21,9 @@ export const obtenerFecha = () =>{
   var f=new Date()
   return `${f.getDate()}/${f.getMonth()+1}/${f.getFullYear()}`
 }
+export const convertirFecha = (fecha) =>{
+  return `${fecha.getDate()}/${fecha.getMonth()+1}/${fecha.getFullYear()}`
+}
 
 export const fechaDetallada = () =>{
   let meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
