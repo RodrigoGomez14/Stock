@@ -113,12 +113,10 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             <DialogContent>
                 <Grid container direction='column' alignItems='center' spacing={3}>
                     <Grid item>
-                        {console.log(productosList)}
                         <Autocomplete
                             freeSolo
                             value={producto}
                             options={productosList}
-                            disabled={Boolean(producto)}
                             getOptionLabel={(option) => option.nombre}
                             onChange={(e)=>{
                                 setproducto(e.target.value) 
@@ -132,6 +130,8 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             renderInput={(params) => <TextField {...params} label="Producto" variant="outlined" />}
                         />
                     </Grid>
+                    {console.log(productosList)}
+                    {console.log(producto)}
                     {producto&&
                         <Grid container item xs={12} justify='flex-start' spacing={3} >
                             <List style={{width:'100%'}}>

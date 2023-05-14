@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import {Grid, Button,makeStyles,Select,Input,TextField,Paper,FormControl, Typography,Card,CardContent,CardActions} from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
 import {Productos} from './Productos'
 import {DialogNuevoProducto} from './Dialogs/DialogNuevoProducto'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
 import {AddOutlined} from '@material-ui/icons'
+import DateFnsUtils from '@date-io/date-fns';
+import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker} from '@material-ui/pickers';
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const Step = ({datos,setDatos,tipoDeDato,clientesList,productosList,total,settotal}) =>{
+export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fecha}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
@@ -21,27 +22,6 @@ export const Step = ({datos,setDatos,tipoDeDato,clientesList,productosList,total
     }
     const renderStep = () =>{
         switch (tipoDeDato) {
-            case 'Destinatario':
-                return(
-                    <Grid container item xs={12} justify='center'>
-                        <Paper elevation={3}>
-                            <Grid item xs={12} justify='center'>
-                                <Autocomplete
-                                    freeSolo
-                                    disabled={!clientesList}
-                                    options={clientesList?Object.keys(clientesList):{}}
-                                    getOptionLabel={(option) => option}
-                                    onSelect={(e)=>{setDatos(e.target.value)}}
-                                    onChange={(e)=>{setDatos(e.target.value)}}
-                                    style={{ width: 300 }}
-                                    value={datos}
-                                    renderInput={(params) => <TextField {...params} label="Destinatario" variant="outlined" />}
-                                />
-                            </Grid>
-                        </Paper>
-                    </Grid>
-                )
-                break;
             case 'Productos':
                 return(
                     <Grid container item xs={12} justify='center' spacing={3}>
@@ -89,6 +69,28 @@ export const Step = ({datos,setDatos,tipoDeDato,clientesList,productosList,total
                             total={total}
                             settotal={settotal}
                         />
+                    </Grid>
+                )
+                break;
+            case 'Fecha':
+                return(
+                    <Grid container item xs={12} justify='center' spacing={3}>
+                        <Grid container item xs={12} justify='center'>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils} noValidate>
+                                <KeyboardDatePicker
+                                    disableToolbar
+                                    variant="inline"
+                                    format="dd/MM/yyyy"
+                                    fullWidth
+                                    label="Fecha del pedido"
+                                    value={datos}
+                                    onChange={i=>{
+                                        setDatos(i)
+                                    }}
+                                />
+                            </MuiPickersUtilsProvider   >
+
+                        </Grid>
                     </Grid>
                 )
                 break;

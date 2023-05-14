@@ -9,7 +9,7 @@ import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
 import {database} from 'firebase'
 import {content} from './styles/styles'
 import {checkSearchProducto} from '../utilities'
-import {getProductosList,getSubproductosList} from '../utilities'
+import {getProductosList,getSubproductosList,getAllProductosList} from '../utilities'
 
   
 // COMPONENT  
@@ -68,7 +68,7 @@ const NuevoProducto=(props)=>{
                 tipoDeDato='Componentes'
                 subproductos={subproductos}
                 setSubproductos={setSubproductos}
-                subproductosList={getSubproductosList(props.productos)}
+                subproductosList={getAllProductosList(props.productos)}
             /> 
         );
       }

@@ -105,6 +105,16 @@ export const getProductosListWithPrice = (productos) =>{
   return aux
 
 }
+export const getClientList = (clientes) =>{
+  let aux = []
+  if(clientes){
+      Object.keys(clientes).map(key=>{
+        aux.push(key)
+      })
+  }
+  return aux
+
+}
 export const getSubproductosList = (subproducto) =>{
   let aux = []
   if(subproducto){
@@ -112,6 +122,16 @@ export const getSubproductosList = (subproducto) =>{
           if(subproducto[key].isSubproducto){
               aux.push(subproducto[key])
           }
+      })
+  }
+  return aux
+}
+
+export const getAllProductosList = (subproducto) =>{
+  let aux = []
+  if(subproducto){
+      Object.keys(subproducto).map(key=>{
+        aux.push(subproducto[key])
       })
   }
   return aux

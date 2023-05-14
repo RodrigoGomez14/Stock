@@ -54,7 +54,7 @@ const NuevoPedido=(props)=>{
             </Grid>
             );
         case 1:
-            return (
+            return ( 
                 <StepComponent 
                 tipoDeDato='Productos'
                 datos={productos}
@@ -62,6 +62,14 @@ const NuevoPedido=(props)=>{
                 productosList={getProductosListWithPrice(props.productos)}
                 total={total}
                 settotal={settotal}
+            /> 
+          );
+          case 2:
+            return (
+                <StepComponent 
+                tipoDeDato='Fecha'
+                datos={fecha}
+                setDatos={setfecha}
             /> 
           );
       }
@@ -79,7 +87,7 @@ const NuevoPedido=(props)=>{
     }
     }
     function getSteps() {
-        return ['Elegir el Destinatario', 'Elegir Los productos'];
+        return ['Elegir el Destinatario', 'Elegir Los productos',"Fecha"];
     }
     function getStepLabel(label,index) {
         switch (index) {
@@ -96,6 +104,18 @@ const NuevoPedido=(props)=>{
                     </StepLabel>
                 );
             case 1:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<MoveToInbox/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
+            case 2:
                 return (
                     <StepLabel>
                         <Chip 
