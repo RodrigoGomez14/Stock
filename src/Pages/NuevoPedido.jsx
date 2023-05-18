@@ -13,7 +13,7 @@ import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
 // COMPONENT
 const NuevoPedido=(props)=>{
     const classes = content()
-    const [nombre,setnombre]=useState('')
+    const [nombre,setnombre]=useState(undefined)
     const [productos,setproductos]=useState([])
     const [total,settotal]=useState(0)
     const [fecha,setfecha]=useState(undefined)

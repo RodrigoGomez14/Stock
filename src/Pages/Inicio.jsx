@@ -1455,40 +1455,6 @@ const Inicio=(props)=>{
                                         </CardContent>
                                     </Card>
                                 </Grid>
-                                <Grid item>
-                                    <Card>
-                                        <CardHeader
-                                            title={
-                                                <AppBar position="static">
-                                                    <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                                                        <Tab label="Valor" />
-                                                        <Tab label="Cantidad" />
-                                                    </Tabs>
-                                                </AppBar>
-                                            }
-                                        />
-                                        <CardContent>
-                                            <TabPanel value={value}  index={0}>
-                                                <Grid container spacing={3}>
-                                                    <Grid item>
-                                                        <Paper>
-                                                            {generateChartClientValue()}
-                                                        </Paper>
-                                                    </Grid>
-                                                </Grid>
-                                            </TabPanel>
-                                            <TabPanel value={value}  index={1}>
-                                                <Grid container spacing={3}>
-                                                    <Grid item>
-                                                        <Paper>
-                                                            {generateChartAnualProductsUnits()}
-                                                        </Paper>
-                                                    </Grid>
-                                                </Grid>
-                                            </TabPanel>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
                             </Grid>
                         </Grid>
                         :
