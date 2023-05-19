@@ -4,8 +4,6 @@ import {Productos} from './Productos'
 import {DialogNuevoProducto} from './Dialogs/DialogNuevoProducto'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
 import {AddOutlined} from '@material-ui/icons'
-import DateFnsUtils from '@date-io/date-fns';
-import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker} from '@material-ui/pickers';
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
@@ -69,28 +67,6 @@ export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fec
                             total={total}
                             settotal={settotal}
                         />
-                    </Grid>
-                )
-                break;
-            case 'Fecha':
-                return(
-                    <Grid container item xs={12} justify='center' spacing={3}>
-                        <Grid container item xs={12} justify='center'>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils} noValidate>
-                                <KeyboardDatePicker
-                                    disableToolbar
-                                    variant="inline"
-                                    format="dd/MM/yyyy"
-                                    fullWidth
-                                    label="Fecha del pedido"
-                                    value={datos}
-                                    onChange={i=>{
-                                        setDatos(i)
-                                    }}
-                                />
-                            </MuiPickersUtilsProvider   >
-
-                        </Grid>
                     </Grid>
                 )
                 break;

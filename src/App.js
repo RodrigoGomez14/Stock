@@ -19,7 +19,7 @@ import HistorialCliente from './Pages/HistorialCliente'
 import HistorialProveedor from './Pages/HistorialProveedor';
 import Pedidos from './Pages/Pedidos'
 import Entregas from './Pages/Entregas'
-import NuevaEntrega from './Pages/NuevaEntrega'
+import NuevaEntrega from './Pages/NuevaEntregaHistorica'
 import RecibirEntrega from './Pages/RecibirEntrega'
 import EnviarPedido from './Pages/EnviarPedido'
 import NuevoProducto from './Pages/NuevoProducto'
@@ -69,9 +69,14 @@ class App extends Component {
         const databaseRef = await firebase.database().ref().child(user.uid)
         databaseRef.on('value', snapshot=>{
           data= snapshot.val()
-          store=createStore(reducer, {user:user,...data})
-          this.setState({store,user:user,loading:false})
-          this.setState({loading:false})
+          var dolares = []
+          fetch("https://www.dolarsi.com/api/api.php?type=valoresprincipales")
+            .then((response) => response.json())  
+            .then((info) => dolares = info)
+            .then(()=>{
+              store=createStore(reducer, {dolares:dolares,user:user,...data})
+              this.setState({store,user:user,loading:false})
+            })
         })
       }
       else{

@@ -1366,6 +1366,10 @@ const Inicio=(props)=>{
         //Layout
         <Layout history={props.history} page="Inicio" user={props.user.uid}>
             <Paper className={classes.content}>
+                <h2>Oficial Compra ${props.dolares[0].casa.compra}</h2>
+                <h2>Oficial Venta ${props.dolares[0].casa.venta}</h2>
+                <h2>Compra ${props.dolares[3].casa.compra}</h2>
+                <h2>Venta ${props.dolares[3].casa.venta}</h2>
                 <Grid container item xs={12}>
                     {!loading && props.ventas?
                         <Grid container xs={12} spacing={3} justify='center'>
@@ -1490,6 +1494,7 @@ const mapStateToProps = state =>{
         user:state.user,
         compras:state.compras,
         ventas:state.ventas,
+        dolares:state.dolares
     }
 }
 export default connect(mapStateToProps,null)(Inicio)

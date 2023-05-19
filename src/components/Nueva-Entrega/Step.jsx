@@ -8,6 +8,9 @@ import {AddOutlined} from '@material-ui/icons'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
+import DateFnsUtils from '@date-io/date-fns';
+import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker} from '@material-ui/pickers';
+
 export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,total,settotal}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
@@ -22,8 +25,8 @@ export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,to
     const getProductos = () =>{
         let aux = []
         Object.values(productosList).map(producto=>{
+            aux.push(producto)
             if(!producto.cadenaDeProduccion){
-                aux.push(producto)
             }
         })
         return aux
@@ -98,6 +101,28 @@ export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,to
                                 total={total}
                                 settotal={settotal}
                             />
+                    </Grid>
+                )
+                break;
+            case 'Fecha':
+                return(
+                    <Grid container item xs={12} justify='center' spacing={3}>
+                        <Grid container item xs={12} justify='center'>
+                            <MuiPickersUtilsProvider utils={DateFnsUtils} noValidate>
+                                <KeyboardDatePicker
+                                    disableToolbar
+                                    variant="inline"
+                                    format="dd/MM/yyyy"
+                                    fullWidth
+                                    label="Fecha del pedido"
+                                    value={datos}
+                                    onChange={i=>{
+                                        setDatos(i)
+                                    }}
+                                />
+                            </MuiPickersUtilsProvider   >
+
+                        </Grid>
                     </Grid>
                 )
                 break;
