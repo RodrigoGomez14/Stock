@@ -39,7 +39,8 @@ export const CardStep = ({proceso,id,activeStep,iniciarProceso,index}) =>{
                     :
                     null
                 }
-                {(activeStep()==index) && proceso.fechaDeInicio?
+                {console.log(proceso)}
+                {(activeStep()==index) && proceso.fechaDeInicio ?
                     <CardActions>
                         <Grid container item xs={12} justify='center'>
                             <Grid container item xs={12} justify='center'>
@@ -56,14 +57,20 @@ export const CardStep = ({proceso,id,activeStep,iniciarProceso,index}) =>{
                                     label="Facturacion"
                                 />
                             </Grid>
-                            <Grid item>
-                                <Link 
-                                    style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                    to={{pathname:'/Finalizar-Proceso',search:`${id}`,props:{facturacion:facturacion}}
-                                }>
-                                    <Button color='primary' variant='contained'> Finalizar Proceso</Button>
-                                </Link>
-                            </Grid>
+                            {proceso.isProcesoPropio?
+                                <Grid item>
+                                    <Button color='primary' variant='contained'> Finalizar Proceso Propio</Button>
+                                </Grid>
+                                :
+                                <Grid item>
+                                    <Link 
+                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                        to={{pathname:'/Finalizar-Proceso',search:`${id}`,props:{facturacion:facturacion}}
+                                    }>
+                                        <Button color='primary' variant='contained'> Finalizar Proceso</Button>
+                                    </Link>
+                                </Grid>
+                            }
                         </Grid>
                     </CardActions>
                     :
@@ -92,11 +99,12 @@ export const CardStep = ({proceso,id,activeStep,iniciarProceso,index}) =>{
                                 <ListItem>
                                     <ListItemText 
                                         primary={
+                                            proceso.isProcesoPropio?'Proceso Propio':
                                             <Link 
                                                 style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
                                                 to={{pathname:'/Proveedor',search:`${proceso.proveedor}`}
                                             }>
-                                                {proceso.proveedor} 
+                                                {proceso.proveedor}
                                             </Link>
                                         } 
                                         secondary='Proveedor Asociado'/>

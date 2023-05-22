@@ -1368,8 +1368,11 @@ const Inicio=(props)=>{
             <Paper className={classes.content}>
                 <h2>Oficial Compra ${props.dolares[0].casa.compra}</h2>
                 <h2>Oficial Venta ${props.dolares[0].casa.venta}</h2>
+                <h2>Promedio ${(parseFloat(props.dolares[0].casa.venta)+parseFloat(props.dolares[0].casa.compra))/2}</h2>
+                <h2>--------------------------------</h2>
                 <h2>Compra ${props.dolares[3].casa.compra}</h2>
                 <h2>Venta ${props.dolares[3].casa.venta}</h2>
+                <h2>Promedio ${(parseFloat(props.dolares[3].casa.venta)+parseFloat(props.dolares[3].casa.compra))/2}</h2>
                 <Grid container item xs={12}>
                     {!loading && props.ventas?
                         <Grid container xs={12} spacing={3} justify='center'>
