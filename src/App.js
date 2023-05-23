@@ -19,7 +19,7 @@ import HistorialCliente from './Pages/HistorialCliente'
 import HistorialProveedor from './Pages/HistorialProveedor';
 import Pedidos from './Pages/Pedidos'
 import Entregas from './Pages/Entregas'
-import NuevaEntrega from './Pages/NuevaEntregaHistorica'
+import NuevaEntrega from './Pages/NuevaEntrega'
 import RecibirEntrega from './Pages/RecibirEntrega'
 import EnviarPedido from './Pages/EnviarPedido'
 import NuevoProducto from './Pages/NuevoProducto'

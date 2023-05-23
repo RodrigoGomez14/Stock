@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,ExpansionPanel,ExpansionPanelSummary,ExpansionPanelDetails,Paper,List,ListItem,ListItemText} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,ExpansionPanel,ExpansionPanelSummary,Typography,Paper,List,ListItem,ListItemText} from '@material-ui/core'
 import {MoreVert,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {formatMoney, obtenerFecha} from '../../utilities'
 import {Link} from 'react-router-dom'
@@ -8,7 +8,7 @@ import { StepperCadena } from '../Productos/StepperCadena'
 import ApexCharts from 'react-apexcharts';
 
 
-export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena}) =>{
+export const CardProducto = ({precio,cantidad,search,name,historialDeStock,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading,setLoading] = useState(false)
@@ -82,6 +82,43 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
         )
     }
 
+    const generateChartHistorialStock = (auxHistorial) => {
+        let data = []
+        let labels = []
+            Object.keys(auxHistorial).map(movimiento=>{
+                data.push(auxHistorial[movimiento].cantidad)
+                labels.push(auxHistorial[movimiento].fecha)
+            })
+    
+        // Define la configuración del gráfico
+        const options = {
+            labels:labels,
+            chart:{
+                sparkline: {
+                    enabled: true
+                },
+            },
+            stroke: {
+                curve: 'smooth'
+            },
+            tooltip:{
+                theme:'dark'
+            },
+        };
+    
+        // Define los datos a visualizar
+        const series = [
+            {
+            name: 'Stock',
+            data: data,
+            },
+        ];
+        console.log(data)
+        console.log(labels)
+        // Renderiza el gráfico
+        return <ApexCharts options={options} series={series} type='area' height={100}/>;
+    }
+
     // CONTENT
     return(
         <Grid item xs={8} sm={6} md={4} lg={3} className={!search?null:name.toLowerCase().search(search.toLowerCase()) == -1 ? classes.displayNone:classes.display}>
@@ -90,7 +127,7 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                         className={classes.cardCliente}
                         action={
                             <>
-                                {subproductos || cadenaDeProduccion ?
+                                {subproductos || cadenaDeProduccion || historialDeStock?
                                     <IconButton onClick={()=>{setExpanded(!expanded)}}>
                                         {expanded?
                                             <ExpandLess/>
@@ -162,6 +199,24 @@ export const CardProducto = ({precio,cantidad,search,name,eliminarProducto,subpr
                     <Collapse in={expanded} timeout='auto' unmountOnExit>
                         <CardContent>
                             <Grid container xs={12} justify='flex-start' spacing={3}>
+                                {historialDeStock?
+                                    <Grid container xs={12} spacing={3}>
+                                        <Grid item xs={12}>
+                                            <List>
+                                                <Divider/>
+                                                <ListSubheader>
+                                                    Historial de Stock
+                                                </ListSubheader>
+                                                <Divider/>
+                                            </List>
+                                        </Grid>
+                                        <Grid container item xs={12} justify='center'>
+                                            {generateChartHistorialStock(historialDeStock)}
+                                        </Grid>
+                                    </Grid>
+                                    :
+                                    null
+                                }
                                 {subproductos?
                                     <Grid container item xs={12}>
                                         <Grid container item xs={12} justify='center'>

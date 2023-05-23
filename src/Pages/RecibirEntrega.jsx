@@ -235,6 +235,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         aux.map(async (articulo)=>{
                 const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)+parseInt(articulo.cantidad)
                 await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
+                await database().ref().child(props.user.uid).child('productos').child(articulo.producto).child('historialDeStock').push({cantidad:nuevaCantidad,fecha:obtenerFecha()})
         })
     }
     const actualizarCheques =() =>{

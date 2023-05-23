@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import {Layout} from './Layout'
 import {content} from './styles/styles'
 import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader,CardContent,Box,AppBar,Tabs,Tab} from '@material-ui/core'
+import {CarouselCotizaciones} from '../components/Carousel-Cotizaciones/CarouselCotizaciones'
 import {Alert} from '@material-ui/lab'
 import Home from '../images/Home.png'
 import ApexCharts from 'react-apexcharts';
@@ -18,6 +19,7 @@ const Inicio=(props)=>{
     const [value,setValue]=useState(0)
     const [sortedProductos,setSortedProductos] = useState(undefined)
     const [sortedClientes,setSortedClientes] = useState(undefined)
+    const [cotizaciones,setCotizaciones] = useState(undefined)
     const [valueTabProductos,setValueTabProductos]=useState(0)
 
     const handleChange = (event, newValue) => {
@@ -1344,6 +1346,19 @@ const Inicio=(props)=>{
             return data
         }
     }
+    const filtrarCotizaciones = (aux) => {
+        let auxCotizaciones = []
+        auxCotizaciones[0] = {nombre:'Oficial Compra',valor:aux[0].casa.compra}
+        auxCotizaciones[1] = {nombre:'Oficial Promedio',valor:(parseFloat(aux[0].casa.compra)+parseFloat(aux[0].casa.venta))/2}
+        auxCotizaciones[2] = {nombre:'CCL Compra',valor:aux[3].casa.compra}
+        auxCotizaciones[3] = {nombre:'CCL Venta',valor:aux[3].casa.compra}
+        auxCotizaciones[4] = {nombre:'CCL Promedio',valor:(parseFloat(aux[3].casa.compra)+parseFloat(aux[3].casa.venta))/2}
+        auxCotizaciones[5] = {nombre:'Oficial Venta',valor:aux[0].casa.venta}
+        console.log(auxCotizaciones)
+        return(auxCotizaciones)
+    }
+    
+
     useEffect(()=>{
         setLoading(true)
 
@@ -1366,15 +1381,11 @@ const Inicio=(props)=>{
         //Layout
         <Layout history={props.history} page="Inicio" user={props.user.uid}>
             <Paper className={classes.content}>
-                <h2>Oficial Compra ${props.dolares[0].casa.compra}</h2>
-                <h2>Oficial Venta ${props.dolares[0].casa.venta}</h2>
-                <h2>Promedio ${(parseFloat(props.dolares[0].casa.venta)+parseFloat(props.dolares[0].casa.compra))/2}</h2>
-                <h2>--------------------------------</h2>
-                <h2>Compra ${props.dolares[3].casa.compra}</h2>
-                <h2>Venta ${props.dolares[3].casa.venta}</h2>
-                <h2>Promedio ${(parseFloat(props.dolares[3].casa.venta)+parseFloat(props.dolares[3].casa.compra))/2}</h2>
                 <Grid container item xs={12}>
-                    {!loading && props.ventas?
+                    <CarouselCotizaciones dolares={filtrarCotizaciones(props.dolares)}/>
+                </Grid>
+                <Grid container item xs={12}>
+                    {!loading && props.ventas?  
                         <Grid container xs={12} spacing={3} justify='center'>
                             <Grid container item xs={12} justify='center' spacing={3}>
                                 <Grid item>

@@ -129,6 +129,7 @@ const Productos=(props)=>{
                                         precio={producto.precio} 
                                         cadenaDeProduccion={producto.cadenaDeProduccion} 
                                         isSubproducto={false}
+                                        historialDeStock={producto.historialDeStock}
                                         cantidad={producto.cantidad}
                                         subproductos={producto.subproductos?producto.subproductos:null}
                                         name={producto.nombre}

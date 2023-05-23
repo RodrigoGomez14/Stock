@@ -241,4 +241,14 @@ export const content =makeStyles(theme=>({
     disabledBankAccountCard:{
 
     },
+
+
+    //CAROUSEL COTIZACIONES
+    CarouselCotizaciones:{
+        height:'100px'
+    },
+    PaperCarouselCotizaciones:{
+        height:'90px',
+        width:'250px'
+    }
 }))

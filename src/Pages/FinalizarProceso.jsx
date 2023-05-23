@@ -263,6 +263,8 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // AUMENTA LA CANTIDAD DE PRODUCTOS
         const nuevaCantidad = parseInt(props.productos[producto].cantidad)+parseInt(cantidad)
         await database().ref().child(props.user.uid).child('productos').child(producto).update({cantidad:nuevaCantidad})
+        await database().ref().child(props.user.uid).child('productos').child(producto).child('historialDeStock').push({cantidad:nuevaCantidad,fecha:obtenerFecha()})
+        
     }
     const descontarSubproductos = async id =>{
         const subproductos = props.productos[props.cadenasActivas[id].producto].subproductos
@@ -272,6 +274,7 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
             subproductos.map(async subproducto=>{
                 const nuevaCantidad = parseInt(props.productos[subproducto.nombre].cantidad)-(cantidad*subproducto.cantidad)
                 await database().ref().child(props.user.uid).child('productos').child(subproducto.nombre).update({cantidad:nuevaCantidad})
+                await database().ref().child(props.user.uid).child('productos').child(subproducto.nombre).child('historialDeStock').push({cantidad:nuevaCantidad,fecha:obtenerFecha()})
             })
         }
     }
