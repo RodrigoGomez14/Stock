@@ -65,13 +65,13 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                             </>
                         }
                         title={pedido.fecha}
-                        subheader={`$ ${formatMoney(pedido.total)}`}
+                        subheader={`$ ${formatMoney(pedido.total)} (USD${formatMoney(pedido.total/pedido.cotizacion.valor)} x ${formatMoney(pedido.cotizacion.valor)} c/u)`}
                     />
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
                         <Grid container xs={12} spacing={2} >
-                            {pedido.metodoDeEnvio?
+                            {pedido.metodoDeEnvio!='Particular'?
                                 <Grid container item xs={12}>
                                     <Grid container item xs={12}>
                                             <Alert variant="filled" severity="success" className={classes.alertCheque}>

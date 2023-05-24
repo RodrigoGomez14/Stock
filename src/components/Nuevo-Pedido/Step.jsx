@@ -7,7 +7,7 @@ import {AddOutlined} from '@material-ui/icons'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fecha}) =>{
+export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fecha,cotizaciones,cotizacion,setCotizacion}) =>{
     const classes = content()
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
@@ -24,9 +24,21 @@ export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fec
                 return(
                     <Grid container item xs={12} justify='center' spacing={3}>
                         <Grid container item xs={12} justify='center' >
-                            <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
-                                Agregar Producto
-                            </Button>
+                            {!cotizacion.nombre?
+                                cotizaciones.map(i=>(
+                                    <>
+                                        <Button variant='contained' color='primary'  onClick={()=>{setCotizacion({nombre:i.nombre,valor:parseFloat(i.valor)})}}>
+                                            {i.nombre} ${formatMoney(i.valor)}
+                                        </Button>
+                                    </>
+                                ))
+                                :
+                                <Grid container item xs={12} justify='center' >
+                                    <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
+                                        Agregar Producto
+                                    </Button>
+                                </Grid>
+                            }
                         </Grid>
                         <Productos productos={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                         {datos.length?
@@ -55,6 +67,7 @@ export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fec
                             productosList={productosList}
                             total={total}
                             settotal={settotal}
+                            cotizacion={cotizacion}
                         />
                         <DialogEliminarElemento 
                             open={showDialogDelete} 

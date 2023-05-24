@@ -218,6 +218,11 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         // ACTUALIZA LA DEUDA DEL PROVEEDOR
         actualizarDeuda(aux.total, aux.metodoDePago.pagado,cadena[step].proveedor)
        
+        if(props.location.props.facturacion){
+            aux.articulos = actualizarPrecios(aux.articulos)
+        }
+
+
         // AGREGA LA ENTREGA A DB PARA OBTENER ID
         let idLink = database().ref().child(props.user.uid).child('proveedores').child(cadena[step].proveedor).child('entregas').push()
         
@@ -256,6 +261,14 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
             .catch(()=>{
                 setLoading(false)
             })
+    }
+    const actualizarPrecios = (articulos) =>{
+        let aux =articulos
+        aux.map(articulo=>{
+            articulo.precio=articulo.precio+articulo.precio*0.21
+            articulo.total = parseFloat(articulo.cantidad) * articulo.precio
+        })
+        return aux
     }
     const aumentarProducto = async id =>{
         const producto = props.cadenasActivas[id].producto

@@ -7,7 +7,7 @@ import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Pedido/Step'
 import {database} from 'firebase'
 import {content} from './styles/styles'
-import { fechaDetallada, getClientList, getProductosListWithPrice } from '../utilities';
+import { fechaDetallada, filtrarCotizaciones, getClientList, getProductosListWithPrice } from '../utilities';
 import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
 
 // COMPONENT
@@ -17,6 +17,7 @@ const NuevoPedido=(props)=>{
     const [productos,setproductos]=useState([])
     const [total,settotal]=useState(0)
     const [fecha,setfecha]=useState(undefined)
+    const [cotizacion,setCotizacion]=useState({nombre:undefined,valor:undefined})
 
     //STEPPER STATE
     const [activeStep, setActiveStep] = useState(0);
@@ -62,6 +63,9 @@ const NuevoPedido=(props)=>{
                 productosList={getProductosListWithPrice(props.productos)}
                 total={total}
                 settotal={settotal}
+                cotizaciones={filtrarCotizaciones(props.dolares)}
+                cotizacion={cotizacion}
+                setCotizacion={setCotizacion}
             /> 
           );
       }
@@ -116,6 +120,7 @@ const NuevoPedido=(props)=>{
         let aux={
             cliente:nombre,
             productos:productos,
+            cotizacion:cotizacion,
             total:total,
             fecha:!fecha?fechaDetallada():fecha
         }
@@ -216,6 +221,7 @@ const mapStateToProps = state =>{
         pedidos:state.pedidos,
         productos:state.productos,
         clientes:state.clientes,
+        dolares:state.dolares
     }
 }
 export default connect(mapStateToProps,null)(NuevoPedido)

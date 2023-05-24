@@ -100,7 +100,11 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                     <CardActions>
                         <Grid container justify='space-around'>
                             <Typography variant='h5'>
-                                $ {formatMoney(entrega.total)}
+                                {facturacion?
+                                    `$ ${formatMoney(entrega.total+entrega.total*0.21)}`
+                                    :
+                                    `$ ${formatMoney(entrega.total)}`
+                                }
                             </Typography>
                             <FormControlLabel
                             control={
@@ -115,7 +119,7 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                             <Link
                                 style={{color:'#fff',textDecoration:'none'}}
                                 className={classes.textWhite}
-                                to={{pathname:'/Recibir-Entrega',search:`${id}`,props:{total:entrega.total,facturacion:facturacion}}
+                                to={{pathname:'/Recibir-Entrega',search:`${id}`,props:{total:facturacion?(entrega.total+entrega.total*0.21):entrega.total,facturacion:facturacion}}
                             }>
                                 <Button
                                     variant='outlined'

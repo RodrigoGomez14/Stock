@@ -5,7 +5,7 @@ import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,St
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Enviar-Pedido/Step'
 import {database} from 'firebase'
-import {formatMoney,obtenerFecha} from '../utilities'
+import {filtrarCotizaciones, formatMoney,obtenerFecha} from '../utilities'
 import {Redirect} from 'react-router-dom'
 import {content} from './styles/styles'
 import { AttachMoney, LocalShipping } from '@material-ui/icons';
@@ -72,6 +72,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 totalTransferencia={totalTransferencia}
                 setTotalTransferencia={setTotalTransferencia}
                 cuentasBancarias={props.cuentasBancarias}
+                cotizaciones={filtrarCotizaciones(props.dolares)}
             />
           );
       }
@@ -150,6 +151,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 pagado:calcularPagado(),
                 adeudado:calcularAdeudado()
             },
+            cotizacion:props.pedidos[id].cotizacion,
             metodoDeEnvio:expreso?{expreso:expreso,remito:remito,precio:precio}:'Particular',
             total:props.history.location.props.total,
         }
@@ -358,7 +360,8 @@ const mapStateToProps = state =>{
         pedidos:state.pedidos,
         productos:state.productos,
         clientes:state.clientes,
-        cuentasBancarias:state.CuentasBancarias
+        cuentasBancarias:state.CuentasBancarias,
+        dolares:state.dolares
     }
 }
 export default connect(mapStateToProps,null)(EnviarPedido)

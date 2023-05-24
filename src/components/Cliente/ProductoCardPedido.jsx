@@ -76,7 +76,7 @@ export const ProductoCardPedido = ({producto,factura}) =>{
                         }
                         </>
                     }
-                    subheader={`$ ${formatMoney((producto.precio*producto.cantidad)/(factura?(facturacion?1.21:1):1))} ($${formatMoney((producto.precio)/(factura?(facturacion?1.21:1):1))} c/u)`}
+                    subheader={`$ ${formatMoney((producto.precio*producto.cantidad)/(factura?(facturacion?1.21:1):1))} ($${formatMoney((producto.precio)/(factura?(facturacion?1.21:1):1))} [${((producto.precio)/(factura?(facturacion?1.21:1):1))/producto.cotizacion.valor}USD x ${formatMoney(producto.cotizacion.valor)}] c/u)`}
                 />
                 {producto.discount || producto.increase?
                     <Collapse in={expanded} timeout='auto' unmountOnExit>

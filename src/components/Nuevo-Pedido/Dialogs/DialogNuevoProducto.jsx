@@ -5,7 +5,7 @@ import {formatMoney} from '../../../utilities'
 import {content} from '../../../Pages/styles/styles'
 import { Autocomplete } from '@material-ui/lab'
 
-export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,editIndex,seteditIndex,productosList,total,settotal}) =>{
+export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,editIndex,seteditIndex,productosList,total,settotal,cotizacion}) =>{
     const classes = content()
     const [producto,setproducto]=useState(undefined)
     const [cantidad,setcantidad]=useState(undefined)
@@ -26,13 +26,14 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
         aux.push({
             producto:producto,
             cantidad:cantidad,
-            precio:precio,
-            total:precio*cantidad,
+            precio:precio*(cotizacion.valor),
+            total:precio*(cotizacion.valor)*cantidad,
+            cotizacion:cotizacion,
             discount:discount?discount:null,
             increase:increase?increase:null
         })
         setproductos(aux)
-        settotal(total+(cantidad*precio))
+        settotal(total+(cantidad*precio*(cotizacion.valor)))
     }
     const actualizarTotal=()=>{
         let nuevoTotal = total
@@ -55,6 +56,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
             producto:producto,
             cantidad:cantidad,
             precio:precio,
+            cotizacion:cotizacion,
             total:precio*cantidad,
             discount:discount?discount:null,
             increase:increase?increase:null
@@ -103,6 +105,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     // CONTENT
     return(
         <Dialog open={open} maxWidth='md'>
+            {console.log(cotizacion)}
             <DialogTitle>
                 {edit?
                     'Editar Producto Elegido'
@@ -130,20 +133,18 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             renderInput={(params) => <TextField {...params} label="Producto" variant="outlined" />}
                         />
                     </Grid>
-                    {console.log(productosList)}
-                    {console.log(producto)}
                     {producto&&
                         <Grid container item xs={12} justify='flex-start' spacing={3} >
                             <List style={{width:'100%'}}>
                                 <ListItem>
                                     <ListItemText 
-                                        primary={`$ ${formatMoney(precio)} c/u`} 
-                                        secondary={editarPrecio&&(discount||increase)?`$ ${editarPrecio=='discount'?'-':'+'}${formatMoney(editarPrecio=='discount'?getDiscount(precio,discount):getIncrease(precio,increase))}`:null}/>
+                                        primary={`$ ${formatMoney(precio*cotizacion.valor)} c/u - ($${formatMoney(precio)}usd x $${formatMoney(cotizacion.valor)}) `} 
+                                        secondary={editarPrecio&&(discount||increase)?`$ ${editarPrecio=='discount'?'-':'+'}${formatMoney(editarPrecio=='discount'?getDiscount(precio*cotizacion.valor,discount):getIncrease(precio*cotizacion.valor,increase))}`:null}/>
                                 </ListItem>
                                 {editarPrecio && (discount||increase)?
                                     <ListItem>
                                         <ListItemText 
-                                            primary={`$ ${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio,discount):getIncreasedPrice(precio,increase))} c/u`} 
+                                            primary={`$ ${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio*cotizacion.valor,discount):getIncreasedPrice(precio*cotizacion.valor,increase))} c/u`} 
                                             secondary='Nuevo Precio'
                                             />
                                     </ListItem>
@@ -170,7 +171,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                         <Paper className={classes.totalProductoNuevoPedido} elevation={3}>
                             <List>
                                 <ListItem>
-                                        <ListItemText secondary={'Total'} primary={`$ ${cantidad*precio?formatMoney(cantidad*precio):'-'}`}/>
+                                        <ListItemText secondary={'Total'} primary={`$ ${cantidad*precio?formatMoney(cantidad*precio*cotizacion.valor):'-'}`}/>
                                 </ListItem>
                             </List>
                         </Paper>
