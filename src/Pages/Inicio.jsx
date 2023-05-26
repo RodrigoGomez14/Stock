@@ -875,9 +875,9 @@ const Inicio=(props)=>{
                             dataMonth.ventas.map((venta,i)=>{
                                 auxSales +=1
                                 const day = dataMonth.ventas[i].fecha.split('/')[0]-1
-                                series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.ventas[i].totalUSD?dataMonth.ventas[i].totalUSD:0)
+                                series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total:0)
                                 if(dataMonth.ventas[i].metodoDePago.facturacion){
-                                    series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.ventas[i].totalUSD?dataMonth.ventas[i].totalUSD:0)-parseFloat(dataMonth.ventas[i].totalUSD?dataMonth.ventas[i].totalUSD/1.21:0))
+                                    series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total:0)-parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0))
                                 }
                             })
                         }
@@ -909,7 +909,8 @@ const Inicio=(props)=>{
         };
     
         let totalMonth = 0
-
+        console.log(totalMonth)
+        console.log(series[0])
         series[0].data.map(serie=>(
             totalMonth = totalMonth + serie
         ))
@@ -946,9 +947,9 @@ const Inicio=(props)=>{
                         if(month-1==currentMonth){
                             dataMonth.compras.map((compra,i)=>{
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                                series[0].data[day] = (series[0].data[day])+parseInt(dataMonth.compras[i].total)
+                                series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.compras[i].total)
                                 if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    series[0].data[day] = (series[0].data[day])-(parseInt(dataMonth.compras[i].total)-parseInt(dataMonth.compras[i].total)/1.21)
+                                    series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].total)-parseFloat(dataMonth.compras[i].total)/1.21)
                                 }
                             })
                         }
@@ -982,7 +983,7 @@ const Inicio=(props)=>{
         let totalMonth = 0
 
         series[0].data.map(serie=>(
-            totalMonth = totalMonth + serie
+            totalMonth = totalMonth + serie?serie:0
         ))
         // Renderiza el gráfico
         return (

@@ -65,30 +65,34 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                             </>
                         }
                         title={pedido.fecha}
-                        subheader={`$ ${formatMoney(pedido.total)} (USD${formatMoney(pedido.total/pedido.cotizacion.valor)} x ${formatMoney(pedido.cotizacion.valor)} c/u)`}
+                        subheader={`$ ${formatMoney(pedido.total)} ${pedido.cotizacion? `(USD${formatMoney(pedido.total/pedido.cotizacion.valor)} x ${formatMoney(pedido.cotizacion.valor)} c/u)` : null}`}
                     />
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
                         <Grid container xs={12} spacing={2} >
-                            {pedido.metodoDeEnvio!='Particular'?
-                                <Grid container item xs={12}>
+                            {pedido.metodoDeEnvio? 
+                                (pedido.metodoDeEnvio=='Particular'?
+                                    "Particular"
+                                    :
                                     <Grid container item xs={12}>
-                                            <Alert variant="filled" severity="success" className={classes.alertCheque}>
-                                        <Link
-                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                            to={{
-                                            pathname:'/Expreso',
-                                            search:pedido.metodoDeEnvio.expreso,
-                                            props:{
-                                                remito:pedido.metodoDeEnvio.remito
-                                            }
-                                        }}>
-                                            Enviado con {pedido.metodoDeEnvio.expreso} Remito Nº {pedido.metodoDeEnvio.remito}
-                                        </Link>
-                                            </Alert>
+                                        <Grid container item xs={12}>
+                                                <Alert variant="filled" severity="success" className={classes.alertCheque}>
+                                            <Link
+                                                style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                to={{
+                                                pathname:'/Expreso',
+                                                search:pedido.metodoDeEnvio.expreso,
+                                                props:{
+                                                    remito:pedido.metodoDeEnvio.remito
+                                                }
+                                            }}>
+                                                Enviado con {pedido.metodoDeEnvio.expreso} Remito Nº {pedido.metodoDeEnvio.remito}
+                                            </Link>
+                                                </Alert>
+                                        </Grid>
                                     </Grid>
-                                </Grid>
+                                )
                                 :
                                 null
                             }

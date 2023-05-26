@@ -144,7 +144,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                 {editarPrecio && (discount||increase)?
                                     <ListItem>
                                         <ListItemText 
-                                            primary={`$ ${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio*cotizacion.valor,discount):getIncreasedPrice(precio*cotizacion.valor,increase))} c/u`} 
+                                            primary={`$ ${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio*cotizacion.valor,discount):getIncreasedPrice(precio*cotizacion.valor,increase))} c/u - ($${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio,discount):getIncreasedPrice(precio,increase))}usd x $${formatMoney(cotizacion.valor)})`} 
                                             secondary='Nuevo Precio'
                                             />
                                     </ListItem>
@@ -152,8 +152,83 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                     null
                                 }
                             </List>
+                            <Grid container item xs={12}>
+                                {editarPrecio?
+                                    <Grid container item xs={12} justify='center' spacing={3}>
+                                        <Grid item>
+                                            <TextField
+                                                label={discount?'% Descuento':'% Incremento'}
+                                                type='number'
+                                                value={discount?discount:increase}
+                                                onChange={e=>{
+                                                    if(editarPrecio=='discount'){
+                                                        setDiscount(e.target.value)
+                                                    }
+                                                    else{
+                                                        setIncrease(e.target.value)
+                                                    }
+                                                }}
+                                            />
+                                        </Grid>
+                                        <Grid item>
+                                            <IconButton
+                                                onClick={e=>{
+                                                    seteditarPrecio(false)
+                                                    setIncrease(undefined)
+                                                    setDiscount(undefined)
+                                                }}
+                                            >
+                                                <CancelRounded/>
+                                            </IconButton>
+                                            <IconButton
+                                                disabled={!discount&&!increase}
+                                                onClick={e=>{
+                                                    if(editarPrecio=='discount'){
+                                                        setprecio(getDiscountPrice(precio,discount))
+                                                    }
+                                                    else{
+                                                        setprecio(getIncreasedPrice(precio,increase))
+                                                    }
+                                                    seteditarPrecio(false)
+                                                }}
+                                            >
+                                                <CheckCircle/>
+                                            </IconButton>
+                                        </Grid>
+                                    </Grid>
+                                    :
+                                    !discount && !increase?
+                                        <Grid container item xs={12} justify='center' spacing={3}>
+                                            <Grid item>
+                                                <Button
+                                                    color='primary'
+                                                    variant='contained'
+                                                    onClick={e=>{
+                                                        seteditarPrecio('discount')
+                                                    }}
+                                                >
+                                                    Descuento de precio
+                                                </Button>
+                                            </Grid>
+                                                <Grid item>
+                                                <Button
+                                                    color='primary'
+                                                    variant='contained'
+                                                    onClick={e=>{
+                                                        seteditarPrecio('increase')
+                                                    }}
+                                                >
+                                                    Aumento de precio
+                                                </Button>
+                                                </Grid>
+                                        </Grid>
+                                        :
+                                        null
+                                }
+                            </Grid>
                         </Grid>
                     }
+                    
                     <Grid container item xs={12} justify='center' >
                         <Grid item>
                             <TextField
