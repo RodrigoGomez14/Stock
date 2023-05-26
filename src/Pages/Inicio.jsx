@@ -72,6 +72,7 @@ const Inicio=(props)=>{
             if(sortedVentas){
                 for (const [year, data] of sortedVentas) {
                     // Itera sobre cada mes en el año
+                    console.log(data)
                     for (const [month, dataMonth] of Object.entries(data.months)) {
                             const auxFecha = new Date();
                             auxFecha.setFullYear(year, month - 1, 1);
@@ -523,7 +524,7 @@ const Inicio=(props)=>{
                                         const index = auxProducts.findIndex((d) => d.name === articulo.producto);
                                         if (index === -1) {
                                             // Si no lo encontramos, lo agregamos
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseFloat(articulo.totalUSD?articulo.totalUSD/1.21:0)
+                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseFloat(articulo.total?articulo.total/1.21:0)
                                             auxProducts.push({ name: articulo.producto, data:auxData});
                                         } 
                                         else {
@@ -532,7 +533,7 @@ const Inicio=(props)=>{
                                             if(!auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)]){
                                                 auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = 0
                                             }
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseFloat(dataMonth.ventas[venta].metodoDePago.facturacion?(articulo.totalUSD?articulo.totalUSD/1.21:0):articulo.totalUSD?articulo.totalUSD:0);
+                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseFloat(dataMonth.ventas[venta].metodoDePago.facturacion?(articulo.total?articulo.total/1.21:0):articulo.total?articulo.total:0);
                                             auxProducts[index] = {...auxProducts[index],data:auxData}
                                         }
     
@@ -909,8 +910,7 @@ const Inicio=(props)=>{
         };
     
         let totalMonth = 0
-        console.log(totalMonth)
-        console.log(series[0])
+        
         series[0].data.map(serie=>(
             totalMonth = totalMonth + serie
         ))
@@ -933,23 +933,25 @@ const Inicio=(props)=>{
 
         const series = [
             {
-            name: 'Ventas',
+            name: 'Compras',
             data: Array.from({ length: daysInMonth }, () => 0),
             },
         ];
         
+        let totalMonth = 0
     
         if(sortedCompras){
             for (const [year, data] of sortedCompras) {
                 // Itera sobre cada mes en el año
+                console.log(data)
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
                             dataMonth.compras.map((compra,i)=>{
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                                series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.compras[i].total)
+                                series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)
                                 if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].total)-parseFloat(dataMonth.compras[i].total)/1.21)
+                                    series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)-parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)/1.21)
                                 }
                             })
                         }
@@ -980,10 +982,9 @@ const Inicio=(props)=>{
             }
         };
     
-        let totalMonth = 0
 
         series[0].data.map(serie=>(
-            totalMonth = totalMonth + serie?serie:0
+            totalMonth = totalMonth + serie
         ))
         // Renderiza el gráfico
         return (
@@ -1126,12 +1127,12 @@ const Inicio=(props)=>{
                             dataMonth.ventas.map((venta,i)=>{
                                 const day = dataMonth.ventas[i].fecha.split('/')[0]-1
                                 if(dataMonth.ventas[i].metodoDePago.facturacion){
-                                    auxBalance+= (dataMonth.ventas[i].totalUSD?dataMonth.ventas[i].totalUSD/1.21:0)
-                                    series[0].data[day] = (series[0].data[day])+(dataMonth.ventas[i].totalUSD?dataMonth.ventas[i].totalUSD/1.21:0)
+                                    auxBalance+= (dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0)
+                                    series[0].data[day] = (series[0].data[day])+(dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0)
                                 }
                                 else{
-                                    auxBalance+= dataMonth.ventas[i].totalUSD?dataMonth.ventas[i].totalUSD:0
-                                    series[0].data[day] = (series[0].data[day])+dataMonth.ventas[i].totalUSD?dataMonth.ventas[i].totalUSD:0
+                                    auxBalance+= dataMonth.ventas[i].total?dataMonth.ventas[i].total:0
+                                    series[0].data[day] = (series[0].data[day])+dataMonth.ventas[i].total?dataMonth.ventas[i].total:0
                                 }
                             })
                         }
@@ -1148,12 +1149,12 @@ const Inicio=(props)=>{
                             dataMonth.compras.map((compra,i)=>{
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
                                 if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    auxBalance-= (dataMonth.compras[i].totalUSD?dataMonth.compras[i].totalUSD/1.21:0)
-                                    series[0].data[day] = (series[0].data[day])-(dataMonth.compras[i].totalUSD?dataMonth.compras[i].totalUSD/1.21:0)
+                                    auxBalance-= (dataMonth.compras[i].total?dataMonth.compras[i].total/1.21:0)
+                                    series[0].data[day] = (series[0].data[day])-(dataMonth.compras[i].total?dataMonth.compras[i].total/1.21:0)
                                 }
                                 else{
-                                    auxBalance-= dataMonth.compras[i].totalUSD?dataMonth.compras[i].totalUSD:0
-                                    series[0].data[day] = (series[0].data[day])-dataMonth.compras[i].totalUSD?dataMonth.compras[i].totalUSD:0
+                                    auxBalance-= dataMonth.compras[i].total?dataMonth.compras[i].total:0
+                                    series[0].data[day] = (series[0].data[day])-dataMonth.compras[i].total?dataMonth.compras[i].total:0
                                 }
                             })
                         }
@@ -1228,8 +1229,8 @@ const Inicio=(props)=>{
                 yearsCompras[year].months[month].compras.push(props.compras[compra]);
             
                 // Actualizamos el total del mes y del año
-                yearsCompras[year].months[month].total += parseFloat(props.compras[compra].totalUSD?props.compras[compra].totalUSD:0);
-                yearsCompras[year].total += parseFloat(props.compras[compra].totalUSD?props.compras[compra].totalUSD:0);
+                yearsCompras[year].months[month].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
+                yearsCompras[year].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
             });
         
             const sortedCompras = Object.entries(yearsCompras).sort(([year1], [year2]) => year2 - year1);
@@ -1262,10 +1263,9 @@ const Inicio=(props)=>{
             
                 // Agregamos la venta al objeto "ventas" del mes correspondiente
                 yearsVentas[year].months[month].ventas.push(props.ventas[venta]);
-            
                 // Actualizamos el total del mes y del año
-                yearsVentas[year].months[month].total += parseFloat(props.ventas[venta].totalUSD?props.ventas[venta].totalUSD:0);
-                yearsVentas[year].total += parseFloat(props.ventas[venta].totalUSD?props.ventas[venta].totalUSD:0);
+                yearsVentas[year].months[month].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
+                yearsVentas[year].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
             });
         
             const sortedVentas = Object.entries(yearsVentas).sort(([year1], [year2]) => year2 - year1);
@@ -1288,20 +1288,20 @@ const Inicio=(props)=>{
                             if (index === -1) {
                                 // Si no lo encontramos, lo agregamos
                                 if(yearData.months[month].ventas[i].metodoDePago.facturacion){
-                                    data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:(yearData.months[month].ventas[i].articulos[v].totalUSD?yearData.months[month].ventas[i].articulos[v].totalUSD/1.21:0) });
+                                    data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:(yearData.months[month].ventas[i].articulos[v].total?yearData.months[month].ventas[i].articulos[v].total/1.21:0) });
                                 }
                                 else{
-                                    data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:yearData.months[month].ventas[i].articulos[v].totalUSD?yearData.months[month].ventas[i].articulos[v].totalUSD:0 });
+                                    data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:yearData.months[month].ventas[i].articulos[v].total?yearData.months[month].ventas[i].articulos[v].total:0 });
                                 }
                             } else {
                                 if(yearData.months[month].ventas[i].metodoDePago.facturacion){
                                     data[index].cantidad += parseInt(yearData.months[month].ventas[i].articulos[v].cantidad);
-                                    data[index].total += (yearData.months[month].ventas[i].articulos[v].totalUSD?yearData.months[month].ventas[i].articulos[v].totalUSD/1.21:0);
+                                    data[index].total += (yearData.months[month].ventas[i].articulos[v].total?yearData.months[month].ventas[i].articulos[v].total/1.21:0);
                                 }
                                 else{
                                     // Si lo encontramos, sumamos la cantidad y el total
                                     data[index].cantidad += parseInt(yearData.months[month].ventas[i].articulos[v].cantidad);
-                                    data[index].total += yearData.months[month].ventas[i].articulos[v].totalUSD?yearData.months[month].ventas[i].articulos[v].totalUSD:0;
+                                    data[index].total += yearData.months[month].ventas[i].articulos[v].total?yearData.months[month].ventas[i].articulos[v].total:0;
                                 }
                             }
                         })
