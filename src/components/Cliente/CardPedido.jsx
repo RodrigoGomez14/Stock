@@ -73,7 +73,7 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                         <Grid container xs={12} spacing={2} >
                             {pedido.metodoDeEnvio? 
                                 (pedido.metodoDeEnvio=='Particular'?
-                                    "Particular"
+                                    null
                                     :
                                     <Grid container item xs={12}>
                                         <Grid container item xs={12}>

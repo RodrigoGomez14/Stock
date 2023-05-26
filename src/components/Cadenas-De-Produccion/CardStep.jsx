@@ -49,6 +49,7 @@ export const CardStep = ({proceso,id,activeStep,iniciarProceso,index}) =>{
                                         <Switch
                                             color='primary'
                                             checked={facturacion}
+                                            disabled={proceso.isProcesoPropio}
                                             onChange={e=>{
                                                 setFacturacion(!facturacion)
                                             }}
@@ -59,7 +60,12 @@ export const CardStep = ({proceso,id,activeStep,iniciarProceso,index}) =>{
                             </Grid>
                             {proceso.isProcesoPropio?
                                 <Grid item>
-                                    <Button color='primary' variant='contained'> Finalizar Proceso Propio</Button>
+                                    <Link 
+                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                        to={{pathname:'/Finalizar-Proceso-Propio',search:`${id}`}
+                                    }>
+                                        <Button color='primary' variant='contained'> Finalizar Proceso Propio</Button>
+                                    </Link>
                                 </Grid>
                                 :
                                 <Grid item>
@@ -99,12 +105,11 @@ export const CardStep = ({proceso,id,activeStep,iniciarProceso,index}) =>{
                                 <ListItem>
                                     <ListItemText 
                                         primary={
-                                            proceso.isProcesoPropio?'Proceso Propio':
                                             <Link 
                                                 style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                                to={{pathname:'/Proveedor',search:`${proceso.proveedor}`}
+                                                to={{pathname:'/Proveedor',search:`${proceso.isProcesoPropio?'Tota':proceso.proveedor}`}
                                             }>
-                                                {proceso.proveedor}
+                                                {proceso.isProcesoPropio?'Tota':proceso.proveedor}
                                             </Link>
                                         } 
                                         secondary='Proveedor Asociado'/>

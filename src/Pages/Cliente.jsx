@@ -341,8 +341,8 @@ const Cliente=(props)=>{
                 years[year].months[month].pedidos.push(props.clientes[keyCliente].pedidos[pedido]);
             
                 // Actualizamos el total del mes y del año
-                years[year].months[month].total += parseInt(props.clientes[keyCliente].pedidos[pedido].total, 10);
-                years[year].total += parseInt(props.clientes[keyCliente].pedidos[pedido].total, 10);
+                years[year].months[month].total += parseInt((props.clientes[keyCliente].pedidos[pedido].total?props.clientes[keyCliente].pedidos[pedido].total:0), 10);
+                years[year].total += parseInt((props.clientes[keyCliente].pedidos[pedido].total?props.clientes[keyCliente].pedidos[pedido].total:0), 10);
             }); 
     
             const sortedPedidos = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
