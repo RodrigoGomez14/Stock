@@ -140,7 +140,7 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
             subproductos.map(async subproducto=>{
                 const nuevaCantidad = parseInt(props.productos[subproducto.nombre].cantidad)-(cantidad*subproducto.cantidad)
                 await database().ref().child(props.user.uid).child('productos').child(subproducto.nombre).update({cantidad:nuevaCantidad})
-                await database().ref().child(props.user.uid).child('productos').child(subproducto.nombre).child('historialDeStock').push({cantidad:nuevaCantidad,fecha:obtenerFecha()})
+                //await database().ref().child(props.user.uid).child('productos').child(subproducto.nombre).child('historialDeStock').push({cantidad:nuevaCantidad,fecha:obtenerFecha()})
             })
         }
     }

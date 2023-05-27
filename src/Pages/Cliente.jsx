@@ -397,15 +397,10 @@ const Cliente=(props)=>{
                                 <Grid container item xs={12}>
                                     <Deuda deuda={cliente.datos.deuda} id={cliente.datos.nombre} generateChartDeudas={generateChartDeudas}/>
                                 </Grid>
-                                <Grid container xs={4} item direction='column' spacing={3}>
-                                    <Grid item>
-                                            {generateChartProductos()}
-                                    </Grid>
-                                    <Grid item>
-                                            {generateChartProductosValue()}
-                                    </Grid>
+                                <Grid item>
+                                        {generateChartProductos()}
                                 </Grid>
-                                <Grid container item xs={8}>
+                                <Grid item>
                                     <Paper>
                                         {generateChartAnualSales()}
                                     </Paper>
