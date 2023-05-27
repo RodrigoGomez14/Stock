@@ -2,12 +2,14 @@ import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
 import {content} from './styles/styles'
-import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader,CardContent,Box,AppBar,Tabs,Tab} from '@material-ui/core'
+import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader,CardContent,Box,AppBar,Tabs,Tab,IconButton} from '@material-ui/core'
 import {CarouselCotizaciones} from '../components/Carousel-Cotizaciones/CarouselCotizaciones'
 import {Alert} from '@material-ui/lab'
 import Home from '../images/Home.png'
 import ApexCharts from 'react-apexcharts';
 import {formatMoney,getActualMonthDetailed,filtrarCotizaciones} from '../utilities'
+import {Link} from 'react-router-dom'
+import { Add } from '@material-ui/icons'
 
 //COMPONENT
 const Inicio=(props)=>{
@@ -765,7 +767,7 @@ const Inicio=(props)=>{
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
         const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-
+        let auxConsumosFacturados = 0
         const series = [
             {
                 name: 'Ventas',
@@ -806,6 +808,9 @@ const Inicio=(props)=>{
                                 auxSales +=1
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
                                 series[1].data[day] = (series[1].data[day])+1
+                                if(dataMonth.compras[i].consumoFacturado){
+                                    auxConsumosFacturados += 1
+                                }
                             })
                         }
                     }
@@ -845,7 +850,7 @@ const Inicio=(props)=>{
         return (
             <Card>
                 <CardHeader
-                    title={`${totalMonthSales} - ${totalMonthPurchases}`}
+                    title={`${totalMonthSales} - ${totalMonthPurchases-auxConsumosFacturados} (${auxConsumosFacturados})`}
                     subheader={`Ventas & Compras - ${getActualMonthDetailed()}`}
                 />
                 <CardContent>
@@ -1040,7 +1045,12 @@ const Inicio=(props)=>{
                             dataMonth.compras.map((venta,i)=>{
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
                                 if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    auxData[1][day] = (auxData[1][day]) + ((parseInt(dataMonth.compras[i].total)) - (parseInt(dataMonth.compras[i].total)/1.21))
+                                    if(!dataMonth.compras[i].consumoFacturado){
+                                        auxData[1][day] = (auxData[1][day]) + ((parseInt(dataMonth.compras[i].total)) - (parseInt(dataMonth.compras[i].total)/1.21))
+                                    }
+                                    else{
+                                        auxData[1][day] = (auxData[1][day])+parseFloat(dataMonth.compras[i].totalIva)
+                                    }
                                 }
                             })
                         }
@@ -1098,6 +1108,17 @@ const Inicio=(props)=>{
                 <CardHeader
                     title={`$ ${formatMoney(totalMonth)}`}
                     subheader={`Iva - ${getActualMonthDetailed()}`}
+                    action={
+                        <Link 
+                            style={{color:"#fff",textDecoration:'none'}}
+                            to={{
+                                pathname:'/Nuevo-Consumo-Facturado'
+                        }}>
+                            <IconButton aria-label="settings">
+                                <Add/>
+                            </IconButton>
+                        </Link>
+                    }
                 />
                 <CardContent>
                     <ApexCharts options={options} series={series} width={200} height={100} />
@@ -1224,7 +1245,9 @@ const Inicio=(props)=>{
                         12:{ total: 0, compras: [] }
                     }}
                 }
-            
+
+
+                
                 // Agregamos la compra al objeto "compras" del mes correspondiente
                 yearsCompras[year].months[month].compras.push(props.compras[compra]);
             
