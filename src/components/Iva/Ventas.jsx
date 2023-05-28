@@ -29,15 +29,14 @@ const useStyles = makeStyles(theme=>({
         overflow:'auto'
     }
 }))
-export const Ventas = ({data,totalVentas}) =>{
+export const Ventas = ({data}) =>{
     const classes = useStyles()
     return(
         <Paper className={classes.paper}>
+            
             <Grid container>
                 <Grid item xs={12}>
-                    <Typography align='center' variant='h4'>Ventas $ {formatMoney(totalVentas)}</Typography>
-                </Grid>
-                <Grid item xs={12}>
+                    {console.log(data)}
                     <Tabla data={data} ventas={true}/>
                 </Grid>
             </Grid>

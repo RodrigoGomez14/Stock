@@ -9,7 +9,7 @@ import Home from '../images/Home.png'
 import ApexCharts from 'react-apexcharts';
 import {formatMoney,getActualMonthDetailed,filtrarCotizaciones} from '../utilities'
 import {Link} from 'react-router-dom'
-import { Add } from '@material-ui/icons'
+import { Add,List } from '@material-ui/icons'
 
 //COMPONENT
 const Inicio=(props)=>{
@@ -253,7 +253,12 @@ const Inicio=(props)=>{
                         if(auxFecha>=initialDate && auxFecha<=fechaActual){
                             Object.keys(dataMonth.compras).map(compra=>{
                                 if (dataMonth.compras[compra].metodoDePago.facturacion) {
-                                    auxPurchases[(month-1)]+=(dataMonth.compras[compra].total-(dataMonth.compras[compra].total/1.21))
+                                    if(!dataMonth.compras[compra].consumoFacturado){
+                                        auxPurchases[(month-1)]+=(dataMonth.compras[compra].total-(dataMonth.compras[compra].total/1.21))
+                                    }
+                                    else{
+                                        auxPurchases[(month-1)]+=parseFloat(dataMonth.compras[compra].totalIva)
+                                    }
                                 }        
                             })
                         }
@@ -1109,15 +1114,26 @@ const Inicio=(props)=>{
                     title={`$ ${formatMoney(totalMonth)}`}
                     subheader={`Iva - ${getActualMonthDetailed()}`}
                     action={
-                        <Link 
-                            style={{color:"#fff",textDecoration:'none'}}
-                            to={{
-                                pathname:'/Nuevo-Consumo-Facturado'
-                        }}>
+                        <>
+                            <Link 
+                                style={{color:"#fff",textDecoration:'none'}}
+                                to={{
+                                    pathname:'/Nuevo-Consumo-Facturado'
+                            }}>
+                                <IconButton aria-label="settings">
+                                    <Add/>
+                                </IconButton>
+                            </Link>
+                            <Link 
+                                style={{color:"#fff",textDecoration:'none'}}
+                                to={{
+                                    pathname:'/Iva'
+                            }}>
                             <IconButton aria-label="settings">
-                                <Add/>
+                                <List/>
                             </IconButton>
                         </Link>
+                        </>
                     }
                 />
                 <CardContent>

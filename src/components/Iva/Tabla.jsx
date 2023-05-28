@@ -47,6 +47,9 @@ export const Tabla = ({data,ventas}) =>{
                     {data?
                         Object.keys(data).reverse().map((row)=>(
                             <TableRow key={data[row].id}>
+                                {console.log(data[row],ventas)}
+                                <TableCell>{data[row].fecha}</TableCell>
+                                <TableCell>{data[row].fecha}</TableCell>
                                 <TableCell>{data[row].fecha}</TableCell>
                                 <TableCell>${formatMoney(data[row].total)}</TableCell>
                             </TableRow>

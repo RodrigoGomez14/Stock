@@ -14,7 +14,7 @@ import Inicio from './Pages/Inicio'
 import Deudas from './Pages/Deudas'
 import Cheques from './Pages/Cheques'
 import Productos from './Pages/Productos'
-import IvaPage from './Pages/IvaPage'
+import Iva from './Pages/Iva'
 import HistorialCliente from './Pages/HistorialCliente'
 import HistorialProveedor from './Pages/HistorialProveedor';
 import Pedidos from './Pages/Pedidos'
@@ -140,6 +140,7 @@ class App extends Component {
                 <BrowserRouter>
                   <Switch>
                     <Route exact path='/' component={Inicio}/>
+                    <Route exact path='/Iva' component={Iva}/>
                     <Route exact path='/Clientes' component={Clientes}/>
                     <Route exact path='/Cliente' component={Cliente}/>
                     <Route exact path='/Nuevo-Cliente' component={NuevoCliente}/>
