@@ -1,7 +1,7 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,makeStyles,Paper,Typography,List,ListItem,ListItemText} from '@material-ui/core'
+import {Grid,makeStyles,Paper,Card,CardHeader,ListItem,ListItemText} from '@material-ui/core'
 import {Tabla} from './Tabla'
-import { formatMoney } from '../../utilities'
+import { formatMoney,monthsList } from '../../utilities'
 
 const useStyles = makeStyles(theme=>({
     card:{
@@ -29,15 +29,43 @@ const useStyles = makeStyles(theme=>({
         overflow:'auto'
     }
 }))
-export const Ventas = ({data}) =>{
+export const Ventas = ({ventas}) =>{
     const classes = useStyles()
     return(
         <Paper className={classes.paper}>
-            
-            <Grid container>
-                <Grid item xs={12}>
-                    {console.log(data)}
-                    <Tabla data={data} ventas={true}/>
+            <Grid container xs={12} justify='center' spacing={3}>
+                <Grid container item xs={12} justify='center'>
+                    <Card className={classes.CardMonthCheques}>
+                        <CardHeader
+                            title={`$ ${formatMoney(ventas[0][1].totalIva)}`}
+                            subheader={ventas[0][0]}
+                        />
+                    </Card>
+                </Grid>
+                <Grid container item xs={12} justify='center' spacing={3}>
+                    {Object.keys(ventas[0][1].months).reverse().map(month=>(
+                        <>
+                            {ventas[0][1].months[month].total!==0?
+                                <Grid container item xs={12} justify='center'>
+                                    <Grid item>
+                                        <Paper>
+                                            <Card>
+                                                <CardHeader
+                                                    title={`$ ${formatMoney(ventas[0][1].months[month].totalIva)}`}
+                                                    subheader={monthsList[month-1]}
+                                                />
+                                            </Card>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid container item xs={12}>
+                                        <Tabla data={ventas[0][1].months[month].ventas} tipo='ventas'/>
+                                    </Grid>
+                                </Grid>
+                                :
+                                null
+                            }
+                        </>
+                    ))}
                 </Grid>
             </Grid>
         </Paper>

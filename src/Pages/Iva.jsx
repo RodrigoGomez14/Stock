@@ -30,19 +30,19 @@ const Iva=(props)=>{
             
                 // Si aún no tenemos el año en el objeto "years", lo agregamos
                 if (!yearsCompras[year]) {
-                    yearsCompras[year] = { total: 0, months: {
-                        1:{ total: 0, compras: [] },
-                        2:{ total: 0, compras: [] },
-                        3:{ total: 0, compras: [] },
-                        4:{ total: 0, compras: [] },
-                        5:{ total: 0, compras: [] },
-                        6:{ total: 0, compras: [] },
-                        7:{ total: 0, compras: [] },
-                        8:{ total: 0, compras: [] },
-                        9:{ total: 0, compras: [] },
-                        10:{ total: 0, compras: [] },
-                        11:{ total: 0, compras: [] },
-                        12:{ total: 0, compras: [] }
+                    yearsCompras[year] = { total: 0, totalIva: 0,months: {
+                        1:{ total: 0, totalIva: 0, compras: [] },
+                        2:{ total: 0, totalIva: 0, compras: [] },
+                        3:{ total: 0, totalIva: 0, compras: [] },
+                        4:{ total: 0, totalIva: 0, compras: [] },
+                        5:{ total: 0, totalIva: 0, compras: [] },
+                        6:{ total: 0, totalIva: 0, compras: [] },
+                        7:{ total: 0, totalIva: 0, compras: [] },
+                        8:{ total: 0, totalIva: 0, compras: [] },
+                        9:{ total: 0, totalIva: 0, compras: [] },
+                        10:{ total: 0, totalIva: 0, compras: [] },
+                        11:{ total: 0, totalIva: 0, compras: [] },
+                        12:{ total: 0, totalIva: 0, compras: [] }
                     }}
                 }
 
@@ -53,6 +53,14 @@ const Iva=(props)=>{
             
                 // Actualizamos el total del mes y del año
                 yearsCompras[year].months[month].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
+                if(props.compras[compra].consumoFacturado){
+                    yearsCompras[year].months[month].totalIva += parseFloat(props.compras[compra].totalIva);
+                    yearsCompras[year].totalIva += parseFloat(props.compras[compra].totalIva);
+                }
+                else{
+                    yearsCompras[year].months[month].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
+                    yearsCompras[year].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
+                }
                 yearsCompras[year].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
             });
         
@@ -68,19 +76,19 @@ const Iva=(props)=>{
                 const month = props.ventas[venta].fecha.split('/')[1];
             
                 if (!yearsVentas[year]) {
-                    yearsVentas[year] = { total: 0, months: {
-                        1:{ total: 0, ventas: [] },
-                        2:{ total: 0, ventas: [] },
-                        3:{ total: 0, ventas: [] },
-                        4:{ total: 0, ventas: [] },
-                        5:{ total: 0, ventas: [] },
-                        6:{ total: 0, ventas: [] },
-                        7:{ total: 0, ventas: [] },
-                        8:{ total: 0, ventas: [] },
-                        9:{ total: 0, ventas: [] },
-                        10:{ total: 0, ventas: [] },
-                        11:{ total: 0, ventas: [] },
-                        12:{ total: 0, ventas: [] }
+                    yearsVentas[year] = { total: 0, totalIva: 0, months: {
+                        1:{ total: 0, totalIva: 0, ventas: [] },
+                        2:{ total: 0, totalIva: 0, ventas: [] },
+                        3:{ total: 0, totalIva: 0, ventas: [] },
+                        4:{ total: 0, totalIva: 0, ventas: [] },
+                        5:{ total: 0, totalIva: 0, ventas: [] },
+                        6:{ total: 0, totalIva: 0, ventas: [] },
+                        7:{ total: 0, totalIva: 0, ventas: [] },
+                        8:{ total: 0, totalIva: 0, ventas: [] },
+                        9:{ total: 0, totalIva: 0, ventas: [] },
+                        10:{ total: 0, totalIva: 0, ventas: [] },
+                        11:{ total: 0, totalIva: 0, ventas: [] },
+                        12:{ total: 0, totalIva: 0, ventas: [] }
                     }}
                 }
             
@@ -89,6 +97,10 @@ const Iva=(props)=>{
                 // Actualizamos el total del mes y del año
                 yearsVentas[year].months[month].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
                 yearsVentas[year].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
+                if(props.ventas[venta].metodoDePago.facturacion){
+                    yearsVentas[year].months[month].totalIva += parseFloat(props.ventas[venta].total?props.ventas[venta].total-(props.ventas[venta].total/1.21):0);
+                    yearsVentas[year].totalIva += parseFloat(props.ventas[venta].total?props.ventas[venta].total-(props.ventas[venta].total/1.21):0);
+                }
             });
         
             const sortedVentas = Object.entries(yearsVentas).sort(([year1], [year2]) => year2 - year1);
@@ -106,8 +118,9 @@ const Iva=(props)=>{
         const auxSortedVentas = filtrarVentas()
         setSortedCompras(auxSortedCompras)
         setSortedVentas(auxSortedVentas)
-
-        setLoading(false)
+        setTimeout(() => {
+            setLoading(false)
+        }, 500);
     },[props.compras,props.ventas])
 
 
@@ -119,7 +132,18 @@ const Iva=(props)=>{
                 <Grid container justify='center' className={classes.container}>
                     <Grid container justify='space-around'>
                         <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
-                            <Ventas data={sortedCompras}/>
+                            {sortedVentas?
+                                <Ventas ventas={sortedVentas}/>
+                                :
+                                null
+                            }
+                        </Grid>
+                        <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
+                            {sortedCompras?
+                                <Compras compras={sortedCompras}/>
+                                :
+                                null
+                            }
                         </Grid>
                     </Grid>
                 </Grid>

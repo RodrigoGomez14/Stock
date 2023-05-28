@@ -1,8 +1,8 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,makeStyles,Paper,Typography,Button,ListItem,IconButton} from '@material-ui/core'
+import {Grid,makeStyles,Paper,Card,CardHeader,ListItem,IconButton} from '@material-ui/core'
 import {Add} from '@material-ui/icons'
 import {Tabla} from './Tabla'
-import { formatMoney } from '../../utilities'
+import { formatMoney,monthsList } from '../../utilities'
 const useStyles = makeStyles(theme=>({
     card:{
         minHeight:'180px',
@@ -29,16 +29,43 @@ const useStyles = makeStyles(theme=>({
         overflow:'auto'
     }
 }))
-export const Compras = ({data,totalCompras}) =>{
+export const Compras = ({compras}) =>{
     const classes = useStyles()
     return(
         <Paper className={classes.paper}>
-            <Grid container>
-                <Grid item xs={12}>
-                    <Typography align='center' variant='h4'>Compras $ {formatMoney(totalCompras)}</Typography>
+            <Grid container xs={12} justify='center' spacing={3}>
+                <Grid container item xs={12} justify='center'>
+                    <Card className={classes.CardMonthCheques}>
+                        <CardHeader
+                            title={`$ ${formatMoney(compras[0][1].totalIva)}`}
+                            subheader={compras[0][0]}
+                        />
+                    </Card>
                 </Grid>
-                <Grid item xs={12}>
-                    <Tabla data={data}/>
+                <Grid container item xs={12} justify='center' spacing={3}>
+                    {Object.keys(compras[0][1].months).reverse().map(month=>(
+                        <>
+                            {compras[0][1].months[month].totalIva!==0?
+                                <Grid container item xs={12} justify='center'>
+                                    <Grid item>
+                                        <Paper>
+                                            <Card>
+                                                <CardHeader
+                                                    title={`$ ${formatMoney(compras[0][1].months[month].totalIva)}`}
+                                                    subheader={monthsList[month-1]}
+                                                />
+                                            </Card>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid container item xs={12}>
+                                        <Tabla data={compras[0][1].months[month].compras}/>
+                                    </Grid>
+                                </Grid>
+                                :
+                                null
+                            }
+                        </>
+                    ))}
                 </Grid>
             </Grid>
         </Paper>
