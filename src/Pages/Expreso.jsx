@@ -84,7 +84,6 @@ const Expreso=(props)=>{
     return(
         expreso?
             <Layout history={props.history} page={`${expreso.datos.nombre}`} user={props.user.uid}>
-                {console.log(props.location.props)}
                 {/* CONTENT */}
                 <Paper className={classes.content}>
                     <Grid container justify='center' spacing={4}>

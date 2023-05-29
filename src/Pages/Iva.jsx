@@ -14,6 +14,7 @@ import { set } from 'date-fns'
 const Iva=(props)=>{
     const classes = content()
     const [loading,setLoading]=useState(false)
+    const [year,setYear]=useState(0)
     const [showSnackbar,setshowSnackbar]=useState(false)
     const [sortedCompras,setSortedCompras] = useState(undefined)
     const [sortedVentas,setSortedVentas] = useState(undefined)
@@ -129,18 +130,33 @@ const Iva=(props)=>{
 
             {/* TABLE */}
             <Paper className={classes.content}>
-                <Grid container justify='center' className={classes.container}>
+                <Grid container justify='center' className={classes.container} spacing={4}>
+                    <Grid container item xs={12} justify='center'>
+                        {sortedVentas?
+                            sortedVentas.map((indexYear,i)=>(
+                                <Button
+                                    onClick={()=>{
+                                        setYear(i)
+                                    }}
+                                >
+                                    {indexYear[0]}
+                                </Button>
+                            ))
+                            :
+                            null
+                    }
+                    </Grid>
                     <Grid container justify='space-around'>
                         <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
                             {sortedVentas?
-                                <Ventas ventas={sortedVentas}/>
+                                <Ventas ventas={sortedVentas} year={year}/>
                                 :
                                 null
                             }
                         </Grid>
                         <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
                             {sortedCompras?
-                                <Compras compras={sortedCompras}/>
+                                <Compras compras={sortedCompras} year={year}/>
                                 :
                                 null
                             }
