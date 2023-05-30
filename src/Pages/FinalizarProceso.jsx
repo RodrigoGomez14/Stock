@@ -27,7 +27,7 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
     const [precio, setPrecio] = useState(undefined);
     const [cantidad, setCantidad] = useState(props.cadenasActivas[props.location.search.slice(1)].cantidad?props.cadenasActivas[props.location.search.slice(1)].cantidad:undefined);
 
-    const [facturacion, setFacturacion] = useState(props.location.props.facturacion?props.location.props.facturacion:null);
+    const [facturacion, setFacturacion] = useState(props.location.props.facturacion?props.location.props.facturacion:false);
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);

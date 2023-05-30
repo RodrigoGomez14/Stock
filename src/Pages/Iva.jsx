@@ -59,13 +59,16 @@ const Iva=(props)=>{
                     yearsCompras[year].totalIva += parseFloat(props.compras[compra].totalIva);
                 }
                 else{
-                    yearsCompras[year].months[month].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
-                    yearsCompras[year].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
+                    if(props.compras[compra].metodoDePago.facturacion){
+                        yearsCompras[year].months[month].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
+                        yearsCompras[year].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
+                    }
                 }
                 yearsCompras[year].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
             });
         
             const sortedCompras = Object.entries(yearsCompras).sort(([year1], [year2]) => year2 - year1);
+            console.log(sortedCompras)
             return sortedCompras
         }
     }

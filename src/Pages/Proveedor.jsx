@@ -277,8 +277,8 @@ const Proveedor=(props)=>{
                 years[year].months[month].entregas.push(props.proveedores[keyProveedor].entregas[entrega]);
             
                 // Actualizamos el total del mes y del año
-                years[year].months[month].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total, 10);
-                years[year].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total, 10);
+                years[year].months[month].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total?props.proveedores[keyProveedor].entregas[entrega].total:0);
+                years[year].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total?props.proveedores[keyProveedor].entregas[entrega].total:0);
             });
     
             const sortedEntregas = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
