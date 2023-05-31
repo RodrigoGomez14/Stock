@@ -89,9 +89,12 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                 <Collapse in={expanded} timeout='auto' unmountOnExit>
                     <CardContent>
                         <List>
+                            <ListItem>
+                                <ListItemText primary={`$${pedido.cotizacion.valor}`} secondary={pedido.cotizacion.nombre}/>
+                            </ListItem>
                             {pedido.productos.map(producto=>(
                                 <ListItem>
-                                    <ListItemText primary={producto.producto} secondary={producto.cantidad}/>
+                                    <ListItemText primary={`${producto.cantidad} ${producto.producto}`} secondary={`${producto.precio}`}/>
                                     {producto.discount?
                                         <ListItemText 
                                             primary={<Chip
