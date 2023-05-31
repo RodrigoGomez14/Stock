@@ -23,7 +23,8 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
 
     return(
         <>
-            <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:(cheque.numero).search(search) == -1 ? classes.displayNone:classes.display}>
+            {console.log(cheque)}
+            <Grid item xs={11} sm={8} md={6} lg={4} className={!search?null:cheque.numero.search(search) == -1 ? classes.displayNone:classes.display}>
                     <Card>
                         <Paper elevation={3} className={cheque.dadoDeBaja?classes.cardChequeHeaderBaja:(cheque.destinatario?classes.cardChequeEnviadoHeader:classes.cardChequeHeader)}>
                             <CardHeader

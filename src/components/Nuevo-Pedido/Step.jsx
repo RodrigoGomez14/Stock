@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Grid, Button,makeStyles,Select,Input,TextField,Paper,FormControl, Typography,Card,CardContent,CardActions} from '@material-ui/core'
+import {Grid, Button,makeStyles,Select,Input,TextField,Paper,FormControl, Typography,List,ListItem,ListItemText} from '@material-ui/core'
 import {Productos} from './Productos'
 import {DialogNuevoProducto} from './Dialogs/DialogNuevoProducto'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
@@ -33,10 +33,21 @@ export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fec
                                     </>
                                 ))
                                 :
-                                <Grid container item xs={12} justify='center' >
-                                    <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
-                                        Agregar Producto
-                                    </Button>
+                                <Grid container spacing={3} >
+                                    <Grid container item xs={12} justify='center' >
+                                        <Paper elevation={3}>
+                                            <List>
+                                                <ListItem>
+                                                    <ListItemText primary={cotizacion.valor} secondary={cotizacion.nombre} />
+                                                </ListItem>
+                                            </List>
+                                        </Paper>
+                                    </Grid>
+                                    <Grid container item xs={12} justify='center' >
+                                        <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialog(true)}}>
+                                            Agregar Producto
+                                        </Button>
+                                    </Grid>
                                 </Grid>
                             }
                         </Grid>

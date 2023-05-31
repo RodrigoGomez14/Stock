@@ -25,11 +25,10 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
 
     const getClassNameSearch = () =>{
         if(searchRemito){
-            return !searchRemito?null:id.search(searchRemito) == -1 ? classes.displayNone:classes.display
+            console.log(id.search(searchRemito))
+            return id.search(searchRemito) == -1 ? classes.displayNone:classes.display
         }
         else if(searchPedido){
-            console.log(id)
-            console.log(searchPedido)
             return !searchPedido?null:id.search(searchPedido) == -1 ? classes.displayNone:classes.display 
         }
     }

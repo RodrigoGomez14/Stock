@@ -11,6 +11,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     const [cantidad,setcantidad]=useState(undefined)
     const [discount,setDiscount]=useState(undefined)
     const [increase,setIncrease]=useState(undefined)
+    const [showPriceModifier,setShowPriceModifier]=useState(false)
     const [precio,setprecio]=useState('')
     const [editarPrecio,seteditarPrecio]=useState(false)
     
@@ -126,6 +127,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                 setprecio(obtenerPrecio(e.target.value))
                             }}
                             onSelect={(e)=>{
+                                setShowPriceModifier(true)
                                 setproducto(e.target.value) 
                                 setprecio(obtenerPrecio(e.target.value))
                             }}
@@ -133,7 +135,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             renderInput={(params) => <TextField {...params} label="Producto" variant="outlined" />}
                         />
                     </Grid>
-                    {producto&&
+                    {showPriceModifier?
                         <Grid container item xs={12} justify='flex-start' spacing={3} >
                             <List style={{width:'100%'}}>
                                 <ListItem>
@@ -227,6 +229,8 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                 }
                             </Grid>
                         </Grid>
+                        :
+                        null
                     }
                     
                     <Grid container item xs={12} justify='center' >
@@ -263,6 +267,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                         setDiscount(undefined)
                         setIncrease(undefined)
                         seteditarPrecio(false)
+                        setShowPriceModifier(false)
                         setOpen(false)
                     }}
                 >

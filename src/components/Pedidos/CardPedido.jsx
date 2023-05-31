@@ -94,7 +94,7 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                             </ListItem>
                             {pedido.productos.map(producto=>(
                                 <ListItem>
-                                    <ListItemText primary={`${producto.cantidad} ${producto.producto}`} secondary={`${producto.precio}`}/>
+                                    <ListItemText primary={`${producto.cantidad} ${producto.producto}`} secondary={`$${formatMoney(facturacion?((producto.precio + (producto.precio*0.21)) * producto.cantidad ):(producto.precio*producto.cantidad))} ($${formatMoney(facturacion?(producto.precio + (producto.precio*0.21)):producto.precio)} c/u)`}/>
                                     {producto.discount?
                                         <ListItemText 
                                             primary={<Chip

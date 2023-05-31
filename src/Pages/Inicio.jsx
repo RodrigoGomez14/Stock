@@ -1079,10 +1079,10 @@ const Inicio=(props)=>{
                 series[0].data[i] = val
             }
             else{
-                series[0].data[i]= series[0].data[i-1] + val
+                series[0].data[i]= series[0].data[i-1] + val?val:0
             }
         })
-        
+        console.log(series)
         // Define la configuración del gráfico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),

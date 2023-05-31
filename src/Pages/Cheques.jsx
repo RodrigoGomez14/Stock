@@ -227,6 +227,7 @@ const Cheques=(props)=>{
         <Layout history={props.history} page="Cheques" user={props.user.uid}>
             {/* CONTENT */}
             <Paper className={classes.content}>
+                {console.log(search)}
                 {/* CHEQUES TABLE */}
                 <Grid container spacing={6}>
                     <Grid container item xs={12} justify='space-around'>
