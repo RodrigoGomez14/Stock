@@ -83,11 +83,12 @@ export const getActualMonthDetailed = (date) =>{
 }
 export const filtrarCotizaciones = (aux) => {
   let auxCotizaciones = []
+  console.log(aux)
   auxCotizaciones[0] = {nombre:'Oficial Compra',valor:parseFloat(aux[0].casa.compra)}
   auxCotizaciones[1] = {nombre:'Oficial Promedio',valor:(parseFloat(aux[0].casa.compra)+parseFloat(aux[0].casa.venta))/2}
-  auxCotizaciones[2] = {nombre:'CCL Compra',valor:parseFloat(aux[3].casa.compra)}
-  auxCotizaciones[3] = {nombre:'CCL Venta',valor:parseFloat(aux[3].casa.compra)}
-  auxCotizaciones[4] = {nombre:'CCL Promedio',valor:(parseFloat(aux[3].casa.compra)+parseFloat(aux[3].casa.venta))/2}
+  auxCotizaciones[2] = {nombre:'Blue Compra',valor:parseFloat(aux[1].casa.compra)}
+  auxCotizaciones[3] = {nombre:'Blue Venta',valor:parseFloat(aux[1].casa.venta)}
+  auxCotizaciones[4] = {nombre:'Blue Promedio',valor:(parseFloat(aux[1].casa.compra)+parseFloat(aux[1].casa.venta))/2}
   auxCotizaciones[5] = {nombre:'Oficial Venta',valor:parseFloat(aux[0].casa.venta)}
   return(auxCotizaciones)
 }

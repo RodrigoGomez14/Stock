@@ -6,6 +6,7 @@ import {Alert} from '@material-ui/lab'
 import {AddOutlined} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardProducto} from '../components/Productos/CardProducto'
+import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
 import {database} from 'firebase'
 import {content} from './styles/styles'
 import {getProductosList,getSubproductosList,obtenerFecha} from '../utilities'
@@ -19,6 +20,8 @@ const Productos=(props)=>{
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
     const [value,setValue]=useState(0)
+    const [showDialogDelete,setShowDialogDelete] = useState(false)
+    const [deleteIndex,setDeleteIndex] = useState(undefined)
 
     //FUNCTIONS
     const eliminarProducto = (key) =>{
@@ -26,6 +29,7 @@ const Productos=(props)=>{
         database().ref().child(props.user.uid).child('productos').child(key).remove()
         .then(()=>{
             setshowSnackbar('El producto se eliminó correctamente')
+            setShowDialogDelete(false)
             setTimeout(() => {
                 setLoading(false)
             }, 2000);
@@ -133,9 +137,10 @@ const Productos=(props)=>{
                                         cantidad={producto.cantidad}
                                         subproductos={producto.subproductos?producto.subproductos:null}
                                         name={producto.nombre}
-                                        eliminarProducto={()=>{eliminarProducto(producto.nombre)}}
                                         iniciarCadena={(i)=>{iniciarCadena(i)}}
                                         historialDeProduccion={producto.historialDeCadenas}
+                                        setDeleteIndex={setDeleteIndex}
+                                        setShowDialogDelete={setShowDialogDelete}
                                     />)))
                                 :
                                 <>
@@ -161,10 +166,11 @@ const Productos=(props)=>{
                                         cantidad={subproducto.cantidad}
                                         name={subproducto.nombre}
                                         subproductos={subproducto.subproductos?subproducto.subproductos:null}
-                                        eliminarProducto={()=>{eliminarProducto(subproducto.nombre)}}
                                         isSubproducto={true}
                                         iniciarCadena={(i)=>{iniciarCadena(i)}}
                                         historialDeProduccion={subproducto.historialDeCadenas}
+                                        setDeleteIndex={setDeleteIndex}
+                                        setShowDialogDelete={setShowDialogDelete}
 
                                     />)))
                                 :
@@ -187,6 +193,7 @@ const Productos=(props)=>{
             {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
+                <DialogConfirmAction showDialog={showDialogDelete} setShowDialog={setShowDialogDelete} action={()=>{eliminarProducto(deleteIndex)}} tipo='el Producto'/>
                 <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
                     <Alert severity="success" variant='filled'>
                         {showSnackbar}

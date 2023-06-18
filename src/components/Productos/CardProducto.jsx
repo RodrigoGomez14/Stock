@@ -8,7 +8,7 @@ import { StepperCadena } from '../Productos/StepperCadena'
 import ApexCharts from 'react-apexcharts';
 
 
-export const CardProducto = ({precio,cantidad,search,name,historialDeStock,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena}) =>{
+export const CardProducto = ({precio,cantidad,search,name,historialDeStock,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena,setDeleteIndex,setShowDialogDelete}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading,setLoading] = useState(false)
@@ -187,7 +187,8 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,elimi
                                     }
                                     <MenuItem onClick={()=>{
                                         setAnchorEl(null)
-                                        eliminarProducto()
+                                        setShowDialogDelete(true)
+                                        setDeleteIndex(name)
                                     }}>Eliminar</MenuItem>
                                 </Menu>
                             </>

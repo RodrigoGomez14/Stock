@@ -49,7 +49,7 @@ export const Ventas = ({ventas,year}) =>{
     return(
         <Grid container xs={12} justify='center' spacing={3}>
             <Grid container item xs={12} justify='center'>
-                <Typography>Ventas</Typography>
+                <Typography variant='h4'>Ventas</Typography>
             </Grid>
             <Grid container item xs={12} justify='center'>
                 <Card className={classes.CardAnualIva}>

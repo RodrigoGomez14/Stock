@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import {Layout} from './Layout'
 import {makeStyles,Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
+import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
 import {CardPedido} from '../components/Pedidos/CardPedido'
 import {database} from 'firebase'
 import {content} from './styles/styles'
@@ -14,6 +15,8 @@ const Pedidos=(props)=>{
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
+    const [showDialogDelete, setShowDialogDelete] = useState(false);
+    const [deleteIndex, setDeleteIndex] = useState(false);
 
     // FUNTIONS
     const eliminarPedido = (id) =>{
@@ -21,6 +24,7 @@ const Pedidos=(props)=>{
         database().ref().child(props.user.uid).child('pedidos').child(id).remove()
             .then(()=>{
                 setshowSnackbar('El pedido se eliminó correctamente!')
+                setShowDialogDelete(false)
                 setTimeout(() => {
                     setLoading(false)
                 }, 2000);
@@ -42,7 +46,8 @@ const Pedidos=(props)=>{
                                 pedido={props.pedidos[key]}
                                 deuda={props.clientes[props.pedidos[key].cliente].datos.deuda}
                                 id={key}
-                                eliminarPedido={()=>{eliminarPedido(key)}}
+                                setShowDialogDelete={setShowDialogDelete}
+                                setDeleteIndex={setDeleteIndex}
                             />
                         )))
                         :
@@ -60,12 +65,15 @@ const Pedidos=(props)=>{
                 {/* BACKDROP & SNACKBAR */}
                 <Backdrop className={classes.backdrop} open={loading}>
                     <CircularProgress color="inherit" />
+                    <DialogConfirmAction showDialog={showDialogDelete} setShowDialog={setShowDialogDelete} action={()=>{eliminarPedido(deleteIndex)}} tipo='eliminar el Pedido'/>
                     <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
                         <Alert severity="success" variant='filled'>
                             {showSnackbar}
                         </Alert>
                     </Snackbar>
                 </Backdrop>
+
+
             </Paper>
         </Layout>
     )

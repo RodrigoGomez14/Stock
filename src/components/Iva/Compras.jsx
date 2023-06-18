@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,makeStyles,Paper,Card,CardHeader,Collapse,CardContent,IconButton} from '@material-ui/core'
+import {Grid,makeStyles,Paper,Card,CardHeader,Collapse,CardContent,IconButton,Typography} from '@material-ui/core'
 import {Tabla} from './Tabla'
 import { formatMoney,monthsList } from '../../utilities'
 import { ExpandLess, ExpandMore } from '@material-ui/icons'
@@ -48,6 +48,9 @@ export const Compras = ({compras,year}) =>{
 
     return(
         <Grid container xs={12} justify='center' spacing={3}>
+            <Grid container item xs={12} justify='center'>
+                <Typography variant='h4'>Compras</Typography>
+            </Grid>
             <Grid container item xs={12} justify='center'>
                 <Card className={classes.CardAnualIva}>
                     <CardHeader

@@ -7,7 +7,7 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGrupo}) =>{
+export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnBlanco,guardarChequeEnNegro,setShowDialogDelete,setDeleteIndex,setShowDialogSelectGroup,setIdGroup}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -55,13 +55,15 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                             {!cheque.grupo?
                                                 <>
                                                     <MenuItem onClick={()=>{
-                                                        guardarChequeEnGrupo(id,'Blanco')
+                                                        setShowDialogSelectGroup(true)
+                                                        setIdGroup(id)
                                                         setAnchorEl(null)
                                                     }}>
                                                         Guardar Blanco
                                                     </MenuItem>
                                                     <MenuItem onClick={()=>{
-                                                        guardarChequeEnGrupo(id,'Negro')
+                                                        setShowDialogSelectGroup(true)
+                                                        setIdGroup(id)
                                                         setAnchorEl(null)
                                                     }}>
                                                         Guardar Negro
@@ -72,7 +74,8 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnGr
                                             }
                                             {!cheque.dadoDeBaja?
                                                 <MenuItem onClick={()=>{
-                                                    guardarChequeRebotado(id)
+                                                    setShowDialogDelete(true)
+                                                    setDeleteIndex(id)
                                                     setAnchorEl(null)
                                                 }}>
                                                     Dar de Baja

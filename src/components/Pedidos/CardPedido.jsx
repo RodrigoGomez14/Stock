@@ -6,7 +6,7 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
+export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -55,7 +55,8 @@ export const CardPedido = ({pedido,id,eliminarPedido,deuda}) =>{
                                         </Link>   
                                     <MenuItem className={classes.deleteButton} onClick={()=>{
                                         setAnchorEl(null)
-                                        eliminarPedido()
+                                        setShowDialogDelete(true)
+                                        setDeleteIndex(id)
                                     }}>
                                         Eliminar
                                     </MenuItem>

@@ -953,7 +953,6 @@ const Inicio=(props)=>{
         if(sortedCompras){
             for (const [year, data] of sortedCompras) {
                 // Itera sobre cada mes en el año
-                console.log(data)
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -961,7 +960,12 @@ const Inicio=(props)=>{
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
                                 series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)
                                 if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)-parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)/1.21)
+                                    if(!dataMonth.compras[i].titulo){
+                                        series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)-parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)/1.21)
+                                    }
+                                    else{
+                                        series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].totalIva))
+                                    }
                                 }
                             })
                         }
@@ -1076,10 +1080,10 @@ const Inicio=(props)=>{
         })
         auxBalance.map((val,i)=>{
             if(i==0){
-                series[0].data[i] = val
+                series[0].data[0] = val
             }
             else{
-                series[0].data[i]= series[0].data[i-1] + val?val:0
+                series[0].data[i]= series[0].data[i-1] + (val?val:0)
             }
         })
         console.log(series)
@@ -1152,9 +1156,10 @@ const Inicio=(props)=>{
             data: Array.from({ length: daysInMonth }, () => 0),
             },
         ];
-        
-    
-        let auxBalance = 0
+        let auxData=[
+            Array.from({ length: daysInMonth }, () => 0),
+            Array.from({ length: daysInMonth }, () => 0)
+        ]
         if(sortedVentas){
             for (const [year, data] of sortedVentas) {
                 // Itera sobre cada mes en el año
@@ -1164,12 +1169,10 @@ const Inicio=(props)=>{
                             dataMonth.ventas.map((venta,i)=>{
                                 const day = dataMonth.ventas[i].fecha.split('/')[0]-1
                                 if(dataMonth.ventas[i].metodoDePago.facturacion){
-                                    auxBalance+= (dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0)
-                                    series[0].data[day] = (series[0].data[day])+(dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0)
+                                    auxData[0][day] = (auxData[0][day])+(dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0)
                                 }
                                 else{
-                                    auxBalance+= dataMonth.ventas[i].total?dataMonth.ventas[i].total:0
-                                    series[0].data[day] = (series[0].data[day])+dataMonth.ventas[i].total?dataMonth.ventas[i].total:0
+                                    auxData[0][day] = (auxData[0][day])+dataMonth.ventas[i].total?dataMonth.ventas[i].total:0
                                 }
                             })
                         }
@@ -1186,12 +1189,15 @@ const Inicio=(props)=>{
                             dataMonth.compras.map((compra,i)=>{
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
                                 if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    auxBalance-= (dataMonth.compras[i].total?dataMonth.compras[i].total/1.21:0)
-                                    series[0].data[day] = (series[0].data[day])-(dataMonth.compras[i].total?dataMonth.compras[i].total/1.21:0)
+                                    if(dataMonth.compras[i].consumoFacturado){
+                                        auxData[1][day] = (auxData[1][day])+(dataMonth.compras[i].total?dataMonth.compras[i].total-dataMonth.compras[i].totalIva:0)
+                                    }
+                                    else{
+                                        auxData[1][day] = (auxData[1][day])+(dataMonth.compras[i].total?dataMonth.compras[i].total/1.21:0)
+                                    }
                                 }
                                 else{
-                                    auxBalance-= dataMonth.compras[i].total?dataMonth.compras[i].total:0
-                                    series[0].data[day] = (series[0].data[day])-dataMonth.compras[i].total?dataMonth.compras[i].total:0
+                                    auxData[1][day] = (auxData[1][day])+dataMonth.compras[i].total?dataMonth.compras[i].total:0
                                 }
                             })
                         }
@@ -1199,7 +1205,24 @@ const Inicio=(props)=>{
                 }
             }
         }
-
+        let totalMonth = 0
+        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
+        auxData[0].map((val,i)=>{
+            auxBalance[i]+=val
+            totalMonth+=val
+        })
+        auxData[1].map((val,i)=>{
+            auxBalance[i]-=val
+            totalMonth-=val
+        })
+        auxBalance.map((val,i)=>{
+            if(i==0){
+                series[0].data[0] = val
+            }
+            else{
+                series[0].data[i]= series[0].data[i-1] + (val?val:0)
+            }
+        })
         // Define la configuración del gráfico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
@@ -1225,9 +1248,9 @@ const Inicio=(props)=>{
 
         // Renderiza el gráfico
         return (
-            <Card className={auxBalance>0?classes.cardBgGreen:classes.cardBgRed}>
+            <Card className={totalMonth>0?classes.cardBgGreen:classes.cardBgRed}>
                 <CardHeader
-                    title={`$ ${formatMoney(auxBalance)}`}
+                    title={`$ ${formatMoney(totalMonth)}`}
                     subheader={`Balance - ${getActualMonthDetailed()}`}                />
                 <CardContent>
                     <ApexCharts options={options} series={series} type='area' width={200} height={100} />
@@ -1412,6 +1435,7 @@ const Inicio=(props)=>{
         <Layout history={props.history} page="Inicio" user={props.user.uid}>
             <Paper className={classes.content}>
                 <Grid container item xs={12}>
+                    {console.log(props.dolares)}
                     <CarouselCotizaciones dolares={filtrarCotizaciones(props.dolares)}/>
                 </Grid>
                 <Grid container item xs={12}>

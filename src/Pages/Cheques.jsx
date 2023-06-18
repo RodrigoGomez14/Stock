@@ -8,6 +8,7 @@ import {MoreVert,ArrowForward} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardPedido} from '../components/Pedidos/CardPedido'
 import {database} from 'firebase'
+import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
 import {formatMoney,obtenerFecha,monthsList} from '../utilities'
 import {DialogEntregarCheque} from '../components/Cheques/DialogEntregarCheque'
 import {content} from './styles/styles'
@@ -24,6 +25,11 @@ const Cheques=(props)=>{
     const [totalBlanco,setTotalBlanco] = useState('')
     const [totalNegro,setTotalNegro] = useState('')
     const [sortedCheques,setSortedCheques] = useState(undefined)
+    const [showDialogDelete, setShowDialogDelete] = useState(false);
+    const [deleteIndex, setDeleteIndex] = useState(false);
+    const [showDialogSelectGroup, setShowDialogSelectGroup] = useState(false);
+    const [idGroup, setIdGroup] = useState(undefined);
+    
 
     // FUNCTIONS 
 
@@ -48,6 +54,7 @@ const Cheques=(props)=>{
         // FEEDBACK DEL PROCESO
         .then(()=>{
             setshowSnackbar('El cheque se dio de baja correctamente!')
+            setShowDialogDelete(false)
             setTimeout(() => {
                 setLoading(false)
                 setshowSnackbar('')
@@ -114,20 +121,34 @@ const Cheques=(props)=>{
             database().ref().child(props.user.uid).child('proveedores').child(destinatario).child('pagos').push(aux)  
         }
     }
-    const guardarChequeEnGrupo = (id,grupo) =>{
+    const guardarChequeEnBlanco = (id) =>{
         setLoading(true)
         database().ref().child(props.user.uid).child('cheques').child(id).update({
-                grupo:grupo
+                grupo:'Blanco'
         })
         .then(()=>{
             setshowSnackbar('El cheque Se Agrego Al Grupo!')
+            setShowDialogSelectGroup(false)
             setTimeout(() => {
                 setLoading(false)
                 setshowSnackbar('')
             }, 2000);
         })
     }
-    
+    const guardarChequeEnNegro = (id) =>{
+        setLoading(true)
+        database().ref().child(props.user.uid).child('cheques').child(id).update({
+                grupo:'Negro'
+        })
+        .then(()=>{
+            setshowSnackbar('El cheque Se Agrego Al Grupo!')
+            setShowDialogSelectGroup(false)
+            setTimeout(() => {
+                setLoading(false)
+                setshowSnackbar('')
+            }, 2000);
+        })
+    }
     const obtenerTotalGrupos = (cheques) =>{
         let auxBlanco = 0
         let auxNegro = 0
@@ -274,7 +295,7 @@ const Cheques=(props)=>{
                                         </Grid>
                                         <Grid container item xs={12} justify='center' spacing={3}>
                                             {Object.keys(sortedCheques[month].cheques).map(cheque=>(
-                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search} guardarChequeRebotado={guardarChequeRebotado} guardarChequeEnGrupo={guardarChequeEnGrupo} />    
+                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search}  setShowDialogDelete={setShowDialogDelete} setDeleteIndex={setDeleteIndex} setShowDialogSelectGroup={setShowDialogSelectGroup} setIdGroup={setIdGroup}/>    
                                             ))}
                                         </Grid>
                                     </>
@@ -297,6 +318,9 @@ const Cheques=(props)=>{
             {/* BACKDROP & SNACKBAR */}
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
+                <DialogConfirmAction showDialog={showDialogDelete} setShowDialog={setShowDialogDelete} action={()=>{guardarChequeRebotado(deleteIndex)}} tipo='dar de baja el cheque'/>
+                <DialogConfirmAction showDialog={showDialogSelectGroup} setShowDialog={setShowDialogSelectGroup} action={()=>{guardarChequeEnBlanco(idGroup)}} tipo='Guardar Cheque en Blanco'/>
+                <DialogConfirmAction showDialog={showDialogSelectGroup} setShowDialog={setShowDialogSelectGroup} action={()=>{guardarChequeEnNegro(idGroup)}} tipo='Guardar Cheque en Negro'/>
                 <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
                     <Alert severity="success" variant='filled'>
                         {showSnackbar}

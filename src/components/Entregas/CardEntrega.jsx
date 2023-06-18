@@ -87,10 +87,17 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                 </Paper>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                     <CardContent>
-                        <List>
+                    <List>
+                            {entrega.cotizacion?
+                                <ListItem>
+                                    <ListItemText primary={`$${entrega.cotizacion.valor}`} secondary={entrega.cotizacion.nombre}/>
+                                </ListItem>
+                                :
+                                null
+                            }
                             {entrega.productos.map(producto=>(
                                 <ListItem>
-                                    <ListItemText primary={producto.producto} secondary={producto.cantidad}/>
+                                    <ListItemText primary={`${producto.cantidad} ${producto.producto}`} secondary={`$${formatMoney(facturacion?((producto.precio + (producto.precio*0.21)) * producto.cantidad ):(producto.precio*producto.cantidad))} ($${formatMoney(facturacion?(producto.precio + (producto.precio*0.21)):producto.precio)} c/u)`}/>
                                 </ListItem>
                             ))}
                         </List>
@@ -101,7 +108,7 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                         <Grid container justify='space-around'>
                             <Typography variant='h5'>
                                 {facturacion?
-                                    `$ ${formatMoney(entrega.total+entrega.total*0.21)}`
+                                    `$ ${formatMoney(entrega.total*1.21)}`
                                     :
                                     `$ ${formatMoney(entrega.total)}`
                                 }
