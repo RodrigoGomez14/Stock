@@ -14,7 +14,7 @@ export const CarouselCotizaciones = ({ dolares }) => {
         centerMode={true}
         interval={2000}
         transitionTime={100}
-        centerSlidePercentage={20}
+        centerSlidePercentage={18}
         className={classes.CarouselCotizaciones}
       >
         {dolares.map((cotizacion, index) => (

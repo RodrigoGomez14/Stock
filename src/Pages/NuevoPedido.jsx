@@ -17,8 +17,7 @@ const NuevoPedido=(props)=>{
     const [productos,setproductos]=useState([])
     const [total,settotal]=useState(0)
     const [fecha,setfecha]=useState(undefined)
-    const [cotizacion,setCotizacion]=useState({nombre:undefined,valor:undefined})
-
+    console.log(props.dolares)
     //STEPPER STATE
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -63,9 +62,7 @@ const NuevoPedido=(props)=>{
                 productosList={getProductosListWithPrice(props.productos)}
                 total={total}
                 settotal={settotal}
-                cotizaciones={filtrarCotizaciones(props.dolares)}
-                cotizacion={cotizacion}
-                setCotizacion={setCotizacion}
+                cotizacion={{nombre:props.dolares[1].casa.nombre,valor:parseFloat(props.dolares[1].casa.venta)}}
             /> 
           );
       }
@@ -120,7 +117,7 @@ const NuevoPedido=(props)=>{
         let aux={
             cliente:nombre,
             productos:productos,
-            cotizacion:cotizacion,
+            cotizacion:{nombre:props.dolares[1].casa.nombre,valor:parseFloat(props.dolares[1].casa.venta)},
             total:total,
             fecha:!fecha?fechaDetallada():fecha
         }

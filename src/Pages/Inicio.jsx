@@ -874,7 +874,9 @@ const Inicio=(props)=>{
             data: Array.from({ length: daysInMonth }, () => 0),
             },
         ];
-        
+        let auxData=[
+            Array.from({ length: daysInMonth }, () => 0)
+        ]     
     
         if(sortedVentas){
             for (const [year, data] of sortedVentas) {
@@ -886,10 +888,7 @@ const Inicio=(props)=>{
                             dataMonth.ventas.map((venta,i)=>{
                                 auxSales +=1
                                 const day = dataMonth.ventas[i].fecha.split('/')[0]-1
-                                series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total:0)
-                                if(dataMonth.ventas[i].metodoDePago.facturacion){
-                                    series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total:0)-parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0))
-                                }
+                                auxData[0][day] = (auxData[0][day])+parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total:0)
                             })
                         }
                     }
@@ -920,10 +919,20 @@ const Inicio=(props)=>{
         };
     
         let totalMonth = 0
-        
-        series[0].data.map(serie=>(
-            totalMonth = totalMonth + serie
-        ))
+        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
+        auxData[0].map((val,i)=>{
+            auxBalance[i]+=val
+            totalMonth+=val
+        })
+        auxBalance.map((val,i)=>{
+            if(i==0){
+                series[0].data[0] = val
+            }
+            else{
+                series[0].data[i]= series[0].data[i-1] + (val?val:0)
+            }
+        })
+
         // Renderiza el gráfico
         return (
             <Card>
@@ -932,7 +941,7 @@ const Inicio=(props)=>{
                     subheader={`Ventas - ${getActualMonthDetailed()}`}
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={200} height={100} />
+                    <ApexCharts options={options} series={series} type='area' width={250} height={100} />
                 </CardContent>
             </Card>)
     }
@@ -947,8 +956,9 @@ const Inicio=(props)=>{
             data: Array.from({ length: daysInMonth }, () => 0),
             },
         ];
-        
-        let totalMonth = 0
+        let auxData=[
+            Array.from({ length: daysInMonth }, () => 0)
+        ]
     
         if(sortedCompras){
             for (const [year, data] of sortedCompras) {
@@ -958,15 +968,7 @@ const Inicio=(props)=>{
                         if(month-1==currentMonth){
                             dataMonth.compras.map((compra,i)=>{
                                 const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                                series[0].data[day] = (series[0].data[day])+parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)
-                                if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    if(!dataMonth.compras[i].titulo){
-                                        series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)-parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)/1.21)
-                                    }
-                                    else{
-                                        series[0].data[day] = (series[0].data[day])-(parseFloat(dataMonth.compras[i].totalIva))
-                                    }
-                                }
+                                auxData[0][day] = (auxData[0][day])+parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)
                             })
                         }
                     }
@@ -997,9 +999,21 @@ const Inicio=(props)=>{
         };
     
 
-        series[0].data.map(serie=>(
-            totalMonth = totalMonth + serie
-        ))
+        let totalMonth = 0
+        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
+        auxData[0].map((val,i)=>{
+            auxBalance[i]+=val
+            totalMonth+=val
+        })
+        auxBalance.map((val,i)=>{
+            if(i==0){
+                series[0].data[0] = val
+            }
+            else{
+                series[0].data[i]= series[0].data[i-1] + (val?val:0)
+            }
+        })
+
         // Renderiza el gráfico
         return (
             <Card>
@@ -1008,7 +1022,7 @@ const Inicio=(props)=>{
                     subheader={`Compras - ${getActualMonthDetailed()}`}
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={200} height={100} />
+                    <ApexCharts options={options} series={series} type='area' width={250} height={100} />
                 </CardContent>
             </Card>)
     }
@@ -1141,7 +1155,7 @@ const Inicio=(props)=>{
                     }
                 />
                 <CardContent>
-                    <ApexCharts options={options} series={series} width={200} height={100} />
+                    <ApexCharts options={options} series={series} width={250} height={100} />
                 </CardContent>
             </Card>)
     }
@@ -1253,7 +1267,7 @@ const Inicio=(props)=>{
                     title={`$ ${formatMoney(totalMonth)}`}
                     subheader={`Balance - ${getActualMonthDetailed()}`}                />
                 <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={200} height={100} />
+                    <ApexCharts options={options} series={series} type='area' width={250} height={100} />
                 </CardContent>
             </Card>)
     }
@@ -1435,27 +1449,16 @@ const Inicio=(props)=>{
         <Layout history={props.history} page="Inicio" user={props.user.uid}>
             <Paper className={classes.content}>
                 <Grid container item xs={12}>
-                    {console.log(props.dolares)}
-                    <CarouselCotizaciones dolares={filtrarCotizaciones(props.dolares)}/>
-                </Grid>
-                <Grid container item xs={12}>
                     {!loading && props.ventas?  
                         <Grid container xs={12} spacing={3} justify='center'>
                             <Grid container item xs={12} justify='center' spacing={3}>
                                 <Grid item>
                                     <Paper>
-                                        {generateChartMonthSalesUnits()}
-                                    </Paper>
-                                </Grid>
-                                <Grid item>
-                                    <Paper>
-                                        
                                         {generateChartMonthSalesValue()}
                                     </Paper>
                                 </Grid>
                                 <Grid item>
                                     <Paper>
-                                        
                                         {generateChartMonthPurchasesValue()}
                                     </Paper>
                                 </Grid>

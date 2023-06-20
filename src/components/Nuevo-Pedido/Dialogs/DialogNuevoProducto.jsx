@@ -11,6 +11,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     const [cantidad,setcantidad]=useState(undefined)
     const [discount,setDiscount]=useState(undefined)
     const [increase,setIncrease]=useState(undefined)
+    const [redondeo,setRedondeo]=useState(false)
     const [showPriceModifier,setShowPriceModifier]=useState(false)
     const [precio,setprecio]=useState('')
     const [editarPrecio,seteditarPrecio]=useState(false)
@@ -20,6 +21,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
         setproducto(undefined)
         setcantidad(undefined)
         setprecio(undefined)
+        setRedondeo(false)
         seteditarPrecio(false)
     }
     const agregarProducto = () =>{
@@ -106,7 +108,6 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
     // CONTENT
     return(
         <Dialog open={open} maxWidth='md'>
-            {console.log(cotizacion)}
             <DialogTitle>
                 {edit?
                     'Editar Producto Elegido'
@@ -140,13 +141,13 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                             <List style={{width:'100%'}}>
                                 <ListItem>
                                     <ListItemText 
-                                        primary={`$ ${formatMoney(precio*cotizacion.valor)} c/u - ($${formatMoney(precio)}usd x $${formatMoney(cotizacion.valor)}) `} 
-                                        secondary={editarPrecio&&(discount||increase)?`$ ${editarPrecio=='discount'?'-':'+'}${formatMoney(editarPrecio=='discount'?getDiscount(precio*cotizacion.valor,discount):getIncrease(precio*cotizacion.valor,increase))}`:null}/>
+                                        primary={`$ ${formatMoney(precio*(cotizacion.valor))} c/u - ($${formatMoney(precio)}usd x $${formatMoney(cotizacion.valor)}) `} 
+                                        secondary={editarPrecio&&(discount||increase)?`$ ${editarPrecio=='discount'?'-':'+'}${formatMoney(editarPrecio=='discount'?getDiscount(precio*(cotizacion.valor),discount):getIncrease(precio*(cotizacion.valor),increase))}`:null}/>
                                 </ListItem>
                                 {editarPrecio && (discount||increase)?
                                     <ListItem>
                                         <ListItemText 
-                                            primary={`$ ${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio*cotizacion.valor,discount):getIncreasedPrice(precio*cotizacion.valor,increase))} c/u - ($${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio,discount):getIncreasedPrice(precio,increase))}usd x $${formatMoney(cotizacion.valor)})`} 
+                                            primary={`$ ${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio*(cotizacion.valor),discount):getIncreasedPrice(precio*(cotizacion.valor),increase))} c/u - ($${formatMoney(editarPrecio=='discount'?getDiscountPrice(precio,discount):getIncreasedPrice(precio,increase))}usd x $${formatMoney(cotizacion.valor)})`} 
                                             secondary='Nuevo Precio'
                                             />
                                     </ListItem>
@@ -155,6 +156,31 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                 }
                             </List>
                             <Grid container item xs={12}>
+                                {redondeo?
+                                    <Grid container item xs={12} justify='center' spacing={3}>
+                                        <Grid item>
+                                            <TextField
+                                                label='Redondeo'
+                                                type='number'
+                                                value={(precio*cotizacion.valor)}
+                                                onChange={e=>{
+                                                    setprecio(e.target.value/cotizacion.valor)
+                                                }}
+                                            />
+                                        </Grid>
+                                        <Grid item>
+                                            <IconButton
+                                                onClick={e=>{
+                                                    setRedondeo(false)
+                                                }}
+                                            >
+                                                <CheckCircle/>
+                                            </IconButton>
+                                        </Grid>
+                                    </Grid>
+                                    :
+                                    null
+                                }
                                 {editarPrecio?
                                     <Grid container item xs={12} justify='center' spacing={3}>
                                         <Grid item>
@@ -178,6 +204,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                                     seteditarPrecio(false)
                                                     setIncrease(undefined)
                                                     setDiscount(undefined)
+                                                    setRedondeo(false)
                                                 }}
                                             >
                                                 <CancelRounded/>
@@ -192,6 +219,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                                         setprecio(getIncreasedPrice(precio,increase))
                                                     }
                                                     seteditarPrecio(false)
+                                                    setRedondeo(false)
                                                 }}
                                             >
                                                 <CheckCircle/>
@@ -199,7 +227,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                         </Grid>
                                     </Grid>
                                     :
-                                    !discount && !increase?
+                                    !discount && !increase && !redondeo?
                                         <Grid container item xs={12} justify='center' spacing={3}>
                                             <Grid item>
                                                 <Button
@@ -212,7 +240,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                                     Descuento de precio
                                                 </Button>
                                             </Grid>
-                                                <Grid item>
+                                            <Grid item>
                                                 <Button
                                                     color='primary'
                                                     variant='contained'
@@ -222,7 +250,18 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                                                 >
                                                     Aumento de precio
                                                 </Button>
-                                                </Grid>
+                                            </Grid>
+                                            <Grid item>
+                                                <Button
+                                                    color='primary'
+                                                    variant='contained'
+                                                    onClick={e=>{
+                                                        setRedondeo(true)
+                                                    }}
+                                                >
+                                                    Redondeo
+                                                </Button>
+                                            </Grid>
                                         </Grid>
                                         :
                                         null
@@ -250,7 +289,7 @@ export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,ed
                         <Paper className={classes.totalProductoNuevoPedido} elevation={3}>
                             <List>
                                 <ListItem>
-                                        <ListItemText secondary={'Total'} primary={`$ ${cantidad*precio?formatMoney(cantidad*precio*cotizacion.valor):'-'}`}/>
+                                        <ListItemText secondary={'Total'} primary={`$ ${cantidad*precio?formatMoney(cantidad*precio*(cotizacion.valor)):'-'}`}/>
                                 </ListItem>
                             </List>
                         </Paper>
