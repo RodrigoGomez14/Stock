@@ -1181,12 +1181,14 @@ const Inicio=(props)=>{
                     if(year == currentYear){
                         if(month-1==currentMonth){
                             dataMonth.ventas.map((venta,i)=>{
-                                const day = dataMonth.ventas[i].fecha.split('/')[0]-1
-                                if(dataMonth.ventas[i].metodoDePago.facturacion){
-                                    auxData[0][day] = (auxData[0][day])+(dataMonth.ventas[i].total?dataMonth.ventas[i].total/1.21:0)
+                                console.log(venta)
+                                const day = venta.fecha.split('/')[0]-1
+                                console.log(day)
+                                if(venta.metodoDePago.facturacion){
+                                    auxData[0][day] = (auxData[0][day])+(venta.total?venta.total/1.21:0)
                                 }
                                 else{
-                                    auxData[0][day] = (auxData[0][day])+dataMonth.ventas[i].total?dataMonth.ventas[i].total:0
+                                    auxData[0][day] = (auxData[0][day])+(venta.total?venta.total:0)
                                 }
                             })
                         }
@@ -1211,7 +1213,7 @@ const Inicio=(props)=>{
                                     }
                                 }
                                 else{
-                                    auxData[1][day] = (auxData[1][day])+dataMonth.compras[i].total?dataMonth.compras[i].total:0
+                                    auxData[1][day] = (auxData[1][day])+(dataMonth.compras[i].total?dataMonth.compras[i].total:0)
                                 }
                             })
                         }
@@ -1222,6 +1224,7 @@ const Inicio=(props)=>{
         let totalMonth = 0
         let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
         auxData[0].map((val,i)=>{
+            console.log(val)
             auxBalance[i]+=val
             totalMonth+=val
         })
