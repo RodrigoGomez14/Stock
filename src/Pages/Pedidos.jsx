@@ -8,6 +8,7 @@ import {CardPedido} from '../components/Pedidos/CardPedido'
 import {database} from 'firebase'
 import {content} from './styles/styles'
 import Empty from '../images/Empty.png'
+import { formatMoney } from '../utilities'
 // COMPONENT
 const Pedidos=(props)=>{
     const classes = content()
@@ -16,7 +17,9 @@ const Pedidos=(props)=>{
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)
     const [showDialogDelete, setShowDialogDelete] = useState(false);
+    const [showDialogUpdatePrices, setShowDialogUpdatePrices] = useState(false);
     const [deleteIndex, setDeleteIndex] = useState(false);
+    const [updatePricesIndex, setUpdatePricesIndex] = useState(false);
 
     // FUNTIONS
     const eliminarPedido = (id) =>{
@@ -25,6 +28,30 @@ const Pedidos=(props)=>{
             .then(()=>{
                 setshowSnackbar('El pedido se eliminó correctamente!')
                 setShowDialogDelete(false)
+                setTimeout(() => {
+                    setLoading(false)
+                }, 2000);
+            })
+            .catch(()=>{
+                setLoading(false)
+            })
+    }
+    const actualizarPrecio = (id) =>{
+        setLoading(true)
+        let auxPedido = props.pedidos[id]
+        let auxTotal = 0
+        console.log(props.pedidos[id].cotizacion.valor)
+        auxPedido.productos.map(producto=>{
+            producto.precio = (producto.precio / props.pedidos[id].cotizacion.valor) * props.tipoDeCambio
+            producto.total = (producto.precio / props.pedidos[id].cotizacion.valor) * props.tipoDeCambio * producto.cantidad
+            auxTotal += producto.precio * producto.cantidad
+        })
+        auxPedido.cotizacion.valor=props.tipoDeCambio
+        auxPedido.total=auxTotal
+        database().ref().child(props.user.uid).child('pedidos').child(id).update(auxPedido)
+            .then(()=>{
+                setshowSnackbar('El precio se actualizo correctamente!')
+                setShowDialogUpdatePrices(false)
                 setTimeout(() => {
                     setLoading(false)
                 }, 2000);
@@ -48,6 +75,9 @@ const Pedidos=(props)=>{
                                 id={key}
                                 setShowDialogDelete={setShowDialogDelete}
                                 setDeleteIndex={setDeleteIndex}
+                                setUpdatePricesIndex={setUpdatePricesIndex}
+                                setShowDialogUpdatePrices={setShowDialogUpdatePrices}
+                                tipoDeCambio={props.tipoDeCambio}
                             />
                         )))
                         :
@@ -66,6 +96,8 @@ const Pedidos=(props)=>{
                 <Backdrop className={classes.backdrop} open={loading}>
                     <CircularProgress color="inherit" />
                     <DialogConfirmAction showDialog={showDialogDelete} setShowDialog={setShowDialogDelete} action={()=>{eliminarPedido(deleteIndex)}} tipo='eliminar el Pedido'/>
+                    
+                    <DialogConfirmAction showDialog={showDialogUpdatePrices} setShowDialog={setShowDialogUpdatePrices} action={()=>{actualizarPrecio(updatePricesIndex)}} tipo={`Actualizar los precios a $${formatMoney(props.tipoDeCambio)}`}/>
                     <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
                         <Alert severity="success" variant='filled'>
                             {showSnackbar}
@@ -85,7 +117,8 @@ const mapStateToProps = state =>{
         user:state.user,
         pedidos:state.pedidos,
         productos:state.productos,
-        clientes:state.clientes
+        clientes:state.clientes,
+        tipoDeCambio:parseFloat(state.dolares[1].casa.venta)
     }
 }
 export default connect(mapStateToProps,null)(Pedidos)

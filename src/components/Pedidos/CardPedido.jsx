@@ -6,10 +6,11 @@ import {database} from 'firebase'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex}) =>{
+export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex,setUpdatePricesIndex,setShowDialogUpdatePrices,tipoDeCambio}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
+    const [confirmPriceUpdate,setConfirmPriceUpdate]=useState(false)
     const [expanded, setExpanded] = useState(false);
 
     //Menu More
@@ -60,6 +61,17 @@ export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex})
                                     }}>
                                         Eliminar
                                     </MenuItem>
+                                    {parseFloat(tipoDeCambio) != parseFloat(pedido.cotizacion.valor)?
+                                        <MenuItem className={classes.deleteButton} onClick={()=>{
+                                            setAnchorEl(null)
+                                            setShowDialogUpdatePrices(true)
+                                            setUpdatePricesIndex(id)
+                                        }}>
+                                            Actualizar precios
+                                        </MenuItem>
+                                        :
+                                        null
+                                    }
                                 </Menu>
                             </>
                         }
