@@ -114,9 +114,6 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
             .then(()=>{
                 setTimeout(() => {
                     props.history.replace('/Cadenas-De-Produccion')
-                    if(step==cadena.length-1){
-                        database().ref().child(props.user.uid).child('cadenasActivas').child(id).remove()
-                    }
                 }, 2000);
             })
             .catch(()=>{
@@ -150,12 +147,23 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
         database().ref().child(props.user.uid).child('compras').push(aux)
     }
     const actualizarCadenaDeProduccion = (id,step,cantidad,idEntrega) =>{
-        let aux = props.cadenasActivas[id]
+        let aux = {...props.cadenasActivas[id]}
         aux.cantidad=cantidad
         aux.procesos[step].fechaDeEntrega=(obtenerFecha())
         aux.procesos[step].idEntrega=idEntrega
         if(step==aux.procesos.length-1){
             database().ref().child(props.user.uid).child('productos').child(aux.producto).child('historialDeCadenas').push(aux)
+            if(cantidad<props.cadenasActivas[id].cantidad){
+                aux.cantidad=(props.cadenasActivas[id].cantidad-cantidad)
+                aux.procesos[step].fechaDeInicio=null
+                aux.procesos[step].fechaDeEntrega=null
+                aux.procesos[step].idEntrega=null
+                aux.procesos[step].precio=null
+                database().ref().child(props.user.uid).child('cadenasActivas').child(id).update(aux)
+            }
+            else{
+                database().ref().child(props.user.uid).child('cadenasActivas').child(id).remove()
+            }
         }
         else{
             database().ref().child(props.user.uid).child('cadenasActivas').child(id).update(aux)
