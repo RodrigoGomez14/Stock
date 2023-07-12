@@ -10,18 +10,13 @@ import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
 import Empty from '../images/Empty.png'
+import {Pago} from '../components/Historial-De-Pagos/Pago'
 
 // COMPONENT
 const HistorialCliente=(props)=>{
     const classes = content()
-    const [cliente,setCliente]= useState(props.clientes[checkSearch(props.history.location.search)].pagos)
-   
-
-    const calcularTotal = (total,efectivo) =>{
-        const auxEfectivo = efectivo?efectivo:0
     
-        return total-auxEfectivo!=0?total-auxEfectivo:0
-    }
+    const [pagos,setPagos]= useState(props.clientes[checkSearch(props.history.location.search)].pagos)
 
     return(
         <Layout history={props.history} page={`Historial ${props.clientes[checkSearch(props.history.location.search)].datos.nombre}`} user={props.user.uid}>
@@ -49,77 +44,11 @@ const HistorialCliente=(props)=>{
                             </Button>
                         </Link>
                     </Grid>
-                        {cliente? 
-                            <Grid item xs={11}>
-                                <Paper elevation={3}>
-                                    <TableContainer component={Paper}>
-                                        <Table stickyHeader>
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Fecha
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Efectivo
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Cheques
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Deuda Pasada
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Deuda Actualizada
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Pedido
-                                                    </TableCell>
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                    {Object.keys(cliente).reverse().map(pago=>(
-                                                        <TableRow> 
-                                                            <TableCell align='right'>
-                                                                {cliente[pago].fecha}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {cliente[pago].efectivo?formatMoney(cliente[pago].efectivo):'-'}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                <MenuCheques pago={cliente[pago]}/>
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {formatMoney(cliente[pago].deudaPasada)}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {formatMoney(cliente[pago].deudaActualizada)}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                {cliente[pago].idPedido?
-                                                                    <Link
-                                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                                                        to={{
-                                                                        pathname:'/cliente',
-                                                                        search:props.history.location.search,
-                                                                        props:{
-                                                                            searchPedido:cliente[pago].idPedido
-                                                                        }
-                                                                    }}>
-                                                                        <Button variant='outlined'>
-                                                                            Ver
-                                                                        </Button>
-                                                                    </Link>
-                                                                    :
-                                                                    '-'
-                                                                }
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                </Paper>
-                            </Grid>
+                    <Grid container xs={12} justify='center' spacing={2}>
+                        {pagos?
+                            Object.keys(pagos).reverse().map(pago=>(
+                                <Pago pago={pagos[pago]} userType='cliente' user={props.clientes[checkSearch(props.history.location.search)].datos.nombre}/>
+                            ))
                             :
                             <Grid container xs={12} justify='center' spacing={2}>
                                 <Grid container item xs={12} justify='center'>
@@ -130,6 +59,7 @@ const HistorialCliente=(props)=>{
                                 </Grid>
                             </Grid>
                         }
+                    </Grid>
                 </Grid>
             </Paper>
         </Layout>

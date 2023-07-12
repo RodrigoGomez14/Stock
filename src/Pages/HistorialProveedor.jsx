@@ -16,13 +16,14 @@ import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
 import Empty from '../images/Empty.png'
+import {Pago} from '../components/Historial-De-Pagos/Pago'
+
 
 // COMPONENT
 const HistorialProveedor=(props)=>{
     const classes = content()
-    const [proveedor,setProveedor]= useState(props.proveedores[checkSearch(props.history.location.search)].pagos)
 
-   
+    const [pagos,setPagos]= useState(props.proveedores[checkSearch(props.history.location.search)].pagos)   
 
     return(
         <Layout history={props.history} page={`Historial ${props.proveedores[checkSearch(props.history.location.search)].datos.nombre}`} user={props.user.uid}>
@@ -49,89 +50,11 @@ const HistorialProveedor=(props)=>{
                             </Button>
                         </Link>
                     </Grid>
-                        {proveedor? 
-                            <Grid item xs={11}>
-                                <Paper elevation={3}>
-                                    <TableContainer component={Paper}>
-                                        <Table stickyHeader>
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell className={classes.titleDetallesCard} align="left">
-                                                        Fecha
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Efectivo
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Cheques
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Cheques Personales
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Total
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard} align='right'>
-                                                        Deuda Pasada
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard}   align='right'>
-                                                        Deuda Actualizada
-                                                    </TableCell>
-                                                    <TableCell className={classes.titleDetallesCard}   align='right'>
-                                                        Entrega
-                                                    </TableCell>
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                    {Object.keys(proveedor).reverse().map(pago=>(
-                                                        <TableRow> 
-                                                            <TableCell align='left'>
-                                                                {proveedor[pago].fecha}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                               $ {proveedor[pago].efectivo?formatMoney(proveedor[pago].efectivo):'-'}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                <MenuCheques pago={proveedor[pago]}/>                                                
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                <MenuChequesPersonales pago={proveedor[pago]}/>                                                
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {formatMoney(proveedor[pago].pagado)}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {formatMoney(proveedor[pago].deudaPasada)}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                $ {formatMoney(proveedor[pago].deudaActualizada)}
-                                                            </TableCell>
-                                                            <TableCell align='right'>
-                                                                {proveedor[pago].idEntrega?
-                                                                    <Link
-                                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                                                        to={{
-                                                                        pathname:'/Proveedor',
-                                                                        search:props.history.location.search,
-                                                                        props:{
-                                                                            searchEntrega:proveedor[pago].idEntrega
-                                                                        }
-                                                                    }}>
-                                                                        <Button variant='outlined'>
-                                                                            Ver
-                                                                        </Button>
-                                                                    </Link>
-                                                                    :
-                                                                    '-'
-                                                                }
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                </Paper>
-                            </Grid>
+                    <Grid container xs={12} justify='center' spacing={2}>
+                        {pagos?
+                            Object.keys(pagos).reverse().map(pago=>(
+                                <Pago pago={pagos[pago]} userType='proveedor' user={props.proveedores[checkSearch(props.history.location.search)].datos.nombre}/>
+                            ))
                             :
                             <Grid container xs={12} justify='center' spacing={2}>
                                 <Grid container item xs={12} justify='center'>
@@ -142,6 +65,7 @@ const HistorialProveedor=(props)=>{
                                 </Grid>
                             </Grid>
                         }
+                    </Grid>
                 </Grid>
             </Paper>
         </Layout>
