@@ -21,6 +21,7 @@ export const DialogNuevaMatriz = ({open,setOpen,matrices,setMatrices,edit,editIn
         let aux = matrices
         aux.push({
             nombre:nombre?nombre:null,
+            ubicacion:"Taller",
         })
         setMatrices(aux)
     }

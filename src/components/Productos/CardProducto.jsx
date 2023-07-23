@@ -1,20 +1,24 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,ExpansionPanel,ExpansionPanelSummary,Typography,Paper,List,ListItem,ListItemText} from '@material-ui/core'
-import {MoreVert,ExpandMore,ExpandLess} from '@material-ui/icons'
+import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,ExpansionPanel,ExpansionPanelSummary,Typography,Paper,List,ListItem,ListItemIcon,ListItemText} from '@material-ui/core'
+import {MoreVert,ExpandMore,ExpandLess,CheckCircleOutline,Block, Send, KeyboardReturn} from '@material-ui/icons'
 import {formatMoney, obtenerFecha} from '../../utilities'
 import {Link} from 'react-router-dom'
 import {content} from '../..//Pages/styles/styles'
 import { StepperCadena } from '../Productos/StepperCadena'
 import ApexCharts from 'react-apexcharts';
+import { DialogConfirmAction } from '../Dialogs/DialogConfirmAction'
+import { DialogEditMatriz } from './Dialogs/DialogEditMatriz'
 
 
-export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matrices,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena,setDeleteIndex,setShowDialogDelete}) =>{
+export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matrices,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena,setDeleteIndex,setShowDialogDelete,modificarMatriz}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading,setLoading] = useState(false)
     const [expanded, setExpanded] = useState(false);
     const [showSnackbar, setshowSnackbar] = useState('');
-
+    const [showDialogConfirmMatriz, setShowDialogConfirmMatriz] = useState(false);
+    const [nuevaUbicacion, setNuevaUbicacion] = useState("");
+    const [idnexEditMatriz, setIdnexEditMatriz] = useState(-1);
 
     // MENU DESPLEGABLE
     const handleClick = (event) => {
@@ -61,8 +65,6 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
             }
             
         };
-        console.log(series)
-        console.log(labels)
         // Renderiza el gráfico
         return (
             <>
@@ -113,11 +115,10 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
             data: data,
             },
         ];
-        console.log(data)
-        console.log(labels)
         // Renderiza el gráfico
         return <ApexCharts options={options} series={series} type='area' height={100}/>;
     }
+
 
     // CONTENT
     return(
@@ -212,32 +213,68 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
                                             </List>
                                         </Grid>
                                         <Grid container item xs={12} justify='center'>
-                                            <List>
-                                                {matrices.map((matriz,i)=>(
-                                                    <>
-                                                        <ListItem>
-                                                            <ListItemText 
-                                                                primary={matriz.nombre}
-                                                                secondary={
-                                                                    <Link
-                                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                                                        to={{
-                                                                        pathname:'/proveedor',
-                                                                        search:matriz.ubicacion,
-                                                                    }}>
-                                                                            {matriz.ubicacion}
-                                                                    </Link> 
-                                                                }    
-                                                            />
-                                                        </ListItem>
-                                                        {i<matrices.length-1?
-                                                            <Divider/>
-                                                            :
-                                                            null
-                                                        }
-                                                    </>
-                                                ))}
-                                            </List>
+                                            <Grid item xs={12}>
+                                                <List>
+                                                    {matrices.map((matriz,i)=>(
+                                                        <>
+                                                            <ListItem>
+                                                                {matriz.ubicacion!="Taller"?
+                                                                    <ListItemIcon className={classes.redCheck}>
+                                                                        <Block/>
+                                                                    </ListItemIcon>
+                                                                    :
+                                                                    <ListItemIcon className={classes.greenCheck}>
+                                                                        <CheckCircleOutline />
+                                                                    </ListItemIcon>
+                                                                }
+                                                                <ListItemText 
+                                                                    primary={matriz.nombre}
+                                                                    secondary={
+                                                                        matriz.ubicacion!="Taller"?
+                                                                        <Link
+                                                                            style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
+                                                                            to={{
+                                                                            pathname:'/proveedor',
+                                                                            search:matriz.ubicacion,
+                                                                        }}>
+                                                                                {matriz.ubicacion}
+                                                                        </Link>
+                                                                        :
+                                                                        matriz.ubicacion
+                                                                    }    
+                                                                />
+                                                                {matriz.ubicacion!="Taller"?
+                                                                    <ListItemIcon 
+                                                                        className={classes.pointer}
+                                                                        onClick={()=>{
+                                                                            setIdnexEditMatriz(i)
+                                                                            setNuevaUbicacion("Taller")
+                                                                            setShowDialogConfirmMatriz(true)
+                                                                        }}>
+                                                                        <KeyboardReturn />
+                                                                    </ListItemIcon>
+                                                                    :
+                                                                    <ListItemIcon 
+                                                                        className={classes.pointer}
+                                                                        onClick={()=>{
+                                                                            setIdnexEditMatriz(i)
+                                                                            setNuevaUbicacion("FBC Fundicion Horacio")
+                                                                            setShowDialogConfirmMatriz(true)
+                                                                        }}>
+                                                                        <Send />
+                                                                    </ListItemIcon>
+                                                                }
+
+                                                            </ListItem>
+                                                            {i<matrices.length-1?
+                                                                <Divider/>
+                                                                :
+                                                                null
+                                                            }
+                                                        </>
+                                                    ))}
+                                                </List>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                     :
@@ -292,6 +329,11 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
                         </CardContent>
                     </Collapse>
                 </Card>
+                <DialogEditMatriz 
+                    showDialog={showDialogConfirmMatriz} 
+                    setShowDialog={setShowDialogConfirmMatriz}
+                    modificarMatriz={()=>{modificarMatriz(name,idnexEditMatriz,nuevaUbicacion)}}
+                />
         </Grid>
     )
 }

@@ -22,6 +22,8 @@ const Productos=(props)=>{
     const [value,setValue]=useState(0)
     const [showDialogDelete,setShowDialogDelete] = useState(false)
     const [deleteIndex,setDeleteIndex] = useState(undefined)
+    
+
 
     //FUNCTIONS
     const eliminarProducto = (key) =>{
@@ -61,6 +63,24 @@ const Productos=(props)=>{
             setLoading(false)
         })
     }
+    const modificarMatriz = (producto,indexMatriz,ubicacion) =>{
+        setLoading(true)
+        let auxMatrices = props.productos[producto].matrices
+        auxMatrices[indexMatriz].ubicacion = ubicacion
+        database().ref().child(props.user.uid).child('productos').child(producto).child("matrices").update(auxMatrices)
+        .then(()=>{
+            setshowSnackbar('El movimiento de Matriz se asento correctamente')
+            setShowDialogDelete(false)
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000);
+        })
+        .catch(()=>{
+            setLoading(false)
+        })
+    }
+    
+    
 
 
     const handleChange = (event, newValue) => {
@@ -142,6 +162,7 @@ const Productos=(props)=>{
                                         historialDeProduccion={producto.historialDeCadenas}
                                         setDeleteIndex={setDeleteIndex}
                                         setShowDialogDelete={setShowDialogDelete}
+                                        modificarMatriz={modificarMatriz}
                                     />)))
                                 :
                                 <>

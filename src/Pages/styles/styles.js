@@ -150,7 +150,15 @@ export const content =makeStyles(theme=>({
         backgroundColor:theme.palette.success.main,
         color:theme.palette.success.contrastText
     },
-
+    greenCheck:{
+        color:theme.palette.success.main
+    },
+    redCheck:{
+        color:theme.palette.danger.main
+    },
+    pointer:{
+        cursor:"pointer"
+    },
     //ENVIAR PEDIDO
     paperTotalEnviarPedido:{
         backgroundColor:theme.palette.success.main,
