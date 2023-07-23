@@ -23,6 +23,7 @@ const NuevoProducto=(props)=>{
     const [cantidad,setcantidad]=useState(0)
     const [cadenaDeProduccion,setcadenaDeProduccion]=useState([])
     const [subproductos,setSubproductos]=useState([])
+    const [matrices,setMatrices]=useState([])
 
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -71,6 +72,14 @@ const NuevoProducto=(props)=>{
                 subproductosList={getAllProductosList(props.productos)}
             /> 
         );
+        case 3:
+            return (
+            <StepComponent 
+                tipoDeDato='Matrices'
+                matrices={matrices}
+                setMatrices={setMatrices}
+            /> 
+        );
       }
     }
     const setDisabled=(step)=>{
@@ -94,7 +103,7 @@ const NuevoProducto=(props)=>{
         }
     }
     function getSteps() {
-        return ['Detalles','Cadena De Produccion','Componentes' ];
+        return ['Detalles','Cadena De Produccion','Componentes','Matrices' ];
     }
 
     // FUNCTIONS
@@ -106,7 +115,8 @@ const NuevoProducto=(props)=>{
             nombre:nombre,
             cadenaDeProduccion:cadenaDeProduccion.length?cadenaDeProduccion:null,
             isSubproducto:isSubproducto?isSubproducto:null,
-            subproductos:subproductos
+            subproductos:subproductos,
+            matrices:matrices
         }}
         if(props.history.location.search){
             let newAux = props.productos[checkSearchProducto(props.history.location.search)]
@@ -184,19 +194,32 @@ const NuevoProducto=(props)=>{
                         />
                     </StepLabel>
                 );
+            case 3:
+                return (
+                    <StepLabel>
+                        <Chip 
+                            avatar={<AccountTree/>} 
+                            label={label}  
+                            onClick={()=>{if(nombre){setActiveStep(index)}}}
+                            variant='default'
+                            className={activeStep==index?classes.iconLabelSelected:null}
+                        />
+                    </StepLabel>
+                );
         }
     }
 
     // FILL FOR EDIT
     useEffect(()=>{
         if(props.history.location.search){
-            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos,isSubproducto} = props.productos[checkSearchProducto(props.history.location.search)]
+            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos,isSubproducto,matrices} = props.productos[checkSearchProducto(props.history.location.search)]
             nombre&&setnombre(nombre)
             precio&&setprecio(precio)
             cantidad&&setcantidad(cantidad)
             cadenaDeProduccion&&setcadenaDeProduccion(cadenaDeProduccion)
             isSubproducto&&setIsSubproducto(isSubproducto)
             subproductos&&setSubproductos(subproductos)
+            matrices&&setMatrices(matrices)
         }
     },[])
     return(

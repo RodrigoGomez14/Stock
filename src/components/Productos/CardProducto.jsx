@@ -220,7 +220,7 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
                                                                 primary={matriz.nombre}
                                                                 secondary={
                                                                     <Link
-                                                                        style={{textDecoration:'none',cursor:'pointer'}}
+                                                                        style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
                                                                         to={{
                                                                         pathname:'/proveedor',
                                                                         search:matriz.ubicacion,

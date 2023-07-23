@@ -4,13 +4,17 @@ import {AddOutlined} from '@material-ui/icons'
 import {content} from '../../Pages/styles/styles'
 import { StepperNuevoProducto } from './StepperNuevoProducto'
 import {Subproductos} from './Subproductos'
+import {Matrices} from './Matrices'
 import {DialogAgregarProceso} from './Dialogs/DialogAgregarProceso'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
 import {DialogNuevoSubproducto} from './Dialogs/DialogNuevoSubproducto'
+import {DialogNuevaMatriz} from './Dialogs/DialogNuevaMatriz'
 import Empty from '../../images/Empty.png'
 
-export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setcantidad,proveedoresList,disableCantidad,cadenaDeProduccion,setcadenaDeProduccion,isSubproducto,setIsSubproducto,subproductos,setSubproductos,subproductosList}) =>{
+export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setMatrices,cantidad,setcantidad,proveedoresList,disableCantidad,cadenaDeProduccion,setcadenaDeProduccion,isSubproducto,setIsSubproducto,subproductos,setSubproductos,subproductosList}) =>{
     const classes = content()
+    const [showDialogNuevaMatriz,setshowDialogNuevaMatriz]=useState(false)
+    const [editIndexMatriz,seteditIndexMatriz]=useState(-1)
     const [showDialog,setshowDialog]=useState(false)
     const [editIndex,seteditIndex]=useState(-1)
     const [showDialogDelete,setshowDialogDelete]=useState(false)
@@ -139,6 +143,33 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,cantidad,setc
                         }
                         <DialogNuevoSubproducto open={showDialog} setOpen={setshowDialog} subproductos={subproductos} setSubproductos={setSubproductos} subproductosList={subproductosList} edit={editIndex!=-1} editIndex={editIndex} seteditIndex={seteditIndex}/>
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={subproductos} setDatos={setSubproductos} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Subproducto'/>
+                    </Grid>
+                )
+            case 'Matrices': 
+                return(
+                    <Grid container item xs={12} justify='center' spacing={3}>
+                        <Grid container item xs={12} justify='center' >
+                            <Button variant='contained' color='primary' startIcon={<AddOutlined/>} onClick={()=>{setshowDialogNuevaMatriz(true)}}>
+                                Agregar Matriz / Noyo
+                            </Button>
+                        </Grid>
+                        {matrices.length?
+                            <Grid container item xs={12} justify='center' >
+                                {console.log(matrices)}
+                                <Matrices matrices={matrices} seteditIndexMatriz={seteditIndexMatriz} showDialog={()=>{setshowDialogNuevaMatriz(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                            </Grid>
+                            :
+                            <Grid container xs={12} justify='center' spacing={2}>
+                                <Grid container item xs={12} justify='center'>
+                                    <Typography variant='h5'>No Posee Matrices / Noyos</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <img src={Empty} alt="" height='200px'/>
+                                </Grid>
+                            </Grid>
+                        }
+                        <DialogNuevaMatriz open={showDialogNuevaMatriz} setOpen={setshowDialogNuevaMatriz} matrices={matrices} setMatrices={setMatrices} edit={editIndexMatriz!=-1} editIndex={editIndexMatriz} seteditIndex={seteditIndex}/>
+                        <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={matrices} setDatos={setMatrices} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Matrices'/>
                     </Grid>
                 )
             
