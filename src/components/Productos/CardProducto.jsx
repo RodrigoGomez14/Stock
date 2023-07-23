@@ -8,7 +8,7 @@ import { StepperCadena } from '../Productos/StepperCadena'
 import ApexCharts from 'react-apexcharts';
 
 
-export const CardProducto = ({precio,cantidad,search,name,historialDeStock,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena,setDeleteIndex,setShowDialogDelete}) =>{
+export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matrices,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena,setDeleteIndex,setShowDialogDelete}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [loading,setLoading] = useState(false)
@@ -200,8 +200,51 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,elimi
                     <Collapse in={expanded} timeout='auto' unmountOnExit>
                         <CardContent>
                             <Grid container xs={12} justify='flex-start' spacing={3}>
+                                {matrices?
+                                    <Grid container xs={12}>
+                                        <Grid item xs={12}>
+                                            <List>
+                                                <Divider/>
+                                                <ListSubheader>
+                                                    Matrices & Noyos
+                                                </ListSubheader>
+                                                <Divider/>
+                                            </List>
+                                        </Grid>
+                                        <Grid container item xs={12} justify='center'>
+                                            <List>
+                                                {matrices.map((matriz,i)=>(
+                                                    <>
+                                                        <ListItem>
+                                                            <ListItemText 
+                                                                primary={matriz.nombre}
+                                                                secondary={
+                                                                    <Link
+                                                                        style={{textDecoration:'none',cursor:'pointer'}}
+                                                                        to={{
+                                                                        pathname:'/proveedor',
+                                                                        search:matriz.ubicacion,
+                                                                    }}>
+                                                                            {matriz.ubicacion}
+                                                                    </Link> 
+                                                                }    
+                                                            />
+                                                        </ListItem>
+                                                        {i<matrices.length-1?
+                                                            <Divider/>
+                                                            :
+                                                            null
+                                                        }
+                                                    </>
+                                                ))}
+                                            </List>
+                                        </Grid>
+                                    </Grid>
+                                    :
+                                    null
+                                }
                                 {historialDeStock?
-                                    <Grid container xs={12} spacing={3}>
+                                    <Grid container xs={12}>
                                         <Grid item xs={12}>
                                             <List>
                                                 <Divider/>

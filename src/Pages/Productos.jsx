@@ -133,6 +133,7 @@ const Productos=(props)=>{
                                         precio={producto.precio} 
                                         cadenaDeProduccion={producto.cadenaDeProduccion} 
                                         isSubproducto={false}
+                                        matrices={producto.matrices}
                                         historialDeStock={producto.historialDeStock}
                                         cantidad={producto.cantidad}
                                         subproductos={producto.subproductos?producto.subproductos:null}
@@ -163,6 +164,7 @@ const Productos=(props)=>{
                                         search={search}
                                         precio={subproducto.precio} 
                                         cadenaDeProduccion={subproducto.cadenaDeProduccion} 
+                                        matrices={subproducto.matrices}
                                         cantidad={subproducto.cantidad}
                                         name={subproducto.nombre}
                                         subproductos={subproducto.subproductos?subproducto.subproductos:null}
