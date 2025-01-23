@@ -71,12 +71,10 @@ class App extends Component {
         const databaseRef = await firebase.database().ref().child(user.uid)
         databaseRef.on('value', snapshot=>{
           data= snapshot.val()
-          var dolares = []
-          fetch("https://www.dolarsi.com/api/api.php?type=valoresprincipales")
-            .then((response) => response.json())  
-            .then((info) => dolares = info)
-            .then(()=>{
-              store=createStore(reducer, {dolares:dolares,user:user,...data})
+          fetch("https://dolarapi.com/v1/dolares/blue")
+            .then((response) => response.json())
+            .then((dolar)=>{
+              store=createStore(reducer, {tipoDeCambio:dolar,user:user,...data})
               this.setState({store,user:user,loading:false})
             })
         })

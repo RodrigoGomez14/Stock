@@ -17,7 +17,6 @@ const NuevoPedido=(props)=>{
     const [productos,setproductos]=useState([])
     const [total,settotal]=useState(0)
     const [fecha,setfecha]=useState(undefined)
-    console.log(props.dolares)
     //STEPPER STATE
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState('');
@@ -62,7 +61,7 @@ const NuevoPedido=(props)=>{
                 productosList={getProductosListWithPrice(props.productos)}
                 total={total}
                 settotal={settotal}
-                cotizacion={{nombre:props.dolares[1].casa.nombre,valor:parseFloat(props.dolares[1].casa.venta)}}
+                cotizacion={{nombre:'blue',valor:parseFloat(props.tipoDeCambio)}}
             /> 
           );
       }
@@ -117,7 +116,7 @@ const NuevoPedido=(props)=>{
         let aux={
             cliente:nombre,
             productos:productos,
-            cotizacion:{nombre:props.dolares[1].casa.nombre,valor:parseFloat(props.dolares[1].casa.venta)},
+            cotizacion:{nombre:'blue',valor:parseFloat(props.tipoDeCambio)},
             total:total,
             fecha:!fecha?fechaDetallada():fecha
         }
@@ -218,7 +217,7 @@ const mapStateToProps = state =>{
         pedidos:state.pedidos,
         productos:state.productos,
         clientes:state.clientes,
-        dolares:state.dolares
+        tipoDeCambio:parseFloat(state.tipoDeCambio.venta)
     }
 }
 export default connect(mapStateToProps,null)(NuevoPedido)

@@ -29,7 +29,7 @@ export const Step = ({datos,setDatos,tipoDeDato,productosList,total,settotal,fec
                                     <Paper elevation={3}>
                                         <List>
                                             <ListItem>
-                                                <ListItemText primary={cotizacion.valor} secondary={cotizacion.nombre} />
+                                                <ListItemText primary={`$ ${formatMoney(cotizacion.valor)}`} secondary={cotizacion.nombre} />
                                             </ListItem>
                                         </List>
                                     </Paper>

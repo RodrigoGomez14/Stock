@@ -118,7 +118,7 @@ const mapStateToProps = state =>{
         pedidos:state.pedidos,
         productos:state.productos,
         clientes:state.clientes,
-        tipoDeCambio:parseFloat(state.dolares[1].casa.venta)
+        tipoDeCambio:parseFloat(state.tipoDeCambio.venta)
     }
 }
 export default connect(mapStateToProps,null)(Pedidos)
