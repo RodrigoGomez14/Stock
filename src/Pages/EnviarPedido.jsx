@@ -72,7 +72,6 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 totalTransferencia={totalTransferencia}
                 setTotalTransferencia={setTotalTransferencia}
                 cuentasBancarias={props.cuentasBancarias}
-                cotizaciones={filtrarCotizaciones(props.dolares)}
             />
           );
       }
