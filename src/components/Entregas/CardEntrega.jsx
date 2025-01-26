@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,CardActions, List,ListItem, ListItemText,Collapse,FormControlLabel,Switch} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,CardActions, List,ListItem, ListItemText,Collapse,FormControlLabel,Switch, TableRow, TableContainer,Table,TableCell,TableBody,TableHead} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore, ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../../utilities'
@@ -20,7 +20,7 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
     };
 
     return(
-        <Grid item xs={11} sm={8} md={6} lg={4} >
+        <Grid item xs={11}  >
             <Card>
                 <Paper elevation={3} className={classes.cardPedidoHeader}>
                     <CardHeader
@@ -95,11 +95,26 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                                 :
                                 null
                             }
-                            {entrega.productos.map(producto=>(
-                                <ListItem>
-                                    <ListItemText primary={`${producto.cantidad} ${producto.producto}`} secondary={`$${formatMoney(facturacion?((producto.precio + (producto.precio*0.21)) * producto.cantidad ):(producto.precio*producto.cantidad))} ($${formatMoney(facturacion?(producto.precio + (producto.precio*0.21)):producto.precio)} c/u)`}/>
-                                </ListItem>
-                            ))}
+                            <TableContainer component={Paper}>
+                                <Table stickyHeader>
+                                    <TableHead>
+                                        <TableCell>Cantidad</TableCell>
+                                        <TableCell>Producto</TableCell>
+                                        <TableCell>Precio Unitario</TableCell>
+                                        <TableCell>Total</TableCell>
+                                    </TableHead>
+                                    <TableBody>
+                                        {entrega.productos.map(producto=>(
+                                            <TableRow>
+                                                <TableCell>{producto.cantidad}</TableCell>
+                                                <TableCell>{producto.producto}</TableCell>
+                                                <TableCell>$ {formatMoney(facturacion?producto.precio*1.21:producto.precio)}</TableCell>
+                                                <TableCell>$ {formatMoney(facturacion?(producto.precio*producto.cantidad)*1.21:(producto.precio*producto.cantidad))}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         </List>
                     </CardContent>
                 </Collapse>
@@ -129,7 +144,7 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                                 to={{pathname:'/Recibir-Entrega',search:`${id}`,props:{total:facturacion?(entrega.total+entrega.total*0.21):entrega.total,facturacion:facturacion}}
                             }>
                                 <Button
-                                    variant='outlined'
+                                    variant='contained'
                                 >
                                     Recibir Entrega 
                                 </Button>

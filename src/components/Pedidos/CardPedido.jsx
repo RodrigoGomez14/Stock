@@ -22,7 +22,7 @@ export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex,s
     };
 
     return(
-        <Grid item xs={11} sm={8} md={6} lg={4} >
+        <Grid item xs={11} >
             <Card>
                 <Paper elevation={3} className={classes.cardPedidoHeader}>
                     <CardHeader
@@ -76,25 +76,20 @@ export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex,s
                             </>
                         }
                         title={
-                            <Grid container xs={12} justify='flex-start' spacing={3}>
-                                <Grid item>
-                                    <Link 
-                                        style={{color:'#fff',textDecoration:'none'}}
-                                        className={classes.textWhite}
-                                        to={{pathname:'/Cliente',search:`${pedido.cliente}`}
-                                    }>
-                                        {pedido.cliente} 
-                                    </Link>
-                                </Grid>
-                                <Grid item>
-                                    <Chip
-                                        className={deuda>0?classes.cardDeudaRedCardPedido:classes.cardDeudaGreenCardPedido}
-                                        icon={<AttachMoney/>}
-                                        label={deuda?formatMoney(deuda):formatMoney(0)}
+                            <>
+                                <Link 
+                                    style={{color:'#fff',textDecoration:'none'}}
+                                    className={classes.textWhite}
+                                    to={{pathname:'/Cliente',search:`${pedido.cliente}`}
+                                }>
+                                    {pedido.cliente} 
+                                </Link>
+                                <Chip
+                                    className={deuda>0?classes.cardDeudaRedCardPedido:classes.cardDeudaGreenCardPedido}
+                                    icon={<AttachMoney/>}
+                                    label={deuda?formatMoney(deuda):formatMoney(0)}
                                     />
-
-                                </Grid>
-                            </Grid>
+                            </>
                         }
                         subheader={pedido.fecha}
                     />
@@ -168,7 +163,7 @@ export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex,s
                                     }}
                             }>
                                 <Button
-                                    variant='outlined'
+                                    variant='contained'
                                 >
                                     Enviar Pedido 
                                 </Button>

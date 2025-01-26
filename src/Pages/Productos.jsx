@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Paper,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Snackbar,Tab,Box,AppBar,Tabs} from '@material-ui/core'
+import {Paper,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Snackbar,Tab,Box,AppBar,Tabs,Table,TableContainer,TableHead,TableRow,TableCell,TableBody} from '@material-ui/core'
 import {Alert} from '@material-ui/lab'
 import {AddOutlined} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
@@ -146,66 +146,91 @@ const Productos=(props)=>{
                     {/* PRODUCT LIST */}
                     <TabPanel value={value}  index={0}>
                         <Grid container item xs={12} justify='center' alignItems='center' spacing={2} >
-                            {getProductosList(props.productos).length>=1?
-                                (getProductosList(props.productos).map(producto=>(
-                                    <CardProducto 
-                                        search={search} 
-                                        precio={producto.precio} 
-                                        cadenaDeProduccion={producto.cadenaDeProduccion} 
-                                        isSubproducto={false}
-                                        matrices={producto.matrices}
-                                        historialDeStock={producto.historialDeStock}
-                                        cantidad={producto.cantidad}
-                                        subproductos={producto.subproductos?producto.subproductos:null}
-                                        name={producto.nombre}
-                                        iniciarCadena={(i)=>{iniciarCadena(i)}}
-                                        historialDeProduccion={producto.historialDeCadenas}
-                                        setDeleteIndex={setDeleteIndex}
-                                        setShowDialogDelete={setShowDialogDelete}
-                                        modificarMatriz={modificarMatriz}
-                                    />)))
-                                :
-                                <>
-                                    <Grid item>
-                                        <img src={Empty} alt="" height='500px'/>
-                                    </Grid>
-                                    <Grid container item xs={12} justify='center'>
-                                        <Typography variant='h4'>No hay Productos Ingresados</Typography>
-                                    </Grid>
-                                </>
-                            }
+                        <TableContainer component={Paper}>
+                            <Table stickyHeader>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell className={classes.titleDetallesCard}>Producto</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Cantidad</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Precio</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {getProductosList(props.productos).length>=1?
+                                        (getProductosList(props.productos).map(subproducto=>(
+                                            <CardProducto 
+                                                search={search}
+                                                precio={subproducto.precio} 
+                                                cadenaDeProduccion={subproducto.cadenaDeProduccion} 
+                                                matrices={subproducto.matrices}
+                                                cantidad={subproducto.cantidad}
+                                                name={subproducto.nombre}
+                                                subproductos={subproducto.subproductos?subproducto.subproductos:null}
+                                                isSubproducto={true}
+                                                iniciarCadena={(i)=>{iniciarCadena(i)}}
+                                                historialDeProduccion={subproducto.historialDeCadenas}
+                                                setDeleteIndex={setDeleteIndex}
+                                                setShowDialogDelete={setShowDialogDelete}
+
+                                            />)))
+                                        :
+                                        <>
+                                            <Grid item>
+                                                <img src={Empty} alt="" height='500px'/>
+                                            </Grid>
+                                            <Grid container item xs={12} justify='center'>
+                                                <Typography variant='h4'>No hay Subproductos Ingresados</Typography>
+                                            </Grid>
+                                        </>
+                                    }
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                         </Grid>
                     </TabPanel>
                     {/* SUBPRODUCT LIST */}
                     <TabPanel value={value}  index={1}>
                         <Grid container item xs={12} justify='center' alignItems='center' spacing={2} >
-                            {getSubproductosList(props.productos).length>=1?
-                                (getSubproductosList(props.productos).map(subproducto=>(
-                                    <CardProducto 
-                                        search={search}
-                                        precio={subproducto.precio} 
-                                        cadenaDeProduccion={subproducto.cadenaDeProduccion} 
-                                        matrices={subproducto.matrices}
-                                        cantidad={subproducto.cantidad}
-                                        name={subproducto.nombre}
-                                        subproductos={subproducto.subproductos?subproducto.subproductos:null}
-                                        isSubproducto={true}
-                                        iniciarCadena={(i)=>{iniciarCadena(i)}}
-                                        historialDeProduccion={subproducto.historialDeCadenas}
-                                        setDeleteIndex={setDeleteIndex}
-                                        setShowDialogDelete={setShowDialogDelete}
+                        <TableContainer component={Paper}>
+                            <Table stickyHeader>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell className={classes.titleDetallesCard}>Producto</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Cantidad</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Precio</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {getSubproductosList(props.productos).length>=1?
+                                        (getSubproductosList(props.productos).map(subproducto=>(
+                                            <CardProducto 
+                                                search={search}
+                                                precio={subproducto.precio} 
+                                                cadenaDeProduccion={subproducto.cadenaDeProduccion} 
+                                                matrices={subproducto.matrices}
+                                                cantidad={subproducto.cantidad}
+                                                name={subproducto.nombre}
+                                                subproductos={subproducto.subproductos?subproducto.subproductos:null}
+                                                isSubproducto={true}
+                                                iniciarCadena={(i)=>{iniciarCadena(i)}}
+                                                historialDeProduccion={subproducto.historialDeCadenas}
+                                                setDeleteIndex={setDeleteIndex}
+                                                setShowDialogDelete={setShowDialogDelete}
 
-                                    />)))
-                                :
-                                <>
-                                    <Grid item>
-                                        <img src={Empty} alt="" height='500px'/>
-                                    </Grid>
-                                    <Grid container item xs={12} justify='center'>
-                                        <Typography variant='h4'>No hay Subproductos Ingresados</Typography>
-                                    </Grid>
-                                </>
-                            }
+                                            />)))
+                                        :
+                                        <>
+                                            <Grid item>
+                                                <img src={Empty} alt="" height='500px'/>
+                                            </Grid>
+                                            <Grid container item xs={12} justify='center'>
+                                                <Typography variant='h4'>No hay Subproductos Ingresados</Typography>
+                                            </Grid>
+                                        </>
+                                    }
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                         </Grid>
                     </TabPanel>
 

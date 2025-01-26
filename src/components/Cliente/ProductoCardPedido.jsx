@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {Grid,Card,CardContent,Menu,CardHeader,Collapse, List,ListItem, ListItemText,MenuItem,Input, CardActions, Divider, IconButton} from '@material-ui/core'
+import {Grid,TableRow,TableCell,Menu,CardHeader,Collapse, List,ListItem, ListItemText,MenuItem,Input, CardActions, Divider, IconButton} from '@material-ui/core'
 import {ExpandLess,ExpandMore,MoreVert} from '@material-ui/icons'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
@@ -44,60 +44,10 @@ export const ProductoCardPedido = ({producto,factura}) =>{
     };
     
     return(
-        <Grid container item xs={12}>
-            <Card style={{width:'100%'}}>
-                <CardHeader 
-                    className={classes.titleDetallesCard}
-                    title={`${producto.cantidad} - ${producto.producto}`}
-                    action={
-                        <>
-                        {producto.discount || producto.increase?
-                            <IconButton onClick={()=>{setExpanded(!expanded)}}>{expanded?<ExpandLess/>:<ExpandMore/>}</IconButton>
-                            :
-                            null
-                        }
-                        {factura?
-                            <>
-                                <IconButton aria-label="settings" onClick={handleClick}>
-                                    <MoreVert/>
-                                </IconButton>
-                                <Menu
-                                    id="simple-menu"
-                                    anchorEl={anchorEl}
-                                    keepMounted
-                                    open={Boolean(anchorEl)}
-                                    onClose={handleClose}
-                                >
-                                    <MenuItem onClick={()=>{setFacturacion(!facturacion)}}>{!facturacion?'Ver Sin IVA':'Ver Con IVA'}</MenuItem>
-                                </Menu>
-                            </>
-                            :
-                            null
-                        }
-                        </>
-                    }
-                    subheader={`$ ${formatMoney((producto.precio*producto.cantidad)/(factura?(facturacion?1.21:1):1))} ($${formatMoney((producto.precio)/(factura?(facturacion?1.21:1):1))} [${producto.cotizacion?`${((producto.precio)/(factura?(facturacion?1.21:1):1))/producto.cotizacion.valor}USD x ${formatMoney(producto.cotizacion.valor)}` : null}] c/u)`}
-                />
-                {producto.discount || producto.increase?
-                    <Collapse in={expanded} timeout='auto' unmountOnExit>
-                        <CardContent>
-                            <List>
-                                <ListItem>
-                                    <ListItemText primary={`$ ${(formatMoney(getPrecioAnterior()))}`} secondary={`Precio Anterior `}/>
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary={`$ ${producto.discount?'-':'+'}${getPriceDiference()}`} secondary='$ Modificado'/>
-                                </ListItem>
-                                <ListItem>
-                                    <ListItemText primary={producto.discount?`- ${producto.discount}%`:`+ ${producto.increase}%`} secondary='% modificado'/>
-                                </ListItem>
-                            </List>
-                        </CardContent>
-                    </Collapse>
-                    :
-                    null
-                }
-            </Card>
-        </Grid>
+        <TableRow>
+            <TableCell>{producto.cantidad}</TableCell>
+            <TableCell>{producto.producto}</TableCell>
+            <TableCell>$ {formatMoney(producto.precio)}</TableCell>
+        </TableRow>
     )
 }

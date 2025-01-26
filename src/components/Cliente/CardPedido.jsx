@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,ListSubheader,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,ListItemSecondaryAction, CardActions} from '@material-ui/core'
+import {Grid,Card,CardContent,IconButton,Table,Chip,TableContainer,TableRow,TableHead,TableCell,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,ListItemSecondaryAction, CardActions,TableBody} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {Alert} from '@material-ui/lab'
@@ -104,11 +104,22 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                 :
                                 null
                             }
-                                {pedido.articulos.map(producto=>(
-                                    <Grid container item xs={12} spacing={2}>
-                                        <ProductoCardPedido producto={producto} factura={pedido.metodoDePago.facturacion}/>
-                                    </Grid>
-                                ))}
+                                <TableContainer component={Paper}>
+                                    <Table stickyHeader>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell className={classes.titleDetallesCard}>Cantidad</TableCell>
+                                                <TableCell className={classes.titleDetallesCard}>Producto</TableCell>
+                                                <TableCell className={classes.titleDetallesCard}>Precio</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {pedido.articulos.map(producto=>(
+                                                <ProductoCardPedido producto={producto} factura={pedido.metodoDePago.facturacion}/>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
                         </Grid>
                         <List>
                             <Divider/>

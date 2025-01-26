@@ -51,20 +51,36 @@ const HistorialProveedor=(props)=>{
                         </Link>
                     </Grid>
                     <Grid container xs={12} justify='center' spacing={2}>
-                        {pagos?
-                            Object.keys(pagos).reverse().map(pago=>(
-                                <Pago pago={pagos[pago]} userType='proveedor' user={props.proveedores[checkSearch(props.history.location.search)].datos.nombre}/>
-                            ))
-                            :
-                            <Grid container xs={12} justify='center' spacing={2}>
-                                <Grid container item xs={12} justify='center'>
-                                    <Typography variant='h5'>{checkSearch(props.location.search)} no tiene historial de pagos</Typography>
-                                </Grid>
-                                <Grid item>
-                                    <img src={Empty} alt="" height='600px'/>
-                                </Grid>
-                            </Grid>
-                        }
+                        <TableContainer component={Paper}>
+                            <Table stickyHeader>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell className={classes.titleDetallesCard}>Fecha</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Total</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Adeudado</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Pago</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Deuda Anterior</TableCell>
+                                        <TableCell className={classes.titleDetallesCard}>Deuda Actualizada</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {pagos?
+                                        Object.keys(pagos).reverse().map(pago=>(
+                                            <Pago pago={pagos[pago]} userType='proveedor' user={props.proveedores[checkSearch(props.history.location.search)].datos.nombre}/>
+                                        ))
+                                        :
+                                        <Grid container xs={12} justify='center' spacing={2}>
+                                            <Grid container item xs={12} justify='center'>
+                                                <Typography variant='h5'>{checkSearch(props.location.search)} no tiene historial de pagos</Typography>
+                                            </Grid>
+                                            <Grid item>
+                                                <img src={Empty} alt="" height='600px'/>
+                                            </Grid>
+                                        </Grid>
+                                    }
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                     </Grid>
                 </Grid>
             </Paper>
