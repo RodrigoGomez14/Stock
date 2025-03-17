@@ -42,6 +42,11 @@ import DepositarCheque from './Pages/DepositarCheque';
 import ChequesPersonales from './Pages/ChequesPersonales';
 import FinalizarProcesoPropio from './Pages/FinalizarProcesoPropio';
 import NuevoConsumoFacturado from './Pages/NuevoConsumoFacturado';
+import Producto from './Pages/Producto';
+// Importar nuevas páginas de servicios
+import Servicios from './Pages/Servicios';
+import NuevoServicio from './Pages/NuevoServicio';
+import PagarServicios from './Pages/PagarServicios';
 
 let store 
 let data
@@ -161,6 +166,7 @@ class App extends Component {
                     <Route exact path='/Depositar-Cheque' component={DepositarCheque}/>
 
                     <Route exact path='/Productos' component={Productos}/>
+                    <Route exact path='/Producto' component={Producto}/>
                     <Route exact path='/Nuevo-Producto' component={NuevoProducto}/>
                     <Route exact path='/Editar-Producto' component={NuevoProducto}/>
 
@@ -184,7 +190,13 @@ class App extends Component {
                     <Route exact path='/Historial-De-Produccion' component={HistorialDeProduccion}/>
                     <Route exact path='/Finalizar-Proceso' component={FinalizarProceso}/>
                     <Route exact path='/Finalizar-Proceso-Propio' component={FinalizarProcesoPropio}/>
-    
+                    
+                    {/* Nuevas rutas para servicios */}
+                    <Route exact path='/Servicios' component={Servicios}/>
+                    <Route exact path='/Nuevo-Servicio' component={NuevoServicio}/>
+                    <Route exact path='/Editar-Servicio' component={NuevoServicio}/>
+                    <Route exact path='/Pagar-Servicios' component={PagarServicios}/>
+
                     <Route component={NotFound}/>
                   </Switch>
                 </BrowserRouter>

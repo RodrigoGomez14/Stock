@@ -123,7 +123,24 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
     // CONTENT
     return(
         <TableRow>
-            <TableCell>{name}</TableCell>
+            <TableCell>
+                <Link 
+                    style={{color:'#fff',textDecoration:'none'}}
+                    to={{
+                        pathname:'/Producto',
+                        search:`${name}`
+                    }}
+                    onClick={(e) => {
+                        // Asegurarse de que el nombre del producto se pase correctamente
+                        if (!name || name === '') {
+                            e.preventDefault();
+                            return;
+                        }
+                    }}
+                >
+                    {name}
+                </Link>
+            </TableCell>
             <TableCell>{cantidad}</TableCell>
             <TableCell>$ {formatMoney(precio)}</TableCell>
         </TableRow>

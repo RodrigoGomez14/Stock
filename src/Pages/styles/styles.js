@@ -258,5 +258,53 @@ export const content =makeStyles(theme=>({
     PaperCarouselCotizaciones:{
         height:'90px',
         width:'250px'
+    },
+
+    // CARD SERVICIO
+    cardHeader: {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText
+    },
+    cardActions: {
+        backgroundColor: theme.palette.primary.dark,
+        color: theme.palette.primary.contrastText
+    },
+    link: {
+        textDecoration: 'none',
+        color: theme.palette.primary.contrastText
+    },
+    textWhite: {
+        color: theme.palette.primary.contrastText
+    },
+    deleteButton: {
+        color: theme.palette.error.main
+    },
+    // Estados de servicio
+    cardPagado: {
+        borderLeft: `4px solid ${theme.palette.success.main}`,
+        borderTop: `1px solid ${theme.palette.success.main}`,
+        borderBottom: `1px solid ${theme.palette.success.main}`,
+        borderRight: `1px solid ${theme.palette.success.main}`
+    },
+    cardPendiente: {
+        borderLeft: `4px solid ${theme.palette.danger.main}`,
+        borderTop: `1px solid ${theme.palette.danger.main}`,
+        borderBottom: `1px solid ${theme.palette.danger.main}`,
+        borderRight: `1px solid ${theme.palette.danger.main}`
+    },
+    cardSinBoleta: {
+        borderLeft: `4px solid ${theme.palette.grey[500]}`,
+        borderTop: `1px solid ${theme.palette.grey[500]}`,
+        borderBottom: `1px solid ${theme.palette.grey[500]}`,
+        borderRight: `1px solid ${theme.palette.grey[500]}`
+    },
+    // Resumen de servicios
+    paperResumen: {
+        padding: theme.spacing(2),
+        backgroundColor: theme.palette.background.paper
+    },
+    formControl: {
+        minWidth: 120,
+        width: '100%'
     }
 }))

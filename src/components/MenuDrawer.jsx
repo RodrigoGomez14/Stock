@@ -1,7 +1,11 @@
 import React from 'react'
 import {auth} from 'firebase'
 import {Card,CardMedia,Drawer,List,makeStyles,ListItem,IconButton,ListItemIcon,ListItemText,Divider} from '@material-ui/core'
-import {MoveToInbox,Home,List as ListIcon,ExitToApp,Link as LinkIcon,AccountBalanceWallet,LocalShipping,ChevronRight,LocalAtm,ShoppingCart, AccountBalance, Contacts} from '@material-ui/icons'
+import {
+    MoveToInbox, Home, List as ListIcon, ExitToApp, Link as LinkIcon,
+    AccountBalanceWallet, LocalShipping, ChevronRight, LocalAtm, ShoppingCart,
+    AccountBalance, Contacts, Payment, AssignmentLate
+} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import logo from '../images/logo.png'
 import clsx from 'clsx';
@@ -94,6 +98,10 @@ const checkSelected = (icon,page) =>{
     else if(icon==='Cadenas De Produccion'&& (page.slice(0,23)=='Historial De Produccion'||page=='Finalizar Proceso')){
         return true
     }
+    // SERVICIOS
+    else if(icon==='Servicios' && (page=='Nuevo-Servicio' || page=='Editar-Servicio' || page=='Pagar-Servicios' || page=='Recibir-Boleta')){
+        return true
+    }
     else{
         return false
     }
@@ -131,7 +139,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                         <ListItemText primary={'Inicio'} />
                     </ListItem>
                 </Link>
-            <Divider />
+            
                 <Link className={classes.link} to='/Productos'>
                     <ListItem button key={'Productos'} selected={checkSelected('Productos',history.location.pathname.slice(1))}>
                         <ListItemIcon>
@@ -167,7 +175,7 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                         <ListItemText primary={'Clientes'} />
                     </ListItem>
                 </Link>
-            <Divider />
+            
                 <Link className={classes.link} to='/Proveedores'>
                     <ListItem button key={'Proveedores'} selected={checkSelected('Proveedores',history.location.pathname.slice(1))}>
                         <ListItemIcon>
@@ -213,6 +221,15 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                     </ListItem>
                 </Link>
             <Divider />
+            <Link className={classes.link} to='/Servicios'>
+                <ListItem button key={'Servicios'} selected={checkSelected('Servicios',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <Payment/>
+                        </ListItemIcon>
+                        <ListItemText primary={'Servicios e Impuestos'} />
+                    </ListItem>
+                </Link>
+            <Divider />
             </List>
             <List className={classes.buttonSignOut}>
                 <Divider />
@@ -240,6 +257,15 @@ export const MenuDrawer = ({menuOpened,setMenuOpened,history,page})=>{
                             <ShoppingCart/>
                         </ListItemIcon>
                         <ListItemText  primary={'Nueva Entrega'} />
+                    </ListItem>    
+                </Link>
+                <Divider />
+                <Link className={classes.link} to='/Pagar-Servicios'>
+                    <ListItem button key={'Pagar Servicios'} selected={checkSelected('Pagar-Servicios',history.location.pathname.slice(1))}>
+                        <ListItemIcon>
+                            <AssignmentLate/>
+                        </ListItemIcon>
+                        <ListItemText  primary={'Pagar Servicios'} />
                     </ListItem>    
                 </Link>
                 <Divider />
