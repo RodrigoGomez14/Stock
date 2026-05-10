@@ -3,7 +3,7 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Grid, TextField, InputAdornment, IconButton, Typography,
-  Card, CardContent, Button, Chip, Divider, Tooltip
+  Card, CardContent, Button, Chip, Divider
 } from '@mui/material'
 import { Search, Add, Send, Edit, Person } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
@@ -68,21 +68,29 @@ const Pedidos = (props) => {
                     {/* Articles list */}
                     {p.articulos && p.articulos.length > 0 ? (
                       <Box sx={{ mb: 1.5 }}>
-                        {p.articulos.slice(0, 5).map((art, i) => (
-                          <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', py: 0.5, px: 0.5 }}>
-                            <Box sx={{ flex: 1, mr: 1, minWidth: 0 }}>
-                              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
-                                {art.nombre || art.producto}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                                {art.cantidad}u × $ {formatMoney(art.precio || 0)}
+                        {p.articulos.slice(0, 5).map((art, i) => {
+                          const prodData = props.productos?.[art.nombre || art.producto]
+                          return (
+                            <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5, px: 0.5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flex: 1, minWidth: 0 }}>
+                                {prodData?.imagen && (
+                                  <Box component="img" src={prodData.imagen} sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover', flexShrink: 0 }} />
+                                )}
+                                <Box sx={{ minWidth: 0 }}>
+                                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                                    {art.nombre || art.producto}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                                    {art.cantidad}u × $ {formatMoney(art.precio || 0)}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Typography variant="body2" fontWeight={700} sx={{ color: 'text.primary', flexShrink: 0, ml: 1 }}>
+                                $ {formatMoney((art.cantidad || 0) * (art.precio || 0))}
                               </Typography>
                             </Box>
-                            <Typography variant="body2" fontWeight={700} sx={{ color: 'text.primary', flexShrink: 0, mt: 0.2 }}>
-                              $ {formatMoney((art.cantidad || 0) * (art.precio || 0))}
-                            </Typography>
-                          </Box>
-                        ))}
+                          )
+                        })}
                         {p.articulos.length > 5 && (
                           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 0.5, pt: 0.5 }}>
                             +{p.articulos.length - 5} artículo(s) más
