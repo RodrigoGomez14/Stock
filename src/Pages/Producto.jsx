@@ -4,7 +4,7 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Typography, Grid, Card, CardContent, Chip, IconButton,
-  Button, Snackbar, Backdrop, CircularProgress, Paper
+  Button, Snackbar, Backdrop, CircularProgress, Paper, Avatar
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { ArrowBack, Delete } from '@mui/icons-material'
@@ -52,14 +52,19 @@ const Producto = (props) => {
       <Box sx={{ maxWidth: 1000, mx: 'auto', p: 2 }}>
         <Card sx={{ borderRadius: 3, mb: 2 }}>
           <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <IconButton onClick={() => navigate(-1)}><ArrowBack /></IconButton>
-              <Typography variant="h5" fontWeight={700} sx={{ flex: 1 }}>{nombre}</Typography>
-              <IconButton color="error" onClick={eliminar}><Delete /></IconButton>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Chip label={producto.isSubproducto ? 'Subproducto' : 'Producto final'} color={producto.isSubproducto ? 'warning' : 'primary'} />
-              <Chip label={`Stock: ${producto.cantidad || 0}`} color={(producto.cantidad || 0) > 0 ? 'success' : 'error'} variant="outlined" />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              {producto.imagen && <Avatar src={producto.imagen} variant="rounded" sx={{ width: 64, height: 64 }} />}
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <IconButton onClick={() => navigate(-1)} size="small"><ArrowBack /></IconButton>
+                  <Typography variant="h5" fontWeight={700} sx={{ flex: 1 }}>{nombre}</Typography>
+                  <IconButton color="error" onClick={eliminar} size="small"><Delete /></IconButton>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', ml: 5 }}>
+                  <Chip label={producto.isSubproducto ? 'Subproducto' : 'Producto final'} color={producto.isSubproducto ? 'warning' : 'primary'} size="small" />
+                  <Chip label={`Stock: ${producto.cantidad || 0}`} color={(producto.cantidad || 0) > 0 ? 'success' : 'error'} variant="outlined" size="small" />
+                </Box>
+              </Box>
             </Box>
           </CardContent>
         </Card>

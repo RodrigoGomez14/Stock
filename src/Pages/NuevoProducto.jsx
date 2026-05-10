@@ -19,6 +19,7 @@ const NuevoProducto = (props) => {
   const [precio, setPrecio] = useState(0)
   const [cantidad, setCantidad] = useState(0)
   const [isSubproducto, setIsSubproducto] = useState(false)
+  const [imagen, setImagen] = useState(null)
   const [cadena, setCadena] = useState([])
   const [subproductos, setSubproductos] = useState([])
   const [matrices, setMatrices] = useState({})
@@ -35,6 +36,7 @@ const NuevoProducto = (props) => {
         setPrecio(p.precio || 0)
         setCantidad(p.cantidad || 0)
         setIsSubproducto(!!p.isSubproducto)
+        setImagen(p.imagen || null)
         setCadena(p.cadenaDeProduccion || [])
         setSubproductos(p.subproductos || [])
         setMatrices(p.matrices || {})
@@ -44,7 +46,7 @@ const NuevoProducto = (props) => {
 
   const guardar = async () => {
     setLoading(true)
-    const payload = { nombre, precio, cantidad, isSubproducto, cadenaDeProduccion: cadena, subproductos, matrices }
+    const payload = { nombre, precio, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices }
     try {
       if (isEdit) {
         await removeData(props.user.uid, `productos/${props.history.location.search.slice(1)}`)
@@ -57,22 +59,29 @@ const NuevoProducto = (props) => {
 
   const steps = [
     <Box>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Información básica</Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField fullWidth label="Nombre *" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom>Información básica</Typography>
+      <Grid container spacing={3} alignItems="flex-start">
+        <Grid item xs={12} sm={2} sx={{ display: 'flex', justifyContent: { sm: 'center' } }}>
+          <ImageUpload uid={props.user?.uid} path="productos" currentImage={imagen} onImageChange={setImagen} />
         </Grid>
-        <Grid item xs={6}>
-          <TextField fullWidth label="Precio" type="number" value={precio} onChange={(e) => setPrecio(parseFloat(e.target.value) || 0)} />
-        </Grid>
-        <Grid item xs={6}>
-          <TextField fullWidth label="Stock" type="number" value={cantidad} onChange={(e) => setCantidad(parseFloat(e.target.value) || 0)} />
-        </Grid>
-        <Grid item xs={12}>
-          <FormControlLabel
-            control={<Switch checked={isSubproducto} onChange={(e) => setIsSubproducto(e.target.checked)} />}
-            label="Es subproducto"
-          />
+        <Grid item xs={12} sm={10}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField fullWidth label="Nombre *" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField fullWidth label="Precio" type="number" value={precio} onChange={(e) => setPrecio(parseFloat(e.target.value) || 0)} />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField fullWidth label="Stock" type="number" value={cantidad} onChange={(e) => setCantidad(parseFloat(e.target.value) || 0)} />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={<Switch checked={isSubproducto} onChange={(e) => setIsSubproducto(e.target.checked)} />}
+                label="Es subproducto"
+              />
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Box>,
