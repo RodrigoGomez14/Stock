@@ -1,183 +1,158 @@
-﻿import React,{useState,useEffect} from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import {Paper,Grid,Button,Backdrop,Snackbar,CircularProgress, Typography,Chip} from '@mui/material'
-import {Add} from '@mui/icons-material'
-import {Alert} from '@mui/material'
-import {Compras} from '../components/Iva/Compras'
-import {Ventas} from '../components/Iva/Ventas'
-import { database } from '../services'
-import {formatMoney,getActualMonth} from '../utilities'
-import {content} from './styles/styles'
-import { set } from 'date-fns'
+import { Layout } from './Layout'
+import {
+  Box, Grid, Typography, Card, CardContent, Paper, Button, Chip, Table,
+  TableHead, TableBody, TableRow, TableCell, IconButton
+} from '@mui/material'
+import { Add, ChevronLeft, ChevronRight } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
+import { formatMoney } from '../utilities'
 
-const Iva=(props)=>{
-    const classes = content()
-    const [loading,setLoading]=useState(false)
-    const [year,setYear]=useState(0)
-    const [showSnackbar,setshowSnackbar]=useState(false)
-    const [sortedCompras,setSortedCompras] = useState(undefined)
-    const [sortedVentas,setSortedVentas] = useState(undefined)
+const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
-    //FUNCTIONS
+const Iva = (props) => {
+  const currentYear = new Date().getFullYear()
+  const [year, setYear] = useState(currentYear)
 
-    // FILTERS 
-    const filtrarCompras = () =>{
-        const yearsCompras = {};
-        if(props.compras){
-            Object.keys(props.compras).reverse().forEach((compra) => {
-                const year = props.compras[compra].fecha.split('/')[2];
-                const month = props.compras[compra].fecha.split('/')[1];
-            
-                // Si aÃºn no tenemos el aÃ±o en el objeto "years", lo agregamos
-                if (!yearsCompras[year]) {
-                    yearsCompras[year] = { total: 0, totalIva: 0,months: {
-                        1:{ total: 0, totalIva: 0, compras: [] },
-                        2:{ total: 0, totalIva: 0, compras: [] },
-                        3:{ total: 0, totalIva: 0, compras: [] },
-                        4:{ total: 0, totalIva: 0, compras: [] },
-                        5:{ total: 0, totalIva: 0, compras: [] },
-                        6:{ total: 0, totalIva: 0, compras: [] },
-                        7:{ total: 0, totalIva: 0, compras: [] },
-                        8:{ total: 0, totalIva: 0, compras: [] },
-                        9:{ total: 0, totalIva: 0, compras: [] },
-                        10:{ total: 0, totalIva: 0, compras: [] },
-                        11:{ total: 0, totalIva: 0, compras: [] },
-                        12:{ total: 0, totalIva: 0, compras: [] }
-                    }}
-                }
-
-
-                
-                // Agregamos la compra al objeto "compras" del mes correspondiente
-                yearsCompras[year].months[month].compras.push(props.compras[compra]);
-            
-                // Actualizamos el total del mes y del aÃ±o
-                yearsCompras[year].months[month].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
-                if(props.compras[compra].consumoFacturado){
-                    yearsCompras[year].months[month].totalIva += parseFloat(props.compras[compra].totalIva);
-                    yearsCompras[year].totalIva += parseFloat(props.compras[compra].totalIva);
-                }
-                else{
-                    if(props.compras[compra].metodoDePago.facturacion){
-                        yearsCompras[year].months[month].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
-                        yearsCompras[year].totalIva += parseFloat(props.compras[compra].total?props.compras[compra].total-(props.compras[compra].total/1.21):0);
-                    }
-                }
-                yearsCompras[year].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
-            });
-        
-            const sortedCompras = Object.entries(yearsCompras).sort(([year1], [year2]) => year2 - year1);
-            console.log(sortedCompras)
-            return sortedCompras
+  // Procesar ventas con facturacion=true → IVA = total - (total/1.21)
+  const ivaVentas = {}
+  if (props.ventas) {
+    Object.values(props.ventas).forEach((v) => {
+      if (v.metodoDePago?.facturacion) {
+        const [d, m, y] = (v.fecha || '').split('/')
+        if (y === year.toString()) {
+          const iva = parseFloat(v.total || 0) - (parseFloat(v.total || 0) / 1.21)
+          if (!ivaVentas[m]) ivaVentas[m] = { total: 0, iva: 0, count: 0 }
+          ivaVentas[m].total += parseFloat(v.total || 0)
+          ivaVentas[m].iva += iva
+          ivaVentas[m].count++
         }
-    }
-    const filtrarVentas = () =>{
-        const yearsVentas = {};
-        if(props.ventas){
-            Object.keys(props.ventas).reverse().forEach((venta) => {
-                const year = props.ventas[venta].fecha.split('/')[2];
-                const month = props.ventas[venta].fecha.split('/')[1];
-            
-                if (!yearsVentas[year]) {
-                    yearsVentas[year] = { total: 0, totalIva: 0, months: {
-                        1:{ total: 0, totalIva: 0, ventas: [] },
-                        2:{ total: 0, totalIva: 0, ventas: [] },
-                        3:{ total: 0, totalIva: 0, ventas: [] },
-                        4:{ total: 0, totalIva: 0, ventas: [] },
-                        5:{ total: 0, totalIva: 0, ventas: [] },
-                        6:{ total: 0, totalIva: 0, ventas: [] },
-                        7:{ total: 0, totalIva: 0, ventas: [] },
-                        8:{ total: 0, totalIva: 0, ventas: [] },
-                        9:{ total: 0, totalIva: 0, ventas: [] },
-                        10:{ total: 0, totalIva: 0, ventas: [] },
-                        11:{ total: 0, totalIva: 0, ventas: [] },
-                        12:{ total: 0, totalIva: 0, ventas: [] }
-                    }}
-                }
-            
-                // Agregamos la venta al objeto "ventas" del mes correspondiente
-                yearsVentas[year].months[month].ventas.push(props.ventas[venta]);
-                // Actualizamos el total del mes y del aÃ±o
-                yearsVentas[year].months[month].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
-                yearsVentas[year].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
-                if(props.ventas[venta].metodoDePago.facturacion){
-                    yearsVentas[year].months[month].totalIva += parseFloat(props.ventas[venta].total?props.ventas[venta].total-(props.ventas[venta].total/1.21):0);
-                    yearsVentas[year].totalIva += parseFloat(props.ventas[venta].total?props.ventas[venta].total-(props.ventas[venta].total/1.21):0);
-                }
-            });
-        
-            const sortedVentas = Object.entries(yearsVentas).sort(([year1], [year2]) => year2 - year1);
+      }
+    })
+  }
 
-            return sortedVentas
+  // Procesar compras con consumoFacturado=true → toman el totalIva
+  const ivaCompras = {}
+  if (props.compras) {
+    Object.values(props.compras).forEach((c) => {
+      if (c.consumoFacturado) {
+        const [d, m, y] = (c.fecha || '').split('/')
+        if (y === year.toString()) {
+          if (!ivaCompras[m]) ivaCompras[m] = { total: 0, iva: 0, count: 0 }
+          ivaCompras[m].total += parseFloat(c.total || 0)
+          ivaCompras[m].iva += parseFloat(c.totalIva || 0)
+          ivaCompras[m].count++
         }
-    }
-    
-    
+      }
+    })
+  }
 
-    useEffect(()=>{
-        setLoading(true)
+  // También compras con facturacion=true que NO son consumoFacturado
+  if (props.compras) {
+    Object.values(props.compras).forEach((c) => {
+      if (!c.consumoFacturado && c.metodoDePago?.facturacion) {
+        const [d, m, y] = (c.fecha || '').split('/')
+        if (y === year.toString()) {
+          const iva = parseFloat(c.total || 0) - (parseFloat(c.total || 0) / 1.21)
+          if (!ivaCompras[m]) ivaCompras[m] = { total: 0, iva: 0, count: 0 }
+          ivaCompras[m].total += parseFloat(c.total || 0)
+          ivaCompras[m].iva += iva
+          ivaCompras[m].count++
+        }
+      }
+    })
+  }
 
-        const auxSortedCompras = filtrarCompras()
-        const auxSortedVentas = filtrarVentas()
-        setSortedCompras(auxSortedCompras)
-        setSortedVentas(auxSortedVentas)
-        setTimeout(() => {
-            setLoading(false)
-        }, 500);
-    },[props.compras,props.ventas])
+  const totalIvaVentas = Object.values(ivaVentas).reduce((s, m) => s + m.iva, 0)
+  const totalIvaCompras = Object.values(ivaCompras).reduce((s, m) => s + m.iva, 0)
 
+  return (
+    <Layout history={props.history} page="IVA" user={props.user?.uid}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <IconButton onClick={() => setYear(y => y - 1)} size="small"><ChevronLeft /></IconButton>
+            <Typography variant="h5" fontWeight={700}>{year}</Typography>
+            <IconButton onClick={() => setYear(y => Math.min(currentYear, y + 1))} size="small"><ChevronRight /></IconButton>
+          </Box>
+          <Button component={Link} to="/Nuevo-Consumo-Facturado" variant="contained" startIcon={<Add />}>
+            Registrar consumo
+          </Button>
+        </Box>
 
-    return(
-        <Layout history={props.history} page="Iva" user={props.user.uid}>
+        {/* Stats cards */}
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+              <Typography variant="h4" fontWeight={800} color="primary.main">$ {formatMoney(totalIvaVentas)}</Typography>
+              <Typography variant="caption" color="text.secondary">IVA Ventas facturadas</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+              <Typography variant="h4" fontWeight={800} color="warning.main">$ {formatMoney(totalIvaCompras)}</Typography>
+              <Typography variant="caption" color="text.secondary">IVA Compras / Consumos</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2, border: '2px solid', borderColor: 'primary.main' }}>
+              <Typography variant="h4" fontWeight={900} color={totalIvaVentas - totalIvaCompras >= 0 ? 'success.main' : 'error.main'}>
+                $ {formatMoney(Math.abs(totalIvaVentas - totalIvaCompras))}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {totalIvaVentas >= totalIvaCompras ? 'A favor (Ventas − Compras)' : 'A pagar (Compras − Ventas)'}
+              </Typography>
+            </Card>
+          </Grid>
+        </Grid>
 
-            {/* TABLE */}
-            <Paper className={classes.content}>
-                <Grid container justify='center' className={classes.container} spacing={4}>
-                    <Grid container item xs={12} justify='center'>
-                        {sortedVentas?
-                            sortedVentas.map((indexYear,i)=>(
-                                <Button
-                                    onClick={()=>{
-                                        setYear(i)
-                                    }}
-                                >
-                                    {indexYear[0]}
-                                </Button>
-                            ))
-                            :
-                            null
-                    }
-                    </Grid>
-                    <Grid container justify='space-around'>
-                        <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
-                            {sortedVentas?
-                                <Ventas ventas={sortedVentas} year={year}/>
-                                :
-                                null
-                            }
-                        </Grid>
-                        <Grid item xs={10} sm={8} md={5} className={classes.gridTable}>
-                            {sortedCompras?
-                                <Compras compras={sortedCompras} year={year}/>
-                                :
-                                null
-                            }
-                        </Grid>
-                    </Grid>
-                </Grid>
-
-                {/* BACKDROP & SNACKBAR */}
-                <Backdrop className={classes.backdrop} open={loading}>
-                    <CircularProgress color="inherit" />
-                    <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                        <Alert severity="success" variant='filled'>
-                            La compra se agrego correctamente!
-                        </Alert>
-                    </Snackbar>
-                </Backdrop>
-            </Paper>
-        </Layout>
-    )
+        {/* Monthly table */}
+        <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 700 }}>Mes</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 700 }}>IVA Ventas</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 700 }}>IVA Compras</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 700 }}>Balance</TableCell>
+                <TableCell align="right">Operaciones</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {MONTHS.map((monthName, i) => {
+                const m = (i + 1).toString()
+                const ven = ivaVentas[m]
+                const com = ivaCompras[m]
+                const saldo = (ven?.iva || 0) - (com?.iva || 0)
+                return (
+                  <TableRow key={m} hover>
+                    <TableCell><Typography variant="body2" fontWeight={600}>{monthName}</Typography></TableCell>
+                    <TableCell align="right">
+                      {ven ? <Chip size="small" label={`$ ${formatMoney(ven.iva)}`} color="primary" variant="outlined" /> : '—'}
+                    </TableCell>
+                    <TableCell align="right">
+                      {com ? <Chip size="small" label={`$ ${formatMoney(com.iva)}`} color="warning" variant="outlined" /> : '—'}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="body2" fontWeight={700} color={saldo >= 0 ? 'success.main' : 'error.main'}>
+                        $ {formatMoney(Math.abs(saldo))} {saldo >= 0 ? '✓' : '✗'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="caption" color="text.disabled">
+                        V: {ven?.count || 0} / C: {com?.count || 0}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </Paper>
+      </Box>
+    </Layout>
+  )
 }
 export default withStore(Iva)
