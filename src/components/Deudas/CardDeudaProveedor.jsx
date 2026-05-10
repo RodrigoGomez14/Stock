@@ -1,68 +1,50 @@
 ﻿import React from 'react'
-import { makeStyles } from 'tss-react/mui'
-import { CardHeader,Button,Card,CardContent,Typography,TextField,CardActions,Grid,Chip,IconButton,Link as LinkComponent } from '@mui/material'
-import {AttachMoney,History,Add} from '@mui/icons-material'
-import {Link} from 'react-router-dom'
-import {formatMoney} from '../../utilities'
-import {content} from '../../Pages/styles/styles'
+import { Card, CardContent, Button, Typography, Chip, IconButton, Box, Divider } from '@mui/material'
+import { Edit, Visibility, AttachMoney, History, Payment } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
+import { formatMoney } from '../../utilities'
 
-// COMPONENT
-const CardDeudaProveedor=({nombre,search,deuda})=>{
-    const classes = content()
+const CardDeudaProveedor = ({ nombre, deuda, search }) => {
+  if (search && !nombre.toLowerCase().includes(search.toLowerCase())) return null
 
-    return(
-        <Grid item xs={8} sm={6} md={4} lg={3} className={!search?null:nombre.toLowerCase().search(search.toLowerCase()) == -1 ? classes.displayNone:classes.display}>
-            <Card className={classes.cardCliente}>
-                <CardHeader 
-                    title={
-                        <Link 
-                            style={{color:"#fff",textDecoration:'none'}}
-                            to={{
-                            pathname:'/Proveedor',
-                            search:nombre
-                        }}>
-                            <Typography variant="h5">
-                                {nombre}
-                            </Typography>
-                        </Link>
-                    }
-                    action={
-                        <>
-                            <Link 
-                                style={{color:"#fff",textDecoration:'none'}}
-                                to={{
-                                    pathname:'/Historial-Proveedor',
-                                    search:nombre,
-                            }}>
-                                <IconButton aria-label="settings">
-                                    <History/>
-                                </IconButton>
-                            </Link>
-                            <Link 
-                            style={{color:"#fff",textDecoration:'none'}}
-                            to={{
-                                pathname:'/Nuevo-Pago-Proveedor',
-                                search:nombre,
-                        }}>
-                            <IconButton aria-label="settings">
-                                <Add/>
-                            </IconButton>
-                        </Link>
-                        </>
-                    }
-                />
-                <CardContent>
-                <Grid container item xs={12} justify='center'>
-                    <Chip
-                        className={deuda>0?classes.chipCardDangerCliente:classes.chipCardSuccessCliente}
-                        variant="outlined"
-                        icon={<AttachMoney/>}
-                        label={formatMoney(deuda>=0?deuda:-deuda)}
-                    />
-                </Grid>
-                </CardContent>
-            </Card>
-        </Grid>
-    )
+  return (
+    <Card sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', height: '100%', transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
+      <CardContent sx={{ flex: 1, pb: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography variant="body1" fontWeight={700}
+            component={Link} to={`/Proveedor?${encodeURIComponent(nombre)}`}
+            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, flex: 1 }}>
+            {nombre}
+          </Typography>
+          <IconButton size="small" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(nombre)}`}
+            sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' }, ml: 1 }}>
+            <Edit fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Divider sx={{ mb: 1.5 }} />
+
+        <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <Typography variant="caption" color="text.secondary">Deuda</Typography>
+          <Typography variant="h5" fontWeight={900} color={deuda > 0 ? 'error.main' : 'success.main'}>
+            $ {formatMoney(deuda || 0)}
+          </Typography>
+        </Box>
+      </CardContent>
+
+      <Box sx={{ display: 'flex', borderTop: '1px solid', borderColor: 'divider' }}>
+        <Button component={Link} to={`/Historial-Proveedor?${encodeURIComponent(nombre)}`}
+          startIcon={<History />} fullWidth size="small"
+          sx={{ borderRadius: 0, py: 1.2, fontWeight: 500, fontSize: 11 }}>
+          Historial
+        </Button>
+        <Button component={Link} to={`/Nuevo-Pago-Proveedor?${encodeURIComponent(nombre)}`}
+          startIcon={<Payment />} fullWidth size="small" color="primary" variant="contained"
+          sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 11 }}>
+          Pagar
+        </Button>
+      </Box>
+    </Card>
+  )
 }
 export default CardDeudaProveedor

@@ -14,6 +14,7 @@ import { pushData, updateData, removeData, setData, getPushKey } from '../servic
 import { ingresoCaja } from '../services/cajaService'
 import { formatMoney, obtenerFecha } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
+import { InlineTransferenciaForm } from '../components/InlineTransferenciaForm'
 
 const EnviarPedido = (props) => {
   const location = useLocation()
@@ -39,18 +40,20 @@ const EnviarPedido = (props) => {
 
   // Pago
   const [efectivo, setEfectivo] = useState('')
-  const [ctaTransferencia, setCtaTransferencia] = useState('')
-  const [montoTransferencia, setMontoTransferencia] = useState('')
+  const [transferencias, setTransferencias] = useState([])
+  const [totalTransferencias, setTotalTransferencias] = useState(0)
   const [cheques, setCheques] = useState([])
   const [totalCheques, setTotalCheques] = useState(0)
   const [showChequeForm, setShowChequeForm] = useState(false)
+  const [showTransfForm, setShowTransfForm] = useState(false)
+  const [transfEditIdx, setTransfEditIdx] = useState(-1)
   const [selectedPago, setSelectedPago] = useState('noPagar')
 
   const totalEnvio = usarExpreso && precioEnvio ? parseFloat(precioEnvio) : 0
-  const totalPagado = (parseFloat(efectivo || 0) || 0) + (parseFloat(montoTransferencia || 0) || 0) + (totalCheques || 0)
+  const totalPagado = (parseFloat(efectivo || 0) || 0) + (totalTransferencias || 0) + (totalCheques || 0)
   const totalAdeudado = (orderTotal + totalEnvio) - totalPagado
 
-  const resetPago = () => { setEfectivo(''); setCtaTransferencia(''); setMontoTransferencia(''); setCheques([]); setTotalCheques(0) }
+  const resetPago = () => { setEfectivo(''); setTransferencias([]); setTotalTransferencias(0); setCheques([]); setTotalCheques(0) }
 
   const guardar = async () => {
     setLoading(true)
@@ -60,8 +63,7 @@ const EnviarPedido = (props) => {
       metodoDePago: {
         facturacion: facturacion || null,
         efectivo: efectivo || null,
-        cuentaTransferencia: ctaTransferencia || null,
-        totalTransferencia: montoTransferencia || null,
+        transferencias: transferencias.length ? transferencias : null,
         cheques: cheques.map(c => c.numero),
         fecha: obtenerFecha(),
         total: totalPagado || null,
@@ -120,10 +122,10 @@ const EnviarPedido = (props) => {
         await ingresoCaja(props.user.uid, parseFloat(efectivo), `Pago de pedido - ${clienteNombre}`, `pedidos/${id}`)
       }
 
-      // Transferencia bancaria
-      if (ctaTransferencia && montoTransferencia) {
-        await pushData(props.user.uid, `CuentasBancarias/${ctaTransferencia}/ingresos`, {
-          fecha: obtenerFecha(), tipo: 'transferencia', total: parseFloat(montoTransferencia),
+      // Transferencias bancarias
+      for (const t of transferencias) {
+        await pushData(props.user.uid, `CuentasBancarias/${t.cuenta}/ingresos`, {
+          fecha: obtenerFecha(), tipo: 'transferencia', total: parseFloat(t.monto),
         })
       }
 
@@ -267,99 +269,92 @@ const EnviarPedido = (props) => {
     </Box>,
 
     <Box>
-      {/* TOTALS BAR — 4 cards compactos */}
+      {/* TOTALS BAR — RESUMEN arriba como NuevoPago */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        {[
-          { label: 'Efectivo', value: efectivo || 0, color: 'text.primary' },
-          { label: 'Transferencia', value: montoTransferencia || 0, color: 'text.primary' },
-          { label: 'Cheques', value: totalCheques, color: 'text.primary' },
-          { label: 'Total pagado', value: totalPagado, color: 'primary.main', big: true,
-            extra: totalAdeudado > 0 ? { text: `+ $${formatMoney(totalAdeudado)} a deuda`, color: 'error.main' }
-                 : totalPagado > 0 ? { text: '✓ Pagado completo', color: 'success.main' }
-                 : null },
-        ].map((item) => (
-          <Grid item xs={3} key={item.label}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>{item.label}</Typography>
-              <Typography variant={item.big ? 'h4' : 'h5'} fontWeight={800} color={item.color}>
-                $ {formatMoney(item.value)}
+        <Grid item xs={4}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Efectivo</Typography>
+            <Typography variant="h5" fontWeight={800}>$ {formatMoney(efectivo || 0)}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={4}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Transferencias</Typography>
+            <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalTransferencias)}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={4}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Cheques</Typography>
+            <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalCheques)}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12}>
+          <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, textAlign: 'center', borderColor: 'primary.main', borderWidth: 2 }}>
+            <Typography variant="h3" fontWeight={900} color="primary.main">$ {formatMoney(totalPagado)}</Typography>
+            {totalAdeudado > 0 && (
+              <Typography variant="body1" color="error.main" fontWeight={700}>
+                +$ {formatMoney(totalAdeudado)} a deuda
               </Typography>
-              {item.extra && (
-                <Typography variant="caption" color={item.extra.color} fontWeight={600}>{item.extra.text}</Typography>
-              )}
-            </Paper>
-          </Grid>
-        ))}
+            )}
+            {totalAdeudado === 0 && totalPagado > 0 && (
+              <Typography variant="body1" color="success.main" fontWeight={700}>✓ Pagado completo</Typography>
+            )}
+          </Paper>
+        </Grid>
       </Grid>
 
-      {/* PAYMENT METHODS — selector horizontal */}
-      <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ color: 'text.secondary', letterSpacing: 0.5 }}>
-        SELECCIONAR MÉTODO DE PAGO
-      </Typography>
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      {/* MÉTODOS DE PAGO */}
+      <Grid container spacing={1.5} sx={{ mb: 2 }}>
         {[
-          { key: 'efectivo', label: 'Efectivo', desc: 'Dinero en efectivo', icon: '💵' },
-          { key: 'transferencia', label: 'Transferencia', desc: 'Transferencia bancaria', icon: '🏦' },
-          { key: 'cheques', label: 'Cheques', desc: 'Cheques de terceros', icon: '📄' },
-          { key: 'noPagar', label: 'No pagar', desc: 'Pasa todo a deuda', icon: '⏭️' },
+          { key: 'efectivo', icon: '💵', label: 'Efectivo', desc: 'Pago en efectivo' },
+          { key: 'transferencia', icon: '🏦', label: 'Transferencia', desc: 'Transferencia bancaria' },
+          { key: 'cheques', icon: '📄', label: 'Cheques', desc: 'Cheques a cobrar' },
+          { key: 'noPagar', icon: '⏭️', label: 'No pagar', desc: 'No registra pago' },
         ].map((opt) => (
           <Grid item xs={3} key={opt.key}>
-            <Paper
-              variant="outlined"
-              onClick={() => {
-                setSelectedPago(opt.key)
-                if (opt.key === 'noPagar') resetPago()
-              }}
+            <Paper variant="outlined"
+              onClick={() => { setSelectedPago(opt.key); if (opt.key === 'noPagar') resetPago() }}
               sx={{
-                p: 2, borderRadius: 2, cursor: 'pointer', userSelect: 'none',
+                py: 2, px: 1, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
                 borderColor: selectedPago === opt.key ? 'primary.main' : 'divider',
                 borderWidth: selectedPago === opt.key ? 2 : 1,
                 bgcolor: selectedPago === opt.key ? 'action.selected' : 'transparent',
-                transition: 'all 0.15s',
-                '&:hover': { borderColor: 'primary.light', bgcolor: 'action.hover' },
+                transition: '0.15s', '&:hover': { borderColor: 'primary.light' },
               }}
             >
-              <Typography variant="h4" sx={{ mb: 0.5, textAlign: 'center' }}>{opt.icon}</Typography>
-              <Typography variant="body2" fontWeight={600} textAlign="center">{opt.label}</Typography>
-              <Typography variant="caption" color="text.secondary" textAlign="center" display="block">{opt.desc}</Typography>
+              <Typography variant="h4" sx={{ mb: 0.5 }}>{opt.icon}</Typography>
+              <Typography variant="body2" fontWeight={600}>{opt.label}</Typography>
+              <Typography variant="caption" color="text.secondary" display="block">{opt.desc}</Typography>
             </Paper>
           </Grid>
         ))}
       </Grid>
 
-      {/* FORM */}
+      {/* FORM SEGÚN MÉTODO */}
       {selectedPago === 'efectivo' && (
-        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-          <Typography variant="body2" fontWeight={600} gutterBottom>Monto en efectivo</Typography>
-          <TextField fullWidth label="$" type="number" value={efectivo}
-            onChange={(e) => setEfectivo(e.target.value)} autoFocus sx={{ maxWidth: 400 }} />
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+          <TextField fullWidth label="Monto en efectivo ($)" type="number" value={efectivo}
+            onChange={(e) => setEfectivo(e.target.value)} autoFocus />
         </Paper>
       )}
 
       {selectedPago === 'transferencia' && (
-        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-          <Typography variant="body2" fontWeight={600} gutterBottom>Transferencia bancaria</Typography>
-          <Grid container spacing={2} sx={{ maxWidth: 700 }}>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                value={ctaTransferencia}
-                options={props.CuentasBancarias ? Object.keys(props.CuentasBancarias) : []}
-                getOptionLabel={(o) => o}
-                onChange={(_, v) => setCtaTransferencia(v || '')}
-                onInputChange={(_, v) => setCtaTransferencia(v || '')}
-                renderInput={(p) => <TextField {...p} label="Cuenta destino" fullWidth />}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Monto ($)" type="number" value={montoTransferencia}
-                onChange={(e) => setMontoTransferencia(e.target.value)} />
-            </Grid>
-          </Grid>
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} gutterBottom>Transferencias bancarias</Typography>
+          <InlineTransferenciaForm show={showTransfForm} setShow={setShowTransfForm}
+            datos={transferencias} setdatos={setTransferencias}
+            editIndex={transfEditIdx} seteditIndex={setTransfEditIdx}
+            total={totalTransferencias} settotal={setTotalTransferencias}
+            cuentasBancarias={props.CuentasBancarias} />
+          {!showTransfForm && (
+            <Button variant="contained" size="small" onClick={() => setShowTransfForm(true)}>+ Agregar transferencia</Button>
+          )}
         </Paper>
       )}
 
       {selectedPago === 'cheques' && (
-        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
           <Typography variant="body2" fontWeight={600} gutterBottom>Cheques de terceros</Typography>
           <InlineChequeForm show={showChequeForm} setShow={setShowChequeForm}
             datos={cheques} setdatos={setCheques} total={totalCheques} settotal={setTotalCheques}
@@ -400,7 +395,7 @@ const EnviarPedido = (props) => {
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
             <Typography variant="body2" color="text.secondary">Transferencia</Typography>
-            <Typography variant="body2" fontWeight={500}>$ {formatMoney(montoTransferencia || 0)}</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(totalTransferencias)}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
             <Typography variant="body2" color="text.secondary">Cheques ({cheques.length})</Typography>

@@ -157,7 +157,10 @@ const Proveedor = (props) => {
                     <LocalShipping sx={{ fontSize: 14 }} /> Transporte
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {d.expresos.map((ex, i) => <Chip key={i} label={fmt(ex)} size="small" variant="outlined" />)}
+                    {d.expresos.map((ex, i) => (
+                      <Chip key={i} label={fmt(ex)} size="small" variant="outlined" component={Link}
+                        to={`/Expreso?${encodeURIComponent(fmt(ex))}`} clickable />
+                    ))}
                   </Box>
                 </Box>
               )}

@@ -3,27 +3,30 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, TextField, Typography, Paper, Button, Grid, Backdrop,
-  CircularProgress, Snackbar, Autocomplete
+  CircularProgress, Snackbar
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { pushData, updateData } from '../services'
 import { ingresoCaja } from '../services/cajaService'
 import { checkSearch, formatMoney, obtenerFecha } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
+import { InlineTransferenciaForm } from '../components/InlineTransferenciaForm'
 
 const NuevoPagoCliente = (props) => {
   const nombre = checkSearch(props.history.location.search)
   const [selectedPago, setSelectedPago] = useState('noPagar')
   const [efectivo, setEfectivo] = useState('')
-  const [ctaTransferencia, setCtaTransferencia] = useState('')
-  const [montoTransferencia, setMontoTransferencia] = useState('')
+  const [transferencias, setTransferencias] = useState([])
+  const [totalTransferencias, setTotalTransferencias] = useState(0)
   const [cheques, setCheques] = useState([])
   const [totalCheques, setTotalCheques] = useState(0)
   const [loading, setLoading] = useState(false)
   const [snack, setSnack] = useState('')
   const [showChequeForm, setShowChequeForm] = useState(false)
+  const [showTransfForm, setShowTransfForm] = useState(false)
+  const [transfEditIdx, setTransfEditIdx] = useState(-1)
 
-  const total = (parseFloat(efectivo || 0) || 0) + (parseFloat(montoTransferencia || 0) || 0) + (totalCheques || 0)
+  const total = (parseFloat(efectivo || 0) || 0) + (totalTransferencias || 0) + (totalCheques || 0)
   const deuda = props.clientes?.[nombre]?.datos?.deuda || 0
   const restante = deuda - total
 
@@ -32,7 +35,7 @@ const NuevoPagoCliente = (props) => {
     try {
       const pago = {
         efectivo: efectivo || null, fecha: obtenerFecha(),
-        cuentaTransferencia: ctaTransferencia || null, totalTransferencia: montoTransferencia || null,
+        transferencias: transferencias.length ? transferencias : null,
         cheques: cheques.length ? cheques : null,
         pagado: total, total, deudaPasada: deuda, deudaActualizada: Math.max(0, restante),
       }
@@ -44,9 +47,9 @@ const NuevoPagoCliente = (props) => {
         await ingresoCaja(props.user.uid, parseFloat(efectivo), `Pago de cliente ${nombre}`, `clientes/${nombre}`)
       }
 
-      if (ctaTransferencia && montoTransferencia) {
-        await pushData(props.user.uid, `CuentasBancarias/${ctaTransferencia}/ingresos`, {
-          total: parseFloat(montoTransferencia), fecha: obtenerFecha(), concepto: `Pago de cliente ${nombre}`
+      for (const t of transferencias) {
+        await pushData(props.user.uid, `CuentasBancarias/${t.cuenta}/ingresos`, {
+          total: parseFloat(t.monto), fecha: obtenerFecha(), concepto: `Pago de cliente ${nombre}`
         })
       }
       setSnack('Pago registrado')
@@ -72,8 +75,8 @@ const NuevoPagoCliente = (props) => {
           </Grid>
           <Grid item xs={4}>
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
-              <Typography variant="caption" color="text.secondary">Transferencia</Typography>
-              <Typography variant="h5" fontWeight={800}>$ {formatMoney(montoTransferencia || 0)}</Typography>
+              <Typography variant="caption" color="text.secondary">Transferencias</Typography>
+              <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalTransferencias)}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={4}>
@@ -105,7 +108,7 @@ const NuevoPagoCliente = (props) => {
                 variant="outlined"
                 onClick={() => {
                   setSelectedPago(opt.key)
-                  if (opt.key === 'noPagar') { setEfectivo(''); setCtaTransferencia(''); setMontoTransferencia(''); setCheques([]); setTotalCheques(0) }
+                  if (opt.key === 'noPagar') { setEfectivo(''); setTransferencias([]); setTotalTransferencias(0); setCheques([]); setTotalCheques(0) }
                 }}
                 sx={{
                   py: 2, px: 1, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
@@ -133,22 +136,15 @@ const NuevoPagoCliente = (props) => {
 
         {selectedPago === 'transferencia' && (
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, mb: 2 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <Autocomplete
-                  value={ctaTransferencia}
-                  options={props.CuentasBancarias ? Object.keys(props.CuentasBancarias) : []}
-                  getOptionLabel={(o) => o}
-                  onChange={(_, v) => setCtaTransferencia(v || '')}
-                  onInputChange={(_, v) => setCtaTransferencia(v || '')}
-                  renderInput={(p) => <TextField {...p} label="Cuenta destino" fullWidth />}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Monto ($)" type="number" value={montoTransferencia}
-                  onChange={(e) => setMontoTransferencia(e.target.value)} />
-              </Grid>
-            </Grid>
+            <Typography variant="body2" fontWeight={600} gutterBottom>Transferencias bancarias</Typography>
+            <InlineTransferenciaForm show={showTransfForm} setShow={setShowTransfForm}
+              datos={transferencias} setdatos={setTransferencias}
+              editIndex={transfEditIdx} seteditIndex={setTransfEditIdx}
+              total={totalTransferencias} settotal={setTotalTransferencias}
+              cuentasBancarias={props.CuentasBancarias} />
+            {!showTransfForm && (
+              <Button variant="contained" size="small" onClick={() => setShowTransfForm(true)}>+ Agregar transferencia</Button>
+            )}
           </Paper>
         )}
 
