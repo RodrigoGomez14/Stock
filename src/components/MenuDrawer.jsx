@@ -1,165 +1,201 @@
 ﻿import React from 'react'
 import { auth } from '../services'
 import {
-  Drawer, List, ListItem, ListItemButton, ListItemIcon,
-  ListItemText, Divider, IconButton, Box, Typography, Avatar
+  Box, List, ListItem, ListItemButton, ListItemIcon,
+  ListItemText, Divider, Typography, Tooltip
 } from '@mui/material'
 import {
   Home, Inventory, MoveToInbox, LocalShipping,
   AccountBalanceWallet, LocalAtm, AccountBalance,
-  Contacts, Payment, Link as LinkIcon,
-  ShoppingCart, AssignmentLate, ExitToApp, ChevronRight
+  Contacts, Link as LinkIcon,
+  ShoppingCart, AssignmentLate, ExitToApp, ChevronLeft,
+  Receipt, ShowChart
 } from '@mui/icons-material'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-const menuSections = [
-  {
-    label: 'General',
-    items: [
-      { label: 'Inicio', icon: <Home />, path: '/' },
-      { label: 'Productos', icon: <Inventory />, path: '/Productos' },
-    ],
-  },
-  {
-    label: 'Movimientos',
-    items: [
-      { label: 'Pedidos', icon: <MoveToInbox />, path: '/Pedidos' },
-      { label: 'Entregas', icon: <MoveToInbox />, path: '/Entregas' },
-    ],
-  },
-  {
-    label: 'Contactos',
-    items: [
-      { label: 'Clientes', icon: <Contacts />, path: '/Clientes' },
-      { label: 'Proveedores', icon: <Contacts />, path: '/Proveedores' },
-      { label: 'Expresos', icon: <LocalShipping />, path: '/Expresos' },
-    ],
-  },
-  {
-    label: 'Finanzas',
-    items: [
-      { label: 'Deudas', icon: <AccountBalanceWallet />, path: '/Deudas' },
-      { label: 'Cheques', icon: <LocalAtm />, path: '/Cheques' },
-      { label: 'Cuentas Bancarias', icon: <AccountBalance />, path: '/Cuentas-Bancarias' },
-      { label: 'Servicios', icon: <Payment />, path: '/Servicios' },
-    ],
-  },
-  {
-    label: 'Acciones Rápidas',
-    items: [
-      { label: 'Nuevo Pedido', icon: <ShoppingCart />, path: '/Nuevo-Pedido' },
-      { label: 'Nueva Entrega', icon: <ShoppingCart />, path: '/Nueva-Entrega' },
-      { label: 'Pagar Servicios', icon: <AssignmentLate />, path: '/Pagar-Servicios' },
-    ],
-  },
-  {
-    label: 'Producción',
-    items: [
-      { label: 'Cadenas de Producción', icon: <LinkIcon />, path: '/Cadenas-De-Produccion' },
-    ],
-  },
+import logo from '../images/logo.png'
+
+const menuItems = [
+  { label: 'Inicio', icon: <Home />, path: '/' },
+  { label: 'Productos', icon: <Inventory />, path: '/Productos' },
+  { label: 'Clientes', icon: <Contacts />, path: '/Clientes' },
+  { label: 'Proveedores', icon: <Contacts />, path: '/Proveedores' },
+  { label: 'Expresos', icon: <LocalShipping />, path: '/Expresos' },
+  { label: 'Pedidos', icon: <MoveToInbox />, path: '/Pedidos' },
+  { label: 'Entregas', icon: <MoveToInbox />, path: '/Entregas' },
+  { label: 'Deudas', icon: <AccountBalanceWallet />, path: '/Deudas' },
+  { label: 'Cheques', icon: <LocalAtm />, path: '/Cheques' },
+  { label: 'Cuentas', icon: <AccountBalance />, path: '/Cuentas-Bancarias' },
+  { label: 'Servicios', icon: <Receipt />, path: '/Servicios' },
+  { label: 'IVA', icon: <ShowChart />, path: '/Iva' },
+  { label: 'Producción', icon: <LinkIcon />, path: '/Cadenas-De-Produccion' },
+  { label: 'Nuevo Pedido', icon: <ShoppingCart />, path: '/Nuevo-Pedido' },
+  { label: 'Nueva Entrega', icon: <ShoppingCart />, path: '/Nueva-Entrega' },
+  { label: 'Pagar Servicios', icon: <AssignmentLate />, path: '/Pagar-Servicios' },
 ]
 
-const DRAWER_WIDTH = 260
+const SIDEBAR_WIDE = 200
+const SIDEBAR_NARROW = 64
 
 export const MenuDrawer = ({ menuOpened, setMenuOpened }) => {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const handleSignOut = () => {
-    auth().signOut()
-    navigate('/', { replace: true })
-  }
-
   const isActive = (path) => {
-    const current = location.pathname.slice(1)
-    const target = path.slice(1)
-    if (target === '') return current === ''
-    return current.startsWith(target) || current === target
+    const cur = location.pathname
+    if (path === '/') return cur === '/'
+    return cur.startsWith(path)
   }
 
   return (
-    <Drawer
-      variant="permanent"
-      anchor="right"
-      open={menuOpened}
+    <Box
       sx={{
-        width: menuOpened ? DRAWER_WIDTH : 0,
-        flexShrink: 0,
-        whiteSpace: 'nowrap',
-        '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
-          overflowX: 'hidden',
-          transition: (t) => t.transitions.create('width', {
-            easing: t.transitions.easing.sharp,
-            duration: t.transitions.duration.enteringScreen,
-          }),
-          ...(!menuOpened && {
-            width: 0,
-            transition: (t) => t.transitions.create('width', {
-              easing: t.transitions.easing.sharp,
-              duration: t.transitions.duration.leavingScreen,
-            }),
-          }),
-        },
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        width: menuOpened ? SIDEBAR_WIDE : SIDEBAR_NARROW,
+        zIndex: 1200,
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'background.paper',
+        borderRight: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden',
+        transition: 'width 0.2s ease',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', p: 1, minHeight: 64 }}>
-        <IconButton onClick={() => setMenuOpened(false)}>
-          <ChevronRight />
-        </IconButton>
+      {/* Logo + collapse button */}
+      <Box
+        sx={{
+          height: 56,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: menuOpened ? 'space-between' : 'center',
+          px: menuOpened ? 1.5 : 0,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+        }}
+      >
+        {menuOpened && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box component="img" src={logo} sx={{ height: 28, width: 28, borderRadius: 1 }} />
+            <Typography variant="body2" fontWeight={700}>Stock</Typography>
+          </Box>
+        )}
+        <Box
+          component="div"
+          onClick={() => setMenuOpened(!menuOpened)}
+          sx={{
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 32,
+            height: 32,
+            borderRadius: 1,
+            color: 'text.secondary',
+            '&:hover': { bgcolor: 'action.hover' },
+          }}
+        >
+          <ChevronLeft
+            fontSize="small"
+            sx={{
+              transition: 'transform 0.2s',
+              transform: menuOpened ? 'rotate(0deg)' : 'rotate(180deg)',
+            }}
+          />
+        </Box>
       </Box>
-      <Divider />
-      <Box sx={{ overflow: 'auto', flexGrow: 1 }}>
-        {menuSections.map((section) => (
-          <Box key={section.label}>
-            {menuOpened && (
-              <Typography
-                variant="caption"
-                sx={{ px: 2, pt: 2, pb: 0.5, display: 'block', color: 'text.secondary', fontWeight: 600, letterSpacing: 1 }}
-              >
-                {section.label}
-              </Typography>
-            )}
-            <List dense>
-              {section.items.map((item) => (
-                <ListItem key={item.label} disablePadding>
+
+      {/* Menu items */}
+      <Box sx={{ flex: 1, overflow: 'auto', py: 1 }}>
+        <List dense>
+          {menuItems.map((item) => {
+            const active = isActive(item.path)
+            return (
+              <ListItem key={item.path} disablePadding sx={{ display: 'block' }}>
+                {menuOpened ? (
                   <ListItemButton
                     component={Link}
                     to={item.path}
-                    selected={isActive(item.path)}
+                    selected={active}
                     sx={{
-                      borderRadius: '0 24px 24px 0',
-                      mr: 1,
+                      mx: 1,
+                      borderRadius: 2,
+                      minHeight: 40,
                       '&.Mui-selected': {
                         bgcolor: 'primary.dark',
                         '&:hover': { bgcolor: 'primary.dark' },
                       },
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: 40, color: isActive(item.path) ? 'primary.light' : undefined }}>
+                    <ListItemIcon sx={{ minWidth: 36, color: active ? 'primary.light' : 'text.secondary' }}>
                       {item.icon}
                     </ListItemIcon>
-                    {menuOpened && <ListItemText primary={item.label} />}
+                    <ListItemText
+                      primary={item.label}
+                      primaryTypographyProps={{ variant: 'body2', fontWeight: active ? 600 : 400 }}
+                    />
                   </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-            <Divider />
-          </Box>
-        ))}
-      </Box>
-      <Box sx={{ p: 1 }}>
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleSignOut}>
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                <ExitToApp color="error" />
-              </ListItemIcon>
-              {menuOpened && <ListItemText primary="Cerrar sesión" />}
-            </ListItemButton>
-          </ListItem>
+                ) : (
+                  <Tooltip title={item.label} placement="right">
+                    <ListItemButton
+                      component={Link}
+                      to={item.path}
+                      selected={active}
+                      sx={{
+                        justifyContent: 'center',
+                        px: 0,
+                        minHeight: 44,
+                        '&.Mui-selected': {
+                          bgcolor: 'primary.dark',
+                          '&:hover': { bgcolor: 'primary.dark' },
+                        },
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          justifyContent: 'center',
+                          color: active ? 'primary.light' : 'text.secondary',
+                        }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                    </ListItemButton>
+                  </Tooltip>
+                )}
+              </ListItem>
+            )
+          })}
         </List>
       </Box>
-    </Drawer>
+
+      {/* Sign out */}
+      <Box sx={{ borderTop: '1px solid', borderColor: 'divider', py: 1 }}>
+        {menuOpened ? (
+          <ListItemButton
+            onClick={() => { auth().signOut(); navigate('/', { replace: true }) }}
+            sx={{ mx: 1, borderRadius: 2 }}
+          >
+            <ListItemIcon sx={{ minWidth: 36, color: 'error.main' }}>
+              <ExitToApp fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Cerrar sesión" primaryTypographyProps={{ variant: 'body2' }} />
+          </ListItemButton>
+        ) : (
+          <Tooltip title="Cerrar sesión" placement="right">
+            <ListItemButton
+              onClick={() => { auth().signOut(); navigate('/', { replace: true }) }}
+              sx={{ justifyContent: 'center', px: 0 }}
+            >
+              <ListItemIcon sx={{ minWidth: 0, justifyContent: 'center', color: 'error.main' }}>
+                <ExitToApp fontSize="small" />
+              </ListItemIcon>
+            </ListItemButton>
+          </Tooltip>
+        )}
+      </Box>
+    </Box>
   )
 }

@@ -7,38 +7,43 @@ import { DialogConfirmGoBack } from '../components/Dialogs/DialogConfirmGoBack'
 export const Layout = ({ page, children, history, hiddenAppBar, blockGoBack, user }) => {
   const [menuOpened, setMenuOpened] = useState(false)
   const [dialogBlockOpen, setdialogBackOpen] = useState(false)
+
+  const sidebarWidth = menuOpened ? 200 : 64
+
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex' }}>
       <DialogConfirmGoBack blockGoBack={dialogBlockOpen} setBlockGoBack={setdialogBackOpen} history={history} />
-      {!hiddenAppBar && (
-        <NavBar
-          page={page}
-          history={history}
-          setMenuOpened={setMenuOpened}
-          menuOpened={menuOpened}
-          blockGoBack={blockGoBack}
-          setBlockGoBack={setdialogBackOpen}
-          user={user}
-        />
-      )}
+      {!hiddenAppBar && <MenuDrawer menuOpened={menuOpened} setMenuOpened={setMenuOpened} />}
       <Box
         sx={{
-          flexGrow: 1,
-          height: hiddenAppBar ? '100vh' : 'calc(100vh - 64px)',
-          mt: hiddenAppBar ? 0 : '64px',
-          mr: menuOpened ? '260px' : 0,
-          transition: (t) => t.transitions.create('margin', {
-            easing: t.transitions.easing.sharp,
-            duration: t.transitions.duration.leavingScreen,
-          }),
-          overflow: 'auto',
+          flex: 1,
+          ml: hiddenAppBar ? 0 : `${sidebarWidth}px`,
+          transition: 'margin-left 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {children}
+        {!hiddenAppBar && (
+          <NavBar
+            page={page}
+            history={history}
+            setMenuOpened={setMenuOpened}
+            menuOpened={menuOpened}
+            blockGoBack={blockGoBack}
+            setBlockGoBack={setdialogBackOpen}
+            user={user}
+          />
+        )}
+        <Box
+          sx={{
+            flex: 1,
+            mt: hiddenAppBar ? 0 : '56px',
+            overflow: 'auto',
+          }}
+        >
+          {children}
+        </Box>
       </Box>
-      {!hiddenAppBar && (
-        <MenuDrawer menuOpened={menuOpened} setMenuOpened={setMenuOpened} />
-      )}
     </Box>
   )
 }
