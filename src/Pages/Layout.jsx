@@ -23,6 +23,7 @@ export const Layout = ({ page, children, history, hiddenAppBar, blockGoBack, use
       <Box
         sx={{
           flexGrow: 1,
+          height: hiddenAppBar ? '100vh' : 'calc(100vh - 64px)',
           mt: hiddenAppBar ? 0 : '64px',
           mr: menuOpened ? '260px' : 0,
           transition: (t) => t.transitions.create('margin', {

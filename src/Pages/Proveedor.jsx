@@ -1,386 +1,169 @@
-﻿import React,{useState,useEffect} from 'react'
+﻿import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import {Card,Paper,Grid,CardHeader,CardContent,IconButton,Backdrop,Snackbar,CircularProgress} from '@mui/material'
-import {Alert} from '@mui/material'
-import {EditOutlined,DeleteOutline} from '@mui/icons-material'
-import {Deuda} from '../components/Proveedor/Deuda'
-import {ListaDePedidos} from '../components/Shared/ListaDePedidos'
-import {Detalles} from '../components/Shared/Detalles'
-import {DialogConfirmDelete} from '../components/Shared/DialogConfirmDelete'
+import { Layout } from './Layout'
+import {
+  Box, Grid, Typography, Card, CardContent, Chip, IconButton,
+  Button, Tabs, Tab, Backdrop, CircularProgress, Snackbar,
+  Table, TableHead, TableBody, TableRow, TableCell, Paper
+} from '@mui/material'
+import { Alert } from '@mui/material'
+import { Edit, Delete, Phone, Email, Place, LocalShipping } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
 import { database } from '../services'
-import {Link} from 'react-router-dom'
-import {content} from './styles/styles'
-import { checkSearch } from '../utilities'
-import ApexCharts from 'react-apexcharts';
-import {formatMoney} from '../utilities'
+import { checkSearch, formatMoney } from '../utilities'
 
+const Proveedor = (props) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [proveedor, setProveedor] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [tab, setTab] = useState(0)
+  const [snack, setSnack] = useState('')
+  const nombre = checkSearch(location.search)
 
-// COMPONENT
-const Proveedor=(props)=>{
-    const classes = content()
-    const [proveedor,setProveedor]= useState(props.proveedores[checkSearch(props.history.location.search)])
-    const [showSnackbar, setshowSnackbar] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [searchEntrega, setSearchEntrega] = useState(props.history.location.props?props.history.location.props.searchEntrega:'');
-    const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
-
-    const dark = 'dark'
-
-
-    const [filteredEntregas,setFilteredEntregas] = useState(undefined)
-
-    const generateChartDeudas = () => {
-        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const keyProveedor = checkSearch(props.history.location.search)
-        const initialMonth = new Date(Date.now());
-        initialMonth.setMonth(initialMonth.getMonth() - 6);
-        let deudas = []
-        let labels = []
-        if(props.proveedores[keyProveedor].pagos){
-            Object.keys(props.proveedores[keyProveedor].pagos).map(pago=>{
-                const [day,month,year] = (props.proveedores[keyProveedor].pagos[pago].fecha).split('/')
-                const auxFecha = new Date(0);
-                auxFecha.setFullYear(year, month - 1, day);
-                if(auxFecha>initialMonth){
-                    deudas.push(props.proveedores[keyProveedor].pagos[pago].deudaActualizada)
-                    labels.push(props.proveedores[keyProveedor].pagos[pago].fecha)
-                }
-            })
-            if(deudas.length==1){
-                let auxdeudas= [props.proveedores[keyProveedor].datos.deuda!=0?props.proveedores[keyProveedor].datos.deuda:0,...deudas]
-                deudas=auxdeudas
-            }
-        }
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labels,
-            chart:{
-                sparkline: {
-                    enabled: true
-                },
-            },
-            theme:{
-                palette:'palette3'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                },
-                theme:'dark'
-            }
-        };
-    
-        // Define los datos a visualizar
-        const series = [
-            {
-            name: 'Deuda',
-            data: deudas,
-            },
-        ];
-    
-        // Renderiza el grÃ¡fico
-        return <ApexCharts options={options} series={series} type='area' height={150}/>;
+  useEffect(() => {
+    if (props.proveedores && nombre) {
+      const p = props.proveedores[nombre]
+      if (p) setProveedor({ nombre, ...p })
+      setLoading(false)
     }
-    const generateChartProductos = () => {
-        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const keyProveedor = checkSearch(props.history.location.search)
-        let series = []
-        let labels = []
-        if(props.proveedores[keyProveedor].entregas){
-            Object.keys(props.proveedores[keyProveedor].entregas).reverse().forEach((pedido) => {
-                props.proveedores[keyProveedor].entregas[pedido].articulos.map(articulo=>{
-                    const pos = labels.indexOf(articulo.producto);
-                    if (pos !== -1) {
-                    series[pos] += parseInt(articulo.cantidad);
-                    } else {
-                    series.push(parseInt(articulo.cantidad));
-                    labels.push(articulo.producto);
-                    }
-                })
-            });
-        }
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labels,
-            chart:{
-                sparkline:{
-                    enabled:true
-                }
-            },
-            theme:{
-                mode:'dark'
-            },
-            tooltip:{
-                fillSeriesColor:false
-            }
-        };
-    
-    
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Historico de Productos'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='donut' width={350}/>
-                </CardContent>
-            </Card>)
-    }
-    const generateChartAnualSales = () => {
-        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const actualYear = new Date().getFullYear()
+  }, [props.proveedores, nombre])
 
-        let sales = []
-        let salesUltimoAnio
-        let labelsUltimoAnio =  []
+  const eliminar = async () => {
+    setLoading(true)
+    try {
+      await database().ref().child(props.user.uid).child('proveedores').child(nombre).remove()
+      setSnack('Proveedor eliminado')
+      setTimeout(() => navigate('/Proveedores', { replace: true }), 1500)
+    } catch { setLoading(false) }
+  }
 
-        if(filteredEntregas){
-            const fechaActual = new Date();
-            const mesActual = fechaActual.getMonth();
-            const anioActual = fechaActual.getFullYear();
-            let auxSales = []
-
-            const mesesDesdeUltimoAnio = 12;
-            let mesInicio = mesActual - mesesDesdeUltimoAnio;
-            let anioInicio = anioActual;
-            if (mesInicio < 0) {
-                mesInicio += 12;
-                anioInicio -= 1;
-            }
-            const initialDate = new Date(0)
-            initialDate.setFullYear(anioInicio,mesInicio,1)
-            console.log(filteredEntregas)
-            for (const [year, data] of filteredEntregas) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                        const auxFecha = new Date(0);
-                        auxFecha.setFullYear(year, month - 1, 1);
-                        if(auxFecha>initialDate && auxFecha<fechaActual){
-                            auxSales.push(dataMonth.total)
-                        }
-                }
-            }
-            if(auxSales.length<12){
-                const padding = new Array(12 - auxSales.length).fill(0);
-                padding.map(i=>{
-                    auxSales.push(i)
-                })
-            }
-            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-            const arr1Meses = auxMeses.slice(mesInicio+1);
-            const arr2Meses = auxMeses.slice(0,mesInicio+1);
-            const arr1Sales = auxSales.slice(mesInicio+1);
-            const arr2Sales = auxSales.slice(0,mesInicio+1);
-            
-            arr1Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            arr2Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            arr1Sales.map(i=>{
-                sales.push(i)
-            })
-            arr2Sales.map(i=>{
-                sales.push(i)
-            })
-
-        }
-        // Define la configuraciÃ³n del grÃ¡fico
-        
-        const options = {
-            labels:labelsUltimoAnio,
-            theme:{
-                mode:'dark',
-                palette:'palette2'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            grid: {
-                row: {
-                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                opacity: 0.5
-                },
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
-                formatter: val=> `$ ${formatMoney(val)}`
-            },
-            yaxis:{
-                labels:{
-                    show:false
-                }
-            }
-        };
-        const series=[{
-            name:'Compras',
-            data:sales
-        }
-        ]
-    
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Ventas - Ultimos 12 Meses'
-                />
-                <CardContent>
-                    <ApexCharts options={options} type='area' series={series} width={850} height={275}/>
-                </CardContent>
-            </Card>)
-    }
-    // FILTRADO DE INFORMACION 
-    useEffect(()=>{
-        setLoading(true)
-        const years = {};
-        const keyProveedor = checkSearch(props.history.location.search)
-        if(props.proveedores[keyProveedor].entregas){
-            Object.keys(props.proveedores[keyProveedor].entregas).reverse().forEach((entrega) => {
-                const year = props.proveedores[keyProveedor].entregas[entrega].fecha.split('/')[2];
-                const month = props.proveedores[keyProveedor].entregas[entrega].fecha.split('/')[1];
-            
-                // Si aÃºn no tenemos el aÃ±o en el objeto "years", lo agregamos
-                if (!years[year]) {
-                    years[year] = { total: 0, months: {
-                        1:{ total: 0, entregas: [] },
-                        2:{ total: 0, entregas: [] },
-                        3:{ total: 0, entregas: [] },
-                        4:{ total: 0, entregas: [] },
-                        5:{ total: 0, entregas: [] },
-                        6:{ total: 0, entregas: [] },
-                        7:{ total: 0, entregas: [] },
-                        8:{ total: 0, entregas: [] },
-                        9:{ total: 0, entregas: [] },
-                        10:{ total: 0, entregas: [] },
-                        11:{ total: 0, entregas: [] },
-                        12:{ total: 0, entregas: [] }
-                    }}
-                }
-            
-                // Agregamos la compra al objeto "compras" del mes correspondiente
-                years[year].months[month].entregas.push(props.proveedores[keyProveedor].entregas[entrega]);
-            
-                // Actualizamos el total del mes y del aÃ±o
-                years[year].months[month].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total?props.proveedores[keyProveedor].entregas[entrega].total:0);
-                years[year].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total?props.proveedores[keyProveedor].entregas[entrega].total:0);
-            });
-    
-            const sortedEntregas = Object.entries(years).sort(([year1], [year2]) => year2 - year1);
-            setFilteredEntregas(sortedEntregas)
-        }
-        setTimeout(() => {
-            setLoading(false)
-        }, 500);
-    },[props.proveedores])
-
-    // FUNCTIONS
-    const eliminarProveedor = () =>{
-        setLoading(true)
-        database().ref().child(props.user.uid).child('proveedores').child(proveedor.datos.nombre).remove()
-        .then(()=>{
-            setshowSnackbar('El Proveedor Se Elimino Correctamente')
-            setTimeout(() => {
-                setLoading(false)
-            }, 2000);
-        })
-        .catch(()=>{
-            setLoading(false)
-        })
-        props.history.replace('/Proveedores')
-    }
-    const eliminarPedido = (id) =>{
-        setLoading(true)
-        database().ref(`${props.user.uid}/proveedores/${proveedor.datos.nombre}/pedidos/${id}`).remove()
-        .then(()=>{
-            setshowSnackbar(true)
-            setTimeout(() => {
-                setshowSnackbar(false)
-                setLoading(false)
-            }, 2000);
-        })
-        .catch(()=>{
-            setLoading(false)
-        })
-    }
-    return(
-        proveedor?
-            <Layout history={props.history} page={`${proveedor.datos.nombre}`} user={props.user.uid}>
-                {/* CONTENT */}
-                <Paper className={classes.content}>
-                    <Grid container justify='center' spacing={4}>
-                        <Detalles {...proveedor.datos}/>
-                        {!loading && filteredEntregas?
-                            <Grid container item xs={12} justify='center' spacing={4}>
-                                <Grid container item xs={12}>
-                                    <Deuda deuda={proveedor.datos.deuda} id={proveedor.datos.nombre} generateChartDeudas={generateChartDeudas}/>
-                                </Grid>
-                                <Grid item>
-                                    <Paper>
-                                        {generateChartProductos()}
-                                    </Paper>
-                                </Grid>
-                                <Grid item>
-                                    <Paper>
-                                        {generateChartAnualSales()}
-                                    </Paper>
-                                </Grid>
-                            </Grid>
-                            :
-                            null
-                        }
-                        <ListaDePedidos pedidos={filteredEntregas} eliminarPedido={eliminarPedido} searchPedido={searchEntrega} tipo='entrega'/>
-                        <Grid item xs={12} sm={8}>
-                            <Grid container item xs={12} justify='space-around' alignItems='flex-end'>
-                                <Link to={{
-                                    pathname: '/Editar-Proveedor',
-                                    search:proveedor.datos.nombre
-                                }}>
-                                    <IconButton>
-                                        <EditOutlined/>
-                                    </IconButton>
-                                </Link>
-                                <IconButton onClick={()=>{setshowDialogConfirmDelete(true)}}>
-                                    <DeleteOutline color='error'/>
-                                </IconButton>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Paper>
-                {/* BACKDROP */}
-                <Backdrop className={classes.backdrop} open={loading}>
-                    {showSnackbar?
-                        <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar(false)}}>
-                            <Alert onClose={()=>{setshowSnackbar(false)}} severity="error" variant='filled'>
-                                El Proveedor ha sido eliminado!
-                            </Alert>
-                        </Snackbar>
-                        :
-                        <CircularProgress color="inherit" />
-                    }
-                </Backdrop>
-                <DialogConfirmDelete open={showDialogConfirmDelete} setOpen={setshowDialogConfirmDelete} eliminarCliente={eliminarProveedor}/>
-            </Layout>
-            :
-            <>
-                {props.history.replace('/Proveedores')}
-            </>
+  if (loading || !proveedor) {
+    return (
+      <Layout history={props.history} page="Proveedor" user={props.user?.uid}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+      </Layout>
     )
-}
-export default withStore(Proveedor)
+  }
 
+  const d = proveedor.datos || {}
+  const entregas = proveedor.entregas ? Object.values(proveedor.entregas) : []
+  const pagos = proveedor.pagos ? Object.values(proveedor.pagos) : []
+
+  return (
+    <Layout history={props.history} page={nombre} user={props.user?.uid}>
+      <Box sx={{ maxWidth: 1000, mx: 'auto', p: 2 }}>
+        <Card sx={{ borderRadius: 3, mb: 2 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Box>
+                <Typography variant="h5" fontWeight={700}>{nombre}</Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                  {d.telefono?.map((t, i) => <Chip key={i} icon={<Phone />} label={t} size="small" variant="outlined" />)}
+                  {d.mails?.map((m, i) => <Chip key={i} icon={<Email />} label={m} size="small" variant="outlined" />)}
+                  {d.direcciones?.map((dir, i) => <Chip key={i} icon={<Place />} label={dir} size="small" variant="outlined" />)}
+                  {d.expresos?.map((ex, i) => <Chip key={i} icon={<LocalShipping />} label={ex} size="small" variant="outlined" />)}
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton component={Link} to={`/Editar-Proveedor?${nombre}`}><Edit /></IconButton>
+                <IconButton color="error" onClick={() => { if (window.confirm('Eliminar proveedor?')) eliminar() }}><Delete /></IconButton>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
+              <CardContent sx={{ py: '8px !important' }}>
+                <Typography variant="h5" fontWeight={700} color={d.deuda > 0 ? 'error' : 'success'}>$ {formatMoney(d.deuda || 0)}</Typography>
+                <Typography variant="caption" color="text.secondary">Deuda</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
+              <CardContent sx={{ py: '8px !important' }}>
+                <Typography variant="h5" fontWeight={700}>{entregas.length}</Typography>
+                <Typography variant="caption" color="text.secondary">Entregas</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
+              <CardContent sx={{ py: '8px !important' }}>
+                <Typography variant="h5" fontWeight={700}>{pagos.length}</Typography>
+                <Typography variant="caption" color="text.secondary">Pagos</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          <Button variant="contained" component={Link} to={`/Nuevo-Pago-Proveedor?${nombre}`}>Registrar Pago</Button>
+          <Button variant="outlined" component={Link} to={`/Historial-Proveedor?${nombre}`}>Ver Historial</Button>
+        </Box>
+
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
+          <Tab label="Entregas" />
+          <Tab label="Pagos" />
+        </Tabs>
+
+        {tab === 0 && (
+          entregas.length > 0 ? (
+            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Fecha</TableCell>
+                    <TableCell>Productos</TableCell>
+                    <TableCell align="right">Total</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {entregas.map((e, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{e.fecha}</TableCell>
+                      <TableCell>{e.articulos?.map(a => `${a.cantidad}x ${a.producto}`).join(', ') || '—'}</TableCell>
+                      <TableCell align="right">$ {formatMoney(e.total || 0)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          ) : <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin entregas</Typography>
+        )}
+
+        {tab === 1 && (
+          pagos.length > 0 ? (
+            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Fecha</TableCell>
+                    <TableCell align="right">Monto</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {pagos.map((p, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{p.fecha}</TableCell>
+                      <TableCell align="right">$ {formatMoney(p.monto || 0)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          ) : <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin pagos</Typography>
+        )}
+      </Box>
+
+      <Backdrop open={loading} sx={{ zIndex: 9999 }}><CircularProgress color="inherit" /></Backdrop>
+      <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}><Alert severity="success">{snack}</Alert></Snackbar>
+    </Layout>
+  )
+}
+
+export default withStore(Proveedor)
