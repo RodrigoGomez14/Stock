@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { CarouselCotizaciones } from '../components/Carousel-Cotizaciones/CarouselCotizaciones'
-import { formatMoney } from '../utilities'
+import { formatMoney, filtrarCotizaciones } from '../utilities'
 import SalesChart from '../components/Dashboard/SalesChart'
 import IvaChart from '../components/Dashboard/IvaChart'
 import ProductsChart from '../components/Dashboard/ProductsChart'
@@ -135,7 +135,7 @@ const Inicio = (props) => {
   return (
     <Layout history={props.history} page="Inicio" user={props.user?.uid}>
       <Box sx={{ p: 2, maxWidth: 1400, mx: 'auto' }}>
-        <CarouselCotizaciones />
+        <CarouselCotizaciones dolares={props.tipoDeCambio && filtrarCotizaciones(props.tipoDeCambio)} />
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {!loading && props.ventas ? (
             <>

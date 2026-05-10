@@ -7,6 +7,10 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 export const CarouselCotizaciones = ({ dolares }) => {
     const classes = content()
 
+    if (!dolares || !Array.isArray(dolares) || dolares.length === 0) {
+      return null
+    }
+
     return (
       <Carousel
         autoPlay={true}
