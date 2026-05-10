@@ -11,6 +11,7 @@ import { Alert } from '@mui/material'
 
 import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData, removeData, setData, getPushKey } from '../services'
+import { ingresoCaja } from '../services/cajaService'
 import { formatMoney, obtenerFecha } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
 
@@ -43,6 +44,7 @@ const EnviarPedido = (props) => {
   const [cheques, setCheques] = useState([])
   const [totalCheques, setTotalCheques] = useState(0)
   const [showChequeForm, setShowChequeForm] = useState(false)
+  const [selectedPago, setSelectedPago] = useState('noPagar')
 
   const totalEnvio = usarExpreso && precioEnvio ? parseFloat(precioEnvio) : 0
   const totalPagado = (parseFloat(efectivo || 0) || 0) + (parseFloat(montoTransferencia || 0) || 0) + (totalCheques || 0)
@@ -110,6 +112,11 @@ const EnviarPedido = (props) => {
 
       // Pago al historial
       await pushData(props.user.uid, `clientes/${clienteNombre}/pagos`, { ...aux.metodoDePago, idPedido: key })
+
+      // Caja: ingreso de efectivo
+      if (parseFloat(efectivo || 0) > 0) {
+        await ingresoCaja(props.user.uid, parseFloat(efectivo), `Pago de pedido - ${clienteNombre}`, `pedidos/${id}`)
+      }
 
       // Transferencia bancaria
       if (ctaTransferencia && montoTransferencia) {
@@ -247,36 +254,75 @@ const EnviarPedido = (props) => {
     </Box>,
 
     <Box>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Método de pago</Typography>
-      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField fullWidth label="Efectivo ($)" type="number" value={efectivo}
-              onChange={(e) => setEfectivo(e.target.value)} />
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom sx={{ mb: 2 }}>Método de pago</Typography>
+
+      <Grid container spacing={1.5} sx={{ mb: 2 }}>
+        {[
+          { key: 'noPagar', icon: '⏭️', label: 'No pagar', desc: 'Todo a deuda' },
+          { key: 'efectivo', icon: '💵', label: 'Efectivo', desc: 'Pago en efectivo' },
+          { key: 'transferencia', icon: '🏦', label: 'Transferencia', desc: 'Transferencia bancaria' },
+          { key: 'cheques', icon: '📄', label: 'Cheques', desc: 'Cheques a cobrar' },
+        ].map((opt) => (
+          <Grid item xs={6} key={opt.key}>
+            <Paper
+              variant="outlined"
+              onClick={() => {
+                setSelectedPago(opt.key)
+                if (opt.key === 'noPagar') { setEfectivo(''); setCtaTransferencia(''); setMontoTransferencia(''); setCheques([]); setTotalCheques(0) }
+              }}
+              sx={{
+                p: 1.5, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
+                borderColor: selectedPago === opt.key ? 'primary.main' : 'divider',
+                bgcolor: selectedPago === opt.key ? 'action.selected' : 'transparent',
+                transition: '0.15s', '&:hover': { borderColor: 'primary.light' },
+              }}
+            >
+              <Typography variant="h5" sx={{ mb: 0.3 }}>{opt.icon}</Typography>
+              <Typography variant="body2" fontWeight={600}>{opt.label}</Typography>
+              <Typography variant="caption" color="text.secondary">{opt.desc}</Typography>
+            </Paper>
           </Grid>
-          <Grid item xs={12}>
-            <Autocomplete freeSolo value={ctaTransferencia}
-              options={props.cuentasBancarias ? Object.keys(props.cuentasBancarias) : []}
-              onChange={(_, v) => setCtaTransferencia(v || '')}
-              onInputChange={(_, v) => setCtaTransferencia(v || '')}
-              renderInput={(p) => <TextField {...p} label="Cuenta destino (transferencia)" fullWidth size="small" />}
-            />
+        ))}
+      </Grid>
+
+      {selectedPago === 'efectivo' && (
+        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+          <TextField fullWidth label="Monto en efectivo ($)" type="number" value={efectivo}
+            onChange={(e) => setEfectivo(e.target.value)} />
+        </Paper>
+      )}
+
+      {selectedPago === 'transferencia' && (
+        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Autocomplete
+                value={ctaTransferencia}
+                options={props.CuentasBancarias ? Object.keys(props.CuentasBancarias) : []}
+                getOptionLabel={(o) => o}
+                onChange={(_, v) => setCtaTransferencia(v || '')}
+                onInputChange={(_, v) => setCtaTransferencia(v || '')}
+                renderInput={(p) => <TextField {...p} label="Cuenta destino" fullWidth size="small" />}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField fullWidth label="Monto ($)" type="number" value={montoTransferencia}
+                onChange={(e) => setMontoTransferencia(e.target.value)} />
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <TextField fullWidth label="Monto transferencia ($)" type="number" value={montoTransferencia}
-              onChange={(e) => setMontoTransferencia(e.target.value)} />
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle2" fontWeight={600} gutterBottom>Cheques</Typography>
-            <InlineChequeForm show={showChequeForm} setShow={setShowChequeForm}
-              datos={cheques} setdatos={setCheques} total={totalCheques} settotal={setTotalCheques}
-              cliente={clienteNombre} editIndex={-1} seteditIndex={() => {}} />
-            {!showChequeForm && (
-              <Button variant="contained" size="small" onClick={() => setShowChequeForm(true)}>Agregar cheque</Button>
-            )}
-          </Grid>
-        </Grid>
-      </Paper>
+        </Paper>
+      )}
+
+      {selectedPago === 'cheques' && (
+        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+          <InlineChequeForm show={showChequeForm} setShow={setShowChequeForm}
+            datos={cheques} setdatos={setCheques} total={totalCheques} settotal={setTotalCheques}
+            cliente={clienteNombre} editIndex={-1} seteditIndex={() => {}} />
+          {!showChequeForm && (
+            <Button variant="contained" size="small" onClick={() => setShowChequeForm(true)}>Agregar cheque</Button>
+          )}
+        </Paper>
+      )}
     </Box>,
 
     <Box>
