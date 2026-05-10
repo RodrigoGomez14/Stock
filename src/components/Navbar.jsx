@@ -1,7 +1,14 @@
 ﻿import React from 'react'
-import { Box, Typography, IconButton } from '@mui/material'
-import { Menu, ArrowBack } from '@mui/icons-material'
+import { Box, Typography, IconButton, Tooltip, Button } from '@mui/material'
+import { Menu, ArrowBack, ShoppingCart, MoveToInbox, Payment } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
 import { CashBalance } from './CashBalance'
+
+const quickActions = [
+  { label: 'Nuevo Pedido', icon: <ShoppingCart fontSize="small" />, path: '/Nuevo-Pedido' },
+  { label: 'Nueva Entrega', icon: <MoveToInbox fontSize="small" />, path: '/Nueva-Entrega' },
+  { label: 'Pagar Servicios', icon: <Payment fontSize="small" />, path: '/Pagar-Servicios' },
+]
 
 export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, setBlockGoBack, user }) => {
   return (
@@ -16,6 +23,7 @@ export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, 
         display: 'flex',
         alignItems: 'center',
         px: 2,
+        gap: 0.5,
         backdropFilter: 'blur(12px)',
         backgroundColor: 'rgba(10, 25, 41, 0.8)',
         borderBottom: '1px solid',
@@ -27,7 +35,7 @@ export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, 
         <IconButton
           size="small"
           onClick={() => (blockGoBack ? setBlockGoBack(true) : history.goBack())}
-          sx={{ mr: 1, color: 'text.secondary' }}
+          sx={{ mr: 0.5, color: 'text.secondary' }}
         >
           <ArrowBack fontSize="small" />
         </IconButton>
@@ -38,6 +46,32 @@ export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, 
       >
         {page}
       </Typography>
+
+      {/* Quick actions — always visible */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3, mr: 1 }}>
+        {quickActions.map((a) => (
+          <Tooltip key={a.path} title={a.label}>
+            <Button
+              component={Link}
+              to={a.path}
+              size="small"
+              variant="outlined"
+              color="inherit"
+              sx={{
+                minWidth: 32,
+                height: 32,
+                px: 0.8,
+                borderColor: 'divider',
+                color: 'text.secondary',
+                '&:hover': { borderColor: 'primary.main', color: 'primary.light' },
+              }}
+            >
+              {a.icon}
+            </Button>
+          </Tooltip>
+        ))}
+      </Box>
+
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {user && <CashBalance uid={user} />}
         <IconButton
