@@ -10,6 +10,7 @@ import { Alert } from '@mui/material'
 import { Add, Check, Close, Delete, Edit } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
 import { removeData, updateData } from '../services'
+import { registrarMovimientoStock } from '../services/productosService'
 import { checkSearchProducto } from '../utilities'
 import { ImageUpload } from '../components/ImageUpload'
 import { Step } from '../components/Nuevo-Producto/Step'
@@ -64,12 +65,20 @@ const NuevoProducto = (props) => {
 
   const guardar = async () => {
     setLoading(true)
+    const cantidadAnterior = isEdit ? props.productos?.[checkSearchProducto(props.history.location.search)]?.cantidad || 0 : 0
     const payload = { id: generarId(), nombre, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices }
     try {
       if (isEdit) {
         await removeData(props.user.uid, `productos/${props.history.location.search.slice(1)}`)
       }
       await updateData(props.user.uid, 'productos', { [nombre]: payload })
+      if (cantidad > 0 && cantidad !== cantidadAnterior) {
+        await registrarMovimientoStock(props.user.uid, nombre, {
+          movimiento: cantidad - cantidadAnterior,
+          concepto: isEdit ? 'Ajuste de stock' : 'Stock inicial',
+          referencia: 'productos',
+        })
+      }
       setSnack(isEdit ? 'Producto editado' : 'Producto creado')
       setTimeout(() => props.history.replace('/Productos'), 1500)
     } catch { setLoading(false) }

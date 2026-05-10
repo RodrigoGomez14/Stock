@@ -9,6 +9,7 @@ import {
 import { Alert } from '@mui/material'
 import { Edit } from '@mui/icons-material'
 import { formatMoney } from '../utilities'
+import StockHistory from '../components/StockHistory'
 import { updatePrecioInSheet, getSheetsUrl } from '../services/preciosService'
 import { updateData } from '../services'
 
@@ -175,6 +176,9 @@ const Producto = (props) => {
             </Box>
           </Paper>
         )}
+
+        {/* STOCK HISTORY */}
+        <StockHistory historial={producto.historialDeStock} currentStock={producto.cantidad} />
       </Box>
 
       <Backdrop open={loading} sx={{ zIndex: 9999 }}><CircularProgress color="inherit" /></Backdrop>

@@ -12,6 +12,7 @@ import { Alert } from '@mui/material'
 
 import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData, removeData, setData, getPushKey } from '../services'
+import { registrarMovimientoStock } from '../services/productosService'
 import { ingresoCaja } from '../services/cajaService'
 import { formatMoney, obtenerFecha } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
@@ -82,9 +83,13 @@ const EnviarPedido = (props) => {
       // Descontar stock
       const articulos = pedido?.productos || pedido?.articulos || []
       for (const art of articulos) {
-        if (props.productos?.[art.producto]) {
-          const nuevaCantidad = parseInt(props.productos[art.producto].cantidad) - parseInt(art.cantidad)
-          await updateData(props.user.uid, `productos/${art.producto}`, { cantidad: nuevaCantidad })
+        const prodName = art.producto || art.nombre
+        if (props.productos?.[prodName]) {
+          await registrarMovimientoStock(props.user.uid, prodName, {
+            movimiento: -parseInt(art.cantidad || 1),
+            concepto: 'Venta',
+            referencia: `pedidos/${id}`,
+          })
         }
       }
 
