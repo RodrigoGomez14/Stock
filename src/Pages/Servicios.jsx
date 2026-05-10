@@ -106,6 +106,8 @@ const Servicios = (props) => {
     pagado: servicios.filter(([id]) => getStatus(id) === 'pagado').length,
   }
 
+  const isPaidTab = statusTab === 2
+
   const ServiceTable = ({ title, items }) => (
     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
       <Box sx={{ px: 2, py: 1.5, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -115,10 +117,10 @@ const Servicios = (props) => {
         <TableHead>
           <TableRow>
             <TableCell>Servicio</TableCell>
-            <TableCell>Estado</TableCell>
-            <TableCell align="right">Monto</TableCell>
             <TableCell>Vencimiento</TableCell>
-            <TableCell>Pagado el</TableCell>
+            {isPaidTab && <TableCell>Pagado el</TableCell>}
+            <TableCell align="right">Monto</TableCell>
+            <TableCell>Estado</TableCell>
             <TableCell align="center"></TableCell>
           </TableRow>
         </TableHead>
@@ -131,12 +133,12 @@ const Servicios = (props) => {
                   <TableCell>
                     <Typography variant="body2" fontWeight={600}>{s.nombre}</Typography>
                   </TableCell>
-                  <TableCell>{statusChip(id)}</TableCell>
+                  <TableCell>{inst?.vencimiento || '—'}</TableCell>
+                  {isPaidTab && <TableCell>{inst?.fechaPago || '—'}</TableCell>}
                   <TableCell align="right">
                     {inst ? `$ ${formatMoney(inst.monto || 0)}` : '—'}
                   </TableCell>
-                  <TableCell>{inst?.vencimiento || '—'}</TableCell>
-                  <TableCell>{inst?.fechaPago || '—'}</TableCell>
+                  <TableCell>{statusChip(id)}</TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                     {getStatus(id) === 'sin-boleta' && (
                       <IconButton size="small" onClick={() => abrirRecibir(id)}><Receipt fontSize="small" /></IconButton>
@@ -149,7 +151,7 @@ const Servicios = (props) => {
                 </TableRow>
                 {recibirId === id && (
                   <TableRow>
-                    <TableCell colSpan={6} sx={{ py: 0, borderBottom: 0 }}>
+                    <TableCell colSpan={isPaidTab ? 6 : 5} sx={{ py: 0, borderBottom: 0 }}>
                       <Collapse in={recibirId === id}>
                         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, my: 1 }}>
                           <Typography variant="subtitle2" fontWeight={600} gutterBottom>
