@@ -70,49 +70,62 @@ const ListasDePrecios = (props) => {
                 .sort(([a], [b]) => a.localeCompare(b))
               const grouped = {}
               sorted.forEach(([name, p]) => {
-                const cat = p.isSubproducto ? 'SUBPRODUCTOS' : 'PRODUCTOS'
+                const cat = p.isSubproducto ? 'SUBPRODUCTOS' : (p.categoria || 'PRODUCTOS')
                 if (!grouped[cat]) grouped[cat] = []
-                grouped[cat].push({ name, precio: p.precio || 0, id: p.id })
+                grouped[cat].push({ name, precio: p.precio || 0, id: p.id, isSub: p.isSubproducto })
               })
 
               const rows = Object.entries(grouped).map(([cat, items]) => `
-                <tr><td colspan="3" style="background:#1a73e8;color:#fff;padding:10px 16px;font-weight:700;font-size:14px;letter-spacing:1px">${cat}</td></tr>
+                <tr><td colspan="3" style="background:#0f172a;color:#fff;padding:10px 18px;font-weight:700;font-size:13px;letter-spacing:1.5px">${cat}</td></tr>
+                <tr style="background:#f8fafc"><td style="padding:6px 18px;font-size:10px;color:#94a3b8;font-weight:600">CÓDIGO</td><td style="padding:6px 18px;font-size:10px;color:#94a3b8;font-weight:600">PRODUCTO</td><td style="padding:6px 18px;font-size:10px;color:#94a3b8;font-weight:600;text-align:right">PRECIO</td></tr>
                 ${items.map((item, i) => `
-                  <tr${i % 2 === 0 ? ' style="background:#f5f5f5"' : ''}>
-                    <td style="padding:8px 16px;font-size:12px;color:#666">${item.id || '—'}</td>
-                    <td style="padding:8px 16px;font-weight:600">${item.name}</td>
-                    <td style="padding:8px 16px;text-align:right;font-weight:700;color:#1a73e8">$ ${formatMoney(item.precio)}</td>
+                  <tr style="${i % 2 === 0 ? 'background:#ffffff' : 'background:#f8fafc'};${i === items.length - 1 ? 'border-bottom:2px solid #0f172a' : ''}">
+                    <td style="padding:8px 18px;font-size:11px;color:#64748b">${item.id || '—'}</td>
+                    <td style="padding:8px 18px;font-weight:600;color:#1e293b;font-size:13px">${item.name}</td>
+                    <td style="padding:8px 18px;text-align:right;font-weight:800;color:#2563eb;font-size:15px">$${formatMoney(item.precio)}</td>
                   </tr>
                 `).join('')}
               `).join('')
 
+              const total = sorted.reduce((s, [_, p]) => s + (p.precio || 0), 0)
               const win = window.open('', '_blank')
               win.document.write(`
                 <html><head><title>Lista de Precios</title>
                 <style>
-                  @page { margin: 15mm }
-                  body { font-family:'Segoe UI',Arial,sans-serif; margin:0; padding:20px; color:#333 }
-                  .header { text-align:center; margin-bottom:30px; padding-bottom:20px; border-bottom:3px solid #1a73e8 }
-                  .header h1 { font-size:24px; margin:0; color:#1a73e8 }
-                  .header p { font-size:13px; color:#888; margin:5px 0 0 }
+                  @page { margin: 12mm }
+                  body { font-family:'Inter','Segoe UI',Arial,sans-serif; margin:0; padding:0; color:#1e293b; -webkit-font-smoothing:antialiased }
+                  .header { text-align:center; padding:30px 20px 20px; background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%); margin-bottom:0 }
+                  .header h1 { font-size:22px; margin:0; color:#fff; font-weight:700; letter-spacing:2px }
+                  .header .sub { font-size:12px; color:#94a3b8; margin:6px 0 0; font-weight:400 }
+                  .header .divider { width:60px; height:3px; background:#3b82f6; margin:12px auto 0; border-radius:2px }
+                  .info-bar { display:flex; justify-content:space-between; padding:12px 18px; background:#f8fafc; font-size:11px; color:#64748b; border-bottom:1px solid #e2e8f0 }
                   table { width:100%; border-collapse:collapse }
-                  th { background:#1a73e8; color:#fff; padding:10px 16px; font-size:13px; text-align:left; font-weight:600 }
-                  th:last-child { text-align:right }
-                  .footer { margin-top:30px; text-align:center; font-size:11px; color:#aaa; border-top:1px solid #ddd; padding-top:15px }
+                  .footer { text-align:center; padding:20px; font-size:10px; color:#94a3b8; border-top:1px solid #e2e8f0; margin-top:0 }
+                  .footer strong { color:#64748b }
+                  @media print {
+                    body { padding:0 }
+                    .header { padding:25px 20px 18px }
+                  }
                 </style></head><body>
                   <div class="header">
                     <h1>LISTA DE PRECIOS</h1>
-                    <p>Generado el ${obtenerFecha()} — ${sorted.length} producto(s)</p>
+                    <div class="sub">Generado el ${obtenerFecha()} · ${sorted.length} producto(s)</div>
+                    <div class="divider"></div>
+                  </div>
+                  <div class="info-bar">
+                    <span>Total productos: <strong>${sorted.length}</strong></span>
+                    <span>Valor total: <strong>$${formatMoney(total)}</strong></span>
+                    <span>Precios en pesos argentinos</span>
                   </div>
                   <table>
-                    <tr><th style="width:80px">Código</th><th>Producto</th><th style="text-align:right">Precio</th></tr>
+                    <tr><th style="width:80px;padding:0"> </th><th style="padding:0"> </th><th style="padding:0;text-align:right"> </th></tr>
                     ${rows}
                   </table>
-                  <div class="footer">Documento generado desde Central de Stock</div>
+                  <div class="footer">Documento generado desde <strong>Central de Stock</strong> · Los precios pueden variar sin previo aviso</div>
                 </body></html>
               `)
               win.document.close()
-              setTimeout(() => win.print(), 500)
+              setTimeout(() => win.print(), 600)
             }}>
               Exportar PDF
             </Button>
