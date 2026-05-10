@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Layout } from './Layout'
 import { 
     Typography, Backdrop, Grid, CircularProgress, Snackbar, Paper, 
     FormControl, InputLabel, Select, MenuItem, Button, IconButton, Tabs, Tab, Table, TableHead, TableBody, TableRow, TableCell, Chip, ButtonGroup, Tooltip, TextField, InputAdornment,
     Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText, Switch, FormControlLabel
-} from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+} from '@mui/material'
+import { Alert } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { database } from '../services'
 import { content } from './styles/styles'
-import AddIcon from '@material-ui/icons/Add'
-import NavigateNextIcon from '@material-ui/icons/NavigateNext'
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore'
+import AddIcon from '@mui/icons-material/Add'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import { CardServicio } from '../components/Servicios/CardServicio'
 import { formatMoney, obtenerFecha } from '../utilities'
-import { FilterList, Category, Receipt, AttachMoney, Edit, Delete, Info, Search } from '@material-ui/icons'
-import { CalendarToday } from '@material-ui/icons'
+import { FilterList, Category, Receipt, AttachMoney, Edit, Delete, Info, Search } from '@mui/icons-material'
+import { CalendarToday } from '@mui/icons-material'
 
 // COMPONENT
 const Servicios = (props) => {
@@ -31,13 +31,13 @@ const Servicios = (props) => {
     const [mesSeleccionado, setMesSeleccionado] = useState(fechaActual.getMonth())
     const [anioSeleccionado, setAnioSeleccionado] = useState(fechaActual.getFullYear())
     
-    // Estado para el diálogo de recibir boleta
+    // Estado para el diÃ¡logo de recibir boleta
     const [dialogoRecibirBoleta, setDialogoRecibirBoleta] = useState(false)
     const [servicioSeleccionado, setServicioSeleccionado] = useState(null)
     const [montoBoleta, setMontoBoleta] = useState('')
     const [fechaVencimiento, setFechaVencimiento] = useState('')
     
-    // Función para cambiar de mes
+    // FunciÃ³n para cambiar de mes
     const cambiarMes = (incremento) => {
         let nuevoMes = mesSeleccionado + incremento
         let nuevoAnio = anioSeleccionado
@@ -60,17 +60,17 @@ const Servicios = (props) => {
         return meses[mes]
     }
     
-    // Cambiar pestaña
+    // Cambiar pestaÃ±a
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue)
     }
     
-    // Función para eliminar un servicio
+    // FunciÃ³n para eliminar un servicio
     const eliminarServicio = (id) => {
         setLoading(true)
         database().ref().child(props.user.uid).child('servicios').child(id).remove()
             .then(() => {
-                setShowSnackbar('El servicio se eliminó correctamente')
+                setShowSnackbar('El servicio se eliminÃ³ correctamente')
                 setTimeout(() => {
                     setLoading(false)
                     setShowSnackbar('')
@@ -84,7 +84,7 @@ const Servicios = (props) => {
     
     const [searchTerm, setSearchTerm] = useState('')
     
-    // Filtrar servicios por categoría, estado y término de búsqueda
+    // Filtrar servicios por categorÃ­a, estado y tÃ©rmino de bÃºsqueda
     const filtrarServicios = () => {
         if (!props.servicios) return []
         
@@ -93,19 +93,19 @@ const Servicios = (props) => {
             .filter(key => {
                 const servicio = props.servicios[key]
                 
-                // Filtrar por término de búsqueda si existe
+                // Filtrar por tÃ©rmino de bÃºsqueda si existe
                 if (searchTerm && 
                     !servicio.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) && 
                     !servicio.categoria?.toLowerCase().includes(searchTerm.toLowerCase())) {
                     return false
                 }
                 
-                // Filtrar por categoría si no es "todas"
+                // Filtrar por categorÃ­a si no es "todas"
                 if (filtroCategoria !== 'todas' && servicio.categoria !== filtroCategoria) {
                     return false
                 }
                 
-                // Filtrar según la frecuencia del servicio
+                // Filtrar segÃºn la frecuencia del servicio
                 if (servicio.frecuencia === 'anual' && servicio.mesPago !== (mesSeleccionado + 1)) {
                     return false
                 }
@@ -116,7 +116,7 @@ const Servicios = (props) => {
                     return false
                 }
                 
-                // Filtrar según la pestaña seleccionada
+                // Filtrar segÃºn la pestaÃ±a seleccionada
                 const instancia = props.instanciasPago && 
                                 props.instanciasPago[idPeriodo] && 
                                 props.instanciasPago[idPeriodo][key]
@@ -138,7 +138,7 @@ const Servicios = (props) => {
         return serviciosFiltrados
     }
     
-    // Obtener todas las categorías para el filtro
+    // Obtener todas las categorÃ­as para el filtro
     const obtenerCategorias = () => {
         if (!props.servicios) return []
         
@@ -182,7 +182,7 @@ const Servicios = (props) => {
     const totales = calcularTotales()
     const serviciosFiltrados = filtrarServicios()
     
-    // Abrir diálogo para recibir boleta
+    // Abrir diÃ¡logo para recibir boleta
     const abrirDialogoRecibirBoleta = (servicio) => {
         setServicioSeleccionado(servicio)
         setMontoBoleta('')
@@ -190,17 +190,17 @@ const Servicios = (props) => {
         setDialogoRecibirBoleta(true)
     }
     
-    // Cerrar diálogo
+    // Cerrar diÃ¡logo
     const cerrarDialogoRecibirBoleta = () => {
         setDialogoRecibirBoleta(false)
         setServicioSeleccionado(null)
     }
     
-    // Guardar boleta desde el diálogo
+    // Guardar boleta desde el diÃ¡logo
     const guardarBoleta = async () => {
         // Validar datos
         if (!montoBoleta || isNaN(montoBoleta) || parseFloat(montoBoleta) <= 0) {
-            setShowSnackbar('Ingrese un monto válido')
+            setShowSnackbar('Ingrese un monto vÃ¡lido')
             return
         }
         
@@ -230,7 +230,7 @@ const Servicios = (props) => {
             // Guardar en Firebase
             await database().ref().child(props.user.uid).child('instanciasPago').child(idPeriodo).child(servicioSeleccionado.id).set(boletaData)
             
-            setShowSnackbar('La boleta se registró correctamente')
+            setShowSnackbar('La boleta se registrÃ³ correctamente')
             setTimeout(() => {
                 setLoading(false)
                 cerrarDialogoRecibirBoleta()
@@ -245,17 +245,17 @@ const Servicios = (props) => {
         <Layout history={props.history} page="Servicios" user={props.user.uid}>
             {/* CONTENT */}
             <Paper className={classes.content}>
-                {/* FILTROS Y NAVEGACIÓN */}
+                {/* FILTROS Y NAVEGACIÃ“N */}
                 <Grid container spacing={3} alignItems="center" justify="space-between">
                     <Grid item xs={12} sm={4}>
                         <FormControl fullWidth variant="outlined" className={classes.formControl}>
-                            <InputLabel>Filtrar por Categoría</InputLabel>
+                            <InputLabel>Filtrar por CategorÃ­a</InputLabel>
                             <Select
                                 value={filtroCategoria}
                                 onChange={(e) => setFiltroCategoria(e.target.value)}
-                                label="Filtrar por Categoría"
+                                label="Filtrar por CategorÃ­a"
                             >
-                                <MenuItem value="todas">Todas las Categorías</MenuItem>
+                                <MenuItem value="todas">Todas las CategorÃ­as</MenuItem>
                                 {obtenerCategorias().map(categoria => (
                                     <MenuItem key={categoria} value={categoria}>{categoria}</MenuItem>
                                 ))}
@@ -291,7 +291,7 @@ const Servicios = (props) => {
                     </Grid>
                 </Grid>
                 
-                {/* RESUMEN DEL MES - VERSIÓN MEJORADA */}
+                {/* RESUMEN DEL MES - VERSIÃ“N MEJORADA */}
                 <Grid container spacing={3} style={{ margin: '20px 0' }}>
                     {/* TARJETA TOTAL PAGADO */}
                     <Grid item xs={12} md={4}>
@@ -427,7 +427,7 @@ const Servicios = (props) => {
                     </Grid>
                 </Grid>
                 
-                {/* BARRA DE BÚSQUEDA */}
+                {/* BARRA DE BÃšSQUEDA */}
                 <Grid container spacing={2} style={{ marginTop: '40px', marginBottom: '20px' }}>
                     <Grid item xs={12}>
                         <TextField
@@ -449,7 +449,7 @@ const Servicios = (props) => {
                     </Grid>
                 </Grid>
                 
-                {/* PESTAÑAS */}
+                {/* PESTAÃ‘AS */}
                 <Tabs
                     value={tabValue}
                     onChange={handleTabChange}
@@ -479,12 +479,12 @@ const Servicios = (props) => {
                             </TableHead>
                             <TableBody>
                                 {serviciosFiltrados.map(servicio => {
-                                    // Obtener la instancia actual del servicio para este mes/año
+                                    // Obtener la instancia actual del servicio para este mes/aÃ±o
                                     const instancia = props.instanciasPago && 
                                                     props.instanciasPago[`${anioSeleccionado}-${mesSeleccionado + 1}`] && 
                                                     props.instanciasPago[`${anioSeleccionado}-${mesSeleccionado + 1}`][servicio.id];
                                     
-                                    // Determinar colores según el estado
+                                    // Determinar colores segÃºn el estado
                                     let estadoColor, estadoTexto;
                                     if (!instancia) {
                                         estadoColor = "#9e9e9e";
@@ -602,7 +602,7 @@ const Servicios = (props) => {
                                 No hay servicios para mostrar
                             </Typography>
                             <Typography variant="body1" color="textSecondary">
-                                {filtroCategoria !== 'todas' ? 'Prueba cambiando el filtro de categoría' : 'Comienza agregando servicios'}
+                                {filtroCategoria !== 'todas' ? 'Prueba cambiando el filtro de categorÃ­a' : 'Comienza agregando servicios'}
                             </Typography>
                         </div>
                     )}
@@ -619,7 +619,7 @@ const Servicios = (props) => {
                 </Snackbar>
             </Backdrop>
             
-            {/* DIÁLOGO PARA RECIBIR BOLETA */}
+            {/* DIÃLOGO PARA RECIBIR BOLETA */}
             <Dialog 
                 open={dialogoRecibirBoleta} 
                 onClose={cerrarDialogoRecibirBoleta}
@@ -632,7 +632,7 @@ const Servicios = (props) => {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Ingrese los datos de la boleta para el período {mesSeleccionado !== undefined ? getNombreMes(mesSeleccionado) : ''} {anioSeleccionado}.
+                        Ingrese los datos de la boleta para el perÃ­odo {mesSeleccionado !== undefined ? getNombreMes(mesSeleccionado) : ''} {anioSeleccionado}.
                     </DialogContentText>
                     
                     {servicioSeleccionado && (

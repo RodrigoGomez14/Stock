@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from 'react'
+﻿import React, {useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Paper, Typography, Grid, Card, CardContent, Divider, IconButton, Chip, Button, Snackbar, Backdrop, CircularProgress} from '@material-ui/core'
-import {ArrowBack, DeleteOutline} from '@material-ui/icons'
-import {Alert} from '@material-ui/lab'
+import {Paper, Typography, Grid, Card, CardContent, Divider, IconButton, Chip, Button, Snackbar, Backdrop, CircularProgress} from '@mui/material'
+import {ArrowBack, DeleteOutline} from '@mui/icons-material'
+import {Alert} from '@mui/material'
 import {formatMoney, obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import ApexCharts from 'react-apexcharts'
@@ -27,7 +27,7 @@ const Producto = (props) => {
         
         // Buscar el producto en la lista de productos
         if (props.productos && nombreProducto) {
-            // Pequeño retraso para asegurar que los datos se actualicen correctamente
+            // PequeÃ±o retraso para asegurar que los datos se actualicen correctamente
             setTimeout(() => {
                 const productoEncontrado = props.productos[nombreProducto]
                 if (productoEncontrado) {
@@ -45,12 +45,12 @@ const Producto = (props) => {
         }
     }, [props.productos, props.location.search, props.history])
 
-    // Función para eliminar un producto
+    // FunciÃ³n para eliminar un producto
     const eliminarProducto = () => {
         setLoading(true)
         database().ref().child(props.user.uid).child('productos').child(producto.nombre).remove()
         .then(() => {
-            setShowSnackbar('El producto se eliminó correctamente')
+            setShowSnackbar('El producto se eliminÃ³ correctamente')
             setShowDialogDelete(false)
             setTimeout(() => {
                 props.history.replace('/Productos')
@@ -63,7 +63,7 @@ const Producto = (props) => {
         })
     }
 
-    // Generar gráfico de componentes/subproductos si existen
+    // Generar grÃ¡fico de componentes/subproductos si existen
     const generateChartSubproductos = (subproductos) => {
         if (!subproductos || subproductos.length === 0) return null
 
@@ -75,7 +75,7 @@ const Producto = (props) => {
             labels.push(subproducto.nombre)
         })
 
-        // Configuración del gráfico
+        // ConfiguraciÃ³n del grÃ¡fico
         const options = {
             series: series,
             labels: labels,
@@ -110,7 +110,7 @@ const Producto = (props) => {
         )
     }
 
-    // Generar gráfico de historial de stock si existe
+    // Generar grÃ¡fico de historial de stock si existe
     const generateChartHistorialStock = (historialDeStock) => {
         if (!historialDeStock) return null
 
@@ -122,7 +122,7 @@ const Producto = (props) => {
             labels.push(historialDeStock[movimiento].fecha)
         })
     
-        // Configuración del gráfico
+        // ConfiguraciÃ³n del grÃ¡fico
         const options = {
             labels: labels,
             chart: {
@@ -179,7 +179,7 @@ const Producto = (props) => {
         )
     }
 
-    // Mostrar información de cadena de producción si existe
+    // Mostrar informaciÃ³n de cadena de producciÃ³n si existe
     const showCadenaDeProduccion = (cadena) => {
         if (!cadena || cadena.length === 0) return null
 
@@ -187,7 +187,7 @@ const Producto = (props) => {
             <Card className={classes.cardCliente}>
                 <CardContent>
                     <Typography variant="h6" className={classes.titleCardCliente}>
-                        Cadena de Producción
+                        Cadena de ProducciÃ³n
                     </Typography>
                     <Grid container spacing={2}>
                         {cadena.map((proceso, index) => (
@@ -212,7 +212,7 @@ const Producto = (props) => {
         )
     }
 
-    // Mostrar información de matrices si existen
+    // Mostrar informaciÃ³n de matrices si existen
     const showMatrices = (matrices) => {
         if (!matrices || matrices.length === 0) return null
 
@@ -232,7 +232,7 @@ const Producto = (props) => {
                                         </Typography>
                                         {matriz.ubicacion && (
                                             <Typography variant="body2">
-                                                Ubicación: {matriz.ubicacion}
+                                                UbicaciÃ³n: {matriz.ubicacion}
                                             </Typography>
                                         )}
                                     </CardContent>
@@ -262,7 +262,7 @@ const Producto = (props) => {
             
             database().ref().child(props.user.uid).child('cadenasActivas').push(aux)
             .then(() => {
-                setShowSnackbar('La cadena se inició correctamente!!');
+                setShowSnackbar('La cadena se iniciÃ³ correctamente!!');
                 setTimeout(() => {
                     props.history.replace('/Cadenas-De-Produccion');
                     setLoading(false);
@@ -270,11 +270,11 @@ const Producto = (props) => {
             })
             .catch(() => {
                 setLoading(false);
-                setShowSnackbar('Error al iniciar la cadena de producción');
+                setShowSnackbar('Error al iniciar la cadena de producciÃ³n');
             });
         } else {
             setLoading(false);
-            setShowSnackbar('Este producto no tiene cadena de producción definida');
+            setShowSnackbar('Este producto no tiene cadena de producciÃ³n definida');
         }
     };
 
@@ -283,7 +283,7 @@ const Producto = (props) => {
             <Paper className={classes.content}>
                 {producto ? (
                     <Grid container spacing={3}>
-                        {/* Cabecera con botón de volver y título */}
+                        {/* Cabecera con botÃ³n de volver y tÃ­tulo */}
                         <Grid container item xs={12} alignItems="center">
                             <Grid item>
                                 <IconButton onClick={() => props.history.goBack()}>
@@ -303,14 +303,14 @@ const Producto = (props) => {
                             </Grid>
                         </Grid>
 
-                        {/* Información principal */}
+                        {/* InformaciÃ³n principal */}
                         <Grid item xs={12}>
                             <Card className={classes.cardCliente}>
                                 <CardContent>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} md={6}>
                                             <Typography variant="h6" className={classes.titleCardCliente}>
-                                                Información General
+                                                InformaciÃ³n General
                                             </Typography>
                                             <Divider style={{marginBottom: 10}} />
                                             <Typography variant="body1">
@@ -321,7 +321,7 @@ const Producto = (props) => {
                                             </Typography>
                                             {producto.descripcion && (
                                                 <Typography variant="body1">
-                                                    <strong>Descripción:</strong> {producto.descripcion}
+                                                    <strong>DescripciÃ³n:</strong> {producto.descripcion}
                                                 </Typography>
                                             )}
                                         </Grid>
@@ -361,7 +361,7 @@ const Producto = (props) => {
                             </Card>
                         </Grid>
 
-                        {/* Gráficos y detalles adicionales */}
+                        {/* GrÃ¡ficos y detalles adicionales */}
                         <Grid item xs={12} md={6}>
                             {showCadenaDeProduccion(producto.cadenaDeProduccion)}
                         </Grid>
@@ -381,7 +381,7 @@ const Producto = (props) => {
                             <CircularProgress />
                         </Grid>
                         <Grid item xs={12} style={{ textAlign: 'center', marginTop: 20 }}>
-                            <Typography variant="h6">Cargando información del producto...</Typography>
+                            <Typography variant="h6">Cargando informaciÃ³n del producto...</Typography>
                             <Button 
                                 variant="outlined" 
                                 color="primary" 

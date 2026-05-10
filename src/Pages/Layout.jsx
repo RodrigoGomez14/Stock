@@ -1,11 +1,11 @@
-import React , {useState} from 'react'
-import {Redirect} from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles';
+﻿import React , {useState} from 'react'
+import { Navigate } from 'react-router-dom'
+import { makeStyles } from 'tss-react/mui';
 import {NavBar} from '../components/Navbar'
 import {MenuDrawer} from '../components/MenuDrawer'
 import {DialogConfirmGoBack} from '../components/Dialogs/DialogConfirmGoBack'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()((theme) => ({
     drawer:{
         maxWidth:'300px',
         height:'100%',

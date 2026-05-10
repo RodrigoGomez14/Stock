@@ -1,6 +1,7 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,Paper,Checkbox,ListItem,ListItemText,ListItemSecondaryAction,IconButton,makeStyles,TableContainer,Table,TableCell,TableRow,TableHead,TableBody} from '@material-ui/core'
-import {EditOutlined,DeleteOutlineOutlined, CheckBox} from '@material-ui/icons'
+﻿import React, {useState,useEffect} from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid,Paper,Checkbox,ListItem,ListItemText,ListItemSecondaryAction,IconButton,TableContainer,Table,TableCell,TableRow,TableHead,TableBody } from '@mui/material'
+import {EditOutlined,DeleteOutlineOutlined, CheckBox} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 import { formatMoney } from '../../utilities'
 

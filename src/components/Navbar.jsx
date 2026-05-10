@@ -1,10 +1,10 @@
-import React from 'react'
-import {makeStyles} from '@material-ui/core'
-import {AppBar,Toolbar,IconButton,Typography} from '@material-ui/core'
-import {MenuOpen,ArrowBackRounded} from '@material-ui/icons'
-import { useTheme } from '@material-ui/core/styles';
+﻿import React from 'react'
+import { makeStyles } from 'tss-react/mui'
+import {AppBar,Toolbar,IconButton,Typography} from '@mui/material'
+import {MenuOpen,ArrowBackRounded} from '@mui/icons-material'
+import { useTheme } from '@mui/material/styles';
 import clsx from 'clsx';
-const useStyles = makeStyles( theme=>({
+const useStyles = makeStyles()((theme) => ({
     appBar:{
         backgroundColor:theme.palette.primary.main,
         color:theme.palette.primary.contrastText

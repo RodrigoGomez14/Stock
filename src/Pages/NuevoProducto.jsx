@@ -1,10 +1,11 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography} from '@material-ui/core'
-import {List,Link as LinkIcon, AccountTree} from '@material-ui/icons'
-import Alert from '@material-ui/lab/Alert';
-import {Redirect} from 'react-router-dom'
+import { makeStyles } from 'tss-react/mui'
+import { Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography } from '@mui/material'
+import {List,Link as LinkIcon, AccountTree} from '@mui/icons-material'
+import Alert from '@mui/material/Alert';
+import { Navigate } from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
 import { database } from '../services'
 import {content} from './styles/styles'

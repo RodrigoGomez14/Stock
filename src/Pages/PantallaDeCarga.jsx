@@ -1,9 +1,10 @@
-import React from 'react'
-import {Grid,makeStyles} from '@material-ui/core'
-import {LocalGasStationOutlined} from '@material-ui/icons'
+﻿import React from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid } from '@mui/material'
+import {LocalGasStationOutlined} from '@mui/icons-material'
 import {Layout} from './Layout'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()((theme) => ({
     root: {
       height:'100vh'
     },

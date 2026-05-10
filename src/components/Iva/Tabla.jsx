@@ -1,5 +1,5 @@
-import React, {useState,useEffect} from 'react'
-import {Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,Button} from '@material-ui/core'
+﻿import React, {useState,useEffect} from 'react'
+import {Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,Button} from '@mui/material'
 import { formatMoney , getActualMonth } from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 import {Link} from 'react-router-dom'

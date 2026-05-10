@@ -1,5 +1,5 @@
-import React from 'react'
-import {Stepper, Step, StepLabel} from '@material-ui/core'
+﻿import React from 'react'
+import {Stepper, Step, StepLabel} from '@mui/material'
 import {content} from '../../Pages/styles/styles'
 import {Link} from 'react-router-dom'
 

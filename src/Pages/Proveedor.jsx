@@ -1,9 +1,9 @@
-import React,{useState,useEffect} from 'react'
+﻿import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Card,Paper,Grid,CardHeader,CardContent,IconButton,Backdrop,Snackbar,CircularProgress} from '@material-ui/core'
-import {Alert} from '@material-ui/lab'
-import {EditOutlined,DeleteOutline} from '@material-ui/icons'
+import {Card,Paper,Grid,CardHeader,CardContent,IconButton,Backdrop,Snackbar,CircularProgress} from '@mui/material'
+import {Alert} from '@mui/material'
+import {EditOutlined,DeleteOutline} from '@mui/icons-material'
 import {Deuda} from '../components/Proveedor/Deuda'
 import {ListaDePedidos} from '../components/Cliente/ListaDePedidos'
 import {Detalles} from '../components/Cliente/Detalles'
@@ -52,7 +52,7 @@ const Proveedor=(props)=>{
                 deudas=auxdeudas
             }
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             chart:{
@@ -82,7 +82,7 @@ const Proveedor=(props)=>{
             },
         ];
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return <ApexCharts options={options} series={series} type='area' height={150}/>;
     }
     const generateChartProductos = () => {
@@ -103,7 +103,7 @@ const Proveedor=(props)=>{
                 })
             });
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             chart:{
@@ -120,7 +120,7 @@ const Proveedor=(props)=>{
         };
     
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -156,7 +156,7 @@ const Proveedor=(props)=>{
             initialDate.setFullYear(anioInicio,mesInicio,1)
             console.log(filteredEntregas)
             for (const [year, data] of filteredEntregas) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                         const auxFecha = new Date(0);
                         auxFecha.setFullYear(year, month - 1, 1);
@@ -191,7 +191,7 @@ const Proveedor=(props)=>{
             })
 
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         
         const options = {
             labels:labelsUltimoAnio,
@@ -234,7 +234,7 @@ const Proveedor=(props)=>{
         }
         ]
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -255,7 +255,7 @@ const Proveedor=(props)=>{
                 const year = props.proveedores[keyProveedor].entregas[entrega].fecha.split('/')[2];
                 const month = props.proveedores[keyProveedor].entregas[entrega].fecha.split('/')[1];
             
-                // Si aún no tenemos el año en el objeto "years", lo agregamos
+                // Si aÃºn no tenemos el aÃ±o en el objeto "years", lo agregamos
                 if (!years[year]) {
                     years[year] = { total: 0, months: {
                         1:{ total: 0, entregas: [] },
@@ -276,7 +276,7 @@ const Proveedor=(props)=>{
                 // Agregamos la compra al objeto "compras" del mes correspondiente
                 years[year].months[month].entregas.push(props.proveedores[keyProveedor].entregas[entrega]);
             
-                // Actualizamos el total del mes y del año
+                // Actualizamos el total del mes y del aÃ±o
                 years[year].months[month].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total?props.proveedores[keyProveedor].entregas[entrega].total:0);
                 years[year].total += parseInt(props.proveedores[keyProveedor].entregas[entrega].total?props.proveedores[keyProveedor].entregas[entrega].total:0);
             });

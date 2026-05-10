@@ -1,6 +1,6 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,CardActions, List,ListItem, ListItemText,Collapse,FormControlLabel,Switch, TableRow, TableContainer,Table,TableCell,TableBody,TableHead} from '@material-ui/core'
-import {MoreVert,AttachMoney,ExpandMore, ExpandLess} from '@material-ui/icons'
+﻿import React, {useState,useEffect} from 'react'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,CardActions, List,ListItem, ListItemText,Collapse,FormControlLabel,Switch, TableRow, TableContainer,Table,TableCell,TableBody,TableHead} from '@mui/material'
+import {MoreVert,AttachMoney,ExpandMore, ExpandLess} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
@@ -156,3 +156,4 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
         </Grid>
     )
 }
+

@@ -1,14 +1,14 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Paper,Chip,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,TextField} from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
-import Alert from '@material-ui/lab/Alert';
+import {Paper,Chip,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,TextField} from '@mui/material'
+import { Autocomplete } from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Pedido/Step'
 import { database } from '../services'
 import {content} from './styles/styles'
 import { convertirFecha, getClientList, getProductosListWithPrice } from '../utilities';
-import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
+import { PeopleAlt, MoveToInbox } from '@mui/icons-material';
 
 // COMPONENT
 const NuevoPedido=(props)=>{
@@ -148,7 +148,7 @@ const NuevoPedido=(props)=>{
         // AGREGA LA FACTURA A LISTA DE VENTAS
         agregarAListaDeVentas(aux,idLink.key)
         idLink.update(aux).then(()=>{
-            setshowSnackbar('El pedido se agregó correctamente!')
+            setshowSnackbar('El pedido se agregÃ³ correctamente!')
             setTimeout(() => {
                 props.history.replace(`/Pedidos`)
             }, 2000);    

@@ -1,8 +1,8 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Table,Chip,TableContainer,TableRow,TableHead,TableCell,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,ListItemSecondaryAction, CardActions,TableBody} from '@material-ui/core'
-import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
+﻿import React, {useState,useEffect} from 'react'
+import {Grid,Card,CardContent,IconButton,Table,Chip,TableContainer,TableRow,TableHead,TableCell,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Divider,ListItemSecondaryAction, CardActions,TableBody} from '@mui/material'
+import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
-import {Alert} from '@material-ui/lab'
+import {Alert} from '@mui/material'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 import { ProductoCardPedido } from './ProductoCardPedido'
@@ -86,7 +86,7 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                                     remito:pedido.metodoDeEnvio.remito
                                                 }
                                             }}>
-                                                Enviado con {pedido.metodoDeEnvio.expreso} Remito Nº {pedido.metodoDeEnvio.remito}
+                                                Enviado con {pedido.metodoDeEnvio.expreso} Remito NÂº {pedido.metodoDeEnvio.remito}
                                             </Link>
                                                 </Alert>
                                         </Grid>
@@ -184,7 +184,7 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                                             to={{
                                                             pathname:'/Cheques-Personales',
                                                             search:cheque}}>
-                                                                N° {cheque}
+                                                                NÂ° {cheque}
                                                         </Link>
                                                         }
                                                     />
@@ -211,7 +211,7 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                                                             to={{
                                                             pathname:'/Cheques',
                                                             search:cheque}}>
-                                                                N° {cheque}
+                                                                NÂ° {cheque}
                                                         </Link>
                                                         }
                                                     />
@@ -233,3 +233,4 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
         </Grid>
     )
 }
+

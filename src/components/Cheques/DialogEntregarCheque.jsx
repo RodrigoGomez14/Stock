@@ -1,9 +1,10 @@
-import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,makeStyles,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
-import {EditOutlined} from '@material-ui/icons'
+﻿import React,{useState,useEffect} from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton } from '@mui/material'
+import {EditOutlined} from '@mui/icons-material'
 import DateFnsUtils from '@date-io/date-fns';
 import {obtenerFecha} from '../../utilities'
-const useStyles = makeStyles(theme=>({
+const useStyles = makeStyles()((theme) => ({
     input:{
         marginBottom:theme.spacing(1),
         textAlign:'center'

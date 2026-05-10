@@ -1,9 +1,9 @@
-import React,{useState} from 'react'
-import {Grid,Card,CardHeader,CardContent,Collapse,Stepper,Step,StepLabel,IconButton,List,ListItemText,ListItem} from '@material-ui/core'
-import {ExpandMore,ExpandLess} from '@material-ui/icons'
+﻿import React,{useState} from 'react'
+import {Grid,Card,CardHeader,CardContent,Collapse,Stepper,Step,StepLabel,IconButton,List,ListItemText,ListItem} from '@mui/material'
+import {ExpandMore,ExpandLess} from '@mui/icons-material'
 import {CardStep} from '../Cadenas-De-Produccion/CardStep'
 import {Link} from 'react-router-dom'
-import {Alert} from '@material-ui/lab'
+import {Alert} from '@mui/material'
 import {content} from '../../Pages/styles/styles'
 import { checkSearch } from '../../utilities'
 

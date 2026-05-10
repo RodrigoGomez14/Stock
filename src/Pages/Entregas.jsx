@@ -1,8 +1,8 @@
-import React,{useState} from 'react'
+﻿import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper} from '@material-ui/core'
-import {Alert} from '@material-ui/lab'
+import {Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper} from '@mui/material'
+import {Alert} from '@mui/material'
 import {Link} from 'react-router-dom'
 import {CardEntrega} from '../components/Entregas/CardEntrega'
 import { database } from '../services'
@@ -22,7 +22,7 @@ const Entregas=(props)=>{
         setLoading(true)
         database().ref().child(props.user.uid).child('entregas').child(id).remove()
             .then(()=>{
-                setshowSnackbar('La entrega se eliminó correctamente!')
+                setshowSnackbar('La entrega se eliminÃ³ correctamente!')
                 setTimeout(() => {
                     setLoading(false)
                     setshowSnackbar('')

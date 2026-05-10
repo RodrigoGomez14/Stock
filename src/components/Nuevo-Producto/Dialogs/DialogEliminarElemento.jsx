@@ -1,7 +1,8 @@
-import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,makeStyles} from '@material-ui/core'
+﻿import React,{useState,useEffect} from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid } from '@mui/material'
 
-const useStyles = makeStyles(theme=>({
+const useStyles = makeStyles()((theme) => ({
     input:{
         marginBottom:theme.spacing(1),
         textAlign:'center'

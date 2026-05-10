@@ -1,7 +1,7 @@
-import React,{useState} from 'react'
-import {Grid,Card,CardContent,CardActions,Button,Typography,Chip,CardHeader,IconButton,Menu,MenuItem} from '@material-ui/core'
+﻿import React,{useState} from 'react'
+import {Grid,Card,CardContent,CardActions,Button,Typography,Chip,CardHeader,IconButton,Menu,MenuItem} from '@mui/material'
 import {formatMoney} from '../../utilities'
-import {AttachMoney,MoreVert} from '@material-ui/icons'
+import {AttachMoney,MoreVert} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
 import {content} from '../../Pages/styles/styles'
 
@@ -84,3 +84,4 @@ export const CardProveedor = ({datos,search}) =>{
         </Grid>
     )
 }
+

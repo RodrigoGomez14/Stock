@@ -1,8 +1,9 @@
-import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,makeStyles,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
-import {EditOutlined} from '@material-ui/icons'
-import DateFnsUtils from '@date-io/date-fns';
-import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker,} from '@material-ui/pickers';
+﻿import React,{useState,useEffect} from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton } from '@mui/material'
+import {EditOutlined} from '@mui/icons-material'
+
+
 import {content} from '../../../Pages/styles/styles'
 
 export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,seteditIndex,total,settotal,cliente}) =>{
@@ -95,18 +96,16 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
                         />
                     </Grid>
                     <Grid item>
-                    <MuiPickersUtilsProvider utils={DateFnsUtils} noValidate>
-                        <KeyboardDatePicker
-                            disableToolbar
-                            variant="inline"
-                            format="dd/MM/yyyy"
-                            label="Fecha de Vencimiento"
+                        <TextField
+                            fullWidth
+                            label='Fecha de Vencimiento'
+                            type='date'
+                            InputLabelProps={{ shrink: true }}
                             value={vencimiento}
-                            onChange={fecha=>{
-                                setvencimiento(fecha)
+                            onChange={e=>{
+                                setvencimiento(e.target.value)
                             }}
                         />
-                    </MuiPickersUtilsProvider   >
                     </Grid>
                     <Grid item>
                         <TextField

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Layout } from './Layout'
 import { 
@@ -7,14 +7,14 @@ import {
     Card, CardContent, Tooltip, Divider, Avatar, InputAdornment,
     MenuItem, Menu, ListItemIcon, ListItemText, Tab, Tabs,
     FormControl, InputLabel, Select
-} from '@material-ui/core'
+} from '@mui/material'
 import { 
     PersonAdd, Search, AttachMoney, Phone, Email, FilterList,
     ArrowUpward, ArrowDownward, History, AccountBalanceWallet,
     Settings, Delete, Edit, LocalShipping, AssignmentTurnedIn,
     SortByAlpha, Warning, Star, StarBorder, CheckCircle
-} from '@material-ui/icons'
-import { Alert } from '@material-ui/lab'
+} from '@mui/icons-material'
+import { Alert } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../utilities'
 import { content } from './styles/styles'
@@ -30,7 +30,7 @@ const Clientes = (props) => {
     const [anchorElFiltro, setAnchorElFiltro] = useState(null)
     const [clientesFavoritos, setClientesFavoritos] = useState([])
     
-    // Obtener estadísticas de clientes
+    // Obtener estadÃ­sticas de clientes
     const obtenerEstadisticas = () => {
         if (!props.clientes) return { total: 0, activos: 0, deudaTotal: 0 }
         
@@ -81,7 +81,7 @@ const Clientes = (props) => {
             .filter(key => {
                 const cliente = props.clientes[key];
                 
-                // Filtrar por búsqueda
+                // Filtrar por bÃºsqueda
                 if (search && !key.toLowerCase().includes(search.toLowerCase()) && 
                    (!cliente.datos.telefono || !cliente.datos.telefono.includes(search)) &&
                    (!cliente.datos.email || !cliente.datos.email.toLowerCase().includes(search.toLowerCase()))) {
@@ -182,7 +182,7 @@ const Clientes = (props) => {
         <Layout history={props.history} page="Clientes" user={props.user.uid}>
             {/* CONTENT */}
             <Paper className={classes.content}>
-                {/* HEADER - ESTADÍSTICAS */}
+                {/* HEADER - ESTADÃSTICAS */}
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={3}>
                         <Card className={classes.cardEstadistica}>
@@ -227,7 +227,7 @@ const Clientes = (props) => {
                         <Card className={classes.cardEstadistica}>
                             <CardContent>
                                 <Typography color="textSecondary" gutterBottom>
-                                    Acciones Rápidas
+                                    Acciones RÃ¡pidas
                                 </Typography>
                                 <Grid container spacing={1}>
                                     <Grid item>
@@ -262,7 +262,7 @@ const Clientes = (props) => {
                     </Grid>
                 </Grid>
                 
-                {/* BARRA DE BÚSQUEDA Y FILTROS */}
+                {/* BARRA DE BÃšSQUEDA Y FILTROS */}
                 <Grid container spacing={2} style={{ marginTop: 16, marginBottom: 16 }}>
                     <Grid item xs={12} md={6}>
                         <TextField
@@ -272,7 +272,7 @@ const Clientes = (props) => {
                             disabled={!props.clientes}
                             label="Buscar Cliente"
                             variant="outlined"
-                            placeholder="Nombre, teléfono o email"
+                            placeholder="Nombre, telÃ©fono o email"
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -596,7 +596,7 @@ const Clientes = (props) => {
                             )}
                             {search && (
                                 <Chip 
-                                    label={`Búsqueda: ${search}`}
+                                    label={`BÃºsqueda: ${search}`}
                                     onDelete={() => setSearch('')}
                                     color="primary"
                                     variant="outlined" 

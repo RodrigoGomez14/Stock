@@ -1,9 +1,9 @@
-import React,{useState,useEffect} from 'react'
+﻿import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Paper,Grid,Typography,Card,CardContent,TableRow,TableCell,TableBody,TableContainer,Button} from '@material-ui/core'
+import {Paper,Grid,Typography,Card,CardContent,TableRow,TableCell,TableBody,TableContainer,Button} from '@mui/material'
 import {MenuCheques} from '../components/Historial/MenuCheques'
-import {AddOutlined} from '@material-ui/icons'
+import {AddOutlined} from '@mui/icons-material'
 import {DialogConfirmDelete} from '../components/Cliente/DialogConfirmDelete'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
@@ -27,7 +27,7 @@ const HistorialDeProduccion=(props)=>{
             data.push({x:proceso.proceso,y:[new Date(inicio).getTime(),new Date(entrega).getTime()]})
         })
 
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             plotOptions:{
                 bar:{
@@ -40,7 +40,7 @@ const HistorialDeProduccion=(props)=>{
 
         };
         console.log(data)
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardContent>

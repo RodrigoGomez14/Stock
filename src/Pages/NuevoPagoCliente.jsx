@@ -1,10 +1,10 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography} from '@material-ui/core'
-import {AttachMoney,LocalAtm} from '@material-ui/icons'
-import Alert from '@material-ui/lab/Alert';
-import {Redirect} from 'react-router-dom'
+import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography} from '@mui/material'
+import {AttachMoney,LocalAtm} from '@mui/icons-material'
+import Alert from '@mui/material/Alert';
+import { Navigate } from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Pago/Step'
 import { database } from '../services'
 import {checkSearch, formatMoney,obtenerFecha} from '../utilities'
@@ -169,7 +169,7 @@ const NuevoPagoCliente=(props)=>{
         if(aux){
             database().ref().child(props.user.uid).child('clientes').child(checkSearch(props.history.location.search)).child('pagos').push(aux)
             .then(()=>{
-                    setshowSnackbar('El pago se agregó correctamente!')
+                    setshowSnackbar('El pago se agregÃ³ correctamente!')
                 setTimeout(() => {
                     props.history.replace(`/Historial-Cliente?${checkSearch(props.history.location.search)}`)
                 }, 2000);

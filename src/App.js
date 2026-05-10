@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {BrowserRouter,Route,Switch} from 'react-router-dom'
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Clientes from './Pages/Clientes'
 import Cliente from './Pages/Cliente'
 import NuevoCliente from './Pages/NuevoCliente'
@@ -29,8 +29,9 @@ import {Provider} from 'react-redux'
 import reducer from './reducers'
 import {createStore} from 'redux'
 import {NotFound} from './Pages/NotFound'
-import { createMuiTheme,ThemeProvider } from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { database, onAuthStateChanged } from './services'
+import { RouteInjector } from './services/withRouter'
 import NuevoPagoProveedor from './Pages/NuevoPagoProveedor';
 import NuevoPagoCliente from './Pages/NuevoPagoCliente';
 import CadenasDeProduccion from './Pages/CadenasDeProduccion';
@@ -75,7 +76,7 @@ class App extends Component {
   
   render(){
     //creacion del tema 
-    const themeProvider = createMuiTheme({
+    const themeProvider = createTheme({
       palette: {
           white:'#fff',
           primary: {
@@ -123,64 +124,64 @@ class App extends Component {
           <ThemeProvider theme={themeProvider}>
               <Provider store={this.state.store}>
                 <BrowserRouter>
-                  <Switch>
-                    <Route exact path='/' component={Inicio}/>
-                    <Route exact path='/Iva' component={Iva}/>
-                    <Route exact path='/Clientes' component={Clientes}/>
-                    <Route exact path='/Cliente' component={Cliente}/>
-                    <Route exact path='/Nuevo-Cliente' component={NuevoCliente}/>
-                    <Route exact path='/Editar-Cliente' component={NuevoCliente}/>
-                    <Route exact path='/Proveedores' component={Proveedores}/>
-                    <Route exact path='/Proveedor' component={Proveedor}/>
-                    <Route exact path='/Nuevo-Proveedor' component={NuevoProveedor}/>
-                    <Route exact path='/Editar-Proveedor' component={NuevoProveedor}/>
-                    <Route exact path='/Expresos' component={Expresos}/>
-                    <Route exact path='/Expreso' component={Expreso}/>
-                    <Route exact path='/Historial-Cliente' component={HistorialCliente}/>
-                    <Route exact path='/Historial-Proveedor' component={HistorialProveedor}/>
-                    <Route exact path='/Nuevo-Expreso' component={NuevoExpreso}/>
-                    <Route exact path='/Editar-Expreso' component={NuevoExpreso}/>
-                    <Route exact path='/Deudas' component={Deudas}/>
-                    <Route exact path='/Nuevo-Consumo-Facturado' component={NuevoConsumoFacturado}/>
+                  <Routes>
+                    <Route path='/' element={<RouteInjector component={Inicio}/>}/>
+                    <Route path='/Iva' element={<RouteInjector component={Iva}/>}/>
+                    <Route path='/Clientes' element={<RouteInjector component={Clientes}/>}/>
+                    <Route path='/Cliente' element={<RouteInjector component={Cliente}/>}/>
+                    <Route path='/Nuevo-Cliente' element={<RouteInjector component={NuevoCliente}/>}/>
+                    <Route path='/Editar-Cliente' element={<RouteInjector component={NuevoCliente}/>}/>
+                    <Route path='/Proveedores' element={<RouteInjector component={Proveedores}/>}/>
+                    <Route path='/Proveedor' element={<RouteInjector component={Proveedor}/>}/>
+                    <Route path='/Nuevo-Proveedor' element={<RouteInjector component={NuevoProveedor}/>}/>
+                    <Route path='/Editar-Proveedor' element={<RouteInjector component={NuevoProveedor}/>}/>
+                    <Route path='/Expresos' element={<RouteInjector component={Expresos}/>}/>
+                    <Route path='/Expreso' element={<RouteInjector component={Expreso}/>}/>
+                    <Route path='/Historial-Cliente' element={<RouteInjector component={HistorialCliente}/>}/>
+                    <Route path='/Historial-Proveedor' element={<RouteInjector component={HistorialProveedor}/>}/>
+                    <Route path='/Nuevo-Expreso' element={<RouteInjector component={NuevoExpreso}/>}/>
+                    <Route path='/Editar-Expreso' element={<RouteInjector component={NuevoExpreso}/>}/>
+                    <Route path='/Deudas' element={<RouteInjector component={Deudas}/>}/>
+                    <Route path='/Nuevo-Consumo-Facturado' element={<RouteInjector component={NuevoConsumoFacturado}/>}/>
                     
-                    <Route exact path='/Cheques' component={Cheques}/>
-                    <Route exact path='/Cheques-Personales' component={ChequesPersonales}/>
-                    <Route exact path='/Depositar-Cheque' component={DepositarCheque}/>
+                    <Route path='/Cheques' element={<RouteInjector component={Cheques}/>}/>
+                    <Route path='/Cheques-Personales' element={<RouteInjector component={ChequesPersonales}/>}/>
+                    <Route path='/Depositar-Cheque' element={<RouteInjector component={DepositarCheque}/>}/>
 
-                    <Route exact path='/Productos' component={Productos}/>
-                    <Route exact path='/Producto' component={Producto}/>
-                    <Route exact path='/Nuevo-Producto' component={NuevoProducto}/>
-                    <Route exact path='/Editar-Producto' component={NuevoProducto}/>
+                    <Route path='/Productos' element={<RouteInjector component={Productos}/>}/>
+                    <Route path='/Producto' element={<RouteInjector component={Producto}/>}/>
+                    <Route path='/Nuevo-Producto' element={<RouteInjector component={NuevoProducto}/>}/>
+                    <Route path='/Editar-Producto' element={<RouteInjector component={NuevoProducto}/>}/>
 
-                    <Route exact path='/Cuentas-Bancarias' component={CuentasBancarias}/>
-                    <Route exact path='/Nueva-Cuenta-Bancaria' component={NuevaCuentaBancaria}/>
+                    <Route path='/Cuentas-Bancarias' element={<RouteInjector component={CuentasBancarias}/>}/>
+                    <Route path='/Nueva-Cuenta-Bancaria' element={<RouteInjector component={NuevaCuentaBancaria}/>}/>
                     
-                    <Route exact path='/Pedidos' component={Pedidos}/>
-                    <Route exact path='/Nuevo-Pedido' component={NuevoPedido}/>
-                    <Route exact path='/Editar-Pedido' component={NuevoPedido}/>
-                    <Route exact path='/Enviar-Pedido' component={EnviarPedido}/>
+                    <Route path='/Pedidos' element={<RouteInjector component={Pedidos}/>}/>
+                    <Route path='/Nuevo-Pedido' element={<RouteInjector component={NuevoPedido}/>}/>
+                    <Route path='/Editar-Pedido' element={<RouteInjector component={NuevoPedido}/>}/>
+                    <Route path='/Enviar-Pedido' element={<RouteInjector component={EnviarPedido}/>}/>
                     
-                    <Route exact path='/Entregas' component={Entregas}/>
-                    <Route exact path='/Nueva-Entrega' component={NuevaEntrega}/>
-                    <Route exact path='/Editar-Entrega' component={NuevaEntrega}/>
-                    <Route exact path='/Recibir-Entrega' component={RecibirEntrega}/>
+                    <Route path='/Entregas' element={<RouteInjector component={Entregas}/>}/>
+                    <Route path='/Nueva-Entrega' element={<RouteInjector component={NuevaEntrega}/>}/>
+                    <Route path='/Editar-Entrega' element={<RouteInjector component={NuevaEntrega}/>}/>
+                    <Route path='/Recibir-Entrega' element={<RouteInjector component={RecibirEntrega}/>}/>
 
-                    <Route exact path='/Nuevo-Pago-Cliente' component={NuevoPagoCliente}/>
-                    <Route exact path='/Nuevo-Pago-Proveedor' component={NuevoPagoProveedor}/>
+                    <Route path='/Nuevo-Pago-Cliente' element={<RouteInjector component={NuevoPagoCliente}/>}/>
+                    <Route path='/Nuevo-Pago-Proveedor' element={<RouteInjector component={NuevoPagoProveedor}/>}/>
 
-                    <Route exact path='/Cadenas-De-Produccion' component={CadenasDeProduccion}/>
-                    <Route exact path='/Historial-De-Produccion' component={HistorialDeProduccion}/>
-                    <Route exact path='/Finalizar-Proceso' component={FinalizarProceso}/>
-                    <Route exact path='/Finalizar-Proceso-Propio' component={FinalizarProcesoPropio}/>
+                    <Route path='/Cadenas-De-Produccion' element={<RouteInjector component={CadenasDeProduccion}/>}/>
+                    <Route path='/Historial-De-Produccion' element={<RouteInjector component={HistorialDeProduccion}/>}/>
+                    <Route path='/Finalizar-Proceso' element={<RouteInjector component={FinalizarProceso}/>}/>
+                    <Route path='/Finalizar-Proceso-Propio' element={<RouteInjector component={FinalizarProcesoPropio}/>}/>
                     
                     {/* Nuevas rutas para servicios */}
-                    <Route exact path='/Servicios' component={Servicios}/>
-                    <Route exact path='/Nuevo-Servicio' component={NuevoServicio}/>
-                    <Route exact path='/Editar-Servicio' component={NuevoServicio}/>
-                    <Route exact path='/Pagar-Servicios' component={PagarServicios}/>
+                    <Route path='/Servicios' element={<RouteInjector component={Servicios}/>}/>
+                    <Route path='/Nuevo-Servicio' element={<RouteInjector component={NuevoServicio}/>}/>
+                    <Route path='/Editar-Servicio' element={<RouteInjector component={NuevoServicio}/>}/>
+                    <Route path='/Pagar-Servicios' element={<RouteInjector component={PagarServicios}/>}/>
 
-                    <Route component={NotFound}/>
-                  </Switch>
+                    <Route path='*' element={<RouteInjector component={NotFound}/>}/>
+                  </Routes>
                 </BrowserRouter>
               </Provider>
             </ThemeProvider>
@@ -191,10 +192,10 @@ class App extends Component {
         return (
           <ThemeProvider theme={themeProvider}>
             <BrowserRouter>
-              <Switch>
-                <Route exact path='/' component={SignInPage}/>
-                <Route component={NotFound}/>
-              </Switch>
+              <Routes>
+                <Route path='/' element={<RouteInjector component={SignInPage}/>}/>
+                <Route path='*' element={<RouteInjector component={NotFound}/>}/>
+              </Routes>
             </BrowserRouter>
           </ThemeProvider>
         )

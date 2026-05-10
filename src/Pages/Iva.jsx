@@ -1,9 +1,9 @@
-import React,{useState,useEffect} from 'react'
+﻿import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Paper,Grid,Button,Backdrop,Snackbar,CircularProgress, Typography,Chip} from '@material-ui/core'
-import {Add} from '@material-ui/icons'
-import {Alert} from '@material-ui/lab'
+import {Paper,Grid,Button,Backdrop,Snackbar,CircularProgress, Typography,Chip} from '@mui/material'
+import {Add} from '@mui/icons-material'
+import {Alert} from '@mui/material'
 import {Compras} from '../components/Iva/Compras'
 import {Ventas} from '../components/Iva/Ventas'
 import { database } from '../services'
@@ -29,7 +29,7 @@ const Iva=(props)=>{
                 const year = props.compras[compra].fecha.split('/')[2];
                 const month = props.compras[compra].fecha.split('/')[1];
             
-                // Si aún no tenemos el año en el objeto "years", lo agregamos
+                // Si aÃºn no tenemos el aÃ±o en el objeto "years", lo agregamos
                 if (!yearsCompras[year]) {
                     yearsCompras[year] = { total: 0, totalIva: 0,months: {
                         1:{ total: 0, totalIva: 0, compras: [] },
@@ -52,7 +52,7 @@ const Iva=(props)=>{
                 // Agregamos la compra al objeto "compras" del mes correspondiente
                 yearsCompras[year].months[month].compras.push(props.compras[compra]);
             
-                // Actualizamos el total del mes y del año
+                // Actualizamos el total del mes y del aÃ±o
                 yearsCompras[year].months[month].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
                 if(props.compras[compra].consumoFacturado){
                     yearsCompras[year].months[month].totalIva += parseFloat(props.compras[compra].totalIva);
@@ -98,7 +98,7 @@ const Iva=(props)=>{
             
                 // Agregamos la venta al objeto "ventas" del mes correspondiente
                 yearsVentas[year].months[month].ventas.push(props.ventas[venta]);
-                // Actualizamos el total del mes y del año
+                // Actualizamos el total del mes y del aÃ±o
                 yearsVentas[year].months[month].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
                 yearsVentas[year].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
                 if(props.ventas[venta].metodoDePago.facturacion){

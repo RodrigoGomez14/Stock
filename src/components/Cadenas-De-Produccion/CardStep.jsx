@@ -1,8 +1,8 @@
-import React,{useState} from 'react'
-import {Grid,Card,CardHeader,CardContent,Collapse,CardActions,Button,FormControlLabel,Switch,IconButton,List,ListItemText,ListItem} from '@material-ui/core'
-import {ExpandMore,ExpandLess,Edit} from '@material-ui/icons'
+﻿import React,{useState} from 'react'
+import {Grid,Card,CardHeader,CardContent,Collapse,CardActions,Button,FormControlLabel,Switch,IconButton,List,ListItemText,ListItem} from '@mui/material'
+import {ExpandMore,ExpandLess,Edit} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
-import {Alert} from '@material-ui/lab'
+import {Alert} from '@mui/material'
 import {content} from '../../Pages/styles/styles'
 import { formatMoney } from '../../utilities'
 
@@ -136,6 +136,7 @@ export const CardStep = ({proceso,id,activeStep,iniciarProceso,index}) =>{
         </Card>
     )
 }
+
 
 
 

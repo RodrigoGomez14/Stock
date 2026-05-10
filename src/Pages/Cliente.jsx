@@ -1,9 +1,9 @@
-import React,{useState,useEffect} from 'react'
+﻿import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Card,Paper,Grid,CardHeader,CardContent,IconButton,Backdrop,Snackbar,CircularProgress} from '@material-ui/core'
-import {Alert} from '@material-ui/lab'
-import {EditOutlined,DeleteOutline} from '@material-ui/icons'
+import {Card,Paper,Grid,CardHeader,CardContent,IconButton,Backdrop,Snackbar,CircularProgress} from '@mui/material'
+import {Alert} from '@mui/material'
+import {EditOutlined,DeleteOutline} from '@mui/icons-material'
 import {Deuda} from '../components/Cliente/Deuda'
 import {ListaDePedidos} from '../components/Cliente/ListaDePedidos'
 import {Detalles} from '../components/Cliente/Detalles'
@@ -52,7 +52,7 @@ const Cliente=(props)=>{
             }
         }
     
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             chart:{
@@ -79,7 +79,7 @@ const Cliente=(props)=>{
             },
         ];
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return <ApexCharts options={options} series={series} type='area' height={150}/>;
     }
     const generateChartProductos = () => {
@@ -100,7 +100,7 @@ const Cliente=(props)=>{
                 })
             });
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             chart:{
@@ -117,7 +117,7 @@ const Cliente=(props)=>{
         };
     
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -158,7 +158,7 @@ const Cliente=(props)=>{
                 })
             });
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             chart:{
@@ -181,7 +181,7 @@ const Cliente=(props)=>{
         };
     
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -216,7 +216,7 @@ const Cliente=(props)=>{
             initialDate.setFullYear(anioInicio,mesInicio,1)
             console.log(filteredPedidos)
             for (const [year, data] of filteredPedidos) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                         const auxFecha = new Date(0);
                         auxFecha.setFullYear(year, month - 1, 1);
@@ -259,7 +259,7 @@ const Cliente=(props)=>{
             console.log(labelsUltimoAnio)
 
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labelsUltimoAnio,
             theme:{
@@ -340,7 +340,7 @@ const Cliente=(props)=>{
                 // Agregamos la compra al objeto "compras" del mes correspondiente
                 years[year].months[month].pedidos.push(props.clientes[keyCliente].pedidos[pedido]);
             
-                // Actualizamos el total del mes y del año
+                // Actualizamos el total del mes y del aÃ±o
                 years[year].months[month].total += parseInt((props.clientes[keyCliente].pedidos[pedido].total?props.clientes[keyCliente].pedidos[pedido].total:0), 10);
                 years[year].total += parseInt((props.clientes[keyCliente].pedidos[pedido].total?props.clientes[keyCliente].pedidos[pedido].total:0), 10);
             }); 

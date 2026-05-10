@@ -1,7 +1,8 @@
-import {CardHeader, makeStyles,Paper} from '@material-ui/core'
+import { makeStyles } from 'tss-react/mui'
+import { CardHeader,Paper } from '@mui/material'
 
 //STYLES
-export const content =makeStyles(theme=>({
+export const content =makeStyles()((theme) => ({
     cardBgGreen:{
         backgroundColor:theme.palette.success.main
     },

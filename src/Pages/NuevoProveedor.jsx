@@ -1,13 +1,13 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Avatar,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert';
+import {Avatar,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Cliente/Step'
 import {FormDetalles} from '../components/Nuevo-Cliente/FormDetalles'
 import { database } from '../services'
 import {content} from './styles/styles'
-import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@material-ui/icons';
+import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@mui/icons-material';
 import { checkSearch } from '../utilities';
 
 // COMPONENT

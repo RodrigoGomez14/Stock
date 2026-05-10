@@ -1,14 +1,14 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Paper,Chip,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,TextField} from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
-import Alert from '@material-ui/lab/Alert';
+import {Paper,Chip,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,TextField} from '@mui/material'
+import { Autocomplete } from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Pedido/Step'
 import { database } from '../services'
 import {content} from './styles/styles'
 import { fechaDetallada, filtrarCotizaciones, getClientList, getProductosListWithPrice } from '../utilities';
-import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
+import { PeopleAlt, MoveToInbox } from '@mui/icons-material';
 
 // COMPONENT
 const NuevoPedido=(props)=>{
@@ -124,7 +124,7 @@ const NuevoPedido=(props)=>{
         if(props.history.location.search){
             database().ref().child(props.user.uid).child('pedidos').child(props.history.location.search.slice(1)).update(aux)
             .then(()=>{
-                    setshowSnackbar('El pedido se editó correctamente!')
+                    setshowSnackbar('El pedido se editÃ³ correctamente!')
                 setTimeout(() => {
                     props.history.replace(`/Pedidos`)
                 }, 2000);
@@ -137,7 +137,7 @@ const NuevoPedido=(props)=>{
         else{
             database().ref().child(props.user.uid).child('pedidos').push(aux)
             .then(()=>{
-                setshowSnackbar('El pedido se agregó correctamente!')
+                setshowSnackbar('El pedido se agregÃ³ correctamente!')
                 setTimeout(() => {
                     props.history.replace(`/Pedidos`)
                 }, 2000);

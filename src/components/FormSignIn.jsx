@@ -1,12 +1,13 @@
-import React, {useState} from 'react'
-import {Typography,Avatar,TextField,Button,makeStyles,Grid,Grow} from '@material-ui/core'
-import {Alert,AlertTitle} from '@material-ui/lab'
-import {LockOutlined} from '@material-ui/icons'
+﻿import React, {useState} from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Typography,Avatar,TextField,Button,Grid,Grow } from '@mui/material'
+import {Alert,AlertTitle} from '@mui/material'
+import {LockOutlined} from '@mui/icons-material'
 import {Link as LinkRouter} from 'react-router-dom'
 import {PantallaDeCarga} from '../Pages/PantallaDeCarga'
 import logo from '../images/logo.png'
-import { auth } from '../../services'
-const useStyles = makeStyles(theme => ({
+import { auth } from '../services'
+const useStyles = makeStyles()((theme) => ({
     paper: {
       margin: theme.spacing(0, 4),
       padding:theme.spacing(1),
@@ -155,7 +156,7 @@ export const FormSignIn = ({history})=>{
                 helperText={passwordError?passwordError:null}
                 error={!!passwordError}
                 onChange={e=>{setInputPassword(e.target.value)}}
-                label="contraseña"
+                label="contraseÃ±a"
                 type="password"
                 id="password"
                 />
@@ -207,7 +208,7 @@ export const FormSignIn = ({history})=>{
                     <Button variant="text" className={classes.link} onClick={()=>{
                       sendPasswordReset()
                     }}>
-                        Recuperar Contraseña
+                        Recuperar ContraseÃ±a
                     </Button>
                 </div>
             </form>

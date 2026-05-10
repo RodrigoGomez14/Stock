@@ -1,12 +1,12 @@
-import React from 'react';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
+﻿import React from 'react';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import { makeStyles } from 'tss-react/mui';
 import foto from '../images/Valvulas.png'
 import {Layout} from './Layout'
 import {FormSignIn} from '../components/FormSignIn'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
     height: '100vh',
     position:'absolute',

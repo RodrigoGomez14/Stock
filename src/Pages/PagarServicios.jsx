@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Layout } from './Layout'
 import { 
@@ -6,12 +6,12 @@ import {
     Checkbox, Button, FormControlLabel, Table, TableBody, TableCell, 
     TableContainer, TableHead, TableRow, FormControl, 
     InputLabel, Select, MenuItem
-} from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+} from '@mui/material'
+import { Alert } from '@mui/material'
 import { database } from '../services'
 import { content } from './styles/styles'
 import { formatMoney, obtenerFecha } from '../utilities'
-import { CalendarToday, AttachMoney, Delete } from '@material-ui/icons'
+import { CalendarToday, AttachMoney, Delete } from '@mui/icons-material'
 
 // COMPONENT
 const PagarServicios = (props) => {
@@ -19,7 +19,7 @@ const PagarServicios = (props) => {
     const [showSnackbar, setShowSnackbar] = useState('')
     const [loading, setLoading] = useState(false)
     
-    // Control de fecha para mostrar servicios de un mes específico
+    // Control de fecha para mostrar servicios de un mes especÃ­fico
     const fechaActual = new Date()
     const [mesSeleccionado, setMesSeleccionado] = useState(fechaActual.getMonth())
     const [anioSeleccionado, setAnioSeleccionado] = useState(fechaActual.getFullYear())
@@ -49,7 +49,7 @@ const PagarServicios = (props) => {
         }
         
         return pendientes.sort((a, b) => {
-            // Ordenar por fecha de vencimiento (más cercanos primero)
+            // Ordenar por fecha de vencimiento (mÃ¡s cercanos primero)
             if (a.vencimiento && b.vencimiento) {
                 return new Date(a.vencimiento) - new Date(b.vencimiento)
             }
@@ -57,7 +57,7 @@ const PagarServicios = (props) => {
         })
     }
     
-    // Toggle selección de servicio
+    // Toggle selecciÃ³n de servicio
     const toggleSeleccionServicio = (servicioId) => {
         const currentIndex = serviciosSeleccionados.findIndex(s => s.id === servicioId)
         const newSeleccionados = [...serviciosSeleccionados]
@@ -87,7 +87,7 @@ const PagarServicios = (props) => {
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ]
     
-    // Validación de formulario
+    // ValidaciÃ³n de formulario
     const validarFormulario = () => {
         if (serviciosSeleccionados.length === 0) {
             setShowSnackbar('Seleccione al menos un servicio para pagar')
@@ -107,7 +107,7 @@ const PagarServicios = (props) => {
             const fechaPago = obtenerFecha()
             const idPeriodo = `${anioSeleccionado}-${mesSeleccionado + 1}`
             
-            // Estructura de datos básica del pago
+            // Estructura de datos bÃ¡sica del pago
             const metodoPagoData = {
                 tipo: 'efectivo',
                 fecha: fechaPago,
@@ -152,7 +152,7 @@ const PagarServicios = (props) => {
         }
     }
     
-    // Si hay un servicio específico en la URL, seleccionarlo
+    // Si hay un servicio especÃ­fico en la URL, seleccionarlo
     useEffect(() => {
         const queryParams = new URLSearchParams(props.location.search)
         const servicioId = queryParams.get('servicio')
@@ -194,7 +194,7 @@ const PagarServicios = (props) => {
                         </Typography>
                     </Grid>
                     
-                    {/* SELECTOR DE MES/AÑO */}
+                    {/* SELECTOR DE MES/AÃ‘O */}
                     <Grid item xs={12} sm={6}>
                         <FormControl variant="outlined" fullWidth>
                             <InputLabel>Mes</InputLabel>
@@ -215,14 +215,14 @@ const PagarServicios = (props) => {
                     
                     <Grid item xs={12} sm={6}>
                         <FormControl variant="outlined" fullWidth>
-                            <InputLabel>Año</InputLabel>
+                            <InputLabel>AÃ±o</InputLabel>
                             <Select
                                 value={anioSeleccionado}
                                 onChange={(e) => {
                                     setAnioSeleccionado(e.target.value)
                                     setServiciosSeleccionados([])
                                 }}
-                                label="Año"
+                                label="AÃ±o"
                             >
                                 {[anioSeleccionado - 1, anioSeleccionado, anioSeleccionado + 1].map(anio => (
                                     <MenuItem key={anio} value={anio}>{anio}</MenuItem>

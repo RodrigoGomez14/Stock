@@ -1,5 +1,5 @@
-import React from 'react'
-import {Dialog,DialogTitle,DialogActions,Button,DialogContent} from '@material-ui/core'
+﻿import React from 'react'
+import {Dialog,DialogTitle,DialogActions,Button,DialogContent} from '@mui/material'
 
 
 export const DialogConfirmGoBack = ({blockGoBack,setBlockGoBack,history}) =>{    

@@ -1,10 +1,11 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,makeStyles,Paper,Card,CardHeader,Collapse,CardContent,IconButton,Typography} from '@material-ui/core'
+﻿import React, {useState,useEffect} from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid,Paper,Card,CardHeader,Collapse,CardContent,IconButton,Typography } from '@mui/material'
 import {Tabla} from './Tabla'
 import { formatMoney,monthsList } from '../../utilities'
-import { ExpandLess, ExpandMore } from '@material-ui/icons'
+import { ExpandLess, ExpandMore } from '@mui/icons-material'
 
-const useStyles = makeStyles(theme=>({
+const useStyles = makeStyles()((theme) => ({
     card:{
         minHeight:'180px',
     },
@@ -102,3 +103,4 @@ const MesDeVentas = ({month,total,ventas}) =>{
         </Grid>
     )
 }
+

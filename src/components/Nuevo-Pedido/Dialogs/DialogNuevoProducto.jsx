@@ -1,9 +1,9 @@
-import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,Paper,ListItemSecondaryAction,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
-import {CancelRounded, CheckCircle, EditOutlined} from '@material-ui/icons'
+﻿import React,{useState,useEffect} from 'react'
+import {Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,Paper,ListItemSecondaryAction,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@mui/material'
+import {CancelRounded, CheckCircle, EditOutlined} from '@mui/icons-material'
 import {formatMoney} from '../../../utilities'
 import {content} from '../../../Pages/styles/styles'
-import { Autocomplete } from '@material-ui/lab'
+import { Autocomplete } from '@mui/material'
 
 export const DialogNuevoProducto = ({open,setOpen,productos,setproductos,edit,editIndex,seteditIndex,productosList,total,settotal,cotizacion}) =>{
     const classes = content()

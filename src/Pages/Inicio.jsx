@@ -1,15 +1,15 @@
-import React,{useState,useEffect} from 'react'
+﻿import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
 import {content} from './styles/styles'
-import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader,CardContent,Box,AppBar,Tabs,Tab,IconButton} from '@material-ui/core'
+import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader,CardContent,Box,AppBar,Tabs,Tab,IconButton} from '@mui/material'
 import {CarouselCotizaciones} from '../components/Carousel-Cotizaciones/CarouselCotizaciones'
-import {Alert} from '@material-ui/lab'
+import {Alert} from '@mui/material'
 import Home from '../images/Home.png'
 import ApexCharts from 'react-apexcharts';
 import {formatMoney,getActualMonthDetailed,filtrarCotizaciones} from '../utilities'
 import {Link} from 'react-router-dom'
-import { Add,List } from '@material-ui/icons'
+import { Add,List } from '@mui/icons-material'
 
 //COMPONENT
 const Inicio=(props)=>{
@@ -73,7 +73,7 @@ const Inicio=(props)=>{
 
             if(sortedVentas){
                 for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el año
+                    // Itera sobre cada mes en el aÃ±o
                     console.log(data)
                     for (const [month, dataMonth] of Object.entries(data.months)) {
                             const auxFecha = new Date();
@@ -87,7 +87,7 @@ const Inicio=(props)=>{
 
             if(sortedCompras){
                 for (const [year, data] of sortedCompras) {
-                    // Itera sobre cada mes en el año
+                    // Itera sobre cada mes en el aÃ±o
                     for (const [month, dataMonth] of Object.entries(data.months)) {
                             const auxFecha = new Date();
                             auxFecha.setFullYear(year, month - 1, 1);
@@ -139,7 +139,7 @@ const Inicio=(props)=>{
             })
 
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labelsUltimoAnio,
             fill: {
@@ -191,7 +191,7 @@ const Inicio=(props)=>{
             data:dif
         },
         ]
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
 
         return (
             <Card>
@@ -230,7 +230,7 @@ const Inicio=(props)=>{
             initialDate.setFullYear(anioInicio,mesInicio+1,1)
             if(sortedVentas){
                 for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el año
+                    // Itera sobre cada mes en el aÃ±o
                     for (const [month, dataMonth] of Object.entries(data.months)) {
                         const auxFecha = new Date();
                         auxFecha.setFullYear(year, month - 1, 1);
@@ -246,7 +246,7 @@ const Inicio=(props)=>{
             }
             if(sortedCompras){
                 for (const [year, data] of sortedCompras) {
-                    // Itera sobre cada mes en el año
+                    // Itera sobre cada mes en el aÃ±o
                     for (const [month, dataMonth] of Object.entries(data.months)) {
                         const auxFecha = new Date();
                         auxFecha.setFullYear(year, month - 1, 1);
@@ -305,7 +305,7 @@ const Inicio=(props)=>{
             })
 
         }
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labelsUltimoAnio,
             fill: {
@@ -357,7 +357,7 @@ const Inicio=(props)=>{
             data:dif
         },
         ]
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
 
         return (
             <Card>
@@ -394,7 +394,7 @@ const Inicio=(props)=>{
             initialDate.setFullYear(anioInicio,mesInicio+1,1)
             if(sortedVentas){
                 for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el año
+                    // Itera sobre cada mes en el aÃ±o
                     for (const [month, dataMonth] of Object.entries(data.months)) {
                             const auxFecha = new Date();
                             auxFecha.setFullYear(year, month - 1, 1);
@@ -453,7 +453,7 @@ const Inicio=(props)=>{
         }
 
         const series = products
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labelsUltimoAnio,
             fill: {
@@ -483,7 +483,7 @@ const Inicio=(props)=>{
             }
         };
         
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
 
         return (
             <Card>
@@ -520,7 +520,7 @@ const Inicio=(props)=>{
             initialDate.setFullYear(anioInicio,mesInicio+1,1)
             if(sortedVentas){
                 for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el año
+                    // Itera sobre cada mes en el aÃ±o
                     for (const [month, dataMonth] of Object.entries(data.months)) {
                             const auxFecha = new Date();
                             auxFecha.setFullYear(year, month - 1, 1);
@@ -579,7 +579,7 @@ const Inicio=(props)=>{
         }
     
         const series = products
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labelsUltimoAnio,
             fill: {
@@ -615,7 +615,7 @@ const Inicio=(props)=>{
             }
         };
         
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
     
         return (
             <Card>
@@ -638,7 +638,7 @@ const Inicio=(props)=>{
             series.push(d.total)
             labels.push(d.producto)
         })
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             series:series,
             labels:labels,
@@ -665,7 +665,7 @@ const Inicio=(props)=>{
         };
     
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -686,7 +686,7 @@ const Inicio=(props)=>{
             series.push(d.total)
             labels.push(d.nombre)
         })
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             series:series,
             labels:labels,
@@ -713,7 +713,7 @@ const Inicio=(props)=>{
         };
     
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -734,7 +734,7 @@ const Inicio=(props)=>{
             series.push(d.cantidad)
             labels.push(d.producto)
         })
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             series:series,
             labels:labels,
@@ -757,7 +757,7 @@ const Inicio=(props)=>{
         };
     
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -787,7 +787,7 @@ const Inicio=(props)=>{
     
         if(sortedVentas){
             for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -804,7 +804,7 @@ const Inicio=(props)=>{
         }
         if(sortedCompras){
             for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -823,7 +823,7 @@ const Inicio=(props)=>{
             }
         }
 
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
@@ -851,7 +851,7 @@ const Inicio=(props)=>{
         series[1].data.map(serie=>(
             totalMonthPurchases = totalMonthPurchases + serie
         ))
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -880,7 +880,7 @@ const Inicio=(props)=>{
     
         if(sortedVentas){
             for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -896,7 +896,7 @@ const Inicio=(props)=>{
             }
         }
 
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
@@ -933,7 +933,7 @@ const Inicio=(props)=>{
             }
         })
 
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -962,7 +962,7 @@ const Inicio=(props)=>{
     
         if(sortedCompras){
             for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -976,7 +976,7 @@ const Inicio=(props)=>{
             }
         }
 
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
@@ -1014,7 +1014,7 @@ const Inicio=(props)=>{
             }
         })
 
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -1044,7 +1044,7 @@ const Inicio=(props)=>{
     ]
         if(sortedVentas){
             for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -1061,7 +1061,7 @@ const Inicio=(props)=>{
         }
         if(sortedCompras){
             for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -1101,7 +1101,7 @@ const Inicio=(props)=>{
             }
         })
         console.log(series)
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
@@ -1125,7 +1125,7 @@ const Inicio=(props)=>{
             }
         };
 
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card className={totalMonth>=0?classes.cardBgGreen:classes.cardBgRed}>
                 <CardHeader
@@ -1176,7 +1176,7 @@ const Inicio=(props)=>{
         ]
         if(sortedVentas){
             for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -1198,7 +1198,7 @@ const Inicio=(props)=>{
         }
         if(sortedCompras){
             for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el año
+                // Itera sobre cada mes en el aÃ±o
                 for (const [month, dataMonth] of Object.entries(data.months)) {
                     if(year == currentYear){
                         if(month-1==currentMonth){
@@ -1240,7 +1240,7 @@ const Inicio=(props)=>{
                 series[0].data[i]= series[0].data[i-1] + (val?val:0)
             }
         })
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
             theme:{
@@ -1263,7 +1263,7 @@ const Inicio=(props)=>{
             }
         };
 
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card className={totalMonth>0?classes.cardBgGreen:classes.cardBgRed}>
                 <CardHeader
@@ -1284,7 +1284,7 @@ const Inicio=(props)=>{
                 const year = props.compras[compra].fecha.split('/')[2];
                 const month = props.compras[compra].fecha.split('/')[1];
             
-                // Si aún no tenemos el año en el objeto "years", lo agregamos
+                // Si aÃºn no tenemos el aÃ±o en el objeto "years", lo agregamos
                 if (!yearsCompras[year]) {
                     yearsCompras[year] = { total: 0, months: {
                         1:{ total: 0, compras: [] },
@@ -1307,7 +1307,7 @@ const Inicio=(props)=>{
                 // Agregamos la compra al objeto "compras" del mes correspondiente
                 yearsCompras[year].months[month].compras.push(props.compras[compra]);
             
-                // Actualizamos el total del mes y del año
+                // Actualizamos el total del mes y del aÃ±o
                 yearsCompras[year].months[month].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
                 yearsCompras[year].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
             });
@@ -1342,7 +1342,7 @@ const Inicio=(props)=>{
             
                 // Agregamos la venta al objeto "ventas" del mes correspondiente
                 yearsVentas[year].months[month].ventas.push(props.ventas[venta]);
-                // Actualizamos el total del mes y del año
+                // Actualizamos el total del mes y del aÃ±o
                 yearsVentas[year].months[month].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
                 yearsVentas[year].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
             });

@@ -1,14 +1,14 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert';
+import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Finalizar-Proceso-Propio/Step'
 import { database } from '../services'
-import {Redirect} from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import {checkSearch, formatMoney,fechaDetallada,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
-import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
+import { AttachMoney, List, LocalAtm } from '@mui/icons-material';
 
 const PROVEEDOR_PRODUCCION_PROPIA = 'Tota'
 

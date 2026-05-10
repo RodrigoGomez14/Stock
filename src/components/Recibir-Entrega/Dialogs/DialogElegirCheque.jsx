@@ -1,8 +1,8 @@
-import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,DialogActions,TableContainer,Button,Grid,Paper,Table,TableHead,TableRow,TableCell,TableBody,Checkbox,ListItemText, Typography,IconButton} from '@material-ui/core'
-import {Add} from '@material-ui/icons'
-import DateFnsUtils from '@date-io/date-fns';
-import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker,} from '@material-ui/pickers';
+﻿import React,{useState,useEffect} from 'react'
+import {Dialog,DialogTitle,DialogContent,DialogActions,TableContainer,Button,Grid,Paper,Table,TableHead,TableRow,TableCell,TableBody,Checkbox,ListItemText, Typography,IconButton} from '@mui/material'
+import {Add} from '@mui/icons-material'
+
+import { TextField } from '@mui/material';
 import {content} from '../../../Pages/styles/styles'
 
 export const DialogElegirCheque = ({open,setOpen,chequesList,addCheque,cheques}) =>{

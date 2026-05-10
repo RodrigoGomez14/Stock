@@ -1,15 +1,15 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert';
+import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Recibir-Entrega/Step'
 import { database } from '../services'
 import {formatMoney} from '../utilities'
-import {Redirect} from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import {obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
-import { AttachMoney, LocalAtm } from '@material-ui/icons';
+import { AttachMoney, LocalAtm } from '@mui/icons-material';
   
   const RecibirEntrega=(props)=>{
     const classes = content()
@@ -215,7 +215,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
         }
         
         // FEEDBACK DEL PROCESO
-        setshowSnackbar('La entrega se agregó correctamente!')
+        setshowSnackbar('La entrega se agregÃ³ correctamente!')
 
         // ACTUALIZA DB ENVIANDO TODA LA INFO
         idLink.update(aux)
@@ -394,7 +394,7 @@ import { AttachMoney, LocalAtm } from '@material-ui/icons';
                 </Backdrop>
             </Layout>
             :
-            <Redirect to='/Entregas'/>
+            <Navigate to='/Entregas' replace/>
     )
 }
 const mapStateToProps = state =>{

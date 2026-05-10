@@ -1,18 +1,18 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { 
     Grid, Card, CardContent, IconButton, Typography, Chip, Button, 
     CardHeader, Paper, Menu, MenuItem, Collapse, 
     List, ListItem, ListItemText, ListItemIcon
-} from '@material-ui/core'
+} from '@mui/material'
 import { 
     MoreVert, AttachMoney, ExpandMore, ExpandLess, 
     Receipt, CalendarToday, Create, Category, EventNote
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../../utilities'
 import { content } from '../../Pages/styles/styles'
 import { database } from '../../services'
-import { Alert } from '@material-ui/lab'
+import { Alert } from '@mui/material'
 
 export const CardServicio = ({ servicio, instancia, eliminarServicio, mesSeleccionado, anioSeleccionado }) => {
     const classes = content()
@@ -52,11 +52,11 @@ export const CardServicio = ({ servicio, instancia, eliminarServicio, mesSelecci
             return
         }
         
-        // Redirigir a la página de recibir boleta
+        // Redirigir a la pÃ¡gina de recibir boleta
         window.location.href = '/Recibir-Boleta'
     }
     
-    // Verificar si se debe mostrar el servicio según su frecuencia
+    // Verificar si se debe mostrar el servicio segÃºn su frecuencia
     const mostrarSegunFrecuencia = () => {
         if (servicio.frecuencia === 'mensual') return true
         if (servicio.frecuencia === 'anual' && servicio.mesPago === (mesSeleccionado + 1)) return true
@@ -202,7 +202,7 @@ export const CardServicio = ({ servicio, instancia, eliminarServicio, mesSelecci
                                                 <AttachMoney />
                                             </ListItemIcon>
                                             <ListItemText 
-                                                primary="Método de Pago" 
+                                                primary="MÃ©todo de Pago" 
                                                 secondary={instancia.metodoPago} 
                                             />
                                         </ListItem>

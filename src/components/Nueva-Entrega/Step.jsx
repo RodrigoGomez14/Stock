@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
-import {Grid, Button,TextField,Select,Input,Chip,MenuItem,Paper,FormControl, Typography,Card,CardContent,CardActions} from '@material-ui/core'
+﻿import React, { useState } from 'react'
+import {Grid, Button,TextField,Select,Input,Chip,MenuItem,Paper,FormControl, Typography,Card,CardContent,CardActions} from '@mui/material'
 import {Productos} from './Productos'
-import { Autocomplete } from '@material-ui/lab'
+import { Autocomplete } from '@mui/material'
 import {DialogNuevoProducto} from './Dialogs/DialogNuevoProducto'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
-import {AddOutlined} from '@material-ui/icons'
+import {AddOutlined} from '@mui/icons-material'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-import DateFnsUtils from '@date-io/date-fns';
-import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker} from '@material-ui/pickers';
+
+
 
 export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,total,settotal}) =>{
     const classes = content()
@@ -108,19 +108,17 @@ export const Step = ({datos,setDatos,tipoDeDato,proveedoresList,productosList,to
                 return(
                     <Grid container item xs={12} justify='center' spacing={3}>
                         <Grid container item xs={12} justify='center'>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils} noValidate>
-                                <KeyboardDatePicker
-                                    disableToolbar
-                                    variant="inline"
-                                    format="dd/MM/yyyy"
+                            
+                                <TextField
                                     fullWidth
-                                    label="Fecha del pedido"
+                                    label='Fecha del pedido'
+                                    type='date'
+                                    InputLabelProps={{ shrink: true }}
                                     value={datos}
-                                    onChange={i=>{
-                                        setDatos(i)
+                                    onChange={e=>{
+                                        setDatos(e.target.value)
                                     }}
                                 />
-                            </MuiPickersUtilsProvider   >
 
                         </Grid>
                     </Grid>

@@ -1,10 +1,10 @@
-import React,{useState,useEffect} from 'react'
+﻿import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent} from '@material-ui/core'
-import {Alert} from '@material-ui/lab'
-import {PersonAdd} from '@material-ui/icons'
-import {MoreVert,DeleteOutlineOutlined} from '@material-ui/icons'
+import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent} from '@mui/material'
+import {Alert} from '@mui/material'
+import {PersonAdd} from '@mui/icons-material'
+import {MoreVert,DeleteOutlineOutlined} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
 import {CardPedido} from '../components/Pedidos/CardPedido'
 import { database } from '../services'
@@ -150,7 +150,7 @@ const ChequesPersonales=(props)=>{
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
         let series = [totalBlanco,totalNegro]
         let labels = ['blanco','negro']
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             theme:{
@@ -173,7 +173,7 @@ const ChequesPersonales=(props)=>{
         };
     
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return <ApexCharts options={options} series={series} type='donut' width={350} />;
     }
 

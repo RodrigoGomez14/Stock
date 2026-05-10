@@ -1,6 +1,6 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,TableRow,TableCell,Typography,Paper,List,ListItem,ListItemIcon,ListItemText} from '@material-ui/core'
-import {MoreVert,ExpandMore,ExpandLess,CheckCircleOutline,Block, Send, KeyboardReturn} from '@material-ui/icons'
+﻿import React, {useState,useEffect} from 'react'
+import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,TableRow,TableCell,Typography,Paper,List,ListItem,ListItemIcon,ListItemText} from '@mui/material'
+import {MoreVert,ExpandMore,ExpandLess,CheckCircleOutline,Block, Send, KeyboardReturn} from '@mui/icons-material'
 import {formatMoney, obtenerFecha} from '../../utilities'
 import {Link} from 'react-router-dom'
 import {content} from '../..//Pages/styles/styles'
@@ -38,7 +38,7 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
             labels.push(subproducto.nombre)
         })
 
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             series:series,
             labels:labels,
@@ -65,7 +65,7 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
             }
             
         };
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <>
                 <Grid container xs={12}>
@@ -92,7 +92,7 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
                 labels.push(auxHistorial[movimiento].fecha)
             })
     
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             chart:{
@@ -115,7 +115,7 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
             data: data,
             },
         ];
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return <ApexCharts options={options} series={series} type='area' height={100}/>;
     }
 
@@ -146,3 +146,4 @@ export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matri
         </TableRow>
     )
 }
+

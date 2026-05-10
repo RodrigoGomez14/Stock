@@ -1,8 +1,8 @@
-import React from 'react'
+﻿import React from 'react'
 import {Link} from 'react-router-dom'
 import { Layout } from './Layout'
 import {content} from './styles/styles'
-import {Paper} from '@material-ui/core'
+import {Paper} from '@mui/material'
 
 export const NotFound = (props) =>{
     const classes = content()

@@ -1,5 +1,5 @@
-import React,{useState} from 'react'
-import {Dialog,DialogTitle,DialogActions,DialogContent,Button,TextField} from '@material-ui/core'
+﻿import React,{useState} from 'react'
+import {Dialog,DialogTitle,DialogActions,DialogContent,Button,TextField} from '@mui/material'
 import { obtenerFecha } from '../../../utilities'
 
 

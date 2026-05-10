@@ -1,6 +1,6 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@material-ui/core'
-import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
+﻿import React, {useState,useEffect} from 'react'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@mui/material'
+import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
 import { database } from '../../services'
 import {formatMoney} from '../../utilities'
@@ -175,3 +175,4 @@ export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex,s
         </Grid>
     )
 }
+

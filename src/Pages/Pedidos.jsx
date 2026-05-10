@@ -1,8 +1,9 @@
-import React,{useState} from 'react'
+﻿import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {makeStyles,Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper} from '@material-ui/core'
-import {Alert} from '@material-ui/lab'
+import { makeStyles } from 'tss-react/mui'
+import { Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper } from '@mui/material'
+import {Alert} from '@mui/material'
 import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
 import {CardPedido} from '../components/Pedidos/CardPedido'
 import { database } from '../services'
@@ -26,7 +27,7 @@ const Pedidos=(props)=>{
         setLoading(true)
         database().ref().child(props.user.uid).child('pedidos').child(id).remove()
             .then(()=>{
-                setshowSnackbar('El pedido se eliminó correctamente!')
+                setshowSnackbar('El pedido se eliminÃ³ correctamente!')
                 setShowDialogDelete(false)
                 setTimeout(() => {
                     setLoading(false)

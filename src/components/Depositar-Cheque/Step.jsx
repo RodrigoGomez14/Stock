@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
-import {Grid, Button,makeStyles,Select,Input,Chip,MenuItem,Paper,InputAdornment, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel} from '@material-ui/core'
-import { Autocomplete } from '@material-ui/lab'
-import {AddOutlined,AttachMoney} from '@material-ui/icons'
+﻿import React, { useState } from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid, Button,Select,Input,Chip,MenuItem,Paper,InputAdornment, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel } from '@mui/material'
+import { Autocomplete } from '@mui/material'
+import {AddOutlined,AttachMoney} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 
 export const Step = ({tipoDeDato,destinatario,cuentasList,setDestinatario}) =>{

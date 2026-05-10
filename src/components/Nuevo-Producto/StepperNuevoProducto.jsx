@@ -1,6 +1,6 @@
-import React from 'react'
-import {Stepper, Step, StepLabel,Grid,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton,Paper, Card, CardHeader} from '@material-ui/core'
-import {Edit,Delete} from '@material-ui/icons'
+﻿import React from 'react'
+import {Stepper, Step, StepLabel,Grid,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton,Paper, Card, CardHeader} from '@mui/material'
+import {Edit,Delete} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 
 export const StepperNuevoProducto = ({cadenaDeProduccion,seteditIndex,setshowDialog,setshowDialogDelete,setdeleteIndex}) =>{

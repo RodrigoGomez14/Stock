@@ -1,14 +1,14 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert';
+import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Nueva-Entrega/Step'
 import { database } from '../services'
 import {obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import {convertirFecha} from '../utilities'
-import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
+import { PeopleAlt, MoveToInbox } from '@mui/icons-material';
 
 
 // COMPONENT
@@ -137,7 +137,7 @@ const NuevaEntrega=(props)=>{
         // AGREGA LA FACTURA A LISTA DE VENTAS
         agregarAListaDeCompras(aux,idLink.key)
         idLink.update(aux).then(()=>{
-            setshowSnackbar('El pedido se agregó correctamente!')
+            setshowSnackbar('El pedido se agregÃ³ correctamente!')
             setTimeout(() => {
                 props.history.replace(`/Nueva-Entrega`)
             }, 100);    

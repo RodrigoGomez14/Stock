@@ -1,17 +1,18 @@
-import React from 'react'
-import { auth } from '../../services'
-import {Card,CardMedia,Drawer,List,makeStyles,ListItem,IconButton,ListItemIcon,ListItemText,Divider} from '@material-ui/core'
+﻿import React from 'react'
+import { auth } from '../services'
+import { makeStyles } from 'tss-react/mui'
+import { Card,CardMedia,Drawer,List,ListItem,IconButton,ListItemIcon,ListItemText,Divider } from '@mui/material'
 import {
     MoveToInbox, Home, List as ListIcon, ExitToApp, Link as LinkIcon,
     AccountBalanceWallet, LocalShipping, ChevronRight, LocalAtm, ShoppingCart,
     AccountBalance, Contacts, Payment, AssignmentLate
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
 import logo from '../images/logo.png'
 import clsx from 'clsx';
 
 
-const useStyles = makeStyles(theme=>({
+const useStyles = makeStyles()((theme) => ({
     link:{
         textDecoration:'none !important',
         color:theme.palette.primary.contrastText

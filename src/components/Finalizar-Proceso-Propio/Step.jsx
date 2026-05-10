@@ -1,6 +1,6 @@
-import React, { useState,useEffect } from 'react'
-import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel,InputLabel} from '@material-ui/core'
-import {List} from '@material-ui/icons'
+﻿import React, { useState,useEffect } from 'react'
+import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel,InputLabel} from '@mui/material'
+import {List} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 
 export const Step = ({cantidad,setCantidad}) =>{

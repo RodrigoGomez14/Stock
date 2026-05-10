@@ -1,6 +1,7 @@
-import React from 'react'
-import {Grid,Paper,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton,makeStyles} from '@material-ui/core'
-import {EditOutlined,DeleteOutlineOutlined} from '@material-ui/icons'
+﻿import React from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid,Paper,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton } from '@mui/material'
+import {EditOutlined,DeleteOutlineOutlined} from '@mui/icons-material'
 
 export const Mails = ({mails,seteditIndex,showDialog,openDialogDelete}) =>{
 

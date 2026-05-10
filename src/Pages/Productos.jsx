@@ -1,9 +1,9 @@
-import React,{useState} from 'react'
+﻿import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Paper,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Snackbar,Tab,Box,AppBar,Tabs,Table,TableContainer,TableHead,TableRow,TableCell,TableBody} from '@material-ui/core'
-import {Alert} from '@material-ui/lab'
-import {AddOutlined} from '@material-ui/icons'
+import {Paper,Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Snackbar,Tab,Box,AppBar,Tabs,Table,TableContainer,TableHead,TableRow,TableCell,TableBody} from '@mui/material'
+import {Alert} from '@mui/material'
+import {AddOutlined} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
 import {CardProducto} from '../components/Productos/CardProducto'
 import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
@@ -29,7 +29,7 @@ const Productos=(props)=>{
         setLoading(true)
         database().ref().child(props.user.uid).child('productos').child(key).remove()
         .then(()=>{
-            setshowSnackbar('El producto se eliminó correctamente')
+            setshowSnackbar('El producto se eliminÃ³ correctamente')
             setShowDialogDelete(false)
             setTimeout(() => {
                 setLoading(false)

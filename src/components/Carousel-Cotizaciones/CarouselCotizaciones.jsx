@@ -1,6 +1,6 @@
-import React,{useState} from 'react'
+﻿import React,{useState} from 'react'
 import { Carousel } from 'react-responsive-carousel';
-import { Paper, Typography } from '@material-ui/core';
+import { Paper, Typography } from '@mui/material';
 import {content} from '../../Pages/styles/styles'
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 

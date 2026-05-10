@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import {Grid, Button,makeStyles,Select,Input,TextField,Paper,FormControl, Typography,List,ListItem,ListItemText} from '@material-ui/core'
+﻿import React, { useState } from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid, Button,Select,Input,TextField,Paper,FormControl, Typography,List,ListItem,ListItemText } from '@mui/material'
 import {Productos} from './Productos'
 import {DialogNuevoProducto} from './Dialogs/DialogNuevoProducto'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
-import {AddOutlined} from '@material-ui/icons'
+import {AddOutlined} from '@mui/icons-material'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 

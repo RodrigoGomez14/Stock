@@ -1,7 +1,7 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Chip,InputLabel,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Select,Input, CardActions, Divider} from '@material-ui/core'
-import {MoreVert,AttachMoney,ExpandMore,ExpandLess, Add} from '@material-ui/icons'
-import {Alert} from '@material-ui/lab'
+﻿import React, {useState,useEffect} from 'react'
+import {Grid,Card,CardContent,IconButton,Chip,InputLabel,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Select,Input, CardActions, Divider} from '@mui/material'
+import {MoreVert,AttachMoney,ExpandMore,ExpandLess, Add} from '@mui/icons-material'
+import {Alert} from '@mui/material'
 import {Link} from 'react-router-dom'
 import { database } from '../../services'
 import {formatMoney} from '../../utilities'
@@ -102,7 +102,7 @@ export const Cheque = ({cheque,search,guardarChequeRebotado,id,guardarChequeEnBl
                                 title={
                                     <Grid container xs={12} justify='flex-start' spacing={3}>
                                         <Grid item>
-                                               Nº {cheque.numero} 
+                                               NÂº {cheque.numero} 
                                         </Grid>
                                         <Grid item>
                                             <Chip

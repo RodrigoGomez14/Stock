@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Layout } from './Layout'
 import { 
@@ -6,8 +6,8 @@ import {
     TextField, FormControl, InputLabel, Select, MenuItem, Button,
     FormControlLabel, Checkbox, Chip, FormLabel, FormGroup,
     FormHelperText
-} from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+} from '@mui/material'
+import { Alert } from '@mui/material'
 import { database } from '../services'
 import { content } from './styles/styles'
 import { checkSearch } from '../utilities'
@@ -27,10 +27,10 @@ const NuevoServicio = (props) => {
     const [showSnackbar, setShowSnackbar] = useState('')
     const [loading, setLoading] = useState(false)
     
-    // Para validación de formulario
+    // Para validaciÃ³n de formulario
     const [errors, setErrors] = useState({})
     
-    // Obtener todas las categorías existentes
+    // Obtener todas las categorÃ­as existentes
     const obtenerCategorias = () => {
         if (!props.servicios) return []
         
@@ -58,7 +58,7 @@ const NuevoServicio = (props) => {
         setMesesPago(newMesesPago)
     }
     
-    // Manejar cambio de categoría
+    // Manejar cambio de categorÃ­a
     const handleCategoriaChange = (event) => {
         const value = event.target.value
         
@@ -81,11 +81,11 @@ const NuevoServicio = (props) => {
         }
         
         if (!categoria && !nuevaCategoria) {
-            newErrors.categoria = 'La categoría es requerida'
+            newErrors.categoria = 'La categorÃ­a es requerida'
         }
         
         if (mostrarNuevaCategoria && !nuevaCategoria.trim()) {
-            newErrors.nuevaCategoria = 'Ingrese una nueva categoría'
+            newErrors.nuevaCategoria = 'Ingrese una nueva categorÃ­a'
         }
         
         if (frecuencia === 'anual' && !mesPago) {
@@ -127,7 +127,7 @@ const NuevoServicio = (props) => {
             
             database().ref().child(props.user.uid).child('servicios').child(servicioId).update(servicioData)
                 .then(() => {
-                    setShowSnackbar('El servicio se actualizó correctamente')
+                    setShowSnackbar('El servicio se actualizÃ³ correctamente')
                     setTimeout(() => {
                         setLoading(false)
                         props.history.push('/Servicios')
@@ -142,7 +142,7 @@ const NuevoServicio = (props) => {
         else {
             database().ref().child(props.user.uid).child('servicios').push(servicioData)
                 .then(() => {
-                    setShowSnackbar('El servicio se agregó correctamente')
+                    setShowSnackbar('El servicio se agregÃ³ correctamente')
                     setTimeout(() => {
                         setLoading(false)
                         props.history.push('/Servicios')
@@ -207,46 +207,46 @@ const NuevoServicio = (props) => {
                         />
                     </Grid>
                     
-                    {/* CATEGORÍA */}
+                    {/* CATEGORÃA */}
                     <Grid item xs={12} sm={mostrarNuevaCategoria ? 6 : 12}>
                         <FormControl 
                             variant="outlined" 
                             fullWidth
                             error={!!errors.categoria && !mostrarNuevaCategoria}
                         >
-                            <InputLabel>Categoría</InputLabel>
+                            <InputLabel>CategorÃ­a</InputLabel>
                             <Select
                                 value={categoria}
                                 onChange={handleCategoriaChange}
-                                label="Categoría"
+                                label="CategorÃ­a"
                                 disabled={mostrarNuevaCategoria}
                             >
                                 <MenuItem value="">
-                                    <em>Seleccione una categoría</em>
+                                    <em>Seleccione una categorÃ­a</em>
                                 </MenuItem>
                                 {obtenerCategorias().map(cat => (
                                     <MenuItem key={cat} value={cat}>{cat}</MenuItem>
                                 ))}
                                 <MenuItem value="nueva_categoria">
-                                    <em>+ Nueva Categoría</em>
+                                    <em>+ Nueva CategorÃ­a</em>
                                 </MenuItem>
                             </Select>
                             {errors.categoria && !mostrarNuevaCategoria && <FormHelperText>{errors.categoria}</FormHelperText>}
                         </FormControl>
                     </Grid>
                     
-                    {/* NUEVA CATEGORÍA */}
+                    {/* NUEVA CATEGORÃA */}
                     {mostrarNuevaCategoria && (
                         <Grid item xs={12} sm={6} container spacing={1} alignItems="center">
                             <Grid item xs={9}>
                                 <TextField
-                                    label="Nueva Categoría"
+                                    label="Nueva CategorÃ­a"
                                     variant="outlined"
                                     fullWidth
                                     value={nuevaCategoria}
                                     onChange={(e) => setNuevaCategoria(e.target.value)}
                                     error={!!errors.nuevaCategoria}
-                                    helperText={errors.nuevaCategoria || "Ingrese el nombre de la nueva categoría"}
+                                    helperText={errors.nuevaCategoria || "Ingrese el nombre de la nueva categorÃ­a"}
                                     autoFocus
                                 />
                             </Grid>

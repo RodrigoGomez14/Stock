@@ -1,6 +1,7 @@
-import React from 'react'
-import {Grid,Paper,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton,makeStyles,TableContainer,Table,TableCell,TableRow,TableHead,TableBody} from '@material-ui/core'
-import {EditOutlined,DeleteOutlineOutlined} from '@material-ui/icons'
+﻿import React from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid,Paper,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton,TableContainer,Table,TableCell,TableRow,TableHead,TableBody } from '@mui/material'
+import {EditOutlined,DeleteOutlineOutlined} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 
 export const ChequesPersonales = ({cheques,seteditIndex,showDialog,openDialogDelete}) =>{

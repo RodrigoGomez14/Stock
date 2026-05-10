@@ -1,8 +1,8 @@
-import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@material-ui/core'
-import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
+﻿import React, {useState,useEffect} from 'react'
+import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@mui/material'
+import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
-import {Alert} from '@material-ui/lab'
+import {Alert} from '@mui/material'
 import {formatMoney, obtenerFecha} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 import {DialogAsentarInconveniente} from './Dialogs/DialogAsentarInconveniente'
@@ -105,7 +105,7 @@ export const CardEnvio = ({envio,search,asentarLlegada,asentarResolucionInconven
                                 style={{color:'#fff',textDecoration:'none'}}
                                 className={envio.fechaDeLlegada?classes.cardEnvioHeaderTextSuccess:(envio.inconveniente?classes.cardEnvioHeaderTextWarning:null)}
                                 to={{pathname:'/Cliente',search:`${envio.cliente}`,props:{remito:envio.id}}}>
-                                Remito Nº {envio.remito}
+                                Remito NÂº {envio.remito}
                             </Link>
                         }
                     />
@@ -153,3 +153,4 @@ export const CardEnvio = ({envio,search,asentarLlegada,asentarResolucionInconven
         </Grid>
     )
 }
+

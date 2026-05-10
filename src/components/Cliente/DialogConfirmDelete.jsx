@@ -1,5 +1,5 @@
-import React from 'react'
-import {Dialog,DialogTitle,DialogActions,DialogContent,Button,Typography} from '@material-ui/core'
+﻿import React from 'react'
+import {Dialog,DialogTitle,DialogActions,DialogContent,Button,Typography} from '@mui/material'
 
 
 export const DialogConfirmDelete = ({open,setOpen,eliminarCliente}) =>{

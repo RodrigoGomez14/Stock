@@ -1,7 +1,8 @@
-import React from 'react'
-import {Grid,Paper,TextField,makeStyles} from '@material-ui/core'
+﻿import React from 'react'
+import { makeStyles } from 'tss-react/mui'
+import { Grid,Paper,TextField } from '@mui/material'
 import {DialogNuevaDireccion} from './Dialogs/DialogNuevaDireccion'
-import {AddOutlined} from '@material-ui/icons'
+import {AddOutlined} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 
 export const FormDetalles = ({nombre,setnombre,dni,setdni,cuit,setcuit})=>{

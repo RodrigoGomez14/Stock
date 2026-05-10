@@ -1,14 +1,14 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert';
+import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Nueva-Entrega/Step'
 import { database } from '../services'
 import {obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
-import { PeopleAlt, MoveToInbox } from '@material-ui/icons';
+import { PeopleAlt, MoveToInbox } from '@mui/icons-material';
 
 
 // COMPONENT
@@ -111,7 +111,7 @@ const NuevaEntrega=(props)=>{
         if(props.history.location.search){
             database().ref().child(props.user.uid).child('entregas').child(checkSearch(props.history.location.search)).update(aux)
             .then(()=>{
-                    setshowSnackbar('La entrega se editó correctamente!')
+                    setshowSnackbar('La entrega se editÃ³ correctamente!')
                 setTimeout(() => {
                     props.history.replace(`/Entregas`)
                 }, 2000);
@@ -123,7 +123,7 @@ const NuevaEntrega=(props)=>{
         else{
             database().ref().child(props.user.uid).child('entregas').push(aux)
             .then(()=>{
-                setshowSnackbar('La entrega se agregó correctamente!')
+                setshowSnackbar('La entrega se agregÃ³ correctamente!')
                 setTimeout(() => {
                     props.history.replace(`/Entregas`)
                 }, 2000);

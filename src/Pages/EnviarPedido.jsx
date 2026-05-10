@@ -1,14 +1,14 @@
-import React,{useState, useEffect} from 'react'
+﻿import React,{useState, useEffect} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert';
+import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
+import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Enviar-Pedido/Step'
 import { database } from '../services'
 import {filtrarCotizaciones, formatMoney,obtenerFecha} from '../utilities'
-import {Redirect} from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import {content} from './styles/styles'
-import { AttachMoney, LocalShipping } from '@material-ui/icons';
+import { AttachMoney, LocalShipping } from '@mui/icons-material';
  
   // COMPONENT
   const EnviarPedido=(props)=>{
@@ -182,7 +182,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
         }
 
         // FEEDBACK DEL PROCESO
-        setshowSnackbar('El pedido se envió correctamente!')
+        setshowSnackbar('El pedido se enviÃ³ correctamente!')
         
         // ACTUALIZA DB ENVIANDO TODA LA INFO
         idLink.update(aux) 
@@ -349,7 +349,7 @@ import { AttachMoney, LocalShipping } from '@material-ui/icons';
                 </Snackbar>
             </Layout>
             :
-            <Redirect to='/Pedidos'/>
+            <Navigate to='/Pedidos' replace/>
     )
 }
 const mapStateToProps = state =>{

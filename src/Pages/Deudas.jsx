@@ -1,9 +1,9 @@
-import React,{useState} from 'react'
+﻿import React,{useState} from 'react'
 import {connect} from 'react-redux'
 import {Layout} from './Layout'
-import {Backdrop,Paper,CircularProgress,Tab,Typography,TextField,Grid,AppBar,Box,Tabs,Link as LinkComponent,Snackbar,Card,CardHeader,CardContent} from '@material-ui/core'
-import {Alert} from '@material-ui/lab'
-import {AttachMoney,PersonAdd} from '@material-ui/icons'
+import {Backdrop,Paper,CircularProgress,Tab,Typography,TextField,Grid,AppBar,Box,Tabs,Link as LinkComponent,Snackbar,Card,CardHeader,CardContent} from '@mui/material'
+import {Alert} from '@mui/material'
+import {AttachMoney,PersonAdd} from '@mui/icons-material'
 import {Link} from 'react-router-dom'
 import {formatMoney} from '../utilities'
 import {content} from './styles/styles'
@@ -58,7 +58,7 @@ const Deudas=(props)=>{
             }
         })
 
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             series:series,
@@ -79,7 +79,7 @@ const Deudas=(props)=>{
             }
         };
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader
@@ -102,7 +102,7 @@ const Deudas=(props)=>{
             }
         })
 
-        // Define la configuración del gráfico
+        // Define la configuraciÃ³n del grÃ¡fico
         const options = {
             labels:labels,
             series:series,
@@ -123,7 +123,7 @@ const Deudas=(props)=>{
             }
         };
     
-        // Renderiza el gráfico
+        // Renderiza el grÃ¡fico
         return (
             <Card>
                 <CardHeader

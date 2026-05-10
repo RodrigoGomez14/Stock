@@ -1,8 +1,8 @@
-import React,{useState,useEffect} from 'react'
-import {Dialog,DialogTitle,DialogContent,Checkbox,FormGroup,FormControlLabel,DialogActions,FormLabel,TextField,Button,Grid,Select,FormControl,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@material-ui/core'
-import {Autocomplete} from '@material-ui/lab'
-import DateFnsUtils from '@date-io/date-fns';
-import {MuiPickersUtilsProvider,KeyboardTimePicker,KeyboardDatePicker,} from '@material-ui/pickers';
+﻿import React,{useState,useEffect} from 'react'
+import {Dialog,DialogTitle,DialogContent,Checkbox,FormGroup,FormControlLabel,DialogActions,FormLabel,TextField,Button,Grid,Select,FormControl,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton} from '@mui/material'
+import {Autocomplete} from '@mui/material'
+
+
 import {content} from '../../../Pages/styles/styles'
 
 export const DialogAgregarProceso = ({edit,setEdit,open,setOpen,proveedoresList,cadenaDeProduccion,setcadenaDeProduccion}) =>{

@@ -1,5 +1,5 @@
-import React,{useState} from 'react'
-import {CardHeader,Paper,ListItem,Card,CardContent,Typography,TextField,List,Grid,Chip,IconButton,Link as LinkComponent} from '@material-ui/core'
+﻿import React,{useState} from 'react'
+import {CardHeader,Paper,ListItem,Card,CardContent,Typography,TextField,List,Grid,Chip,IconButton,Link as LinkComponent} from '@mui/material'
 import {content} from '../../Pages/styles/styles'
 // COMPONENT
 const CardCuentaBancaria=({cuenta,active})=>{
@@ -16,3 +16,4 @@ const CardCuentaBancaria=({cuenta,active})=>{
     )
 }
 export default CardCuentaBancaria
+
