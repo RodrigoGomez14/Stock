@@ -12,6 +12,7 @@ import { Add, Delete, Check, Close, Edit } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData } from '../services'
 import { fechaDetallada, formatMoney } from '../utilities'
+import { ImgCache } from '../components/ImgCache'
 
 const emptyProd = { producto: '', cantidad: 1, precio: 0, precioOriginal: 0, descuento: 0, redondeo: 0, tipoAjuste: 'ninguno' }
 
@@ -322,7 +323,7 @@ const NuevoPedido = (props) => {
                         <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                             {props.productos?.[p.producto]?.imagen ? (
-                              <Box component="img" src={props.productos[p.producto].imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }} />
+                              <ImgCache src={props.productos[p.producto].imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }} />
                             ) : null}
                             <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
                           </Box>

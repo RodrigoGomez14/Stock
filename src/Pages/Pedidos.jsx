@@ -8,6 +8,7 @@ import {
 import { Search, Add, Send, Edit, Person } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../utilities'
+import { ImgCache } from '../components/ImgCache'
 
 const Pedidos = (props) => {
   const [search, setSearch] = useState('')
@@ -74,7 +75,7 @@ const Pedidos = (props) => {
                             <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5, px: 0.5 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flex: 1, minWidth: 0 }}>
                                 {prodData?.imagen && (
-                                  <Box component="img" src={prodData.imagen} sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover', flexShrink: 0 }} />
+                                  <ImgCache src={prodData.imagen} sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover' }} />
                                 )}
                                 <Box sx={{ minWidth: 0 }}>
                                   <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>

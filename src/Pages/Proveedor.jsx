@@ -17,6 +17,7 @@ import {
 import { Link } from 'react-router-dom'
 import { removeData } from '../services'
 import { formatMoney } from '../utilities'
+import { ImgCache } from '../components/ImgCache'
 
 const fmt = (v) => {
   if (typeof v === 'string') return v
@@ -210,7 +211,7 @@ const Proveedor = (props) => {
                           return (
                             <Box key={j} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5 }}>
                               {prodData?.imagen ? (
-                                <Box component="img" src={prodData.imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover', flexShrink: 0 }} />
+                                <ImgCache src={prodData.imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }} />
                               ) : null}
                               <Box sx={{ flex: 1, minWidth: 0 }}>
                                 <Typography variant="body2" fontWeight={600}>{art.producto || art.nombre}</Typography>

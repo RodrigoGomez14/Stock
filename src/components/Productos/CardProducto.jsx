@@ -1,8 +1,16 @@
 ﻿import React from 'react'
 import { Card, CardContent, CardActions, Button, Typography, Chip, IconButton, Box, Divider } from '@mui/material'
 import { Edit, Visibility } from '@mui/icons-material'
+import { ImgCache } from '../ImgCache'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../../utilities'
+
+const calcularPrecioMeli = (precio) => {
+  if (!precio || precio <= 0) return 0
+  const markup = 1.35 // 35% de margen
+  const costoFijo = 500 // costo fijo de envío/operación
+  return Math.round(precio * markup + costoFijo)
+}
 
 export const CardProducto = ({ name, precio, cantidad, isSubproducto, imagen, search }) => {
   if (search && !name.toLowerCase().includes(search.toLowerCase())) return null
@@ -13,7 +21,7 @@ export const CardProducto = ({ name, precio, cantidad, isSubproducto, imagen, se
       <Box sx={{ height: 220, width: '100%', borderTopLeftRadius: 8, borderTopRightRadius: 8, overflow: 'hidden' }}>
         {imagen ? (
           <Link to={`/Producto?${encodeURIComponent(name)}`}>
-            <Box component="img" src={imagen} sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <ImgCache src={imagen} sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </Link>
         ) : (
           <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'action.hover' }}>
@@ -44,6 +52,13 @@ export const CardProducto = ({ name, precio, cantidad, isSubproducto, imagen, se
         <Typography variant="h5" fontWeight={800} color="primary.main">
           $ {formatMoney(precio)}
         </Typography>
+        {precio > 0 && (
+          <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="caption" sx={{ color: 'warning.main', fontWeight: 600, fontSize: 11 }}>
+              🛒 MELI: $ {formatMoney(calcularPrecioMeli(precio))}
+            </Typography>
+          </Box>
+        )}
       </CardContent>
 
       <Button component={Link} to={`/Producto?${encodeURIComponent(name)}`}
