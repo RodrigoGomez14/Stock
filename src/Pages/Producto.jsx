@@ -4,7 +4,7 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Typography, Grid, Card, CardContent, Chip,
-  Button, Snackbar, Backdrop, CircularProgress, Paper, Avatar
+  Button, Snackbar, Backdrop, CircularProgress, Paper
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { Edit } from '@mui/icons-material'
@@ -41,18 +41,25 @@ const Producto = (props) => {
   return (
     <Layout history={props.history} page={nombre} user={props.user?.uid}>
       <Box sx={{ maxWidth: 1000, mx: 'auto', p: 2 }}>
-        {/* Header: image + name + edit */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+        {/* Header: image + name + chips */}
+        <Box sx={{ display: 'flex', gap: 3, mb: 3, alignItems: 'flex-start' }}>
           {producto.imagen ? (
-            <Avatar src={producto.imagen} variant="rounded" sx={{ width: 64, height: 64 }} />
+            <Box
+              component="img"
+              src={producto.imagen}
+              sx={{
+                width: 160, height: 160, borderRadius: 2, objectFit: 'cover',
+                flexShrink: 0, boxShadow: 2,
+              }}
+            />
           ) : (
-            <Box sx={{ width: 64, height: 64, borderRadius: 2, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="h4">📷</Typography>
+            <Box sx={{ width: 120, height: 120, borderRadius: 2, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Typography variant="h2">📷</Typography>
             </Box>
           )}
           <Box sx={{ flex: 1 }}>
-            <Typography variant="h5" fontWeight={700}>{nombre}</Typography>
-            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+            <Typography variant="h4" fontWeight={700}>{nombre}</Typography>
+            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 1 }}>
               <Chip label={producto.isSubproducto ? 'Subproducto' : 'Producto final'} color={producto.isSubproducto ? 'warning' : 'primary'} size="small" />
               <Chip label={`Stock: ${producto.cantidad || 0}`} color={(producto.cantidad || 0) > 0 ? 'success' : 'error'} variant="outlined" size="small" />
             </Box>

@@ -4,7 +4,8 @@ import { Layout } from './Layout'
 import {
   Box, TextField, Autocomplete, Typography, Grid, Paper,
   Backdrop, CircularProgress, Snackbar, Button, Chip,
-  IconButton, Collapse, Divider, ToggleButton, ToggleButtonGroup
+  IconButton, Collapse, Divider, ToggleButton, ToggleButtonGroup,
+  Table, TableHead, TableBody, TableRow, TableCell, Avatar
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { Add, Delete, Check, Close, Edit } from '@mui/icons-material'
@@ -117,7 +118,7 @@ const NuevoPedido = (props) => {
       <BaseWizard
         stepLabels={['Cliente', 'Productos', 'Confirmar']}
         steps={[
-          /* Step 1 */
+          /* STEP 1 — Cliente */
           <Box>
             <Typography variant="subtitle1" fontWeight={700} gutterBottom>Seleccionar cliente</Typography>
             <Autocomplete freeSolo value={cliente}
@@ -129,61 +130,81 @@ const NuevoPedido = (props) => {
             />
           </Box>,
 
-          /* Step 2 — Productos */
+          /* STEP 2 — Productos */
           <Box>
-            {/* TOTALES BAR */}
+            {/* Stats row */}
             <Grid container spacing={2} sx={{ mb: 3 }}>
               <Grid item xs={6}>
-                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
                   <Typography variant="caption" color="text.secondary">Productos</Typography>
                   <Typography variant="h4" fontWeight={800}>{productos.length}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={6}>
-                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, borderColor: 'primary.main', borderWidth: 2 }}>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center', borderColor: 'primary.main', borderWidth: 2 }}>
                   <Typography variant="caption" color="text.secondary">Total del pedido</Typography>
                   <Typography variant="h4" fontWeight={900} color="primary.main">$ {formatMoney(total)}</Typography>
                 </Paper>
               </Grid>
             </Grid>
 
-            {/* Productos agregados */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-              {productos.map((p, i) => (
-                <Paper key={i} variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {p.cantidad} u × $ {formatMoney(p.precio)}
-                        {p.tipoAjuste !== 'ninguno' && (
-                          <Box component="span" sx={{ color: 'warning.main', ml: 1 }}>
-                            ({p.tipoAjuste === 'descuento' ? `${p.descuento}% dto.` : `redondeo`})
+            {/* Tabla de productos */}
+            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Producto</TableCell>
+                    <TableCell align="right">Cant.</TableCell>
+                    <TableCell align="right">P. unitario</TableCell>
+                    <TableCell align="right">Subtotal</TableCell>
+                    <TableCell align="center"></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {productos.map((p, i) => {
+                    const prodData = props.productos?.[p.producto]
+                    return (
+                      <TableRow key={i} hover>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            {prodData?.imagen ? (
+                              <Avatar src={prodData.imagen} variant="rounded" sx={{ width: 36, height: 36 }} />
+                            ) : (
+                              <Box sx={{ width: 36, height: 36, borderRadius: 1, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Typography variant="caption">📷</Typography>
+                              </Box>
+                            )}
+                            <Box>
+                              <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
+                              {p.tipoAjuste !== 'ninguno' && (
+                                <Typography variant="caption" color="warning.main">
+                                  {p.tipoAjuste === 'descuento' ? `${p.descuento}% dto.` : 'redondeo'}
+                                </Typography>
+                              )}
+                            </Box>
                           </Box>
-                        )}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Typography variant="body2" fontWeight={700}>$ {formatMoney(p.cantidad * p.precio)}</Typography>
-                      <IconButton size="small" onClick={() => editarProducto(i)} sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' } }}>
-                        <Edit fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" color="error" onClick={() => eliminarProducto(i)}>
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                </Paper>
-              ))}
-            </Box>
+                        </TableCell>
+                        <TableCell align="right">{p.cantidad}</TableCell>
+                        <TableCell align="right">$ {formatMoney(p.precio)}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney(p.cantidad * p.precio)}</TableCell>
+                        <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                          <IconButton size="small" onClick={() => editarProducto(i)}
+                            sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' } }}><Edit fontSize="small" /></IconButton>
+                          <IconButton size="small" color="error" onClick={() => eliminarProducto(i)}><Delete fontSize="small" /></IconButton>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </Paper>
 
-            {/* Formulario agregar/editar producto */}
+            {/* Formulario inline */}
             <Collapse in={showForm}>
               <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, mb: 2 }}>
                 <Typography variant="subtitle2" fontWeight={700} gutterBottom>
                   {editIdx >= 0 ? 'Editar producto' : 'Agregar producto'}
                 </Typography>
-
                 <Grid container spacing={2} sx={{ mb: 2 }}>
                   <Grid item xs={12}>
                     <Autocomplete freeSolo value={newProd.producto}
@@ -191,8 +212,7 @@ const NuevoPedido = (props) => {
                       getOptionLabel={(o) => o}
                       onChange={handleProductoChange}
                       onInputChange={(_, v) => handleProductoChange(_, v)}
-                      renderInput={(params) => <TextField {...params} label="Producto" fullWidth size="small" />}
-                    />
+                      renderInput={(params) => <TextField {...params} label="Producto" fullWidth size="small" />} />
                   </Grid>
                   <Grid item xs={6}>
                     <TextField fullWidth size="small" label="Cantidad" type="number" value={newProd.cantidad}
@@ -208,13 +228,9 @@ const NuevoPedido = (props) => {
                 <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ display: 'block', mb: 1 }}>
                   AJUSTE DE PRECIO
                 </Typography>
-                <ToggleButtonGroup
-                  value={newProd.tipoAjuste}
-                  exclusive
+                <ToggleButtonGroup value={newProd.tipoAjuste} exclusive
                   onChange={(_, v) => setNewProd(p => ({ ...p, tipoAjuste: v || 'ninguno', descuento: 0, redondeo: 0 }))}
-                  size="small"
-                  sx={{ mb: 2 }}
-                >
+                  size="small" sx={{ mb: 2 }}>
                   <ToggleButton value="ninguno" sx={{ px: 2 }}>Sin ajuste</ToggleButton>
                   <ToggleButton value="descuento" sx={{ px: 2 }}>% Descuento</ToggleButton>
                   <ToggleButton value="redondeo" sx={{ px: 2 }}>Redondear</ToggleButton>
@@ -231,7 +247,7 @@ const NuevoPedido = (props) => {
                     sx={{ mb: 2, maxWidth: 300 }} />
                 )}
 
-                {/* Resumen de precio */}
+                {/* Resumen */}
                 <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: 'action.hover' }}>
                   <Grid container spacing={1}>
                     <Grid item xs={6}>
@@ -241,9 +257,7 @@ const NuevoPedido = (props) => {
                     {newProd.tipoAjuste === 'descuento' && newProd.descuento > 0 && (
                       <Grid item xs={6}>
                         <Typography variant="caption" color="error.main">Descuento {newProd.descuento}%</Typography>
-                        <Typography variant="body2" color="error.main">
-                          -$ {formatMoney(newProd.precioOriginal * newProd.descuento / 100)}
-                        </Typography>
+                        <Typography variant="body2" color="error.main">-$ {formatMoney(newProd.precioOriginal * newProd.descuento / 100)}</Typography>
                       </Grid>
                     )}
                     {newProd.tipoAjuste === 'redondeo' && newProd.redondeo > 0 && (
@@ -283,12 +297,12 @@ const NuevoPedido = (props) => {
             )}
           </Box>,
 
-          /* Step 3 — Confirmar */
+          /* STEP 3 — Confirmar */
           <Box>
             <Typography variant="subtitle1" fontWeight={700} gutterBottom>Confirmar pedido</Typography>
             <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
               <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="subtitle2" fontWeight={600}>Datos del pedido</Typography>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Datos del pedido</Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
                   <Typography variant="body2" color="text.secondary">Cliente</Typography>
                   <Typography variant="body2" fontWeight={600}>{cliente}</Typography>
@@ -299,22 +313,31 @@ const NuevoPedido = (props) => {
                 </Box>
               </Box>
 
-              <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Artículos</Typography>
-                {productos.map((p, i) => (
-                  <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
-                    <Typography variant="body2">
-                      {p.cantidad}x {p.producto}
-                      {p.tipoAjuste !== 'ninguno' && (
-                        <Typography variant="caption" color="warning.main" component="span">
-                          {' '}({p.tipoAjuste === 'descuento' ? `${p.descuento}%` : 'redondeo'})
-                        </Typography>
-                      )}
-                    </Typography>
-                    <Typography variant="body2" fontWeight={600}>$ {formatMoney(p.cantidad * p.precio)}</Typography>
-                  </Box>
-                ))}
-              </Box>
+              {productos.length > 0 && (
+                <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Artículos</Typography>
+                  <Grid container spacing={1}>
+                    {productos.map((p, i) => (
+                      <Grid item xs={12} sm={6} md={4} key={i}>
+                        <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
+                          <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {p.cantidad} u × $ {formatMoney(p.precio)}
+                            {p.tipoAjuste !== 'ninguno' && (
+                              <Box component="span" sx={{ color: 'warning.main', ml: 1 }}>
+                                ({p.tipoAjuste === 'descuento' ? `${p.descuento}%` : 'redondeo'})
+                              </Box>
+                            )}
+                          </Typography>
+                          <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                            $ {formatMoney(p.cantidad * p.precio)}
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              )}
 
               <Box sx={{ px: 2.5, py: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>

@@ -39,7 +39,6 @@ const NuevoCliente = (props) => {
           mails: (c.mails || []).map(toStr),
           direcciones: (c.direcciones || []).map(toStr),
           infoExtra: (c.infoExtra || []).map(toStr),
-          deuda: c.deuda || 0,
         })
       }
     }
@@ -71,7 +70,7 @@ const NuevoCliente = (props) => {
         direcciones: data.direcciones,
         telefonos: data.telefonos,
         infoExtra: data.infoExtra,
-        deuda: data.deuda,
+
       },
     }
     try {
@@ -152,15 +151,6 @@ const NuevoCliente = (props) => {
     <Box>
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>Info adicional</Typography>
       {renderListEditor(data.infoExtra, 'Nota', 'infoExtra')}
-      <Box sx={{ mt: 3 }}>
-        <TextField
-          fullWidth
-          label="Deuda inicial ($)"
-          type="number"
-          value={data.deuda}
-          onChange={(e) => set('deuda')(parseFloat(e.target.value) || 0)}
-        />
-      </Box>
     </Box>,
 
     <Box>
