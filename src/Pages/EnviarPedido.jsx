@@ -157,34 +157,45 @@ const EnviarPedido = (props) => {
 
   const steps = [
     <Box>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Resumen del pedido</Typography>
-      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 2 }}>
-        <Typography><strong>Cliente:</strong> {clienteNombre}</Typography>
-        <Typography variant="caption" color="text.secondary">Total del pedido: $ {formatMoney(orderTotal)}</Typography>
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom>Resumen del pedido</Typography>
+      <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography variant="body2" color="text.secondary">Cliente</Typography>
+            <Typography variant="body1" fontWeight={700}>{clienteNombre}</Typography>
+          </Box>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="caption" color="text.secondary">Total del pedido</Typography>
+            <Typography variant="h6" fontWeight={800} color="primary.main">$ {formatMoney(orderTotal)}</Typography>
+          </Box>
+        </Box>
       </Paper>
       {articulos.length > 0 && (
         <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" fontWeight={600}>Artículos</Typography>
+          </Box>
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>Producto</TableCell>
                 <TableCell align="right">Cant.</TableCell>
-                <TableCell align="right">Precio</TableCell>
+                <TableCell align="right">P. unitario</TableCell>
                 <TableCell align="right">Subtotal</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {articulos.map((art, i) => (
                 <TableRow key={i}>
-                  <TableCell>{art.nombre || art.producto}</TableCell>
+                  <TableCell sx={{ fontWeight: 500 }}>{art.nombre || art.producto}</TableCell>
                   <TableCell align="right">{art.cantidad}</TableCell>
                   <TableCell align="right">$ {formatMoney(art.precio || 0)}</TableCell>
-                  <TableCell align="right">$ {formatMoney((art.cantidad || 0) * (art.precio || 0))}</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney((art.cantidad || 0) * (art.precio || 0))}</TableCell>
                 </TableRow>
               ))}
               <TableRow>
-                <TableCell colSpan={3} align="right"><strong>Total</strong></TableCell>
-                <TableCell align="right"><strong>$ {formatMoney(orderTotal)}</strong></TableCell>
+                <TableCell colSpan={3} align="right" sx={{ fontWeight: 700 }}>Total</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 800, color: 'primary.main' }}>$ {formatMoney(orderTotal)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -323,24 +334,102 @@ const EnviarPedido = (props) => {
           )}
         </Paper>
       )}
+
+      {/* Resumen de pagos */}
+      <Paper variant="outlined" sx={{ borderRadius: 2, mt: 3, overflow: 'hidden' }}>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="subtitle2" fontWeight={600}>Resumen de pagos</Typography>
+        </Box>
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+            <Typography variant="body2" color="text.secondary">Efectivo</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(efectivo || 0)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+            <Typography variant="body2" color="text.secondary">Transferencia</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(montoTransferencia || 0)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+            <Typography variant="body2" color="text.secondary">Cheques</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(totalCheques)}</Typography>
+          </Box>
+          <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mt: 1, pt: 1, display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="body2" fontWeight={700}>Total pagado</Typography>
+            <Typography variant="body1" fontWeight={800} color="primary.main">
+              $ {formatMoney(totalPagado)}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 0.5 }}>
+            <Typography variant="caption" color="text.secondary">Total del pedido</Typography>
+            <Typography variant="caption" fontWeight={600}>$ {formatMoney(orderTotal + totalEnvio)}</Typography>
+          </Box>
+          {totalAdeudado > 0 && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 0.3 }}>
+              <Typography variant="caption" color="error.main" fontWeight={600}>Restante a deuda</Typography>
+              <Typography variant="caption" color="error.main" fontWeight={700}>$ {formatMoney(totalAdeudado)}</Typography>
+            </Box>
+          )}
+        </Box>
+      </Paper>
     </Box>,
 
     <Box>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Confirmar y enviar</Typography>
-      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-        <Typography><strong>Cliente:</strong> {clienteNombre}</Typography>
-        <Typography><strong>Total pedido:</strong> $ {formatMoney(orderTotal)}</Typography>
-        <Typography><strong>Envío:</strong> {usarExpreso && expreso ? `${expreso} - $${formatMoney(precioEnvio)}` : 'Sin expreso'}</Typography>
-        <Typography><strong>Efectivo:</strong> $ {formatMoney(efectivo || 0)}</Typography>
-        <Typography><strong>Transferencia:</strong> $ {formatMoney(montoTransferencia || 0)}</Typography>
-        <Typography><strong>Cheques:</strong> {cheques.length} por $ {formatMoney(totalCheques)}</Typography>
-        <Typography sx={{ mt: 1 }}><strong>Total pagado:</strong> $ {formatMoney(totalPagado)}</Typography>
-        {totalAdeudado > 0 && (
-          <Typography color="error.main" fontWeight={600}>Adeuda: $ {formatMoney(totalAdeudado)}</Typography>
-        )}
-        {totalAdeudado === 0 && (
-          <Typography color="success.main" fontWeight={600}>✓ Pagado completo</Typography>
-        )}
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom>Confirmar y enviar pedido</Typography>
+      <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Datos del pedido</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Cliente</Typography>
+            <Typography variant="body2" fontWeight={600}>{clienteNombre}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Total pedido</Typography>
+            <Typography variant="body2" fontWeight={700}>$ {formatMoney(orderTotal)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Envío</Typography>
+            <Typography variant="body2" fontWeight={500}>
+              {usarExpreso && expreso ? `${expreso} (+$${formatMoney(precioEnvio)})` : 'Particular (sin costo)'}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Resumen de pagos</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Efectivo</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(efectivo || 0)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Transferencia</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(montoTransferencia || 0)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Cheques ({cheques.length})</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(totalCheques)}</Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ px: 2.5, py: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Typography variant="body1" fontWeight={700}>Total a pagar</Typography>
+            <Typography variant="h6" fontWeight={800} color="primary.main">
+              $ {formatMoney(totalPagado)}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mt: 0.5 }}>
+            <Typography variant="caption" color="text.secondary">Restante</Typography>
+            {totalAdeudado > 0 ? (
+              <Typography variant="body2" fontWeight={700} color="error.main">
+                $ {formatMoney(totalAdeudado)} → a deuda
+              </Typography>
+            ) : totalAdeudado === 0 && totalPagado > 0 ? (
+              <Typography variant="body2" fontWeight={700} color="success.main">✓ Pagado completo</Typography>
+            ) : (
+              <Typography variant="body2" fontWeight={500} color="text.secondary">$0 → a deuda</Typography>
+            )}
+          </Box>
+        </Box>
       </Paper>
     </Box>,
   ]
