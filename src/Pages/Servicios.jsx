@@ -4,8 +4,8 @@ import { Layout } from './Layout'
 import {
   Box, Typography, Paper, Button, IconButton, Chip, TextField, Tabs, Tab,
   Collapse, Backdrop, CircularProgress, Snackbar,
-  Table, TableHead, TableBody, TableRow, TableCell,
-  Select, MenuItem, FormControl, InputLabel, InputAdornment
+  Table, TableHead, TableBody, TableRow, TableCell, Divider,
+  InputAdornment
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { Add, ChevronLeft, ChevronRight, Edit, Delete, Receipt, Check, Search, Close } from '@mui/icons-material'
@@ -19,7 +19,6 @@ const Servicios = (props) => {
   const [month, setMonth] = useState(new Date().getMonth())
   const [year, setYear] = useState(new Date().getFullYear())
   const [statusTab, setStatusTab] = useState(0)
-  const [filterCat, setFilterCat] = useState('todas')
   const [search, setSearch] = useState('')
   const [snack, setSnack] = useState('')
   const [loading, setLoading] = useState(false)
@@ -28,8 +27,6 @@ const Servicios = (props) => {
   const [recibirVto, setRecibirVto] = useState('')
 
   const servicios = props.servicios ? Object.entries(props.servicios) : []
-  const cats = [...new Set(servicios.map(([_, s]) => s.categoria).filter(Boolean))]
-
   const idPeriodo = `${year}-${month + 1}`
   const instancias = props.instanciasPago?.[idPeriodo] || {}
 
@@ -51,13 +48,20 @@ const Servicios = (props) => {
 
   const filtered = servicios.filter(([id, s]) => {
     if (!mostrarEnMes(s)) return false
-    if (filterCat !== 'todas' && s.categoria !== filterCat) return false
     if (search && !s.nombre.toLowerCase().includes(search.toLowerCase())) return false
     const status = getStatus(id)
     if (statusTab === 0) return status === 'sin-boleta'
     if (statusTab === 1) return status === 'pendiente'
     if (statusTab === 2) return status === 'pagado'
     return true
+  })
+
+  // Group by category
+  const grouped = {}
+  filtered.forEach(([id, s]) => {
+    const cat = s.categoria || 'Sin categoría'
+    if (!grouped[cat]) grouped[cat] = []
+    grouped[cat].push([id, s])
   })
 
   const guardarBoleta = async () => {
@@ -89,8 +93,7 @@ const Servicios = (props) => {
   }
 
   const statusChip = (id) => {
-    const status = getStatus(id)
-    switch (status) {
+    switch (getStatus(id)) {
       case 'sin-boleta': return <Chip size="small" label="Sin boleta" variant="outlined" sx={{ color: 'text.secondary' }} />
       case 'pendiente': return <Chip size="small" label="Pendiente" color="warning" variant="outlined" />
       case 'pagado': return <Chip size="small" label="Pagado" color="success" variant="outlined" />
@@ -103,6 +106,80 @@ const Servicios = (props) => {
     pagado: servicios.filter(([id]) => getStatus(id) === 'pagado').length,
   }
 
+  const ServiceTable = ({ title, items }) => (
+    <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
+      <Box sx={{ px: 2, py: 1.5, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="subtitle1" fontWeight={700}>{title}</Typography>
+      </Box>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Servicio</TableCell>
+            <TableCell>Estado</TableCell>
+            <TableCell align="right">Monto</TableCell>
+            <TableCell>Vencimiento</TableCell>
+            <TableCell>Pagado el</TableCell>
+            <TableCell align="center"></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {items.map(([id, s]) => {
+            const inst = instancias[id]
+            return (
+              <React.Fragment key={id}>
+                <TableRow hover>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>{s.nombre}</Typography>
+                  </TableCell>
+                  <TableCell>{statusChip(id)}</TableCell>
+                  <TableCell align="right">
+                    {inst ? `$ ${formatMoney(inst.monto || 0)}` : '—'}
+                  </TableCell>
+                  <TableCell>{inst?.vencimiento || '—'}</TableCell>
+                  <TableCell>{inst?.fechaPago || '—'}</TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                    {getStatus(id) === 'sin-boleta' && (
+                      <IconButton size="small" onClick={() => abrirRecibir(id)}><Receipt fontSize="small" /></IconButton>
+                    )}
+                    <IconButton size="small" component={Link} to={`/Editar-Servicio?${id}`}><Edit fontSize="small" /></IconButton>
+                    <IconButton size="small" color="error" onClick={() => { if (window.confirm('Eliminar?')) eliminar(id) }}>
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+                {recibirId === id && (
+                  <TableRow>
+                    <TableCell colSpan={6} sx={{ py: 0, borderBottom: 0 }}>
+                      <Collapse in={recibirId === id}>
+                        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, my: 1 }}>
+                          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                            Recibir boleta — {s.nombre}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                            {MONTHS[month]} {year}
+                          </Typography>
+                          <TextField size="small" label="Monto ($)" type="number" value={recibirMonto}
+                            onChange={(e) => setRecibirMonto(e.target.value)} sx={{ mr: 1, mb: 1 }} />
+                          <TextField size="small" label="Vencimiento" type="date" value={recibirVto}
+                            onChange={(e) => setRecibirVto(e.target.value)}
+                            InputLabelProps={{ shrink: true }} sx={{ mr: 1, mb: 1 }} />
+                          <Box sx={{ mt: 1 }}>
+                            <Button size="small" variant="contained" startIcon={<Check />} onClick={guardarBoleta}>Guardar</Button>
+                            <Button size="small" startIcon={<Close />} onClick={() => setRecibirId(null)} sx={{ ml: 1 }}>Cancelar</Button>
+                          </Box>
+                        </Paper>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </Paper>
+  )
+
   return (
     <Layout history={props.history} page="Servicios" user={props.user?.uid}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
@@ -112,14 +189,7 @@ const Servicios = (props) => {
             {MONTHS[month]} {year}
           </Typography>
           <IconButton size="small" onClick={() => setMonth((m) => Math.min(11, m + 1))}><ChevronRight /></IconButton>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Categoría</InputLabel>
-            <Select value={filterCat} label="Categoría" onChange={(e) => setFilterCat(e.target.value)}>
-              <MenuItem value="todas">Todas</MenuItem>
-              {cats.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <TextField size="small" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)}
+          <TextField size="small" placeholder="Buscar servicio..." value={search} onChange={(e) => setSearch(e.target.value)}
             InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
             sx={{ minWidth: 200 }} />
           <Button component={Link} to="/Nuevo-Servicio" startIcon={<Add />} variant="contained" size="small">Nuevo</Button>
@@ -131,78 +201,14 @@ const Servicios = (props) => {
           <Tab label={`Pagado (${counts.pagado})`} />
         </Tabs>
 
-        {filtered.length > 0 ? (
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Servicio</TableCell>
-                  <TableCell>Categoría</TableCell>
-                  <TableCell>Frecuencia</TableCell>
-                  <TableCell>Estado</TableCell>
-                  <TableCell align="right">Monto</TableCell>
-                  <TableCell align="center">Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filtered.map(([id, s]) => (
-                  <React.Fragment key={id}>
-                    <TableRow hover>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={600}>{s.nombre}</Typography>
-                      </TableCell>
-                      <TableCell><Chip size="small" label={s.categoria || '—'} variant="outlined" /></TableCell>
-                      <TableCell>
-                        {s.frecuencia === 'mensual' ? 'Mensual' :
-                         s.frecuencia === 'anual' ? 'Anual' :
-                         s.frecuencia === 'unico' ? 'Único' : s.frecuencia || '—'}
-                      </TableCell>
-                      <TableCell>{statusChip(id)}</TableCell>
-                      <TableCell align="right">
-                        {instancias[id] ? `$ ${formatMoney(instancias[id].monto || 0)}` : '—'}
-                      </TableCell>
-                      <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
-                        {getStatus(id) === 'sin-boleta' && (
-                          <IconButton size="small" onClick={() => abrirRecibir(id)}><Receipt fontSize="small" /></IconButton>
-                        )}
-                        <IconButton size="small" component={Link} to={`/Editar-Servicio?${id}`}><Edit fontSize="small" /></IconButton>
-                        <IconButton size="small" color="error" onClick={() => { if (window.confirm('Eliminar?')) eliminar(id) }}>
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                    {recibirId === id && (
-                      <TableRow>
-                        <TableCell colSpan={6} sx={{ py: 0, borderBottom: 0 }}>
-                          <Collapse in={recibirId === id}>
-                            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, my: 1 }}>
-                              <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                                Recibir boleta — {s.nombre}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                                {MONTHS[month]} {year}
-                              </Typography>
-                              <TextField size="small" label="Monto" type="number" value={recibirMonto}
-                                onChange={(e) => setRecibirMonto(e.target.value)} sx={{ mr: 1, mb: 1 }} />
-                              <TextField size="small" label="Vencimiento" type="date" value={recibirVto}
-                                onChange={(e) => setRecibirVto(e.target.value)}
-                                InputLabelProps={{ shrink: true }} sx={{ mr: 1, mb: 1 }} />
-                              <Button size="small" variant="contained" startIcon={<Check />} onClick={guardarBoleta}>Guardar</Button>
-                              <Button size="small" startIcon={<Close />} onClick={() => setRecibirId(null)} sx={{ ml: 1 }}>Cancelar</Button>
-                            </Paper>
-                          </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
+        {Object.keys(grouped).length > 0 ? (
+          Object.entries(grouped).map(([cat, items]) => (
+            <ServiceTable key={cat} title={cat} items={items} />
+          ))
         ) : (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Typography color="text.secondary">
-              {statusTab === 0 ? 'Todos los servicios tienen boleta registrada este mes.' :
+              {statusTab === 0 ? 'Todos los servicios tienen boleta este mes.' :
                statusTab === 1 ? 'No hay servicios pendientes.' :
                'No hay servicios pagados este mes.'}
             </Typography>
