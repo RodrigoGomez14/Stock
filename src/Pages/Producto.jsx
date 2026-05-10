@@ -13,22 +13,17 @@ import { database } from '../services'
 import ApexCharts from 'react-apexcharts'
 
 const Producto = (props) => {
-  const location = useLocation()
   const navigate = useNavigate()
+  const location = useLocation()
   const [loading, setLoading] = useState(false)
   const [snack, setSnack] = useState('')
   const [producto, setProducto] = useState(null)
-  const nombre = location.search.slice(1)
+  const nombre = decodeURIComponent(location.search.replace(/^\?/, ''))
 
   useEffect(() => {
     if (props.productos && nombre) {
       const p = props.productos[nombre]
-      if (p) {
-        setProducto({ nombre, ...p })
-      } else {
-        setSnack('Producto no encontrado')
-        setTimeout(() => navigate('/Productos', { replace: true }), 2000)
-      }
+      if (p) setProducto({ nombre, ...p })
     }
   }, [props.productos, nombre])
 
@@ -44,7 +39,10 @@ const Producto = (props) => {
   if (!producto) {
     return (
       <Layout history={props.history} page="Producto" user={props.user?.uid}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 2, py: 8 }}>
+          <CircularProgress />
+          <Typography color="text.secondary">Cargando producto...</Typography>
+        </Box>
       </Layout>
     )
   }

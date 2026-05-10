@@ -13,7 +13,7 @@ export const CardProducto = ({ name, precio, cantidad, isSubproducto, search, on
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Box>
             <Typography variant="h6" fontWeight={600}
-              component={Link} to={`/Producto?${name}`}
+              component={Link} to={`/Producto?${encodeURIComponent(name)}`}
               sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
               {name}
             </Typography>
@@ -31,8 +31,8 @@ export const CardProducto = ({ name, precio, cantidad, isSubproducto, search, on
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" component={Link} to={`/Producto?${name}`}>Ver detalle</Button>
-        <Button size="small" component={Link} to={`/Editar-Producto?${name}`}>Editar</Button>
+        <Button size="small" component={Link} to={`/Producto?${encodeURIComponent(name)}`}>Ver detalle</Button>
+        <Button size="small" component={Link} to={`/Editar-Producto?${encodeURIComponent(name)}`}>Editar</Button>
       </CardActions>
     </Card>
   )

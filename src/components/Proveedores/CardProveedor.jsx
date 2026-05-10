@@ -15,7 +15,7 @@ export const CardProveedor = ({ datos, search }) => {
     <Card sx={{ borderRadius: 3, transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Typography variant="h6" fontWeight={600} component={Link} to={`/Proveedor?${datos.nombre}`}
+          <Typography variant="h6" fontWeight={600} component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}
             sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
             {datos.nombre}
           </Typography>
@@ -24,7 +24,7 @@ export const CardProveedor = ({ datos, search }) => {
           </IconButton>
         </Box>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-          <MenuItem component={Link} to={`/Editar-Proveedor?${datos.nombre}`}>Editar</MenuItem>
+          <MenuItem component={Link} to={`/Editar-Proveedor?${encodeURIComponent(datos.nombre)}`}>Editar</MenuItem>
         </Menu>
         <Box sx={{ mt: 2 }}>
           <Chip
@@ -37,8 +37,8 @@ export const CardProveedor = ({ datos, search }) => {
         </Box>
       </CardContent>
       <CardActions>
-        <Button size="small" component={Link} to={`/Proveedor?${datos.nombre}`}>Ver detalle</Button>
-        <Button size="small" component={Link} to={`/Historial-Proveedor?${datos.nombre}`}>Historial</Button>
+        <Button size="small" component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}>Ver detalle</Button>
+        <Button size="small" component={Link} to={`/Historial-Proveedor?${encodeURIComponent(datos.nombre)}`}>Historial</Button>
       </CardActions>
     </Card>
   )

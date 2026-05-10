@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
@@ -6,7 +7,6 @@ import {
   Card, CardContent, Tabs, Tab, Button
 } from '@mui/material'
 import { Search, PersonAdd, AttachMoney, People, Star } from '@mui/icons-material'
-import { Link } from 'react-router-dom'
 import { formatMoney } from '../utilities'
 
 const Clientes = (props) => {
@@ -86,16 +86,16 @@ const Clientes = (props) => {
                 <Card sx={{ borderRadius: 3, transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
                   <CardContent>
                     <Typography variant="h6" fontWeight={600}
-                      component={Link} to={`/Cliente?${name}`}
+                      component={Link} to={`/Cliente?${encodeURIComponent(name)}`}
                       sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
                       {name}
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
                       <Button size="small" variant="outlined" color={c.datos?.deuda > 0 ? 'error' : 'success'}
-                        component={Link} to={`/Nuevo-Pago-Cliente?${name}`}>
+                        component={Link} to={`/Nuevo-Pago-Cliente?${encodeURIComponent(name)}`}>
                         $ {formatMoney(c.datos?.deuda || 0)}
                       </Button>
-                      <Button size="small" component={Link} to={`/Historial-Cliente?${name}`}>
+                      <Button size="small" component={Link} to={`/Historial-Cliente?${encodeURIComponent(name)}`}>
                         Historial
                       </Button>
                     </Box>
