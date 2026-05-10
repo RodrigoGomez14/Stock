@@ -3,13 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Box, Typography, Grid, Card, CardContent, Chip, IconButton,
+  Box, Typography, Grid, Card, CardContent, Chip,
   Button, Snackbar, Backdrop, CircularProgress, Paper, Avatar
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { ArrowBack, Delete } from '@mui/icons-material'
+import { Edit } from '@mui/icons-material'
 import { formatMoney } from '../utilities'
-import { removeData } from '../services'
+
 import ApexCharts from 'react-apexcharts'
 
 const Producto = (props) => {
@@ -27,15 +27,6 @@ const Producto = (props) => {
     }
   }, [props.productos, nombre])
 
-  const eliminar = async () => {
-    setLoading(true)
-    try {
-      await removeData(props.user.uid, `productos/${nombre}`)
-      setSnack('Producto eliminado')
-      setTimeout(() => navigate('/Productos', { replace: true }), 1500)
-    } catch { setLoading(false) }
-  }
-
   if (!producto) {
     return (
       <Layout history={props.history} page="Producto" user={props.user?.uid}>
@@ -50,38 +41,40 @@ const Producto = (props) => {
   return (
     <Layout history={props.history} page={nombre} user={props.user?.uid}>
       <Box sx={{ maxWidth: 1000, mx: 'auto', p: 2 }}>
-        <Card sx={{ borderRadius: 3, mb: 2 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              {producto.imagen && <Avatar src={producto.imagen} variant="rounded" sx={{ width: 64, height: 64 }} />}
-              <Box sx={{ flex: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <IconButton onClick={() => navigate(-1)} size="small"><ArrowBack /></IconButton>
-                  <Typography variant="h5" fontWeight={700} sx={{ flex: 1 }}>{nombre}</Typography>
-                  <IconButton color="error" onClick={eliminar} size="small"><Delete /></IconButton>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', ml: 5 }}>
-                  <Chip label={producto.isSubproducto ? 'Subproducto' : 'Producto final'} color={producto.isSubproducto ? 'warning' : 'primary'} size="small" />
-                  <Chip label={`Stock: ${producto.cantidad || 0}`} color={(producto.cantidad || 0) > 0 ? 'success' : 'error'} variant="outlined" size="small" />
-                </Box>
-              </Box>
+        {/* Header: image + name + edit */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+          {producto.imagen ? (
+            <Avatar src={producto.imagen} variant="rounded" sx={{ width: 64, height: 64 }} />
+          ) : (
+            <Box sx={{ width: 64, height: 64, borderRadius: 2, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="h4">📷</Typography>
             </Box>
-          </CardContent>
-        </Card>
+          )}
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h5" fontWeight={700}>{nombre}</Typography>
+            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+              <Chip label={producto.isSubproducto ? 'Subproducto' : 'Producto final'} color={producto.isSubproducto ? 'warning' : 'primary'} size="small" />
+              <Chip label={`Stock: ${producto.cantidad || 0}`} color={(producto.cantidad || 0) > 0 ? 'success' : 'error'} variant="outlined" size="small" />
+            </Box>
+          </Box>
+        </Box>
 
         <Grid container spacing={2} sx={{ mb: 2 }}>
           <Grid item xs={6}>
-            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
               <CardContent sx={{ py: '8px !important' }}>
-                <Typography variant="h4" fontWeight={700} color="primary">$ {formatMoney(producto.precio || 0)}</Typography>
+                <Typography variant="h4" fontWeight={800} color="primary">$ {formatMoney(producto.precio || 0)}</Typography>
                 <Typography variant="caption" color="text.secondary">Precio</Typography>
+                <Button size="small" variant="outlined" startIcon={<Edit />} sx={{ mt: 1, fontSize: 11 }}>
+                  Editar precio
+                </Button>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={6}>
-            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
               <CardContent sx={{ py: '8px !important' }}>
-                <Typography variant="h4" fontWeight={700}>{producto.cantidad || 0}</Typography>
+                <Typography variant="h4" fontWeight={800}>{producto.cantidad || 0}</Typography>
                 <Typography variant="caption" color="text.secondary">Stock</Typography>
               </CardContent>
             </Card>
