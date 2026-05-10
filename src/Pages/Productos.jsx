@@ -7,10 +7,9 @@ import {AddOutlined} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
 import {CardProducto} from '../components/Productos/CardProducto'
 import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
-import {database} from 'firebase'
-import {content} from './styles/styles'
-import {getProductosList,getSubproductosList,obtenerFecha} from '../utilities'
-import firebase from 'firebase'
+import { content } from './styles/styles'
+import { getProductosList, getSubproductosList, obtenerFecha } from '../utilities'
+import { database, firebase } from '../services'
 import Empty from '../images/Empty.png'
 // COMPONENT
 const Productos=(props)=>{

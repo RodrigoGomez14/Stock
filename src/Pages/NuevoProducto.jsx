@@ -6,7 +6,7 @@ import {List,Link as LinkIcon, AccountTree} from '@material-ui/icons'
 import Alert from '@material-ui/lab/Alert';
 import {Redirect} from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
-import {database} from 'firebase'
+import { database } from '../services'
 import {content} from './styles/styles'
 import {checkSearchProducto} from '../utilities'
 import {getProductosList,getSubproductosList,getAllProductosList} from '../utilities'

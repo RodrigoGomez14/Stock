@@ -6,7 +6,7 @@ import {AttachMoney,LocalAtm} from '@material-ui/icons'
 import Alert from '@material-ui/lab/Alert';
 import {Redirect} from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nuevo-Pago/Step'
-import {database} from 'firebase'
+import { database } from '../services'
 import {checkSearch, formatMoney,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
   

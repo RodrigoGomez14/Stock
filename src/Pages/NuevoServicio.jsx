@@ -8,7 +8,7 @@ import {
     FormHelperText
 } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
-import { database } from 'firebase'
+import { database } from '../services'
 import { content } from './styles/styles'
 import { checkSearch } from '../utilities'
 

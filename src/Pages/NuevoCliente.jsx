@@ -6,7 +6,7 @@ import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Cliente/Step'
 import {FormDetalles} from '../components/Nuevo-Cliente/FormDetalles'
 import {Direccion} from '../components/Nuevo-Cliente/Direccion'
-import {database} from 'firebase'
+import { database } from '../services'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
 import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@material-ui/icons';

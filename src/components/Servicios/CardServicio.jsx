@@ -11,7 +11,7 @@ import {
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../../utilities'
 import { content } from '../../Pages/styles/styles'
-import { database } from 'firebase'
+import { database } from '../../services'
 import { Alert } from '@material-ui/lab'
 
 export const CardServicio = ({ servicio, instancia, eliminarServicio, mesSeleccionado, anioSeleccionado }) => {

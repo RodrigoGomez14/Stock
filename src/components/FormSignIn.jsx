@@ -5,7 +5,7 @@ import {LockOutlined} from '@material-ui/icons'
 import {Link as LinkRouter} from 'react-router-dom'
 import {PantallaDeCarga} from '../Pages/PantallaDeCarga'
 import logo from '../images/logo.png'
-import {auth} from 'firebase'
+import { auth } from '../../services'
 const useStyles = makeStyles(theme => ({
     paper: {
       margin: theme.spacing(0, 4),

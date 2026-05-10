@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 import { Link } from 'react-router-dom'
-import { database } from 'firebase'
+import { database } from '../services'
 import { content } from './styles/styles'
 import AddIcon from '@material-ui/icons/Add'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext'

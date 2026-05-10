@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react'
 import {Grid,Card,CardContent,IconButton,Typography,Chip,Button,CardHeader,Paper,Menu,MenuItem,Collapse, List,ListItem, ListItemText,Switch,FormControlLabel, CardActions} from '@material-ui/core'
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess} from '@material-ui/icons'
 import {Link} from 'react-router-dom'
-import {database} from 'firebase'
+import { database } from '../../services'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 

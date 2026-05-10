@@ -28,9 +28,9 @@ import {PantallaDeCarga} from './Pages/PantallaDeCarga'
 import {Provider} from 'react-redux'
 import reducer from './reducers'
 import {createStore} from 'redux'
-import * as firebase from 'firebase'
 import {NotFound} from './Pages/NotFound'
 import { createMuiTheme,ThemeProvider } from '@material-ui/core/styles';
+import { database, onAuthStateChanged } from './services'
 import NuevoPagoProveedor from './Pages/NuevoPagoProveedor';
 import NuevoPagoCliente from './Pages/NuevoPagoCliente';
 import CadenasDeProduccion from './Pages/CadenasDeProduccion';
@@ -48,45 +48,27 @@ import Servicios from './Pages/Servicios';
 import NuevoServicio from './Pages/NuevoServicio';
 import PagarServicios from './Pages/PagarServicios';
 
-let store 
-let data
-
-
-//FIREBASE
-var config = {
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.REACT_APP_FIREBASE_APP_ID
-};
-
-firebase.initializeApp(config)
 class App extends Component {
   state={
     loading:true,
   }
 
-  // Comprobacion de usuario y creacion del store
-  async componentDidMount(){
-    firebase.auth().onAuthStateChanged(async user=>{
+  componentDidMount(){
+    onAuthStateChanged(async user=>{
       if(user){
-        const databaseRef = await firebase.database().ref().child(user.uid)
+        const databaseRef = database().ref().child(user.uid)
         databaseRef.on('value', snapshot=>{
-          data= snapshot.val()
+          const data = snapshot.val()
           fetch("https://dolarapi.com/v1/dolares/blue")
             .then((response) => response.json())
             .then((dolar)=>{
-              store=createStore(reducer, {tipoDeCambio:dolar,user:user,...data})
+              const store=createStore(reducer, {tipoDeCambio:dolar,user:user,...data})
               this.setState({store,user:user,loading:false})
             })
         })
       }
       else{
         this.setState({user:null,loading:false})
-        this.setState({loading:false})
       }
     })
   }

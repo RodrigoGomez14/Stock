@@ -5,7 +5,7 @@ import {Avatar,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,S
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Cliente/Step'
 import {FormDetalles} from '../components/Nuevo-Cliente/FormDetalles'
-import {database} from 'firebase'
+import { database } from '../services'
 import {content} from './styles/styles'
 import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@material-ui/icons';
 import { checkSearch } from '../utilities';

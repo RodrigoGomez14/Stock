@@ -8,7 +8,7 @@ import {
     InputLabel, Select, MenuItem
 } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
-import { database } from 'firebase'
+import { database } from '../services'
 import { content } from './styles/styles'
 import { formatMoney, obtenerFecha } from '../utilities'
 import { CalendarToday, AttachMoney, Delete } from '@material-ui/icons'

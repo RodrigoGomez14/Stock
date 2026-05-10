@@ -5,7 +5,7 @@ import {makeStyles,Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper} fro
 import {Alert} from '@material-ui/lab'
 import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
 import {CardPedido} from '../components/Pedidos/CardPedido'
-import {database} from 'firebase'
+import { database } from '../services'
 import {content} from './styles/styles'
 import Empty from '../images/Empty.png'
 import { formatMoney } from '../utilities'

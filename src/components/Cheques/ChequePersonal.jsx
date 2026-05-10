@@ -3,7 +3,7 @@ import {Grid,Card,CardContent,IconButton,Chip,InputLabel,CardHeader,Paper,Menu,M
 import {MoreVert,AttachMoney,ExpandMore,ExpandLess, Add} from '@material-ui/icons'
 import {Alert} from '@material-ui/lab'
 import {Link} from 'react-router-dom'
-import {database} from 'firebase'
+import { database } from '../../services'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 

@@ -5,7 +5,7 @@ import {Paper,Chip,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link 
 import { Autocomplete } from '@material-ui/lab'
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Pedido/Step'
-import {database} from 'firebase'
+import { database } from '../services'
 import {content} from './styles/styles'
 import { convertirFecha, getClientList, getProductosListWithPrice } from '../utilities';
 import { PeopleAlt, MoveToInbox } from '@material-ui/icons';

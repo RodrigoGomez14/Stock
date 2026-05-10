@@ -8,7 +8,7 @@ import {formatMoney, obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import ApexCharts from 'react-apexcharts'
 import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
-import firebase, {database} from 'firebase'
+import { database, firebase } from '../services'
 
 // COMPONENT
 const Producto = (props) => {

@@ -5,7 +5,7 @@ import {Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper} from '@materia
 import {Alert} from '@material-ui/lab'
 import {Link} from 'react-router-dom'
 import {CardEntrega} from '../components/Entregas/CardEntrega'
-import {database} from 'firebase'
+import { database } from '../services'
 import {content} from './styles/styles'
 import Empty from '../images/Empty.png'
 

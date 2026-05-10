@@ -4,7 +4,7 @@ import {Layout} from './Layout'
 import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Nueva-Entrega/Step'
-import {database} from 'firebase'
+import { database } from '../services'
 import {obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'

@@ -7,7 +7,7 @@ import {Step as StepComponent} from '../components/Nuevo-Cliente/Step'
 import {FormDetalles} from '../components/Nuevo-Cliente/FormDetalles'
 import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@material-ui/icons';
 import {checkSearch} from '../utilities'
-import {database} from 'firebase'
+import { database } from '../services'
 import {content} from './styles/styles'
 
 const NuevoExpreso=(props)=>{

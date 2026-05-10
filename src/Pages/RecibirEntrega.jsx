@@ -4,7 +4,7 @@ import {Layout} from './Layout'
 import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert';
 import {Step as StepComponent} from '../components/Recibir-Entrega/Step'
-import {database} from 'firebase'
+import { database } from '../services'
 import {formatMoney} from '../utilities'
 import {Redirect} from 'react-router-dom'
 import {obtenerFecha} from '../utilities'
