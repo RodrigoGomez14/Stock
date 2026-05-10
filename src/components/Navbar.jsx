@@ -1,80 +1,53 @@
 ﻿import React from 'react'
-import { makeStyles } from 'tss-react/mui'
-import {AppBar,Toolbar,IconButton,Typography} from '@mui/material'
-import {MenuOpen,ArrowBackRounded} from '@mui/icons-material'
-import { useTheme } from '@mui/material/styles';
-import clsx from 'clsx';
-const useStyles = makeStyles()((theme) => ({
-    appBar:{
-        backgroundColor:theme.palette.primary.main,
-        color:theme.palette.primary.contrastText
-    },
-    menuButton: {
-    },
-    title: {
-        flexGrow: 1,
-        textAlign:'center'
-    },
-    avatar:{
-        color: theme.palette.primary.contrastText,
-        backgroundColor: theme.palette.primary.dark,
-    },
-    danger:{
-        color:theme.palette.error.main
-    },
-    appBar: {
+import { AppBar, Toolbar, IconButton, Typography, Box, Avatar } from '@mui/material'
+import { MenuOpen, ArrowBackRounded } from '@mui/icons-material'
+import { useTheme } from '@mui/material/styles'
+
+export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, setBlockGoBack }) => {
+  const theme = useTheme()
+  return (
+    <AppBar
+      position="fixed"
+      sx={{
         zIndex: theme.zIndex.drawer + 1,
+        height: 64,
+        backdropFilter: 'blur(8px)',
+        backgroundColor: 'rgba(26, 115, 232, 0.9)',
         transition: theme.transitions.create(['width', 'margin'], {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.leavingScreen,
         }),
-        height:theme.spacing(8)
-      },
-      appBarShift: {
-        marginRight: 240,
-        width: `calc(100% - ${240}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen,
+        ...(menuOpened && {
+          marginRight: 240,
+          width: `calc(100% - 240px)`,
         }),
-      },
-      menuButton: {
-        marginRight: 18,
-      },
-      hide: {
-        display: 'none',
-      },
-}))
-
-export const NavBar = ({page,history,setMenuOpened,menuOpened,blockGoBack,setBlockGoBack}) =>{
-    const classes = useStyles()
-    return(
-        <AppBar position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: menuOpened,
-        })} >
-            <Toolbar>
-            {!menuOpened &&
-              page!=='Menu'&&
-                  <IconButton edge="end" onClick={e=>{
-                      blockGoBack?setBlockGoBack(true):history.goBack()
-                  }} color="inherit" aria-label="menu">
-                      <ArrowBackRounded />
-                  </IconButton>
-            }
-            <Typography variant="h6" className={classes.title} >
-                {page}
-            </Typography>
-            {!menuOpened &&
-                <IconButton edge="end" className={clsx(classes.menuButton, {
-                    [classes.hide]: menuOpened,
-                  })} onClick={e=>{
-                    setMenuOpened(true)
-                }} color="inherit" aria-label="menu">
-                    <MenuOpen />
-                </IconButton>
-            }
-            </Toolbar>
-        </AppBar>
-    )
+      }}
+    >
+      <Toolbar sx={{ height: 64, minHeight: '64px !important' }}>
+        {!menuOpened && page !== 'Menu' && (
+          <IconButton
+            edge="start"
+            onClick={() => (blockGoBack ? setBlockGoBack(true) : history.goBack())}
+            color="inherit"
+            sx={{ mr: 1 }}
+          >
+            <ArrowBackRounded />
+          </IconButton>
+        )}
+        <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 600, letterSpacing: 0.5 }}>
+          {page}
+        </Typography>
+        {!menuOpened && (
+          <IconButton
+            edge="end"
+            onClick={() => setMenuOpened(true)}
+            color="inherit"
+            sx={{ display: menuOpened ? 'none' : 'inline-flex' }}
+          >
+            <MenuOpen />
+          </IconButton>
+        )}
+      </Toolbar>
+    </AppBar>
+  )
 }

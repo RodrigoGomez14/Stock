@@ -16,3 +16,9 @@ export const sendPasswordReset = (email) => {
 export const onAuthStateChanged = (callback) => {
   return auth().onAuthStateChanged(callback)
 }
+
+export const signInWithGoogle = () => {
+  const provider = new auth.GoogleAuthProvider()
+  provider.setCustomParameters({ prompt: 'select_account' })
+  return auth().signInWithPopup(provider)
+}

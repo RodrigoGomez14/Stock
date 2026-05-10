@@ -27,7 +27,9 @@ import {SignInPage} from './Pages/SignIn'
 import {PantallaDeCarga} from './Pages/PantallaDeCarga'
 import { AppProvider } from './context/AppContext'
 import {NotFound} from './Pages/NotFound'
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import theme from './theme'
 import { database, onAuthStateChanged } from './services'
 import { RouteInjector } from './services/withRouter'
 import NuevoPagoProveedor from './Pages/NuevoPagoProveedor';
@@ -73,42 +75,12 @@ class App extends Component {
   
   render(){
     //creacion del tema 
-    const themeProvider = createTheme({
-      palette: {
-          white:'#fff',
-          primary: {
-            light: '#5e92f3',
-            main: '#01579b',
-            dark: '#003c8f',
-            contrastText: '#fff',
-          },
-          secondary: {
-            light: '#4f5b62',
-            main: '#263238',
-            dark: '#000a12',
-            contrastText: '#000',
-          },
-          info:{
-            main:'#ffeb3b',
-            contrastText:'#000'
-          },
-          danger:{
-            main:'#c62828',
-            light:'#ef5350'
-          },
-          success:{
-            main:'#2e7d32',
-            light:'#66bb6a',
-            dark:'#43a047'
-          },
-          type:'dark'
-      }
-  });
 
     //PANTALLA DE CARGA
     if(this.state.loading){
       return(
-          <ThemeProvider theme={themeProvider}>
+          <ThemeProvider theme={theme}>
+              <CssBaseline/>
               <PantallaDeCarga/>
           </ThemeProvider>
       )
@@ -118,7 +90,8 @@ class App extends Component {
       // RUTEADO DE LA APP
       if(this.state.user){
         return (
-          <ThemeProvider theme={themeProvider}>
+          <ThemeProvider theme={theme}>
+              <CssBaseline/>
               <AppProvider value={this.state}>
                 <BrowserRouter>
                   <Routes>
@@ -187,7 +160,8 @@ class App extends Component {
       //Si no hay usuario la unica ruta es SignIn
       else{
         return (
-          <ThemeProvider theme={themeProvider}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline/>
             <BrowserRouter>
               <Routes>
                 <Route path='/' element={<RouteInjector component={SignInPage}/>}/>

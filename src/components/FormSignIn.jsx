@@ -1,219 +1,183 @@
-﻿import React, {useState} from 'react'
-import { makeStyles } from 'tss-react/mui'
-import { Typography,Avatar,TextField,Button,Grid,Grow } from '@mui/material'
-import {Alert,AlertTitle} from '@mui/material'
-import {LockOutlined} from '@mui/icons-material'
-import {Link as LinkRouter} from 'react-router-dom'
-import {PantallaDeCarga} from '../Pages/PantallaDeCarga'
+﻿import React, { useState } from 'react'
+import {
+  Box, TextField, Button, Typography, Alert, Divider,
+  CircularProgress, Grow, Avatar
+} from '@mui/material'
+import { LockOutlined, Google as GoogleIcon } from '@mui/icons-material'
+import { signIn, signInWithGoogle, sendPasswordReset } from '../services/auth'
 import logo from '../images/logo.png'
-import { auth } from '../services'
-const useStyles = makeStyles()((theme) => ({
-    paper: {
-      margin: theme.spacing(0, 4),
-      padding:theme.spacing(1),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.primary.dark,
-        color: theme.palette.primary.contrastText
-    },
-    form: {
-      width: '100%', // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2)
-    },
-    background:{
-      background:theme.palette.primary.main,
-      color:theme.palette.primary.contrastText
-    },
-    link:{
-      color:theme.palette.primary.contrastText,
-      '& .MuiLink-underlineHover':{
-        textDecoration:'none',
-        color:theme.palette.primary.contrastText,
-      }
-    },
-    root:{
-        width:'100%',
-    },
-    title:{
-        color:theme.palette.primary.contrastText
-    },
-    checkBox:{
-        color: theme.palette.primary.contrastText,
-        '& .MuiIconButton-label':{
-            color: theme.palette.primary.contrastText,
-        }
-    },
-    linkButtons:{
-        display:'flex',
-        flexDirection:'column'
-    },
-    logo:{
-      width:'100%'
+
+export const FormSignIn = () => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [resetMode, setResetMode] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Completá todos los campos')
+      return
     }
-}));
-
-
-
-export const FormSignIn = ({history})=>{
-  const classes = useStyles()
-    let [inputUser,setInputUser]=useState(undefined)
-    let [loading,setloading]=useState(false)
-    let [emailSended,setEmailSended]=useState(false)
-    let [resetConfirmation,setResetConfirmation]=useState(false)
-    let [inputPassword,setInputPassword]=useState(undefined)
-    let [userError,setUserError]=useState(undefined)
-    let [passwordError,setPasswordError]=useState(undefined)
-    
-
-    const logIn=async()=>{
-      setUserError(null)
-      setPasswordError(null)
-      if(inputUser && inputPassword){
-          setloading(true)
-          await auth().signInWithEmailAndPassword(inputUser,inputPassword)
-          .then(()=>{
-            setloading(false)
-          })
-          .catch(error=>{
-            setloading(false)
-            switch (error.code) {
-              case 'auth/user-not-found':
-                setUserError('Usuario No Encontrado')
-                break;
-              case 'auth/wrong-password':
-                setPasswordError('La clave es incorrecta')
-                break;
-              default:
-                break;
-            }
-          })
-        }
-        else{
-          if(!inputUser){
-            setUserError('Ingresa el Usuario')
-          }
-          if(!inputPassword){
-            setPasswordError('Ingresa la clave')
-          }
-        }
+    setLoading(true)
+    setError('')
+    try {
+      await signIn(email, password)
+    } catch (err) {
+      setError(getErrorMessage(err.code))
     }
-    const sendPasswordReset=()=>{
-      if(!inputUser){
-        setEmailSended(false)
-        setUserError('Ingrese el correo para recuperar la clave')
-      }
-      else{
-        setResetConfirmation(true)
+    setLoading(false)
+  }
+
+  const handleGoogle = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      await signInWithGoogle()
+    } catch (err) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError(getErrorMessage(err.code))
       }
     }
-    return(
-        <div className={classes.root}>
-          {loading?
-            <PantallaDeCarga/>
-            :
-            <div className={classes.paper}>
-                <Grid container justify='center' >
-                  <Grid item xs={12} sm={10} md={8}>
-                    <img src={logo} className={classes.logo}/>
-                  </Grid>
-                </Grid>
-                <Avatar className={classes.avatar}>
-                    <LockOutlined/>
-                </Avatar>
-                <Typography component="h1" variant="h5" className={classes.title}>
-                    Inicia Sesion
-                </Typography>
-                <form className={classes.form} noValidate>
-                <TextField
-                variant="outlined"
-                margin="normal"
-                color='primary'
+    setLoading(false)
+  }
+
+  const handleReset = async () => {
+    if (!email) {
+      setError('Ingresá tu correo para recuperar la contraseña')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      await sendPasswordReset(email)
+      setEmailSent(true)
+    } catch {
+      setError('Error al enviar el correo')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto', py: 4, px: 3 }}>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <img src={logo} alt="Logo" style={{ maxWidth: 200, marginBottom: 16 }} />
+            <Avatar sx={{ mx: 'auto', mb: 1, bgcolor: 'primary.dark' }}>
+              <LockOutlined />
+            </Avatar>
+            <Typography variant="h5" fontWeight={700}>
+              {resetMode ? 'Recuperar Contraseña' : 'Iniciar Sesión'}
+            </Typography>
+          </Box>
+
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {emailSent && (
+            <Grow in>
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Revisá tu casilla de correo para generar una nueva clave
+              </Alert>
+            </Grow>
+          )}
+
+          {!resetMode ? (
+            <>
+              <TextField
                 fullWidth
-                id="email"
                 label="Email"
-                error={!!userError}
-                helperText={userError?userError:null}
-                name="email"
-                value={inputUser}
-                onChange={e=>{setInputUser(e.target.value)}}
-                autoFocus
-                />
-                <TextField
-                variant="outlined"
-                color='primary'
-                margin="normal"
-                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <TextField
                 fullWidth
-                name="password"
-                value={inputPassword}
-                helperText={passwordError?passwordError:null}
-                error={!!passwordError}
-                onChange={e=>{setInputPassword(e.target.value)}}
-                label="contraseÃ±a"
+                label="Contraseña"
                 type="password"
-                id="password"
-                />
-                {resetConfirmation?
-                  <Grow in={true}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      className={classes.submit}
-                      onClick={e=>{
-                        auth().languageCode='es'
-                        auth().sendPasswordResetEmail(inputUser).then(()=>{
-                            setResetConfirmation(false)
-                            setEmailSended(true)
-                        })
-                        .catch(()=>{
-
-                        })
-                      }}
-                    >
-                    Enviar mail de recuperacion!
-                    </Button>
-                  </Grow>
-                  :
-                  null
-                }
-                {emailSended?
-                  <Grow in={true}>
-                    <Alert variant="outlined" severity="success">
-                      <AlertTitle>Listo!</AlertTitle>
-                        Revisa tu casilla de correo para generar una nueva clave
-                      </Alert>
-                  </Grow>
-                  :
-                  null
-                }
-                <Button
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                size="large"
+                onClick={handleLogin}
+                sx={{ mb: 1 }}
+              >
+                Ingresar
+              </Button>
+              <Divider sx={{ my: 2 }}>o</Divider>
+              <Button
                 fullWidth
                 variant="outlined"
-                color="primary"
-                type='submit'
-                className={classes.submit}
-                onClick={e=>{logIn()}}
+                size="large"
+                startIcon={<GoogleIcon />}
+                onClick={handleGoogle}
+              >
+                Ingresar con Google
+              </Button>
+              <Box sx={{ textAlign: 'center', mt: 2 }}>
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => { setResetMode(true); setError('') }}
                 >
-                Ingresar!
+                  Recuperar Contraseña
                 </Button>
-                <div className={classes.linkButtons}>
-                    <Button variant="text" className={classes.link} onClick={()=>{
-                      sendPasswordReset()
-                    }}>
-                        Recuperar ContraseÃ±a
-                    </Button>
-                </div>
-            </form>
-            </div>
-          }
-        </div>
-    )
+              </Box>
+            </>
+          ) : (
+            <>
+              <TextField
+                fullWidth
+                label="Email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                fullWidth
+                variant="contained"
+                size="large"
+                onClick={handleReset}
+                sx={{ mb: 1 }}
+              >
+                Enviar mail de recuperación
+              </Button>
+              <Box sx={{ textAlign: 'center' }}>
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => { setResetMode(false); setError('') }}
+                >
+                  Volver al inicio de sesión
+                </Button>
+              </Box>
+            </>
+          )}
+        </>
+      )}
+    </Box>
+  )
+}
+
+function getErrorMessage(code) {
+  const messages = {
+    'auth/user-not-found': 'Usuario no encontrado',
+    'auth/wrong-password': 'Contraseña incorrecta',
+    'auth/invalid-email': 'Email inválido',
+    'auth/too-many-requests': 'Demasiados intentos. Probá más tarde',
+    'auth/popup-closed-by-user': 'Ventana cerrada',
+  }
+  return messages[code] || 'Ocurrió un error'
 }
