@@ -320,7 +320,12 @@ const NuevoPedido = (props) => {
                     {productos.map((p, i) => (
                       <Grid item xs={12} sm={6} md={4} key={i}>
                         <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
-                          <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                            {props.productos?.[p.producto]?.imagen ? (
+                              <Box component="img" src={props.productos[p.producto].imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }} />
+                            ) : null}
+                            <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
+                          </Box>
                           <Typography variant="caption" color="text.secondary">
                             {p.cantidad} u × $ {formatMoney(p.precio)}
                             {p.tipoAjuste !== 'ninguno' && (
