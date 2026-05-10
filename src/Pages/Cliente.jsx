@@ -18,7 +18,21 @@ import { Link } from 'react-router-dom'
 import { removeData } from '../services'
 import { formatMoney } from '../utilities'
 
-const toStr = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
+const fmt = (v) => {
+  if (typeof v === 'string') return v
+  if (typeof v !== 'object' || v === null) return ''
+  if (v.mail) return v.mail
+  if (v.email) return v.email
+  if (v.telefono) return v.telefono
+  if (v.numero) return v.numero
+  if (v.calleYnumero) {
+    const parts = [v.calleYnumero, v.ciudad, v.cp, v.provincia].filter(Boolean)
+    return parts.join(', ')
+  }
+  if (v.descripcion) return v.descripcion
+  if (v.nombre) return v.nombre
+  return JSON.stringify(v)
+}
 
 const Cliente = (props) => {
   const location = useLocation()
@@ -112,7 +126,7 @@ const Cliente = (props) => {
                     <Phone sx={{ fontSize: 14 }} /> Teléfono
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {d.telefono.map((t, i) => <Chip key={i} label={toStr(t)} size="small" />)}
+                    {d.telefono.map((t, i) => <Chip key={i} label={fmt(t)} size="small" />)}
                   </Box>
                 </Box>
               )}
@@ -123,7 +137,7 @@ const Cliente = (props) => {
                     <Email sx={{ fontSize: 14 }} /> Email
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {d.mails.map((m, i) => <Chip key={i} label={toStr(m)} size="small" />)}
+                    {d.mails.map((m, i) => <Chip key={i} label={fmt(m)} size="small" />)}
                   </Box>
                 </Box>
               )}
@@ -134,7 +148,7 @@ const Cliente = (props) => {
                     <Place sx={{ fontSize: 14 }} /> Direcciones
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {d.direcciones.map((dir, i) => <Chip key={i} label={toStr(dir)} size="small" variant="outlined" />)}
+                    {d.direcciones.map((dir, i) => <Chip key={i} label={fmt(dir)} size="small" variant="outlined" />)}
                   </Box>
                 </Box>
               )}
@@ -145,7 +159,7 @@ const Cliente = (props) => {
                     <LocalShipping sx={{ fontSize: 14 }} /> Transporte preferido
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {d.expresos.map((ex, i) => <Chip key={i} label={toStr(ex)} size="small" variant="outlined" />)}
+                    {d.expresos.map((ex, i) => <Chip key={i} label={fmt(ex)} size="small" variant="outlined" />)}
                   </Box>
                 </Box>
               )}
@@ -159,7 +173,7 @@ const Cliente = (props) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   {d.infoExtra.map((item, i) => (
                     <Paper key={i} variant="outlined" sx={{ p: 1.5, borderRadius: 1 }}>
-                      <Typography variant="body2">{toStr(item)}</Typography>
+                      <Typography variant="body2">{fmt(item)}</Typography>
                     </Paper>
                   ))}
                 </Box>

@@ -50,9 +50,9 @@ const Servicios = (props) => {
     if (!mostrarEnMes(s)) return false
     if (search && !s.nombre.toLowerCase().includes(search.toLowerCase())) return false
     const status = getStatus(id)
-    if (statusTab === 0) return status === 'sin-boleta'
-    if (statusTab === 1) return status === 'pendiente'
-    if (statusTab === 2) return status === 'pagado'
+    if (statusTab === 1) return status === 'sin-boleta'
+    if (statusTab === 2) return status === 'pendiente'
+    if (statusTab === 3) return status === 'pagado'
     return true
   })
 
@@ -101,12 +101,14 @@ const Servicios = (props) => {
   }
 
   const counts = {
+    todos: servicios.length,
     sinBoleta: servicios.filter(([id]) => getStatus(id) === 'sin-boleta').length,
     pendiente: servicios.filter(([id]) => getStatus(id) === 'pendiente').length,
     pagado: servicios.filter(([id]) => getStatus(id) === 'pagado').length,
   }
 
-  const isPaidTab = statusTab === 2
+  const isPaidTab = statusTab === 3
+  const isSinBoletaTab = statusTab === 1
 
   const ServiceTable = ({ title, items }) => (
     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
@@ -117,9 +119,9 @@ const Servicios = (props) => {
         <TableHead>
           <TableRow>
             <TableCell>Servicio</TableCell>
-            <TableCell>Vencimiento</TableCell>
+            {!isSinBoletaTab && <TableCell>Vencimiento</TableCell>}
             {isPaidTab && <TableCell>Pagado el</TableCell>}
-            <TableCell align="right">Monto</TableCell>
+            {!isSinBoletaTab && <TableCell align="right">Monto</TableCell>}
             <TableCell>Estado</TableCell>
             <TableCell align="center"></TableCell>
           </TableRow>
@@ -127,17 +129,20 @@ const Servicios = (props) => {
         <TableBody>
           {items.map(([id, s]) => {
             const inst = instancias[id]
+            const cols = 2 + (!isSinBoletaTab ? 1 : 0) + (isPaidTab ? 1 : 0) + (!isSinBoletaTab ? 1 : 0)
             return (
               <React.Fragment key={id}>
                 <TableRow hover>
                   <TableCell>
                     <Typography variant="body2" fontWeight={600}>{s.nombre}</Typography>
                   </TableCell>
-                  <TableCell>{inst?.vencimiento || '—'}</TableCell>
+                  {!isSinBoletaTab && <TableCell>{inst?.vencimiento || '—'}</TableCell>}
                   {isPaidTab && <TableCell>{inst?.fechaPago || '—'}</TableCell>}
-                  <TableCell align="right">
-                    {inst ? `$ ${formatMoney(inst.monto || 0)}` : '—'}
-                  </TableCell>
+                  {!isSinBoletaTab && (
+                    <TableCell align="right">
+                      {inst ? `$ ${formatMoney(inst.monto || 0)}` : '—'}
+                    </TableCell>
+                  )}
                   <TableCell>{statusChip(id)}</TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                     {getStatus(id) === 'sin-boleta' && (
@@ -151,7 +156,7 @@ const Servicios = (props) => {
                 </TableRow>
                 {recibirId === id && (
                   <TableRow>
-                    <TableCell colSpan={isPaidTab ? 6 : 5} sx={{ py: 0, borderBottom: 0 }}>
+                    <TableCell colSpan={isSinBoletaTab ? 3 : isPaidTab ? 6 : 5} sx={{ py: 0, borderBottom: 0 }}>
                       <Collapse in={recibirId === id}>
                         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, my: 1 }}>
                           <Typography variant="subtitle2" fontWeight={600} gutterBottom>
@@ -198,6 +203,7 @@ const Servicios = (props) => {
         </Box>
 
         <Tabs value={statusTab} onChange={(_, v) => setStatusTab(v)} sx={{ mb: 2 }}>
+          <Tab label={`Todos (${counts.todos})`} />
           <Tab label={`Sin boleta (${counts.sinBoleta})`} />
           <Tab label={`Pendiente (${counts.pendiente})`} />
           <Tab label={`Pagado (${counts.pagado})`} />
@@ -210,8 +216,9 @@ const Servicios = (props) => {
         ) : (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Typography color="text.secondary">
-              {statusTab === 0 ? 'Todos los servicios tienen boleta este mes.' :
-               statusTab === 1 ? 'No hay servicios pendientes.' :
+              {statusTab === 0 ? 'No hay servicios registrados.' :
+               statusTab === 1 ? 'Todos los servicios tienen boleta este mes.' :
+               statusTab === 2 ? 'No hay servicios pendientes.' :
                'No hay servicios pagados este mes.'}
             </Typography>
           </Box>
