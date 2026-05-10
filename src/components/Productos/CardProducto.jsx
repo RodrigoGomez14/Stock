@@ -1,149 +1,39 @@
-﻿import React, {useState,useEffect} from 'react'
-import {Grid,Card,CardContent,IconButton,ListSubheader,Chip,CardHeader,Collapse,Menu,MenuItem,Divider,TableRow,TableCell,Typography,Paper,List,ListItem,ListItemIcon,ListItemText} from '@mui/material'
-import {MoreVert,ExpandMore,ExpandLess,CheckCircleOutline,Block, Send, KeyboardReturn} from '@mui/icons-material'
-import {formatMoney, obtenerFecha} from '../../utilities'
-import {Link} from 'react-router-dom'
-import {content} from '../..//Pages/styles/styles'
-import { StepperCadena } from '../Productos/StepperCadena'
-import ApexCharts from 'react-apexcharts';
-import { DialogConfirmAction } from '../Dialogs/DialogConfirmAction'
-import { DialogEditMatriz } from './Dialogs/DialogEditMatriz'
+﻿import React from 'react'
+import { Card, CardContent, CardActions, Button, Typography, Chip, IconButton, Box } from '@mui/material'
+import { MoreVert, Delete } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
+import { formatMoney } from '../../utilities'
 
+export const CardProducto = ({ name, precio, cantidad, isSubproducto, search, onDelete }) => {
+  if (search && !name.toLowerCase().includes(search.toLowerCase())) return null
 
-export const CardProducto = ({precio,cantidad,search,name,historialDeStock,matrices,eliminarProducto,subproductos,cadenaDeProduccion,historialDeProduccion,isSubproducto,iniciarCadena,setDeleteIndex,setShowDialogDelete,modificarMatriz}) =>{
-    const classes = content()
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [loading,setLoading] = useState(false)
-    const [expanded, setExpanded] = useState(false);
-    const [showSnackbar, setshowSnackbar] = useState('');
-    const [showDialogConfirmMatriz, setShowDialogConfirmMatriz] = useState(false);
-    const [nuevaUbicacion, setNuevaUbicacion] = useState("");
-    const [idnexEditMatriz, setIdnexEditMatriz] = useState(-1);
-
-    // MENU DESPLEGABLE
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const generateChartSubproductos = (subproductos) => {
-
-        const series = []
-        const labels = []
-    
-        subproductos.map(subproducto=>{
-            series.push(parseInt(subproducto.cantidad))
-            labels.push(subproducto.nombre)
-        })
-
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            series:series,
-            labels:labels,
-            theme:{
-                mode:'dark',
-                palette:'palette2'
-
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
-            },
-            tooltip:{
-                fillSeriesColor:false
-            },
-            chart:{
-                sparkline:{
-                    enabled:true
-                }
-            }
-            
-        };
-        // Renderiza el grÃ¡fico
-        return (
-            <>
-                <Grid container xs={12}>
-                    <Grid item xs={12}>
-                        <List>
-                            <Divider/>
-                            <ListSubheader>
-                                Componentes
-                            </ListSubheader>
-                            <Divider/>
-                        </List>
-                    </Grid>
-                </Grid>
-                <ApexCharts options={options} series={series}  type='donut' width={300} />
-            </>
-        )
-    }
-
-    const generateChartHistorialStock = (auxHistorial) => {
-        let data = []
-        let labels = []
-            Object.keys(auxHistorial).map(movimiento=>{
-                data.push(auxHistorial[movimiento].cantidad)
-                labels.push(auxHistorial[movimiento].fecha)
-            })
-    
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labels,
-            chart:{
-                sparkline: {
-                    enabled: true
-                },
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            tooltip:{
-                theme:'dark'
-            },
-        };
-    
-        // Define los datos a visualizar
-        const series = [
-            {
-            name: 'Stock',
-            data: data,
-            },
-        ];
-        // Renderiza el grÃ¡fico
-        return <ApexCharts options={options} series={series} type='area' height={100}/>;
-    }
-
-
-    // CONTENT
-    return(
-        <TableRow>
-            <TableCell>
-                <Link 
-                    style={{color:'#fff',textDecoration:'none'}}
-                    to={{
-                        pathname:'/Producto',
-                        search:`${name}`
-                    }}
-                    onClick={(e) => {
-                        // Asegurarse de que el nombre del producto se pase correctamente
-                        if (!name || name === '') {
-                            e.preventDefault();
-                            return;
-                        }
-                    }}
-                >
-                    {name}
-                </Link>
-            </TableCell>
-            <TableCell>{cantidad}</TableCell>
-            <TableCell>$ {formatMoney(precio)}</TableCell>
-        </TableRow>
-    )
+  return (
+    <Card sx={{ borderRadius: 3, transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Typography variant="h6" fontWeight={600}
+              component={Link} to={`/Producto?${name}`}
+              sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+              {name}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+              {isSubproducto && <Chip size="small" label="Subproducto" color="warning" variant="outlined" />}
+              <Chip size="small" label={`Stock: ${cantidad}`} color={cantidad > 0 ? 'success' : 'error'} variant="outlined" />
+            </Box>
+          </Box>
+          <IconButton size="small" onClick={() => onDelete?.(name)} color="error">
+            <Delete />
+          </IconButton>
+        </Box>
+        <Typography variant="h5" fontWeight={700} sx={{ mt: 2 }}>
+          $ {formatMoney(precio)}
+        </Typography>
+      </CardContent>
+      <CardActions>
+        <Button size="small" component={Link} to={`/Producto?${name}`}>Ver detalle</Button>
+        <Button size="small" component={Link} to={`/Editar-Producto?${name}`}>Editar</Button>
+      </CardActions>
+    </Card>
+  )
 }
-

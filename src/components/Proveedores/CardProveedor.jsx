@@ -1,87 +1,45 @@
-﻿import React,{useState} from 'react'
-import {Grid,Card,CardContent,CardActions,Button,Typography,Chip,CardHeader,IconButton,Menu,MenuItem} from '@mui/material'
-import {formatMoney} from '../../utilities'
-import {AttachMoney,MoreVert} from '@mui/icons-material'
-import {Link} from 'react-router-dom'
-import {content} from '../../Pages/styles/styles'
+﻿import React from 'react'
+import { Card, CardContent, CardActions, Button, Typography, Chip, IconButton, Menu, MenuItem, Box } from '@mui/material'
+import { MoreVert, AttachMoney } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
+import { formatMoney } from '../../utilities'
 
+export const CardProveedor = ({ datos, search }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null)
 
-export const CardProveedor = ({datos,search}) =>{
-    const classes = content()
-    const [anchorEl, setAnchorEl] = useState(null);
+  if (search && !datos.nombre.toLowerCase().includes(search.toLowerCase())) {
+    return null
+  }
 
-    //Menu More
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    return(
-        <Grid item xs={8} sm={6} md={4} lg={3} style={!search?null:datos.nombre.toLowerCase().search(search.toLowerCase()) == -1 ? {display:'none'}:{}}>
-            <Card className={classes.cardCliente}>
-                <CardHeader
-                    title={
-                        <Link 
-                            style={{color:'#fff',textDecoration:'none'}}
-                            to={{
-                                pathname:'/Proveedor',
-                                search:`${datos.nombre}`
-                            }}>
-                                <Typography variant="h5" className={classes.titleCardCliente}>
-                                    {datos.nombre}
-                                </Typography>
-                            </Link>
-                    }
-                    action={
-                        <>
-                            <IconButton aria-label="settings" onClick={handleClick}>
-                                    <MoreVert/>
-                            </IconButton>
-                            <Menu
-                                id="simple-menu"
-                                anchorEl={anchorEl}
-                                keepMounted
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                            >   
-                                <Link 
-                                    style={{color:'#fff',textDecoration:'none'}}
-                                    to={{
-                                    pathname:'/Editar-Proveedor',
-                                    search:datos.nombre
-                                }}>
-                                    <MenuItem>Editar</MenuItem>
-                                </Link>
-                                <MenuItem className={classes.deleteButton} onClick={()=>{
-
-                                }}>
-                                    Eliminar
-                                </MenuItem>
-                            </Menu>
-                        </>
-                    }
-                />
-                <CardContent>
-                        <Grid container item xs={12} justify='center'>
-                            <Link 
-                                style={{color:'#fff',textDecoration:'none'}}
-                                to={{
-                                    pathname:'/Historial-Proveedor',
-                                    search:datos.nombre
-                                }}>
-                                <Chip
-                                    className={datos.deuda>0?classes.chipCardDangerCliente:classes.chipCardSuccessCliente}
-                                    variant="outlined"
-                                    icon={<AttachMoney/>}
-                                    label={datos.deuda?formatMoney(datos.deuda>=0?datos.deuda:-datos.deuda):formatMoney(0)}
-                                />
-                            </Link>
-                        </Grid>
-                </CardContent>
-            </Card>
-        </Grid>
-    )
+  return (
+    <Card sx={{ borderRadius: 3, transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Typography variant="h6" fontWeight={600} component={Link} to={`/Proveedor?${datos.nombre}`}
+            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+            {datos.nombre}
+          </Typography>
+          <IconButton size="small" onClick={(e) => setAnchorEl(e.currentTarget)}>
+            <MoreVert />
+          </IconButton>
+        </Box>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+          <MenuItem component={Link} to={`/Editar-Proveedor?${datos.nombre}`}>Editar</MenuItem>
+        </Menu>
+        <Box sx={{ mt: 2 }}>
+          <Chip
+            size="small"
+            icon={<AttachMoney />}
+            label={`$ ${formatMoney(datos.deuda || 0)}`}
+            color={datos.deuda > 0 ? 'error' : 'success'}
+            variant="outlined"
+          />
+        </Box>
+      </CardContent>
+      <CardActions>
+        <Button size="small" component={Link} to={`/Proveedor?${datos.nombre}`}>Ver detalle</Button>
+        <Button size="small" component={Link} to={`/Historial-Proveedor?${datos.nombre}`}>Historial</Button>
+      </CardActions>
+    </Card>
+  )
 }
-
