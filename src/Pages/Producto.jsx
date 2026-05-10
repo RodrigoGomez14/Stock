@@ -9,6 +9,8 @@ import {
 import { Alert } from '@mui/material'
 import { Edit } from '@mui/icons-material'
 import { formatMoney } from '../utilities'
+import { updatePrecioInSheet, getSheetsUrl } from '../services/preciosService'
+import { updateData } from '../services'
 
 const Producto = (props) => {
   const navigate = useNavigate()
@@ -63,9 +65,25 @@ const Producto = (props) => {
             <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
               <Typography variant="h3" fontWeight={900} color="primary">$ {formatMoney(producto.precio || 0)}</Typography>
               <Typography variant="caption" color="text.secondary">Precio</Typography>
-              <Button size="small" variant="outlined" startIcon={<Edit />} sx={{ mt: 1, display: 'block', mx: 'auto', fontSize: 11 }}>
-                Editar precio
-              </Button>
+                <Button size="small" variant="outlined" startIcon={<Edit />}
+                  onClick={async () => {
+                    const nuevo = prompt('Nuevo precio ($):', producto.precio || 0)
+                    if (nuevo && parseFloat(nuevo) >= 0) {
+                      setLoading(true)
+                      try {
+                        if (producto.id && getSheetsUrl()) {
+                          await updatePrecioInSheet(producto.id, parseFloat(nuevo))
+                        }
+                        await updateData(props.user.uid, `productos/${nombre}/precio`, parseFloat(nuevo))
+                        setProducto({ ...producto, precio: parseFloat(nuevo) })
+                        setSnack('Precio actualizado')
+                      } catch (e) { setSnack('Error: ' + e.message) }
+                      setLoading(false)
+                    }
+                  }}
+                  sx={{ mt: 1, display: 'block', mx: 'auto', fontSize: 11 }}>
+                  Editar precio
+                </Button>
             </Card>
           </Grid>
           <Grid item xs={12} sm={6}>

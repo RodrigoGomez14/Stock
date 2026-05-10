@@ -45,6 +45,7 @@ const menuSections = [
       { label: 'Cuentas', icon: <AccountBalance />, path: '/Cuentas-Bancarias' },
       { label: 'Servicios', icon: <Receipt />, path: '/Servicios' },
       { label: 'IVA', icon: <ShowChart />, path: '/Iva' },
+      { label: 'Lista Precios', icon: <Receipt />, path: '/Listas-De-Precios' },
     ],
   },
   {

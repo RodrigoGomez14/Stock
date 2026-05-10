@@ -54,9 +54,17 @@ const NuevoProducto = (props) => {
     }
   }, [])
 
+  const generarId = () => {
+    if (isEdit) {
+      const p = props.productos?.[checkSearchProducto(props.history.location.search)]
+      return p?.id || Date.now().toString(36)
+    }
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+  }
+
   const guardar = async () => {
     setLoading(true)
-    const payload = { nombre, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices }
+    const payload = { id: generarId(), nombre, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices }
     try {
       if (isEdit) {
         await removeData(props.user.uid, `productos/${props.history.location.search.slice(1)}`)
