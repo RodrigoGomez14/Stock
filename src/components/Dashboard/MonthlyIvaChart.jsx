@@ -6,7 +6,7 @@ import ApexCharts from 'react-apexcharts'
 import { formatMoney, getActualMonthDetailed } from '../../utilities'
 
 const MonthlyIvaChart = (props) => {
-    const { sortedVentas, sortedCompras, classes } = props
+    const { sortedVentas, sortedCompras } = props
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
@@ -102,7 +102,8 @@ let auxData=[
     };
 
     return (
-        <Card className={totalMonth>=0?classes.cardBgGreen:classes.cardBgRed}>
+        <Card 
+sx={{ bgcolor: totalMonth >= 0 ? 'success.main' : 'error.main' }}>
             <CardHeader
                 title={`$ ${formatMoney(totalMonth)}`}
                 subheader={`Iva - ${getActualMonthDetailed()}`}

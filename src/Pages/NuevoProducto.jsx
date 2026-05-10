@@ -1,276 +1,130 @@
-﻿import React,{useState, useEffect} from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import { makeStyles } from 'tss-react/mui'
-import { Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography } from '@mui/material'
-import {List,Link as LinkIcon, AccountTree} from '@mui/icons-material'
-import Alert from '@mui/material/Alert';
-import { Navigate } from 'react-router-dom'
-import {Step as StepComponent} from '../components/Nuevo-Producto/Step'
+import { Layout } from './Layout'
+import { Backdrop, Snackbar, CircularProgress, Typography, Grid, Chip } from '@mui/material'
+import { Alert } from '@mui/material'
+import { BaseWizard } from '../components/BaseWizard'
 import { database } from '../services'
-import {content} from './styles/styles'
-import {checkSearchProducto} from '../utilities'
-import {getProductosList,getSubproductosList,getAllProductosList} from '../utilities'
+import { checkSearchProducto, getProductosList, getSubproductosList, getAllProductosList } from '../utilities'
+import { Step as StepComponent } from '../components/Nuevo-Producto/Step'
+import { Subproductos } from '../components/Nuevo-Producto/Subproductos'
+import { Matrices } from '../components/Nuevo-Producto/Matrices'
+import { DialogAgregarProceso } from '../components/Nuevo-Producto/Dialogs/DialogAgregarProceso'
+import { DialogNuevaMatriz } from '../components/Nuevo-Producto/Dialogs/DialogNuevaMatriz'
+import { DialogNuevoSubproducto } from '../components/Nuevo-Producto/Dialogs/DialogNuevoSubproducto'
+import { DialogEliminarElemento } from '../components/Nuevo-Producto/Dialogs/DialogEliminarElemento'
 
-  
-// COMPONENT  
-const NuevoProducto=(props)=>{
-    const classes = content()
-    
-    const [isSubproducto,setIsSubproducto]=useState(undefined)
-    
-    const [nombre,setnombre]=useState('')
-    const [precio,setprecio]=useState(0)
-    const [cantidad,setcantidad]=useState(0)
-    const [cadenaDeProduccion,setcadenaDeProduccion]=useState([])
-    const [subproductos,setSubproductos]=useState([])
-    const [matrices,setMatrices]=useState([])
+const NuevoProducto = (props) => {
+  const [isSubproducto, setIsSubproducto] = useState(false)
+  const [nombre, setnombre] = useState('')
+  const [precio, setprecio] = useState(0)
+  const [cantidad, setcantidad] = useState(0)
+  const [cadenaDeProduccion, setcadenaDeProduccion] = useState([])
+  const [subproductos, setSubproductosState] = useState([])
+  const [matrices, setMatrices] = useState([])
+  const [activeStep, setActiveStep] = useState(0)
+  const [showSnackbar, setshowSnackbar] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showDialog, setshowDialog] = useState(undefined)
+  const [editIndex, seteditIndex] = useState(undefined)
+  const [deleteIndex, setdeleteIndex] = useState(undefined)
+  const [openDialog, setopenDialog] = useState(false)
 
-    const [activeStep, setActiveStep] = useState(0);
-    const [showSnackbar, setshowSnackbar] = useState('');
-    const [loading, setLoading] = useState(false);
-    const steps = getSteps();
-
-    // STEPPER NAVIGATION
-    const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
-    function getStepContent(step) {
-      switch (step) {
-        case 0:
-          return (
-            <StepComponent 
-                tipoDeDato='Detalles'
-                nombre={nombre}
-                setnombre={setnombre}
-                precio={precio}
-                setprecio={setprecio}
-                cantidad={cantidad}
-                setcantidad={setcantidad}
-                disableCantidad={props.history.location.searchx?true:false}
-                isSubproducto={isSubproducto}
-                setIsSubproducto={setIsSubproducto}
-            /> 
-        );
-        case 1:
-            return (
-            <StepComponent 
-                tipoDeDato='Cadena De Produccion'
-                cadenaDeProduccion={cadenaDeProduccion}
-                setcadenaDeProduccion={setcadenaDeProduccion}
-                proveedoresList={props.proveedores}
-            /> 
-        );
-        case 2:
-            return (
-            <StepComponent 
-                tipoDeDato='Componentes'
-                subproductos={subproductos}
-                setSubproductos={setSubproductos}
-                subproductosList={getAllProductosList(props.productos)}
-            /> 
-        );
-        case 3:
-            return (
-            <StepComponent 
-                tipoDeDato='Matrices'
-                matrices={matrices}
-                setMatrices={setMatrices}
-            /> 
-        );
+  useEffect(() => {
+    if (props.history.location.search) {
+      const nombre = checkSearchProducto(props.history.location.search)
+      const prod = props.productos[nombre]
+      if (prod) {
+        setnombre(prod.nombre || '')
+        setprecio(prod.precio || 0)
+        setcantidad(prod.cantidad || 0)
+        setcadenaDeProduccion(prod.cadenaDeProduccion || [])
+        setSubproductosState(prod.subproductos || [])
+        setMatrices(prod.matrices || {})
+        setIsSubproducto(!!prod.isSubproducto)
       }
     }
-    const setDisabled=(step)=>{
-        switch (step) {
-            case 0:
-                if(isSubproducto){
-                    if(!nombre){
-                        return true
-                    }
-                }
-                else{
-                    if(!nombre || !precio){
-                        return true
-                    }
-                }
-                break;
-            case 1:
-                break;
-            default:
-                break;
-        }
-    }
-    function getSteps() {
-        return ['Detalles','Cadena De Produccion','Componentes','Matrices' ];
-    }
+  }, [])
 
-    // FUNCTIONS
-    const guardarProducto = () =>{
-        setLoading(true)
-        let aux={[nombre]:{
-            cantidad:parseInt(cantidad),
-            precio:parseFloat(precio),
-            nombre:nombre,
-            cadenaDeProduccion:cadenaDeProduccion.length?cadenaDeProduccion:null,
-            isSubproducto:isSubproducto?isSubproducto:null,
-            subproductos:subproductos,
-            matrices:matrices
-        }}
-        if(props.history.location.search){
-            let newAux = props.productos[checkSearchProducto(props.history.location.search)]
-            if(newAux.historialDeCadenas){
-                aux[nombre]['historialDeCadenas']=newAux.historialDeCadenas
-            }
-            
-            // COPIA PEDIDOS E HISTORIAL
-            database().ref().child(props.user.uid).child('productos').child(props.history.location.search.slice(1)).remove()
-            .then(()=>{
-                database().ref().child(props.user.uid).child('productos').update(aux)
-                .then(()=>{
-                    setshowSnackbar(props.history.location.search?'El Producto Se Edito Correctamente!':'El Producto Se Agrego Correctamente!')
-                        setTimeout(() => {
-                            setLoading(false)
-                            props.history.replace('/Productos')
-                        }, 2000);
-                })
-                .catch(()=>{
-                    setLoading(false)
-                })
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-        }
-        else{
-            database().ref().child(props.user.uid).child('productos').update(aux)
-                .then(()=>{
-                    setshowSnackbar(props.history.location.search?'El Producto Se Edito Correctamente!':'El Producto Se Agrego Correctamente!')
-                    setTimeout(() => {
-                        props.history.replace('/Productos')
-                    }, 2000);
-                })
-                .catch(()=>{
-                    setLoading(false)
-                })
-        }
+  const guardarProducto = async () => {
+    setLoading(true)
+    const aux = {
+      nombre, precio, cantidad, isSubproducto,
+      cadenaDeProduccion, subproductos, matrices,
     }
-    function getStepLabel(label,index) {
-        switch (index) {
-            case 0:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<List/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 1:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<LinkIcon/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 2:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<AccountTree/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 3:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<AccountTree/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-        }
-    }
+    try {
+      if (props.history.location.search) {
+        const oldName = props.history.location.search.slice(1)
+        await database().ref().child(props.user.uid).child('productos').child(oldName).remove()
+        await database().ref().child(props.user.uid).child('productos').update({ [nombre]: aux })
+      } else {
+        await database().ref().child(props.user.uid).child('productos').update({ [nombre]: aux })
+      }
+      setshowSnackbar(props.history.location.search ? 'Producto editado!' : 'Producto creado!')
+      setTimeout(() => props.history.replace('/Productos'), 2000)
+    } catch { setLoading(false) }
+  }
 
-    // FILL FOR EDIT
-    useEffect(()=>{
-        if(props.history.location.search){
-            const {nombre,precio,cantidad,cadenaDeProduccion,subproductos,isSubproducto,matrices} = props.productos[checkSearchProducto(props.history.location.search)]
-            nombre&&setnombre(nombre)
-            precio&&setprecio(precio)
-            cantidad&&setcantidad(cantidad)
-            cadenaDeProduccion&&setcadenaDeProduccion(cadenaDeProduccion)
-            isSubproducto&&setIsSubproducto(isSubproducto)
-            subproductos&&setSubproductos(subproductos)
-            matrices&&setMatrices(matrices)
-        }
-    },[])
-    return(
-        <Layout history={props.history} page={props.history.location.search?'Editar Producto':'Nuevo Producto'} user={props.user.uid} blockGoBack={true}>
-            <Paper className={classes.content}>
-                {/* STEPPER */}
-                <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
-                    {steps.map((label,index)=>(
-                        <Step>
-                            {getStepLabel(label,index)}
-                            <StepContent>
-                                <Grid container xs={12} justify='center' spacing={3}>
-                                    {getStepContent(index)}
-                                    <Grid container item xs={12} justify='center'>
-                                        <Grid item>
-                                            <Button
-                                                disabled={activeStep===0}
-                                                onClick={handleBack}
-                                            >
-                                                Volver
-                                            </Button>
-                                        </Grid>
-                                        <Grid item>
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                disabled={setDisabled(activeStep)}
-                                                onClick={activeStep === steps.length - 1 ? guardarProducto : handleNext}
-                                            >
-                                                {activeStep === steps.length - 1 ? `${props.history.location.search?'Guardar Edicion':'Guardar Producto'}` : 'Siguiente'}
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                            </StepContent>
-                        </Step>
-                    ))}
-                </Stepper>
-                {/* BACKDROP & SNACKBAR */}
-                <Backdrop className={classes.backdrop} open={loading}>
-                    <CircularProgress color="inherit" />
-                    <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                        <Alert severity="success" variant='filled'>
-                            {showSnackbar}
-                        </Alert>
-                    </Snackbar>
-                </Backdrop>
-            </Paper>
-        </Layout>
-    )
+  const steps = [
+    <StepComponent
+      tipoDeDato="Detalles"
+      nombre={nombre} setnombre={setnombre}
+      precio={precio} setprecio={setprecio}
+      cantidad={cantidad} setcantidad={setcantidad}
+      isSubproducto={isSubproducto} setIsSubproducto={setIsSubproducto}
+    />,
+    <StepComponent
+      tipoDeDato="Cadena de Producción"
+      cadenaDeProduccion={cadenaDeProduccion} setcadenaDeProduccion={setcadenaDeProduccion}
+      subproductos={getSubproductosList(props.productos)}
+      allProductos={getAllProductosList(props.productos)}
+    />,
+    <Subproductos
+      subproductos={subproductos}
+      seteditIndex={seteditIndex}
+      showDialog={setshowDialog}
+      openDialogDelete={setopenDialog}
+    />,
+    <Matrices
+      matrices={matrices}
+      seteditIndexMatriz={seteditIndex}
+      showDialog={setshowDialog}
+      openDialogDelete={setopenDialog}
+    />,
+  ]
+
+  const getDisabled = (step) => {
+    switch (step) {
+      case 0: return !nombre
+      default: return false
+    }
+  }
+
+  return (
+    <Layout history={props.history} page={props.history.location.search ? 'Editar Producto' : 'Nuevo Producto'} user={props.user.uid} blockGoBack={true}>
+      <BaseWizard
+        steps={steps}
+        activeStep={activeStep}
+        onNext={() => setActiveStep(s => s + 1)}
+        onBack={() => setActiveStep(s => s - 1)}
+        onFinish={guardarProducto}
+        disabled={getDisabled(activeStep)}
+        finishLabel={props.history.location.search ? 'Guardar Edición' : 'Crear Producto'}
+      />
+
+      <DialogAgregarProceso open={showDialog === 'proceso'} setOpen={() => setshowDialog(undefined)} datos={cadenaDeProduccion} setDatos={setcadenaDeProduccion} productos={getProductosList(props.productos)} subproductos={getSubproductosList(props.productos)} />
+      <DialogNuevaMatriz open={showDialog === 'matriz'} setOpen={() => setshowDialog(undefined)} datos={matrices} setDatos={setMatrices} />
+      <DialogNuevoSubproducto open={showDialog === 'subproducto'} setOpen={() => setshowDialog(undefined)} datos={subproductos} setDatos={setSubproductosState} edit={editIndex !== undefined} editIndex={editIndex} seteditIndex={seteditIndex} />
+      <DialogEliminarElemento open={openDialog} setopen={setopenDialog} datos={showDialog === 'subproducto' ? subproductos : cadenaDeProduccion} setDatos={showDialog === 'subproducto' ? setSubproductosState : setcadenaDeProduccion} index={deleteIndex} setdeleteIndex={setdeleteIndex} />
+
+      <Backdrop open={loading} sx={{ zIndex: t => t.zIndex.drawer + 1, color: '#fff' }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <Snackbar open={!!showSnackbar} autoHideDuration={2000} onClose={() => setshowSnackbar('')}>
+        <Alert severity="success" variant="filled">{showSnackbar}</Alert>
+      </Snackbar>
+    </Layout>
+  )
 }
 
 export default withStore(NuevoProducto)
