@@ -24,6 +24,8 @@ const NuevoCliente = (props) => {
 
   const isEdit = !!props.history.location.search
 
+  const toStr = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
+
   useEffect(() => {
     if (isEdit) {
       const c = props.clientes?.[checkSearch(props.history.location.search)]?.datos
@@ -33,10 +35,10 @@ const NuevoCliente = (props) => {
           dni: c.dni || '',
           cuit: c.cuit || '',
           expreso: c.expreso || null,
-          telefonos: c.telefonos || [],
-          mails: c.mails || [],
-          direcciones: c.direcciones || [],
-          infoExtra: c.infoExtra || [],
+          telefonos: (c.telefonos || []).map(toStr),
+          mails: (c.mails || []).map(toStr),
+          direcciones: (c.direcciones || []).map(toStr),
+          infoExtra: (c.infoExtra || []).map(toStr),
           deuda: c.deuda || 0,
         })
       }

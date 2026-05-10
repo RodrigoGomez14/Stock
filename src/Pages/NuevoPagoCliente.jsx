@@ -64,30 +64,29 @@ const NuevoPagoCliente = (props) => {
 
         {/* RESUMEN arriba */}
         <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">Efectivo</Typography>
               <Typography variant="h5" fontWeight={800}>$ {formatMoney(efectivo || 0)}</Typography>
             </Paper>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">Transferencia</Typography>
               <Typography variant="h5" fontWeight={800}>$ {formatMoney(montoTransferencia || 0)}</Typography>
             </Paper>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">Cheques</Typography>
               <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalCheques)}</Typography>
             </Paper>
           </Grid>
-          <Grid item xs={3}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center', borderColor: 'primary.main', borderWidth: 2 }}>
-              <Typography variant="caption" color="text.secondary">Total</Typography>
-              <Typography variant="h4" fontWeight={900} color="primary.main">$ {formatMoney(total)}</Typography>
-              <Typography variant="caption" color={restante > 0 ? 'error.main' : 'success.main'} fontWeight={700}>
-                {restante > 0 ? `Restan $ ${formatMoney(restante)}` : restante < 0 ? `Sobran $ ${formatMoney(Math.abs(restante))}` : '✓ Deuda cubierta'}
+          <Grid item xs={12}>
+            <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, textAlign: 'center', borderColor: 'primary.main', borderWidth: 2 }}>
+              <Typography variant="h3" fontWeight={900} color="primary.main">$ {formatMoney(total)}</Typography>
+              <Typography variant="body1" color={restante > 0 ? 'error.main' : 'success.main'} fontWeight={700}>
+                {restante > 0 ? `Restan $ ${formatMoney(restante)} a deuda` : restante < 0 ? `Sobran $ ${formatMoney(Math.abs(restante))}` : '✓ Deuda cubierta'}
               </Typography>
             </Paper>
           </Grid>
@@ -96,10 +95,10 @@ const NuevoPagoCliente = (props) => {
         {/* MÉTODOS — 4 en línea */}
         <Grid container spacing={1.5} sx={{ mb: 2 }}>
           {[
-            { key: 'noPagar', icon: '⏭️', label: 'No pagar', desc: 'No registra pago' },
             { key: 'efectivo', icon: '💵', label: 'Efectivo', desc: 'Pago en efectivo' },
             { key: 'transferencia', icon: '🏦', label: 'Transferencia', desc: 'Transferencia bancaria' },
             { key: 'cheques', icon: '📄', label: 'Cheques', desc: 'Cheques a cobrar' },
+            { key: 'noPagar', icon: '⏭️', label: 'No pagar', desc: 'No registra pago' },
           ].map((opt) => (
             <Grid item xs={3} key={opt.key}>
               <Paper

@@ -298,10 +298,10 @@ const EnviarPedido = (props) => {
       </Typography>
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {[
-          { key: 'noPagar', label: 'No pagar', desc: 'Pasa todo a deuda', icon: '⏭️' },
           { key: 'efectivo', label: 'Efectivo', desc: 'Dinero en efectivo', icon: '💵' },
           { key: 'transferencia', label: 'Transferencia', desc: 'Transferencia bancaria', icon: '🏦' },
           { key: 'cheques', label: 'Cheques', desc: 'Cheques de terceros', icon: '📄' },
+          { key: 'noPagar', label: 'No pagar', desc: 'Pasa todo a deuda', icon: '⏭️' },
         ].map((opt) => (
           <Grid item xs={3} key={opt.key}>
             <Paper
