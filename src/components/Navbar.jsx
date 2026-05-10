@@ -1,8 +1,9 @@
 ﻿import React from 'react'
 import { Box, Typography, IconButton, Tooltip, Button } from '@mui/material'
-import { Menu, ArrowBack, ShoppingCart, MoveToInbox, Payment } from '@mui/icons-material'
-import { Link } from 'react-router-dom'
+import { ArrowBack, ShoppingCart, MoveToInbox, Payment } from '@mui/icons-material'
+import { Link, useNavigate } from 'react-router-dom'
 import { CashBalance } from './CashBalance'
+import { canGoBack, popNav, suppressNextPush } from '../services/navigation'
 
 const quickActions = [
   { label: 'Nuevo Pedido', icon: <ShoppingCart fontSize="small" />, path: '/Nuevo-Pedido' },
@@ -10,7 +11,19 @@ const quickActions = [
   { label: 'Pagar Servicios', icon: <Payment fontSize="small" />, path: '/Pagar-Servicios' },
 ]
 
-export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, setBlockGoBack, user }) => {
+export const NavBar = ({ page, history, menuOpened, blockGoBack, setBlockGoBack, user }) => {
+  const navigate = useNavigate()
+
+  const handleBack = () => {
+    if (blockGoBack) {
+      setBlockGoBack(true)
+      return
+    }
+    suppressNextPush()
+    const target = popNav()
+    navigate(target, { replace: true })
+  }
+
   return (
     <Box
       sx={{
@@ -31,10 +44,10 @@ export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, 
         transition: 'left 0.2s ease',
       }}
     >
-      {page !== 'Menu' && (
+      {canGoBack() && (
         <IconButton
           size="small"
-          onClick={() => (blockGoBack ? setBlockGoBack(true) : history.goBack())}
+          onClick={handleBack}
           sx={{ mr: 0.5, color: 'text.secondary' }}
         >
           <ArrowBack fontSize="small" />
@@ -74,13 +87,6 @@ export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, 
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {user && <CashBalance uid={user} />}
-        <IconButton
-          size="small"
-          onClick={() => setMenuOpened(!menuOpened)}
-          sx={{ color: 'text.secondary' }}
-        >
-          <Menu fontSize="small" />
-        </IconButton>
       </Box>
     </Box>
   )

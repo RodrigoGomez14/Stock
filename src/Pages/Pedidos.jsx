@@ -52,39 +52,39 @@ const Pedidos = (props) => {
                           {p.fecha}
                         </Typography>
                       </Box>
-                      <Chip
-                        size="small"
-                        label={`${p.articulos?.length || 0} art.`}
-                        variant="outlined"
-                        sx={{ fontSize: 11, flexShrink: 0 }}
-                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Chip size="small" label={`${p.articulos?.length || 0} art.`} variant="outlined" sx={{ fontSize: 11 }} />
+                        <IconButton
+                          size="small"
+                          component={Link}
+                          to={`/Editar-Pedido?${id}`}
+                          sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' } }}
+                        >
+                          <Edit fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </Box>
 
                     {/* Articles list */}
                     {p.articulos && p.articulos.length > 0 ? (
                       <Box sx={{ mb: 1.5 }}>
                         {p.articulos.slice(0, 5).map((art, i) => (
-                          <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.4, px: 0.5 }}>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                flex: 1, mr: 1,
-                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                                color: 'text.primary',
-                              }}
-                            >
-                              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                                {art.cantidad}x
-                              </Box>{' '}
-                              {art.nombre || art.producto}
-                            </Typography>
-                            <Typography variant="body2" fontWeight={600} sx={{ color: 'text.primary', flexShrink: 0 }}>
+                          <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', py: 0.5, px: 0.5 }}>
+                            <Box sx={{ flex: 1, mr: 1, minWidth: 0 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                                {art.nombre || art.producto}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                                {art.cantidad}u × $ {formatMoney(art.precio || 0)}
+                              </Typography>
+                            </Box>
+                            <Typography variant="body2" fontWeight={700} sx={{ color: 'text.primary', flexShrink: 0, mt: 0.2 }}>
                               $ {formatMoney((art.cantidad || 0) * (art.precio || 0))}
                             </Typography>
                           </Box>
                         ))}
                         {p.articulos.length > 5 && (
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 0.5, pt: 0.3 }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 0.5, pt: 0.5 }}>
                             +{p.articulos.length - 5} artículo(s) más
                           </Typography>
                         )}
@@ -106,33 +106,18 @@ const Pedidos = (props) => {
                     </Box>
                   </CardContent>
 
-                  {/* Actions integrated — colored */}
-                  <Box sx={{ display: 'flex', borderTop: '1px solid', borderColor: 'divider' }}>
-                    <Button
-                      component={Link}
-                      to={`/Enviar-Pedido?${id}`}
-                      startIcon={<Send />}
-                      size="small"
-                      fullWidth
-                      color="primary"
-                      variant="contained"
-                      sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 12 }}
-                    >
-                      Enviar
-                    </Button>
-                    <Button
-                      component={Link}
-                      to={`/Editar-Pedido?${id}`}
-                      startIcon={<Edit />}
-                      size="small"
-                      fullWidth
-                      color="warning"
-                      variant="contained"
-                      sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 12, borderLeft: '1px solid', borderColor: 'divider' }}
-                    >
-                      Editar
-                    </Button>
-                  </Box>
+                  {/* Enviar full-width */}
+                  <Button
+                    component={Link}
+                    to={`/Enviar-Pedido?${id}`}
+                    startIcon={<Send />}
+                    fullWidth
+                    color="primary"
+                    variant="contained"
+                    sx={{ borderRadius: 0, py: 1.3, fontWeight: 600, fontSize: 13 }}
+                  >
+                    Enviar pedido
+                  </Button>
                 </Card>
               </Grid>
             ))}

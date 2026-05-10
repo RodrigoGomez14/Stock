@@ -27,7 +27,6 @@ export const Layout = ({ page, children, history, hiddenAppBar, blockGoBack, use
           <NavBar
             page={page}
             history={history}
-            setMenuOpened={setMenuOpened}
             menuOpened={menuOpened}
             blockGoBack={blockGoBack}
             setBlockGoBack={setdialogBackOpen}

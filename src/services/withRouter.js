@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
+import { pushNav } from './navigation'
 
 export function withRouter(Component) {
   function ComponentWithRouterProp(props) {
@@ -25,6 +27,12 @@ export function RouteInjector({ component: Component, ...rest }) {
   const navigate = useNavigate()
   const location = useLocation()
   const params = useParams()
+
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      pushNav(location.pathname + (location.search || ''))
+    }
+  }, [location.pathname, location.search])
 
   const history = {
     push: (path, state) => navigate(path, { state }),
