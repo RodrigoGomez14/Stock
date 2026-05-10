@@ -82,15 +82,17 @@ export const getActualMonthDetailed = (date) =>{
     return monthsList[new Date().getMonth()]
 }
 export const filtrarCotizaciones = (aux) => {
-  let auxCotizaciones = []
-  console.log(aux)
-  auxCotizaciones[0] = {nombre:'Oficial Compra',valor:parseFloat(aux[0].casa.compra)}
-  auxCotizaciones[1] = {nombre:'Oficial Promedio',valor:(parseFloat(aux[0].casa.compra)+parseFloat(aux[0].casa.venta))/2}
-  auxCotizaciones[2] = {nombre:'Blue Compra',valor:parseFloat(aux[1].casa.compra)}
-  auxCotizaciones[3] = {nombre:'Blue Venta',valor:parseFloat(aux[1].casa.venta)}
-  auxCotizaciones[4] = {nombre:'Blue Promedio',valor:(parseFloat(aux[1].casa.compra)+parseFloat(aux[1].casa.venta))/2}
-  auxCotizaciones[5] = {nombre:'Oficial Venta',valor:parseFloat(aux[0].casa.venta)}
-  return(auxCotizaciones)
+  if (!aux || !Array.isArray(aux) || aux.length < 2) return []
+  const oficial = aux[0]
+  const blue = aux[1]
+  return [
+    { nombre: 'Oficial Compra', valor: parseFloat(oficial.compra) },
+    { nombre: 'Oficial Venta', valor: parseFloat(oficial.venta) },
+    { nombre: 'Oficial Promedio', valor: (parseFloat(oficial.compra) + parseFloat(oficial.venta)) / 2 },
+    { nombre: 'Blue Compra', valor: parseFloat(blue.compra) },
+    { nombre: 'Blue Venta', valor: parseFloat(blue.venta) },
+    { nombre: 'Blue Promedio', valor: (parseFloat(blue.compra) + parseFloat(blue.venta)) / 2 },
+  ]
 }
 
 // OBTENER LISTA DE PRODUCTOS Y SUBPRODUCTOS

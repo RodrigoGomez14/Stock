@@ -60,7 +60,7 @@ class App extends Component {
         const databaseRef = database().ref().child(user.uid)
         databaseRef.on('value', snapshot=>{
           const data = snapshot.val()
-          fetch("https://dolarapi.com/v1/dolares/blue")
+          fetch("https://dolarapi.com/v1/dolares")
             .then((response) => response.json())
             .then((dolar)=>{
               this.setState({tipoDeCambio:dolar,user:user,...data,loading:false})
