@@ -4,9 +4,9 @@ import { Grid, Button,Select,Input,Chip,MenuItem,Paper,InputAdornment, TextField
 import {AddOutlined,AttachMoney} from '@mui/icons-material'
 import { Autocomplete } from '@mui/material'
 import {ChequesPersonalesList} from '../Cheques/ChequesPersonalesList'
-import {DialogNuevoCheque} from '../Cheques/DialogNuevoCheque'
+import {InlineChequeForm} from '../Cheques/InlineChequeForm'
 import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
-import {DialogNuevoChequePersonal} from '../Cheques/DialogNuevoChequePersonal'
+import {InlineChequePersonalForm} from '../Cheques/InlineChequePersonalForm'
 import {DialogEliminarChequePersonal} from './Dialogs/DialogEliminarChequePersonal'
 import {ChequesSelection as ChequesProveedor} from '../Cheques/ChequesSelection'
 import {ChequesList} from '../Cheques/ChequesList'
@@ -112,12 +112,11 @@ export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque
                             }
 
                             {/* DIALOGS */}
-                            <DialogNuevoCheque 
-                                open={showDialog} 
-                                setOpen={setshowDialog} 
+                            <InlineChequeForm 
+                                show={showDialog} 
+                                setShow={setshowDialog} 
                                 datos={datos} 
                                 setdatos={setdatos}
-                                edit={editIndex!=-1} 
                                 editIndex={editIndex} 
                                 seteditIndex={seteditIndex}
                                 total={total}
@@ -162,12 +161,11 @@ export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque
                             null
                         }
                         {/* DIALOGS */}
-                        <DialogNuevoChequePersonal 
-                            open={showDialog} 
-                            setOpen={setshowDialog} 
+                        <InlineChequePersonalForm 
+                            show={showDialog} 
+                            setShow={setshowDialog} 
                             listaChequesPersonales={datos} 
                             setListaChequesPersonales={setdatos}
-                            edit={editIndex!=-1} 
                             editIndex={editIndex} 
                             seteditIndex={seteditIndex}
                             totalChequesPersonales={total}

@@ -5,7 +5,7 @@ import { Autocomplete } from '@mui/material'
 import {ChequesSelection} from '../Cheques/ChequesSelection'
 import {ChequesPersonalesList} from '../Cheques/ChequesPersonalesList'
 import {content} from '../../Pages/styles/styles'
-import { DialogNuevoChequePersonal } from '../Cheques/DialogNuevoChequePersonal'
+import { InlineChequePersonalForm } from '../Cheques/InlineChequePersonalForm'
 import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
 
 
@@ -118,12 +118,11 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,chequesP
                             <ChequesSelection cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
                         </Grid>
                             {/* DIALOGS CHEQUES PERSONALES*/}
-                            <DialogNuevoChequePersonal
-                                open={showDialog} 
-                                setOpen={setshowDialog} 
+                            <InlineChequePersonalForm
+                                show={showDialog} 
+                                setShow={setshowDialog} 
                                 listaChequesPersonales={chequesPersonales}
                                 setListaChequesPersonales={setChequesPersonales}
-                                edit={editIndex!=-1} 
                                 editIndex={editIndex} 
                                 seteditIndex={seteditIndex}
                                 totalChequesPersonales={totalChequesPersonales}

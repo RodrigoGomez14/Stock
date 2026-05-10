@@ -1,14 +1,11 @@
 ﻿import React, { useState } from 'react'
-import {Grid, Button,Switch,InputLabel,Select,Input,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,FormControlLabel} from '@mui/material'
+import {Grid, Button,Switch,InputLabel,Select,Input,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,FormControlLabel,Collapse,Checkbox,FormGroup,Autocomplete} from '@mui/material'
 import {AddOutlined} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 import { StepperNuevoProducto } from './StepperNuevoProducto'
 import {Subproductos} from './Subproductos'
 import {Matrices} from './Matrices'
-import {DialogAgregarProceso} from './Dialogs/DialogAgregarProceso'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
-import {DialogNuevoSubproducto} from './Dialogs/DialogNuevoSubproducto'
-import {DialogNuevaMatriz} from './Dialogs/DialogNuevaMatriz'
 import Empty from '../../images/Empty.png'
 
 export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setMatrices,cantidad,setcantidad,proveedoresList,disableCantidad,cadenaDeProduccion,setcadenaDeProduccion,isSubproducto,setIsSubproducto,subproductos,setSubproductos,subproductosList}) =>{
@@ -19,6 +16,37 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setM
     const [editIndex,seteditIndex]=useState(-1)
     const [showDialogDelete,setshowDialogDelete]=useState(false)
     const [deleteIndex,setdeleteIndex]=useState(undefined)
+
+    // Proceso form state
+    const [nombreProceso, setNombreProceso] = useState(undefined)
+    const [proveedor, setProveedor] = useState(undefined)
+    const [isProcesoPropio, setIsProcesoPropio] = useState(false)
+
+    // Matriz form state
+    const [nombreMatriz, setNombreMatriz] = useState(undefined)
+
+    // Subproducto form state
+    const [nombreSubproducto, setNombreSubproducto] = useState(undefined)
+    const [cantidadSubproducto, setCantidadSubproducto] = useState(undefined)
+
+    React.useEffect(() => {
+        if (editIndex !== -1 && showDialog) {
+            if (tipoDeDato === 'Cadena De Produccion') {
+                setNombreProceso(cadenaDeProduccion[editIndex].proceso)
+                setProveedor(cadenaDeProduccion[editIndex].proveedor)
+                setIsProcesoPropio(cadenaDeProduccion[editIndex].isProcesoPropio)
+            } else if (tipoDeDato === 'Componentes') {
+                setNombreSubproducto(subproductos[editIndex].nombre)
+                setCantidadSubproducto(subproductos[editIndex].cantidad)
+            }
+        }
+    }, [editIndex, showDialog, tipoDeDato])
+
+    React.useEffect(() => {
+        if (editIndexMatriz !== -1 && showDialogNuevaMatriz) {
+            setNombreMatriz(matrices[editIndexMatriz].nombre)
+        }
+    }, [editIndexMatriz, showDialogNuevaMatriz])
 
     const openDialogDelete = (index) =>{
         setdeleteIndex(index)
@@ -107,15 +135,83 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setM
                                 </Grid>
                             </Grid>
                         }
-                        <DialogAgregarProceso
-                            edit={editIndex}
-                            setEdit={seteditIndex}
-                            open={showDialog}
-                            setOpen={setshowDialog}
-                            proveedoresList={proveedoresList}
-                            cadenaDeProduccion={cadenaDeProduccion}
-                            setcadenaDeProduccion={setcadenaDeProduccion}
-                        />
+                        <Collapse in={showDialog}>
+                            <Paper elevation={3} style={{ padding: 16, marginTop: 16, width: '100%' }}>
+                                <Grid container direction='column' alignItems='center' spacing={2}>
+                                    <Grid item>
+                                        <Typography variant='h6'>
+                                            {editIndex !== -1 ? 'Editar Proceso' : 'Agregar Proceso'}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item>
+                                        <Autocomplete
+                                            freeSolo
+                                            options={['Fundido','Mecanizado','Pintado','Ensamblado']}
+                                            getOptionLabel={(option) => option}
+                                            value={nombreProceso}
+                                            onSelect={(e)=>{setNombreProceso(e.target.value)}}
+                                            onChange={(e)=>{setNombreProceso(e.target.value)}}
+                                            style={{ width: 300 }}
+                                            renderInput={(params) => <TextField {...params} label="Tipo de Proceso" variant="outlined" />}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl component="fieldset">
+                                            <FormGroup aria-label="position" row>
+                                                <FormControlLabel
+                                                    control={<Checkbox color="primary" disabled={proveedor} checked={isProcesoPropio} onChange={()=>{setIsProcesoPropio(!isProcesoPropio)}} />}
+                                                    label="Proceso Propio"
+                                                />
+                                            </FormGroup>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <Autocomplete
+                                            freeSolo
+                                            options={proveedoresList?Object.keys(proveedoresList):{}}
+                                            disabled={!proveedoresList || isProcesoPropio}
+                                            getOptionLabel={(option) => option}
+                                            value={proveedor}
+                                            onSelect={(e)=>{setProveedor(e.target.value)}}
+                                            onChange={(e)=>{setProveedor(e.target.value)}}
+                                            style={{ width: 300 }}
+                                            renderInput={(params) => <TextField {...params} label="Proveedor Encargado" variant="outlined" />}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <Button onClick={()=>{
+                                            if(editIndex !== -1) seteditIndex(-1)
+                                            setNombreProceso(undefined)
+                                            setProveedor(undefined)
+                                            setIsProcesoPropio(false)
+                                            setshowDialog(false)
+                                        }}>Cancelar</Button>
+                                        <Button
+                                            disabled={!nombreProceso || (!proveedor && !isProcesoPropio)}
+                                            onClick={()=>{
+                                                if(editIndex !== -1){
+                                                    let aux = cadenaDeProduccion
+                                                    aux[editIndex]={proceso:nombreProceso,proveedor:proveedor?proveedor:null,isProcesoPropio:isProcesoPropio}
+                                                    setcadenaDeProduccion(aux)
+                                                } else {
+                                                    let proceso = {proceso:nombreProceso,proveedor:proveedor?proveedor:null,isProcesoPropio:isProcesoPropio}
+                                                    let aux = cadenaDeProduccion
+                                                    aux.push(proceso)
+                                                    setcadenaDeProduccion(aux)
+                                                }
+                                                setNombreProceso(undefined)
+                                                setProveedor(undefined)
+                                                setIsProcesoPropio(false)
+                                                seteditIndex(-1)
+                                                setshowDialog(false)
+                                            }}
+                                        >
+                                            {editIndex !== -1 ? 'Editar' : 'Agregar'}
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Paper>
+                        </Collapse>
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={cadenaDeProduccion} setDatos={setcadenaDeProduccion} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Proceso'/>
                     </Grid>
                 )
@@ -141,7 +237,69 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setM
                                 </Grid>
                             </Grid>
                         }
-                        <DialogNuevoSubproducto open={showDialog} setOpen={setshowDialog} subproductos={subproductos} setSubproductos={setSubproductos} subproductosList={subproductosList} edit={editIndex!=-1} editIndex={editIndex} seteditIndex={seteditIndex}/>
+                        <Collapse in={showDialog}>
+                            <Paper elevation={3} style={{ padding: 16, marginTop: 16, width: '100%' }}>
+                                <Grid container direction='column' alignItems='center' spacing={2}>
+                                    <Grid item>
+                                        <Typography variant='h6'>
+                                            {editIndex !== -1 ? 'Editar Subproducto' : 'Agregar Nuevo Subproducto'}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item>
+                                        <FormControl fullWidth>
+                                            <InputLabel id="subproducto-label">Subproductos</InputLabel>
+                                            <Select
+                                                value={nombreSubproducto}
+                                                onChange={(e)=>{setNombreSubproducto(e.target.value)}}
+                                                input={<Input />}
+                                            >
+                                                {subproductosList.map(subproducto => (
+                                                    <MenuItem key={subproducto.nombre} value={subproducto.nombre}>
+                                                        {subproducto.nombre}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item>
+                                        <TextField
+                                            color='primary'
+                                            label='Cantidad'
+                                            value={cantidadSubproducto}
+                                            onChange={e=>{setCantidadSubproducto(e.target.value)}}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <Button onClick={()=>{
+                                            if(editIndex !== -1) seteditIndex(-1)
+                                            setNombreSubproducto(undefined)
+                                            setCantidadSubproducto(undefined)
+                                            setshowDialog(false)
+                                        }}>Cancelar</Button>
+                                        <Button
+                                            disabled={!cantidadSubproducto || !nombreSubproducto}
+                                            onClick={()=>{
+                                                if(editIndex !== -1){
+                                                    let aux = subproductos
+                                                    aux[editIndex]={nombre:nombreSubproducto,cantidad:cantidadSubproducto}
+                                                    setSubproductos(aux)
+                                                    seteditIndex(-1)
+                                                } else {
+                                                    let aux = subproductos
+                                                    aux.push({nombre:nombreSubproducto?nombreSubproducto:null,cantidad:cantidadSubproducto?cantidadSubproducto:null})
+                                                    setSubproductos(aux)
+                                                }
+                                                setNombreSubproducto(undefined)
+                                                setCantidadSubproducto(undefined)
+                                                setshowDialog(false)
+                                            }}
+                                        >
+                                            {editIndex !== -1 ? 'Editar' : 'Agregar'}
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Paper>
+                        </Collapse>
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={subproductos} setDatos={setSubproductos} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Subproducto'/>
                     </Grid>
                 )
@@ -168,7 +326,51 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setM
                                 </Grid>
                             </Grid>
                         }
-                        <DialogNuevaMatriz open={showDialogNuevaMatriz} setOpen={setshowDialogNuevaMatriz} matrices={matrices} setMatrices={setMatrices} edit={editIndexMatriz!=-1} editIndex={editIndexMatriz} seteditIndex={seteditIndex}/>
+                        <Collapse in={showDialogNuevaMatriz}>
+                            <Paper elevation={3} style={{ padding: 16, marginTop: 16, width: '100%' }}>
+                                <Grid container direction='column' alignItems='center' spacing={2}>
+                                    <Grid item>
+                                        <Typography variant='h6'>
+                                            {editIndexMatriz !== -1 ? 'Editar Matriz / Noyo' : 'Agregar Nueva Matriz / Noyo'}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item>
+                                        <TextField
+                                            color='primary'
+                                            label='Nombre'
+                                            value={nombreMatriz}
+                                            onChange={e=>{setNombreMatriz(e.target.value)}}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <Button onClick={()=>{
+                                            if(editIndexMatriz !== -1) seteditIndexMatriz(-1)
+                                            setNombreMatriz(undefined)
+                                            setshowDialogNuevaMatriz(false)
+                                        }}>Cancelar</Button>
+                                        <Button
+                                            disabled={!nombreMatriz}
+                                            onClick={()=>{
+                                                if(editIndexMatriz !== -1){
+                                                    let aux = matrices
+                                                    aux[editIndexMatriz]={...aux[editIndexMatriz],nombre:nombreMatriz}
+                                                    setMatrices(aux)
+                                                    seteditIndexMatriz(-1)
+                                                } else {
+                                                    let aux = matrices
+                                                    aux.push({nombre:nombreMatriz?nombreMatriz:null,ubicacion:"Taller"})
+                                                    setMatrices(aux)
+                                                }
+                                                setNombreMatriz(undefined)
+                                                setshowDialogNuevaMatriz(false)
+                                            }}
+                                        >
+                                            {editIndexMatriz !== -1 ? 'Editar' : 'Agregar'}
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Paper>
+                        </Collapse>
                         <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={matrices} setDatos={setMatrices} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Matrices'/>
                     </Grid>
                 )

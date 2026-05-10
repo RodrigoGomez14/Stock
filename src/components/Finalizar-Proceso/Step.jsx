@@ -3,7 +3,7 @@ import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl
 import {AddOutlined,AttachMoney, List} from '@mui/icons-material'
 import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
 import {ChequesPersonalesList} from '../Cheques/ChequesPersonalesList'
-import {DialogNuevoChequePersonal} from '../Cheques/DialogNuevoChequePersonal'
+import {InlineChequePersonalForm} from '../Cheques/InlineChequePersonalForm'
 import { Autocomplete } from '@mui/material'
 import {ChequesSelection} from '../Cheques/ChequesSelection'
 import {content} from '../../Pages/styles/styles'
@@ -166,12 +166,11 @@ export const Step = ({tipoDeDato,precio,setPrecio,cantidad,setCantidad,efectivo,
                                 null
                             }
                             {/* DIALOGS */}
-                            <DialogNuevoChequePersonal 
-                                open={showDialog} 
-                                setOpen={setshowDialog} 
+                            <InlineChequePersonalForm 
+                                show={showDialog} 
+                                setShow={setshowDialog} 
                                 listaChequesPersonales={chequesPersonales} 
                                 setListaChequesPersonales={setChequesPersonales}
-                                edit={editIndex!=-1} 
                                 editIndex={editIndex} 
                                 seteditIndex={seteditIndex}
                                 totalChequesPersonales={totalChequesPersonales}

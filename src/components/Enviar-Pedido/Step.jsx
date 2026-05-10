@@ -2,7 +2,7 @@
 import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel,InputLabel} from '@mui/material'
 import {AddOutlined, AttachMoney} from '@mui/icons-material'
 import {Autocomplete} from '@mui/material'
-import {DialogNuevoCheque} from '../Cheques/DialogNuevoCheque'
+import {InlineChequeForm} from '../Cheques/InlineChequeForm'
 import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
 import {ChequesList} from '../Cheques/ChequesList'
 import {content} from '../../Pages/styles/styles'
@@ -148,12 +148,11 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
                                         }
 
                                         {/* DIALOGS CHEQUES*/}
-                                        <DialogNuevoCheque 
-                                            open={showDialog} 
-                                            setOpen={setshowDialog} 
+                                        <InlineChequeForm 
+                                            show={showDialog} 
+                                            setShow={setshowDialog} 
                                             datos={cheques} 
                                             setdatos={setcheques}
-                                            edit={editIndex!=-1} 
                                             editIndex={editIndex} 
                                             seteditIndex={seteditIndex}
                                             total={total}
