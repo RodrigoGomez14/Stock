@@ -1,16 +1,8 @@
 import React from 'react'
 import {
-  Stepper, Step, StepLabel, StepContent,
-  Button, Paper, Grid, Typography, Box, Chip
+  Box, Button, Paper, Typography, Stepper, Step, StepLabel, Grid
 } from '@mui/material'
-import { CheckCircleOutline } from '@mui/icons-material'
-
-const stepIcons = {
-  detalles: '1',
-  productos: '2',
-  pago: '3',
-  confirmacion: '4',
-}
+import { Check, ChevronLeft, ChevronRight } from '@mui/icons-material'
 
 export function BaseWizard({
   steps,
@@ -19,84 +11,56 @@ export function BaseWizard({
   onBack,
   onFinish,
   disabled,
-  labels,
   finishLabel = 'Finalizar',
-  finishIcon: FinishIcon,
+  stepLabels,
 }) {
   return (
-    <Paper
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        maxWidth: 800,
-        mx: 'auto',
-        mt: 2,
-      }}
-    >
-      <Stepper activeStep={activeStep} orientation="vertical">
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel
-              optional={
-                index === steps.length - 1 ? (
-                  <Typography variant="caption">Último paso</Typography>
-                ) : null
-              }
-              StepIconComponent={() => (
-                <Chip
-                  size="small"
-                  label={index + 1}
-                  color={activeStep >= index ? 'primary' : 'default'}
-                  sx={{
-                    minWidth: 32,
-                    fontWeight: 700,
-                    borderRadius: '50%',
+    <Box sx={{ maxWidth: 720, mx: 'auto', mt: 2, px: 2 }}>
+      <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
+        <Box sx={{ px: 3, pt: 3, pb: 2, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {stepLabels.map((label, i) => (
+              <Step key={label} completed={activeStep > i}>
+                <StepLabel
+                  StepIconProps={{
+                    sx: {
+                      '&.Mui-active': { color: 'primary.main' },
+                      '&.Mui-completed': { color: 'success.main' },
+                    },
                   }}
-                />
-              )}
-            >
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  cursor: 'pointer',
-                  color: activeStep >= index ? 'primary.main' : 'text.secondary',
-                  fontWeight: activeStep === index ? 700 : 400,
-                }}
-                onClick={() => {}}
-              >
-                {label}
-              </Typography>
-            </StepLabel>
-            <StepContent>
-              {steps[index] && steps[index]}
-              <Grid container spacing={2} sx={{ mt: 2 }}>
-                <Grid item>
-                  <Button
-                    disabled={activeStep === 0}
-                    onClick={onBack}
-                    variant="outlined"
-                    size="small"
-                  >
-                    Volver
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={disabled}
-                    onClick={activeStep === steps.length - 1 ? onFinish : onNext}
-                    size="small"
-                    endIcon={activeStep === steps.length - 1 && FinishIcon}
-                  >
-                    {activeStep === steps.length - 1 ? finishLabel : 'Siguiente'}
-                  </Button>
-                </Grid>
-              </Grid>
-            </StepContent>
-          </Step>
-        ))}
-      </Stepper>
-    </Paper>
+                >
+                  <Typography variant="caption" fontWeight={activeStep === i ? 700 : 400}>
+                    {label}
+                  </Typography>
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+
+        <Box sx={{ p: 3, minHeight: 300 }}>
+          {steps[activeStep]}
+        </Box>
+
+        <Box sx={{ px: 3, py: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
+          <Button
+            disabled={activeStep === 0}
+            onClick={onBack}
+            startIcon={<ChevronLeft />}
+            variant="outlined"
+          >
+            Volver
+          </Button>
+          <Button
+            variant="contained"
+            disabled={disabled}
+            onClick={activeStep === steps.length - 1 ? onFinish : onNext}
+            endIcon={activeStep === steps.length - 1 ? <Check /> : <ChevronRight />}
+          >
+            {activeStep === steps.length - 1 ? finishLabel : 'Siguiente'}
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   )
 }

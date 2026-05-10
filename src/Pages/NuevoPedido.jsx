@@ -2,98 +2,103 @@
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Backdrop, Snackbar, CircularProgress, TextField, Grid, Paper, Autocomplete, Typography
+  Box, TextField, Autocomplete, Typography, Grid, Paper,
+  Backdrop, CircularProgress, Snackbar, Button
 } from '@mui/material'
 import { Alert } from '@mui/material'
+import { Add } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
 import { database } from '../services'
-import { checkSearch, fechaDetallada } from '../utilities'
-import { Step as StepComponent } from '../components/Nuevo-Pedido/Step'
+import { fechaDetallada } from '../utilities'
+import { Step } from '../components/Nuevo-Pedido/Step'
 
 const NuevoPedido = (props) => {
-  const [nombre, setnombre] = useState('')
-  const [productos, setproductos] = useState([])
-  const [total, settotal] = useState(0)
+  const [cliente, setCliente] = useState('')
+  const [productos, setProductos] = useState([])
+  const [total, setTotal] = useState(0)
   const [activeStep, setActiveStep] = useState(0)
-  const [showSnackbar, setshowSnackbar] = useState('')
   const [loading, setLoading] = useState(false)
+  const [snack, setSnack] = useState('')
+  const isEdit = !!props.history.location.search
 
   useEffect(() => {
-    if (props.history.location.search) {
-      const id = checkSearch(props.history.location.search)
-      const pedido = props.pedidos[id]
-      if (pedido) {
-        setnombre(pedido.cliente)
-        setproductos(pedido.articulos || [])
-        settotal(pedido.total || 0)
+    if (isEdit) {
+      const id = props.history.location.search.slice(1)
+      const p = props.pedidos?.[id]
+      if (p) {
+        setCliente(p.cliente || '')
+        setProductos(p.articulos || [])
+        setTotal(p.total || 0)
       }
     }
   }, [])
 
-  const guardarPedido = async () => {
+  const guardar = async () => {
     setLoading(true)
-    const aux = {
-      cliente: nombre,
-      fecha: fechaDetallada(),
-      articulos: productos,
-      total,
-    }
+    const aux = { cliente, fecha: fechaDetallada(), articulos: productos, total }
     try {
-      if (props.history.location.search) {
-        const id = props.history.location.search.slice(1)
-        await database().ref().child(props.user.uid).child('pedidos').child(id).update(aux)
+      if (isEdit) {
+        await database().ref().child(props.user.uid).child('pedidos').child(props.history.location.search.slice(1)).update(aux)
       } else {
         await database().ref().child(props.user.uid).child('pedidos').push(aux)
       }
-      setshowSnackbar(props.history.location.search ? 'Pedido editado!' : 'Pedido creado!')
-      setTimeout(() => props.history.replace('/Pedidos'), 2000)
+      setSnack(isEdit ? 'Pedido editado' : 'Pedido creado')
+      setTimeout(() => props.history.replace('/Pedidos'), 1500)
     } catch { setLoading(false) }
   }
 
   const steps = [
-    <Autocomplete
-      freeSolo
-      value={nombre}
-      options={props.clientes ? Object.keys(props.clientes) : []}
-      getOptionLabel={(option) => option}
-      onChange={(_, v) => setnombre(v)}
-      onInputChange={(_, v) => setnombre(v)}
-      renderInput={(params) => <TextField {...params} label="Cliente" fullWidth />}
-    />,
-    <StepComponent
-      nombre={nombre}
-      productos={productos}
-      setproductos={setproductos}
-      total={total}
-      settotal={settotal}
-    />,
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Seleccionar cliente</Typography>
+      <Autocomplete
+        freeSolo
+        value={cliente}
+        options={props.clientes ? Object.keys(props.clientes) : []}
+        getOptionLabel={(o) => o}
+        onChange={(_, v) => setCliente(v)}
+        onInputChange={(_, v) => setCliente(v)}
+        renderInput={(params) => <TextField {...params} label="Cliente *" fullWidth />}
+      />
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Productos del pedido</Typography>
+      <Step
+        nombre={cliente}
+        productos={productos}
+        setproductos={setProductos}
+        total={total}
+        settotal={setTotal}
+      />
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Confirmar pedido</Typography>
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+        <Typography><strong>Cliente:</strong> {cliente}</Typography>
+        <Typography><strong>Productos:</strong> {productos.length}</Typography>
+        <Typography><strong>Total:</strong> ${total}</Typography>
+      </Paper>
+    </Box>,
   ]
 
-  const getDisabled = (step) => {
-    switch (step) {
-      case 0: return !nombre
-      case 1: return !productos.length
-      default: return false
-    }
-  }
-
   return (
-    <Layout history={props.history} page={props.history.location.search ? 'Editar Pedido' : 'Nuevo Pedido'} user={props.user.uid} blockGoBack={true}>
+    <Layout history={props.history} page={isEdit ? 'Editar Pedido' : 'Nuevo Pedido'} user={props.user?.uid} blockGoBack={true}>
       <BaseWizard
+        stepLabels={['Cliente', 'Productos', 'Confirmar']}
         steps={steps}
         activeStep={activeStep}
-        onNext={() => setActiveStep(s => s + 1)}
-        onBack={() => setActiveStep(s => s - 1)}
-        onFinish={guardarPedido}
-        disabled={getDisabled(activeStep)}
-        finishLabel={props.history.location.search ? 'Guardar Edición' : 'Crear Pedido'}
+        onNext={() => setActiveStep((s) => s + 1)}
+        onBack={() => setActiveStep((s) => s - 1)}
+        onFinish={guardar}
+        disabled={!cliente}
+        finishLabel={isEdit ? 'Guardar Cambios' : 'Crear Pedido'}
       />
-
-      <Backdrop open={loading} sx={{ zIndex: t => t.zIndex.drawer + 1, color: '#fff' }}>
+      <Backdrop open={loading} sx={{ zIndex: (t) => t.zIndex.drawer + 1, color: '#fff' }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      <Snackbar open={!!showSnackbar} autoHideDuration={2000} onClose={() => setshowSnackbar('')}>
-        <Alert severity="success" variant="filled">{showSnackbar}</Alert>
+      <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}>
+        <Alert severity="success" variant="filled">{snack}</Alert>
       </Snackbar>
     </Layout>
   )

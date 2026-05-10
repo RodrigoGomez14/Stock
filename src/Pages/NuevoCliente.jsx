@@ -2,132 +2,198 @@
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Paper, Backdrop, Snackbar, CircularProgress, TextField, Grid, Typography,
-  FormControl, InputLabel, Select, MenuItem, Chip, Avatar
+  Box, TextField, Button, Grid, Typography, Chip, Paper, Autocomplete,
+  Backdrop, CircularProgress, Snackbar, IconButton
 } from '@mui/material'
 import { Alert } from '@mui/material'
+import { Add, Delete } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
 import { database } from '../services'
 import { checkSearch } from '../utilities'
-import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@mui/icons-material'
-import { Direccion } from '../components/Nuevo-Cliente/Direccion'
-import { Telefonos } from '../components/Nuevo-Cliente/Telefonos'
-import { Mails } from '../components/Nuevo-Cliente/Mails'
-import { InfoExtra } from '../components/Nuevo-Cliente/InfoExtra'
-import { DialogEliminarElemento } from '../components/Nuevo-Cliente/Dialogs/DialogEliminarElemento'
-import { DialogNuevaDireccion } from '../components/Nuevo-Cliente/Dialogs/DialogNuevaDireccion'
-import { DialogNuevoTelefono } from '../components/Nuevo-Cliente/Dialogs/DialogNuevoTelefono'
-import { DialogNuevoMail } from '../components/Nuevo-Cliente/Dialogs/DialogNuevoMail'
-import { DialogNuevaInfoExtra } from '../components/Nuevo-Cliente/Dialogs/DialogNuevaInfoExtra'
+
+const EMPTY_CLIENT = {
+  nombre: '', dni: '', cuit: '', expreso: null,
+  telefonos: [], mails: [], direcciones: [], infoExtra: [], deuda: 0,
+}
 
 const NuevoCliente = (props) => {
-  const [nombre, setnombre] = useState('')
-  const [dni, setdni] = useState('')
-  const [cuit, setcuit] = useState('')
-  const [expresos, setexpresos] = useState([])
-  const [mails, setmails] = useState([])
-  const [direcciones, setdirecciones] = useState([])
-  const [telefonos, settelefonos] = useState([])
-  const [infoExtra, setinfoExtra] = useState([])
-  const [deuda, setdeuda] = useState(0)
+  const [data, setData] = useState({ ...EMPTY_CLIENT })
   const [activeStep, setActiveStep] = useState(0)
-  const [showSnackbar, setshowSnackbar] = useState('')
   const [loading, setLoading] = useState(false)
+  const [snack, setSnack] = useState('')
 
-  const [deleteIndex, setdeleteIndex] = useState(undefined)
-  const [editIndex, seteditIndex] = useState(undefined)
-  const [showDialog, setshowDialog] = useState(undefined)
-  const [openDialog, setopenDialog] = useState(false)
+  const isEdit = !!props.history.location.search
 
   useEffect(() => {
-    if (props.history.location.search) {
-      const data = props.clientes[checkSearch(props.history.location.search)]
-      if (data) {
-        const { nombre, dni, cuit, expresos, mails, direcciones, telefonos, infoExtra, deuda } = data.datos
-        setnombre(nombre || '')
-        setdni(dni || '')
-        setcuit(cuit || '')
-        setexpresos(expresos || [])
-        setmails(mails || [])
-        setdirecciones(direcciones || [])
-        settelefonos(telefonos || [])
-        setinfoExtra(infoExtra || [])
-        setdeuda(deuda || 0)
+    if (isEdit) {
+      const c = props.clientes?.[checkSearch(props.history.location.search)]?.datos
+      if (c) {
+        setData({
+          nombre: c.nombre || '',
+          dni: c.dni || '',
+          cuit: c.cuit || '',
+          expreso: c.expreso || null,
+          telefonos: c.telefonos || [],
+          mails: c.mails || [],
+          direcciones: c.direcciones || [],
+          infoExtra: c.infoExtra || [],
+          deuda: c.deuda || 0,
+        })
       }
     }
   }, [])
 
-  const guardarCliente = async () => {
-    setLoading(true)
-    const aux = {
-      datos: { nombre, dni, cuit, expresos, mails, direcciones, telefonos, infoExtra, deuda }
-    }
+  const set = (field) => (val) => setData((prev) => ({ ...prev, [field]: val }))
 
+  const addItem = (field) => {
+    setData((prev) => ({ ...prev, [field]: [...prev[field], ''] }))
+  }
+  const updateItem = (field, index) => (e) => {
+    const copy = [...data[field]]
+    copy[index] = e.target.value
+    setData((prev) => ({ ...prev, [field]: copy }))
+  }
+  const removeItem = (field, index) => () => {
+    setData((prev) => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }))
+  }
+
+  const guardar = async () => {
+    setLoading(true)
+    const payload = {
+      datos: {
+        nombre: data.nombre,
+        dni: data.dni,
+        cuit: data.cuit,
+        expresos: data.expreso ? [data.expreso] : [],
+        mails: data.mails,
+        direcciones: data.direcciones,
+        telefonos: data.telefonos,
+        infoExtra: data.infoExtra,
+        deuda: data.deuda,
+      },
+    }
     try {
-      if (props.history.location.search) {
+      if (isEdit) {
         const oldName = props.history.location.search.slice(1)
         await database().ref().child(props.user.uid).child('clientes').child(oldName).remove()
-        await database().ref().child(props.user.uid).child('clientes').child(nombre).update(aux)
+        await database().ref().child(props.user.uid).child('clientes').child(data.nombre).update(payload)
       } else {
-        await database().ref().child(props.user.uid).child('clientes').update({ [nombre]: aux })
+        await database().ref().child(props.user.uid).child('clientes').update({ [data.nombre]: payload })
       }
-      setshowSnackbar(props.history.location.search ? 'El Cliente Se Editó Correctamente!' : 'El Cliente Se Agregó Correctamente!')
-      setTimeout(() => {
-        props.history.replace(`/Cliente?${nombre}`)
-      }, 2000)
-    } catch {
-      setLoading(false)
-    }
+      setSnack(isEdit ? 'Cliente editado correctamente' : 'Cliente creado correctamente')
+      setTimeout(() => props.history.replace(`/Cliente?${data.nombre}`), 1500)
+    } catch { setLoading(false) }
   }
 
-  const steps = [
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <TextField fullWidth label="Nombre" value={nombre} onChange={e => setnombre(e.target.value)} />
+  const renderListEditor = (items, label, field) => (
+    <Box>
+      {items.map((item, i) => (
+        <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+          <TextField
+            fullWidth
+            size="small"
+            label={`${label} ${i + 1}`}
+            value={item}
+            onChange={updateItem(field, i)}
+          />
+          <IconButton color="error" onClick={removeItem(field, i)}><Delete /></IconButton>
+        </Box>
+      ))}
+      <Button size="small" startIcon={<Add />} onClick={() => addItem(field)}>
+        Agregar {label.toLowerCase()}
+      </Button>
+    </Box>
+  )
+
+  const stepPanels = [
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Datos personales</Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField fullWidth label="Nombre *" value={data.nombre} onChange={(e) => set('nombre')(e.target.value)} />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField fullWidth label="DNI" value={data.dni} onChange={(e) => set('dni')(e.target.value)} />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField fullWidth label="CUIT" value={data.cuit} onChange={(e) => set('cuit')(e.target.value)} />
+        </Grid>
       </Grid>
-      <Grid item xs={6}>
-        <TextField fullWidth label="DNI" value={dni} onChange={e => setdni(e.target.value)} />
-      </Grid>
-      <Grid item xs={6}>
-        <TextField fullWidth label="CUIT" value={cuit} onChange={e => setcuit(e.target.value)} />
-      </Grid>
-    </Grid>,
-    <Direccion direcciones={direcciones} seteditIndex={seteditIndex} showDialog={setshowDialog} openDialogDelete={setopenDialog} />,
-    <Telefonos telefonos={telefonos} seteditIndex={seteditIndex} showDialog={setshowDialog} openDialogDelete={setopenDialog} />,
-    <Mails mails={mails} seteditIndex={seteditIndex} showDialog={setshowDialog} openDialogDelete={setopenDialog} />,
-    <InfoExtra infoExtra={infoExtra} seteditIndex={seteditIndex} showDialog={setshowDialog} openDialogDelete={setopenDialog} />,
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Teléfonos</Typography>
+      {renderListEditor(data.telefonos, 'Teléfono', 'telefonos')}
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="subtitle1" fontWeight={600} gutterBottom>Emails</Typography>
+        {renderListEditor(data.mails, 'Email', 'mails')}
+      </Box>
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Direcciones</Typography>
+      {renderListEditor(data.direcciones, 'Dirección', 'direcciones')}
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="subtitle1" fontWeight={600} gutterBottom>Expreso / Transporte</Typography>
+        <Autocomplete
+          freeSolo
+          value={data.expreso}
+          options={props.expresos ? Object.keys(props.expresos) : []}
+          getOptionLabel={(o) => o}
+          onChange={(_, v) => set('expreso')(v)}
+          onInputChange={(_, v) => set('expreso')(v)}
+          renderInput={(params) => <TextField {...params} label="Expreso preferido" fullWidth size="small" />}
+        />
+      </Box>
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Info adicional</Typography>
+      {renderListEditor(data.infoExtra, 'Nota', 'infoExtra')}
+      <Box sx={{ mt: 3 }}>
+        <TextField
+          fullWidth
+          label="Deuda inicial ($)"
+          type="number"
+          value={data.deuda}
+          onChange={(e) => set('deuda')(parseFloat(e.target.value) || 0)}
+        />
+      </Box>
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Confirmar datos</Typography>
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+        <Grid container spacing={1}>
+          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Nombre</Typography><Typography>{data.nombre}</Typography></Grid>
+          <Grid item xs={3}><Typography variant="caption" color="text.secondary">DNI</Typography><Typography>{data.dni || '—'}</Typography></Grid>
+          <Grid item xs={3}><Typography variant="caption" color="text.secondary">CUIT</Typography><Typography>{data.cuit || '—'}</Typography></Grid>
+          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Teléfonos</Typography><Typography>{data.telefonos.length} registrados</Typography></Grid>
+          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Emails</Typography><Typography>{data.mails.length} registrados</Typography></Grid>
+          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Direcciones</Typography><Typography>{data.direcciones.length} registradas</Typography></Grid>
+          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Expreso</Typography><Typography>{data.expreso || '—'}</Typography></Grid>
+        </Grid>
+      </Paper>
+    </Box>,
   ]
 
-  const getDisabled = (step) => {
-    switch (step) {
-      case 0: return !nombre
-      default: return false
-    }
-  }
-
   return (
-    <Layout history={props.history} page={props.history.location.search ? 'Editar Cliente' : 'Nuevo Cliente'} user={props.user.uid} blockGoBack={true}>
+    <Layout history={props.history} page={isEdit ? 'Editar Cliente' : 'Nuevo Cliente'} user={props.user?.uid} blockGoBack={true}>
       <BaseWizard
-        steps={steps}
+        stepLabels={['Datos', 'Contacto', 'Dirección', 'Adicional', 'Confirmar']}
+        steps={stepPanels}
         activeStep={activeStep}
-        onNext={() => setActiveStep(s => s + 1)}
-        onBack={() => setActiveStep(s => s - 1)}
-        onFinish={guardarCliente}
-        disabled={getDisabled(activeStep)}
-        finishLabel={props.history.location.search ? 'Guardar Edición' : 'Guardar Cliente'}
+        onNext={() => setActiveStep((s) => s + 1)}
+        onBack={() => setActiveStep((s) => s - 1)}
+        onFinish={guardar}
+        disabled={!data.nombre}
+        finishLabel={isEdit ? 'Guardar Cambios' : 'Crear Cliente'}
       />
-
-      <DialogEliminarElemento open={openDialog} setopen={setopenDialog} datos={showDialog === 'direccion' ? direcciones : showDialog === 'telefono' ? telefonos : showDialog === 'mail' ? mails : infoExtra} setDatos={showDialog === 'direccion' ? setdirecciones : showDialog === 'telefono' ? settelefonos : showDialog === 'mail' ? setmails : setinfoExtra} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento={showDialog} />
-      <DialogNuevaDireccion open={showDialog === 'direccion'} setopen={() => setshowDialog(undefined)} datos={direcciones} setDatos={setdirecciones} edit={editIndex !== undefined} editIndex={editIndex} seteditIndex={seteditIndex} />
-      <DialogNuevoTelefono open={showDialog === 'telefono'} setopen={() => setshowDialog(undefined)} datos={telefonos} setDatos={settelefonos} edit={editIndex !== undefined} editIndex={editIndex} seteditIndex={seteditIndex} />
-      <DialogNuevoMail open={showDialog === 'mail'} setopen={() => setshowDialog(undefined)} datos={mails} setDatos={setmails} edit={editIndex !== undefined} editIndex={editIndex} seteditIndex={seteditIndex} />
-      <DialogNuevaInfoExtra open={showDialog === 'infoExtra'} setopen={() => setshowDialog(undefined)} datos={infoExtra} setDatos={setinfoExtra} edit={editIndex !== undefined} editIndex={editIndex} seteditIndex={seteditIndex} />
-
-      <Backdrop open={loading} sx={{ zIndex: t => t.zIndex.drawer + 1, color: '#fff' }}>
+      <Backdrop open={loading} sx={{ zIndex: (t) => t.zIndex.drawer + 1, color: '#fff' }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      <Snackbar open={!!showSnackbar} autoHideDuration={2000} onClose={() => setshowSnackbar('')}>
-        <Alert severity="success" variant="filled">{showSnackbar}</Alert>
+      <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}>
+        <Alert severity="success" variant="filled">{snack}</Alert>
       </Snackbar>
     </Layout>
   )

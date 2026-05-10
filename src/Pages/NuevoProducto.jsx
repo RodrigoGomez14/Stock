@@ -1,127 +1,132 @@
 ﻿import React, { useState, useEffect } from 'react'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
-import { Backdrop, Snackbar, CircularProgress, Typography, Grid, Chip } from '@mui/material'
+import {
+  Box, TextField, Grid, Typography, Switch, FormControlLabel, Paper,
+  Backdrop, CircularProgress, Snackbar
+} from '@mui/material'
 import { Alert } from '@mui/material'
 import { BaseWizard } from '../components/BaseWizard'
 import { database } from '../services'
-import { checkSearchProducto, getProductosList, getSubproductosList, getAllProductosList } from '../utilities'
-import { Step as StepComponent } from '../components/Nuevo-Producto/Step'
+import { checkSearchProducto } from '../utilities'
+import { Step } from '../components/Nuevo-Producto/Step'
 import { Subproductos } from '../components/Nuevo-Producto/Subproductos'
 import { Matrices } from '../components/Nuevo-Producto/Matrices'
-import { DialogAgregarProceso } from '../components/Nuevo-Producto/Dialogs/DialogAgregarProceso'
-import { DialogNuevaMatriz } from '../components/Nuevo-Producto/Dialogs/DialogNuevaMatriz'
-import { DialogNuevoSubproducto } from '../components/Nuevo-Producto/Dialogs/DialogNuevoSubproducto'
-import { DialogEliminarElemento } from '../components/Nuevo-Producto/Dialogs/DialogEliminarElemento'
 
 const NuevoProducto = (props) => {
+  const [nombre, setNombre] = useState('')
+  const [precio, setPrecio] = useState(0)
+  const [cantidad, setCantidad] = useState(0)
   const [isSubproducto, setIsSubproducto] = useState(false)
-  const [nombre, setnombre] = useState('')
-  const [precio, setprecio] = useState(0)
-  const [cantidad, setcantidad] = useState(0)
-  const [cadenaDeProduccion, setcadenaDeProduccion] = useState([])
-  const [subproductos, setSubproductosState] = useState([])
-  const [matrices, setMatrices] = useState([])
+  const [cadena, setCadena] = useState([])
+  const [subproductos, setSubproductos] = useState([])
+  const [matrices, setMatrices] = useState({})
   const [activeStep, setActiveStep] = useState(0)
-  const [showSnackbar, setshowSnackbar] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showDialog, setshowDialog] = useState(undefined)
-  const [editIndex, seteditIndex] = useState(undefined)
-  const [deleteIndex, setdeleteIndex] = useState(undefined)
-  const [openDialog, setopenDialog] = useState(false)
+  const [snack, setSnack] = useState('')
+  const isEdit = !!props.history.location.search
 
   useEffect(() => {
-    if (props.history.location.search) {
-      const nombre = checkSearchProducto(props.history.location.search)
-      const prod = props.productos[nombre]
-      if (prod) {
-        setnombre(prod.nombre || '')
-        setprecio(prod.precio || 0)
-        setcantidad(prod.cantidad || 0)
-        setcadenaDeProduccion(prod.cadenaDeProduccion || [])
-        setSubproductosState(prod.subproductos || [])
-        setMatrices(prod.matrices || {})
-        setIsSubproducto(!!prod.isSubproducto)
+    if (isEdit) {
+      const p = props.productos?.[checkSearchProducto(props.history.location.search)]
+      if (p) {
+        setNombre(p.nombre || '')
+        setPrecio(p.precio || 0)
+        setCantidad(p.cantidad || 0)
+        setIsSubproducto(!!p.isSubproducto)
+        setCadena(p.cadenaDeProduccion || [])
+        setSubproductos(p.subproductos || [])
+        setMatrices(p.matrices || {})
       }
     }
   }, [])
 
-  const guardarProducto = async () => {
+  const guardar = async () => {
     setLoading(true)
-    const aux = {
-      nombre, precio, cantidad, isSubproducto,
-      cadenaDeProduccion, subproductos, matrices,
-    }
+    const payload = { nombre, precio, cantidad, isSubproducto, cadenaDeProduccion: cadena, subproductos, matrices }
     try {
-      if (props.history.location.search) {
-        const oldName = props.history.location.search.slice(1)
-        await database().ref().child(props.user.uid).child('productos').child(oldName).remove()
-        await database().ref().child(props.user.uid).child('productos').update({ [nombre]: aux })
-      } else {
-        await database().ref().child(props.user.uid).child('productos').update({ [nombre]: aux })
+      if (isEdit) {
+        await database().ref().child(props.user.uid).child('productos').child(props.history.location.search.slice(1)).remove()
       }
-      setshowSnackbar(props.history.location.search ? 'Producto editado!' : 'Producto creado!')
-      setTimeout(() => props.history.replace('/Productos'), 2000)
+      await database().ref().child(props.user.uid).child('productos').update({ [nombre]: payload })
+      setSnack(isEdit ? 'Producto editado' : 'Producto creado')
+      setTimeout(() => props.history.replace('/Productos'), 1500)
     } catch { setLoading(false) }
   }
 
   const steps = [
-    <StepComponent
-      tipoDeDato="Detalles"
-      nombre={nombre} setnombre={setnombre}
-      precio={precio} setprecio={setprecio}
-      cantidad={cantidad} setcantidad={setcantidad}
-      isSubproducto={isSubproducto} setIsSubproducto={setIsSubproducto}
-    />,
-    <StepComponent
-      tipoDeDato="Cadena de Producción"
-      cadenaDeProduccion={cadenaDeProduccion} setcadenaDeProduccion={setcadenaDeProduccion}
-      subproductos={getSubproductosList(props.productos)}
-      allProductos={getAllProductosList(props.productos)}
-    />,
-    <Subproductos
-      subproductos={subproductos}
-      seteditIndex={seteditIndex}
-      showDialog={setshowDialog}
-      openDialogDelete={setopenDialog}
-    />,
-    <Matrices
-      matrices={matrices}
-      seteditIndexMatriz={seteditIndex}
-      showDialog={setshowDialog}
-      openDialogDelete={setopenDialog}
-    />,
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Información básica</Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField fullWidth label="Nombre *" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField fullWidth label="Precio" type="number" value={precio} onChange={(e) => setPrecio(parseFloat(e.target.value) || 0)} />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField fullWidth label="Stock" type="number" value={cantidad} onChange={(e) => setCantidad(parseFloat(e.target.value) || 0)} />
+        </Grid>
+        <Grid item xs={12}>
+          <FormControlLabel
+            control={<Switch checked={isSubproducto} onChange={(e) => setIsSubproducto(e.target.checked)} />}
+            label="Es subproducto"
+          />
+        </Grid>
+      </Grid>
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Cadena de producción</Typography>
+      <Step
+        tipoDeDato="Cadena de Producción"
+        cadenaDeProduccion={cadena}
+        setcadenaDeProduccion={setCadena}
+        subproductos={Object.values(props.productos || {}).filter((p) => p.isSubproducto)}
+        allProductos={Object.values(props.productos || {})}
+      />
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Subproductos asociados</Typography>
+      <Subproductos subproductos={subproductos} />
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Matrices</Typography>
+      <Matrices matrices={matrices} />
+    </Box>,
+
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Confirmar producto</Typography>
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+        <Grid container spacing={1}>
+          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Nombre</Typography><Typography>{nombre}</Typography></Grid>
+          <Grid item xs={3}><Typography variant="caption" color="text.secondary">Precio</Typography><Typography>${precio}</Typography></Grid>
+          <Grid item xs={3}><Typography variant="caption" color="text.secondary">Stock</Typography><Typography>{cantidad}</Typography></Grid>
+          <Grid item xs={12}><Typography variant="caption" color="text.secondary">Tipo</Typography><Typography>{isSubproducto ? 'Subproducto' : 'Producto final'}</Typography></Grid>
+        </Grid>
+      </Paper>
+    </Box>,
   ]
 
-  const getDisabled = (step) => {
-    switch (step) {
-      case 0: return !nombre
-      default: return false
-    }
-  }
-
   return (
-    <Layout history={props.history} page={props.history.location.search ? 'Editar Producto' : 'Nuevo Producto'} user={props.user.uid} blockGoBack={true}>
+    <Layout history={props.history} page={isEdit ? 'Editar Producto' : 'Nuevo Producto'} user={props.user?.uid} blockGoBack={true}>
       <BaseWizard
+        stepLabels={['Info', 'Producción', 'Subproductos', 'Matrices', 'Confirmar']}
         steps={steps}
         activeStep={activeStep}
-        onNext={() => setActiveStep(s => s + 1)}
-        onBack={() => setActiveStep(s => s - 1)}
-        onFinish={guardarProducto}
-        disabled={getDisabled(activeStep)}
-        finishLabel={props.history.location.search ? 'Guardar Edición' : 'Crear Producto'}
+        onNext={() => setActiveStep((s) => s + 1)}
+        onBack={() => setActiveStep((s) => s - 1)}
+        onFinish={guardar}
+        disabled={!nombre}
+        finishLabel={isEdit ? 'Guardar Cambios' : 'Crear Producto'}
       />
-
-      <DialogAgregarProceso open={showDialog === 'proceso'} setOpen={() => setshowDialog(undefined)} datos={cadenaDeProduccion} setDatos={setcadenaDeProduccion} productos={getProductosList(props.productos)} subproductos={getSubproductosList(props.productos)} />
-      <DialogNuevaMatriz open={showDialog === 'matriz'} setOpen={() => setshowDialog(undefined)} datos={matrices} setDatos={setMatrices} />
-      <DialogNuevoSubproducto open={showDialog === 'subproducto'} setOpen={() => setshowDialog(undefined)} datos={subproductos} setDatos={setSubproductosState} edit={editIndex !== undefined} editIndex={editIndex} seteditIndex={seteditIndex} />
-      <DialogEliminarElemento open={openDialog} setopen={setopenDialog} datos={showDialog === 'subproducto' ? subproductos : cadenaDeProduccion} setDatos={showDialog === 'subproducto' ? setSubproductosState : setcadenaDeProduccion} index={deleteIndex} setdeleteIndex={setdeleteIndex} />
-
-      <Backdrop open={loading} sx={{ zIndex: t => t.zIndex.drawer + 1, color: '#fff' }}>
+      <Backdrop open={loading} sx={{ zIndex: (t) => t.zIndex.drawer + 1, color: '#fff' }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      <Snackbar open={!!showSnackbar} autoHideDuration={2000} onClose={() => setshowSnackbar('')}>
-        <Alert severity="success" variant="filled">{showSnackbar}</Alert>
+      <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}>
+        <Alert severity="success" variant="filled">{snack}</Alert>
       </Snackbar>
     </Layout>
   )
