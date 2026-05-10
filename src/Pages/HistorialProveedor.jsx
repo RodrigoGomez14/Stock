@@ -45,12 +45,14 @@ const HistorialProveedor = (props) => {
 
   if (proveedor.pagos) {
     Object.entries(proveedor.pagos).forEach(([id, p]) => {
+      const monto = parseFloat(p.total || 0)
+      if (monto === 0) return
       timeline.push({
         id, fecha: p.fecha, tipo: 'pago',
         concepto: p.efectivo ? 'Efectivo' : p.transferencias?.length ? 'Transferencia' : p.cheques?.length ? 'Cheques' : p.chequesPersonales?.length ? 'Ch. Personal' : 'Pago',
-        monto: parseFloat(p.total || 0),
+        monto,
         deudaPasada: p.deudaPasada || 0,
-        deudaActualizada: p.deudaActualizada !== undefined ? p.deudaActualizada : Math.max(0, (p.deudaPasada || 0) - parseFloat(p.total || 0)),
+        deudaActualizada: p.deudaActualizada !== undefined ? p.deudaActualizada : Math.max(0, (p.deudaPasada || 0) - monto),
         aumento: false,
         metodo: [
           p.efectivo && 'Efectivo',

@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { Search, Add, PictureAsPdf, CloudDownload, Edit } from '@mui/icons-material'
-import { formatMoney } from '../utilities'
+import { formatMoney, obtenerFecha } from '../utilities'
 import { fetchPreciosFromSheet, updatePrecioInSheet, getSheetsUrl, setSheetsUrl } from '../services/preciosService'
 import { updateData } from '../services'
 
@@ -65,7 +65,55 @@ const ListasDePrecios = (props) => {
             <Button variant="outlined" startIcon={<CloudDownload />} onClick={importarDeSheet} disabled={!getSheetsUrl()}>
               Importar de Sheets
             </Button>
-            <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={() => window.print()}>
+            <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={() => {
+              const sorted = [...productos].filter(([_, p]) => p.precio > 0)
+                .sort(([a], [b]) => a.localeCompare(b))
+              const grouped = {}
+              sorted.forEach(([name, p]) => {
+                const cat = p.isSubproducto ? 'SUBPRODUCTOS' : 'PRODUCTOS'
+                if (!grouped[cat]) grouped[cat] = []
+                grouped[cat].push({ name, precio: p.precio || 0, id: p.id })
+              })
+
+              const rows = Object.entries(grouped).map(([cat, items]) => `
+                <tr><td colspan="3" style="background:#1a73e8;color:#fff;padding:10px 16px;font-weight:700;font-size:14px;letter-spacing:1px">${cat}</td></tr>
+                ${items.map((item, i) => `
+                  <tr${i % 2 === 0 ? ' style="background:#f5f5f5"' : ''}>
+                    <td style="padding:8px 16px;font-size:12px;color:#666">${item.id || '—'}</td>
+                    <td style="padding:8px 16px;font-weight:600">${item.name}</td>
+                    <td style="padding:8px 16px;text-align:right;font-weight:700;color:#1a73e8">$ ${formatMoney(item.precio)}</td>
+                  </tr>
+                `).join('')}
+              `).join('')
+
+              const win = window.open('', '_blank')
+              win.document.write(`
+                <html><head><title>Lista de Precios</title>
+                <style>
+                  @page { margin: 15mm }
+                  body { font-family:'Segoe UI',Arial,sans-serif; margin:0; padding:20px; color:#333 }
+                  .header { text-align:center; margin-bottom:30px; padding-bottom:20px; border-bottom:3px solid #1a73e8 }
+                  .header h1 { font-size:24px; margin:0; color:#1a73e8 }
+                  .header p { font-size:13px; color:#888; margin:5px 0 0 }
+                  table { width:100%; border-collapse:collapse }
+                  th { background:#1a73e8; color:#fff; padding:10px 16px; font-size:13px; text-align:left; font-weight:600 }
+                  th:last-child { text-align:right }
+                  .footer { margin-top:30px; text-align:center; font-size:11px; color:#aaa; border-top:1px solid #ddd; padding-top:15px }
+                </style></head><body>
+                  <div class="header">
+                    <h1>LISTA DE PRECIOS</h1>
+                    <p>Generado el ${obtenerFecha()} — ${sorted.length} producto(s)</p>
+                  </div>
+                  <table>
+                    <tr><th style="width:80px">Código</th><th>Producto</th><th style="text-align:right">Precio</th></tr>
+                    ${rows}
+                  </table>
+                  <div class="footer">Documento generado desde Central de Stock</div>
+                </body></html>
+              `)
+              win.document.close()
+              setTimeout(() => win.print(), 500)
+            }}>
               Exportar PDF
             </Button>
             <Button variant="outlined" size="small" onClick={() => setShowConfig(true)}>
