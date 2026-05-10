@@ -1,115 +1,58 @@
-﻿import React,{useState} from 'react'
+﻿import React, { useState } from 'react'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import { makeStyles } from 'tss-react/mui'
-import { Typography,Backdrop,Grid,CircularProgress,Snackbar,Paper } from '@mui/material'
-import {Alert} from '@mui/material'
-import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
-import {CardPedido} from '../components/Pedidos/CardPedido'
-import { database } from '../services'
-import {content} from './styles/styles'
-import Empty from '../images/Empty.png'
+import { Layout } from './Layout'
+import {
+  Box, Grid, TextField, InputAdornment, IconButton, Typography,
+  Paper, Card, CardContent, CardActions, Button, Chip
+} from '@mui/material'
+import { Search, Add } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
 import { formatMoney } from '../utilities'
-// COMPONENT
-const Pedidos=(props)=>{
-    const classes = content()
-    const [search,setSearch]=useState('')
-    const [showSnackbar, setshowSnackbar] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [openDialog,setOpenDialog]=useState(false)
-    const [showDialogDelete, setShowDialogDelete] = useState(false);
-    const [showDialogUpdatePrices, setShowDialogUpdatePrices] = useState(false);
-    const [deleteIndex, setDeleteIndex] = useState(false);
-    const [updatePricesIndex, setUpdatePricesIndex] = useState(false);
+import { database } from '../services'
 
-    // FUNTIONS
-    const eliminarPedido = (id) =>{
-        setLoading(true)
-        database().ref().child(props.user.uid).child('pedidos').child(id).remove()
-            .then(()=>{
-                setshowSnackbar('El pedido se eliminÃ³ correctamente!')
-                setShowDialogDelete(false)
-                setTimeout(() => {
-                    setLoading(false)
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-    }
-    const actualizarPrecio = (id) =>{
-        setLoading(true)
-        let auxPedido = props.pedidos[id]
-        let auxTotal = 0
-        console.log(props.pedidos[id].cotizacion.valor)
-        auxPedido.productos.map(producto=>{
-            producto.precio = (producto.precio / props.pedidos[id].cotizacion.valor) * props.tipoDeCambio
-            producto.total = (producto.precio / props.pedidos[id].cotizacion.valor) * props.tipoDeCambio * producto.cantidad
-            auxTotal += producto.precio * producto.cantidad
-        })
-        auxPedido.cotizacion.valor=props.tipoDeCambio
-        auxPedido.total=auxTotal
-        database().ref().child(props.user.uid).child('pedidos').child(id).update(auxPedido)
-            .then(()=>{
-                setshowSnackbar('El precio se actualizo correctamente!')
-                setShowDialogUpdatePrices(false)
-                setTimeout(() => {
-                    setLoading(false)
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-    }
+const Pedidos = (props) => {
+  const [search, setSearch] = useState('')
+  const pedidos = props.pedidos ? Object.entries(props.pedidos) : []
+  const filtered = pedidos.filter(([_, p]) => !search || p.cliente?.toLowerCase().includes(search.toLowerCase()))
 
-    return(
-        <Layout history={props.history} page="Pedidos" user={props.user.uid}>
-            {/* CONTENT */}
-            <Paper className={classes.content}>
-                {/* PEDIDOS LIST */}
-                <Grid container justify='center' alignItems='center' spacing={3}>
-                    {props.pedidos?
-                        (Object.keys(props.pedidos).map(key=>(
-                            <CardPedido
-                                pedido={props.pedidos[key]}
-                                deuda={props.clientes[props.pedidos[key].cliente].datos.deuda}
-                                id={key}
-                                setShowDialogDelete={setShowDialogDelete}
-                                setDeleteIndex={setDeleteIndex}
-                                setUpdatePricesIndex={setUpdatePricesIndex}
-                                setShowDialogUpdatePrices={setShowDialogUpdatePrices}
-                                tipoDeCambio={props.tipoDeCambio}
-                            />
-                        )))
-                        :
-                        <>
-                            <Grid item>
-                                <img src={Empty} alt="" height='600px'/>
-                            </Grid>
-                            <Grid container item xs={12} justify='center'>
-                                <Typography variant='h4'>No hay Pedidos Ingresados</Typography>
-                            </Grid>
-                        </>
-                    }
-                </Grid>
-
-                {/* BACKDROP & SNACKBAR */}
-                <Backdrop className={classes.backdrop} open={loading}>
-                    <CircularProgress color="inherit" />
-                    <DialogConfirmAction showDialog={showDialogDelete} setShowDialog={setShowDialogDelete} action={()=>{eliminarPedido(deleteIndex)}} tipo='eliminar el Pedido'/>
-                    
-                    <DialogConfirmAction showDialog={showDialogUpdatePrices} setShowDialog={setShowDialogUpdatePrices} action={()=>{actualizarPrecio(updatePricesIndex)}} tipo={`Actualizar los precios a $${formatMoney(props.tipoDeCambio)}`}/>
-                    <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                        <Alert severity="success" variant='filled'>
-                            {showSnackbar}
-                        </Alert>
-                    </Snackbar>
-                </Backdrop>
-
-
-            </Paper>
-        </Layout>
-    )
+  return (
+    <Layout history={props.history} page="Pedidos" user={props.user?.uid}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <TextField fullWidth size="small" placeholder="Buscar por cliente..." value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
+            sx={{ maxWidth: 400 }} />
+          <IconButton component={Link} to="/Nuevo-Pedido" color="primary"><Add /></IconButton>
+        </Box>
+        {filtered.length > 0 ? (
+          <Grid container spacing={2}>
+            {filtered.map(([id, p]) => (
+              <Grid item xs={12} sm={6} md={4} key={id}>
+                <Card sx={{ borderRadius: 3 }}>
+                  <CardContent>
+                    <Typography variant="h6" fontWeight={600}>{p.cliente}</Typography>
+                    <Typography variant="caption" color="text.secondary">{p.fecha}</Typography>
+                    <Box sx={{ mt: 1 }}>
+                      <Chip size="small" label={`$ ${formatMoney(p.total || 0)}`} color="primary" variant="outlined" />
+                      <Chip size="small" label={`${p.articulos?.length || 0} artículos`} sx={{ ml: 1 }} variant="outlined" />
+                    </Box>
+                  </CardContent>
+                  <CardActions>
+                    <Button size="small" component={Link} to={`/Enviar-Pedido?${id}`}>Enviar</Button>
+                    <Button size="small" component={Link} to={`/Editar-Pedido?${id}`}>Editar</Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography color="text.secondary">No hay pedidos.</Typography>
+          </Box>
+        )}
+      </Box>
+    </Layout>
+  )
 }
-
 export default withStore(Pedidos)

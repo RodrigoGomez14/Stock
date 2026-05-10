@@ -51,127 +51,108 @@ import PagarServicios from './Pages/PagarServicios';
 
 class App extends Component {
   state={
-    loading:true,
+    authLoading: true,
+    dataLoading: true,
   }
 
   componentDidMount(){
-    onAuthStateChanged(async user=>{
-      if(user){
+    onAuthStateChanged(user => {
+      if (user) {
+        this.setState({ user, authLoading: false })
         const databaseRef = database().ref().child(user.uid)
-        databaseRef.on('value', snapshot=>{
+        databaseRef.on('value', snapshot => {
           const data = snapshot.val()
           fetch("https://dolarapi.com/v1/dolares")
             .then((response) => response.json())
-            .then((dolar)=>{
-              this.setState({tipoDeCambio:dolar,user:user,...data,loading:false})
+            .then((dolar) => {
+              this.setState({ tipoDeCambio: dolar, ...data, dataLoading: false })
             })
         })
-      }
-      else{
-        this.setState({user:null,loading:false})
+      } else {
+        this.setState({ user: null, authLoading: false, dataLoading: false })
       }
     })
   }
   
-  render(){
-    //creacion del tema 
-
-    //PANTALLA DE CARGA
-    if(this.state.loading){
-      return(
-          <ThemeProvider theme={theme}>
-              <CssBaseline/>
-              <PantallaDeCarga/>
-          </ThemeProvider>
+  render() {
+    if (this.state.authLoading || this.state.dataLoading) {
+      return (
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <PantallaDeCarga />
+        </ThemeProvider>
       )
     }
-    //DIVISION DE RUTAS
-    else{
-      // RUTEADO DE LA APP
-      if(this.state.user){
-        return (
-          <ThemeProvider theme={theme}>
-              <CssBaseline/>
-              <AppProvider value={this.state}>
-                <BrowserRouter>
-                  <Routes>
-                    <Route path='/' element={<RouteInjector component={Inicio}/>}/>
-                    <Route path='/Iva' element={<RouteInjector component={Iva}/>}/>
-                    <Route path='/Clientes' element={<RouteInjector component={Clientes}/>}/>
-                    <Route path='/Cliente' element={<RouteInjector component={Cliente}/>}/>
-                    <Route path='/Nuevo-Cliente' element={<RouteInjector component={NuevoCliente}/>}/>
-                    <Route path='/Editar-Cliente' element={<RouteInjector component={NuevoCliente}/>}/>
-                    <Route path='/Proveedores' element={<RouteInjector component={Proveedores}/>}/>
-                    <Route path='/Proveedor' element={<RouteInjector component={Proveedor}/>}/>
-                    <Route path='/Nuevo-Proveedor' element={<RouteInjector component={NuevoProveedor}/>}/>
-                    <Route path='/Editar-Proveedor' element={<RouteInjector component={NuevoProveedor}/>}/>
-                    <Route path='/Expresos' element={<RouteInjector component={Expresos}/>}/>
-                    <Route path='/Expreso' element={<RouteInjector component={Expreso}/>}/>
-                    <Route path='/Historial-Cliente' element={<RouteInjector component={HistorialCliente}/>}/>
-                    <Route path='/Historial-Proveedor' element={<RouteInjector component={HistorialProveedor}/>}/>
-                    <Route path='/Nuevo-Expreso' element={<RouteInjector component={NuevoExpreso}/>}/>
-                    <Route path='/Editar-Expreso' element={<RouteInjector component={NuevoExpreso}/>}/>
-                    <Route path='/Deudas' element={<RouteInjector component={Deudas}/>}/>
-                    <Route path='/Nuevo-Consumo-Facturado' element={<RouteInjector component={NuevoConsumoFacturado}/>}/>
-                    
-                    <Route path='/Cheques' element={<RouteInjector component={Cheques}/>}/>
-                    <Route path='/Cheques-Personales' element={<RouteInjector component={ChequesPersonales}/>}/>
-                    <Route path='/Depositar-Cheque' element={<RouteInjector component={DepositarCheque}/>}/>
-
-                    <Route path='/Productos' element={<RouteInjector component={Productos}/>}/>
-                    <Route path='/Producto' element={<RouteInjector component={Producto}/>}/>
-                    <Route path='/Nuevo-Producto' element={<RouteInjector component={NuevoProducto}/>}/>
-                    <Route path='/Editar-Producto' element={<RouteInjector component={NuevoProducto}/>}/>
-
-                    <Route path='/Cuentas-Bancarias' element={<RouteInjector component={CuentasBancarias}/>}/>
-                    <Route path='/Nueva-Cuenta-Bancaria' element={<RouteInjector component={NuevaCuentaBancaria}/>}/>
-                    
-                    <Route path='/Pedidos' element={<RouteInjector component={Pedidos}/>}/>
-                    <Route path='/Nuevo-Pedido' element={<RouteInjector component={NuevoPedido}/>}/>
-                    <Route path='/Editar-Pedido' element={<RouteInjector component={NuevoPedido}/>}/>
-                    <Route path='/Enviar-Pedido' element={<RouteInjector component={EnviarPedido}/>}/>
-                    
-                    <Route path='/Entregas' element={<RouteInjector component={Entregas}/>}/>
-                    <Route path='/Nueva-Entrega' element={<RouteInjector component={NuevaEntrega}/>}/>
-                    <Route path='/Editar-Entrega' element={<RouteInjector component={NuevaEntrega}/>}/>
-                    <Route path='/Recibir-Entrega' element={<RouteInjector component={RecibirEntrega}/>}/>
-
-                    <Route path='/Nuevo-Pago-Cliente' element={<RouteInjector component={NuevoPagoCliente}/>}/>
-                    <Route path='/Nuevo-Pago-Proveedor' element={<RouteInjector component={NuevoPagoProveedor}/>}/>
-
-                    <Route path='/Cadenas-De-Produccion' element={<RouteInjector component={CadenasDeProduccion}/>}/>
-                    <Route path='/Historial-De-Produccion' element={<RouteInjector component={HistorialDeProduccion}/>}/>
-                    <Route path='/Finalizar-Proceso' element={<RouteInjector component={FinalizarProceso}/>}/>
-                    <Route path='/Finalizar-Proceso-Propio' element={<RouteInjector component={FinalizarProcesoPropio}/>}/>
-                    
-                    {/* Nuevas rutas para servicios */}
-                    <Route path='/Servicios' element={<RouteInjector component={Servicios}/>}/>
-                    <Route path='/Nuevo-Servicio' element={<RouteInjector component={NuevoServicio}/>}/>
-                    <Route path='/Editar-Servicio' element={<RouteInjector component={NuevoServicio}/>}/>
-                    <Route path='/Pagar-Servicios' element={<RouteInjector component={PagarServicios}/>}/>
-
-                    <Route path='*' element={<RouteInjector component={NotFound}/>}/>
-                  </Routes>
-                </BrowserRouter>
-              </AppProvider>
-            </ThemeProvider>
-        )
-      }
-      //Si no hay usuario la unica ruta es SignIn
-      else{
-        return (
-          <ThemeProvider theme={theme}>
-            <CssBaseline/>
+    if (this.state.user) {
+      return (
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AppProvider value={this.state}>
             <BrowserRouter>
               <Routes>
-                <Route path='/' element={<RouteInjector component={SignInPage}/>}/>
-                <Route path='*' element={<RouteInjector component={NotFound}/>}/>
+                <Route path='/' element={<RouteInjector component={Inicio} />} />
+                <Route path='/Iva' element={<RouteInjector component={Iva} />} />
+                <Route path='/Clientes' element={<RouteInjector component={Clientes} />} />
+                <Route path='/Cliente' element={<RouteInjector component={Cliente} />} />
+                <Route path='/Nuevo-Cliente' element={<RouteInjector component={NuevoCliente} />} />
+                <Route path='/Editar-Cliente' element={<RouteInjector component={NuevoCliente} />} />
+                <Route path='/Proveedores' element={<RouteInjector component={Proveedores} />} />
+                <Route path='/Proveedor' element={<RouteInjector component={Proveedor} />} />
+                <Route path='/Nuevo-Proveedor' element={<RouteInjector component={NuevoProveedor} />} />
+                <Route path='/Editar-Proveedor' element={<RouteInjector component={NuevoProveedor} />} />
+                <Route path='/Expresos' element={<RouteInjector component={Expresos} />} />
+                <Route path='/Expreso' element={<RouteInjector component={Expreso} />} />
+                <Route path='/Historial-Cliente' element={<RouteInjector component={HistorialCliente} />} />
+                <Route path='/Historial-Proveedor' element={<RouteInjector component={HistorialProveedor} />} />
+                <Route path='/Nuevo-Expreso' element={<RouteInjector component={NuevoExpreso} />} />
+                <Route path='/Editar-Expreso' element={<RouteInjector component={NuevoExpreso} />} />
+                <Route path='/Deudas' element={<RouteInjector component={Deudas} />} />
+                <Route path='/Nuevo-Consumo-Facturado' element={<RouteInjector component={NuevoConsumoFacturado} />} />
+                <Route path='/Cheques' element={<RouteInjector component={Cheques} />} />
+                <Route path='/Cheques-Personales' element={<RouteInjector component={ChequesPersonales} />} />
+                <Route path='/Depositar-Cheque' element={<RouteInjector component={DepositarCheque} />} />
+                <Route path='/Productos' element={<RouteInjector component={Productos} />} />
+                <Route path='/Producto' element={<RouteInjector component={Producto} />} />
+                <Route path='/Nuevo-Producto' element={<RouteInjector component={NuevoProducto} />} />
+                <Route path='/Editar-Producto' element={<RouteInjector component={NuevoProducto} />} />
+                <Route path='/Cuentas-Bancarias' element={<RouteInjector component={CuentasBancarias} />} />
+                <Route path='/Nueva-Cuenta-Bancaria' element={<RouteInjector component={NuevaCuentaBancaria} />} />
+                <Route path='/Pedidos' element={<RouteInjector component={Pedidos} />} />
+                <Route path='/Nuevo-Pedido' element={<RouteInjector component={NuevoPedido} />} />
+                <Route path='/Editar-Pedido' element={<RouteInjector component={NuevoPedido} />} />
+                <Route path='/Enviar-Pedido' element={<RouteInjector component={EnviarPedido} />} />
+                <Route path='/Entregas' element={<RouteInjector component={Entregas} />} />
+                <Route path='/Nueva-Entrega' element={<RouteInjector component={NuevaEntrega} />} />
+                <Route path='/Editar-Entrega' element={<RouteInjector component={NuevaEntrega} />} />
+                <Route path='/Recibir-Entrega' element={<RouteInjector component={RecibirEntrega} />} />
+                <Route path='/Nuevo-Pago-Cliente' element={<RouteInjector component={NuevoPagoCliente} />} />
+                <Route path='/Nuevo-Pago-Proveedor' element={<RouteInjector component={NuevoPagoProveedor} />} />
+                <Route path='/Cadenas-De-Produccion' element={<RouteInjector component={CadenasDeProduccion} />} />
+                <Route path='/Historial-De-Produccion' element={<RouteInjector component={HistorialDeProduccion} />} />
+                <Route path='/Finalizar-Proceso' element={<RouteInjector component={FinalizarProceso} />} />
+                <Route path='/Finalizar-Proceso-Propio' element={<RouteInjector component={FinalizarProcesoPropio} />} />
+                <Route path='/Servicios' element={<RouteInjector component={Servicios} />} />
+                <Route path='/Nuevo-Servicio' element={<RouteInjector component={NuevoServicio} />} />
+                <Route path='/Editar-Servicio' element={<RouteInjector component={NuevoServicio} />} />
+                <Route path='/Pagar-Servicios' element={<RouteInjector component={PagarServicios} />} />
+                <Route path='*' element={<RouteInjector component={NotFound} />} />
               </Routes>
             </BrowserRouter>
-          </ThemeProvider>
-        )
-      }
+          </AppProvider>
+        </ThemeProvider>
+      )
     }
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<RouteInjector component={SignInPage} />} />
+            <Route path='*' element={<RouteInjector component={NotFound} />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    )
   }
 }
 

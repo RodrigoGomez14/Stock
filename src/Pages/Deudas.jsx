@@ -1,250 +1,75 @@
-﻿import React,{useState} from 'react'
+﻿import React, { useState } from 'react'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import {Backdrop,Paper,CircularProgress,Tab,Typography,TextField,Grid,AppBar,Box,Tabs,Link as LinkComponent,Snackbar,Card,CardHeader,CardContent} from '@mui/material'
-import {Alert} from '@mui/material'
-import {AttachMoney,PersonAdd} from '@mui/icons-material'
-import {Link} from 'react-router-dom'
-import {formatMoney} from '../utilities'
-import {content} from './styles/styles'
+import { Layout } from './Layout'
+import {
+  Box, Grid, Typography, Card, CardContent, Paper, Tabs, Tab,
+  TextField, InputAdornment
+} from '@mui/material'
+import { Search } from '@mui/icons-material'
+import { formatMoney } from '../utilities'
 import CardDeudaCliente from '../components/Deudas/CardDeudaCliente'
 import CardDeudaProveedor from '../components/Deudas/CardDeudaProveedor'
-import { useEffect } from 'react'
-import ApexCharts from 'react-apexcharts';
 
+const Deudas = (props) => {
+  const [tab, setTab] = useState(0)
+  const [search, setSearch] = useState('')
+  const clientes = props.clientes ? Object.entries(props.clientes) : []
+  const proveedores = props.proveedores ? Object.entries(props.proveedores) : []
+  const totalDeudaClientes = clientes.reduce((s, [_, c]) => s + (c.datos?.deuda || 0), 0)
+  const totalDeudaProv = proveedores.reduce((s, [_, p]) => s + (p.datos?.deuda || 0), 0)
 
-// COMPONENT
-const Deudas=(props)=>{
-    const classes = content()
-    const [search,setSearch]=useState('')
-    const [showSnackbar,setshowSnackbar]=useState('')
-    const [loading,setLoading]=useState(true)
-    const [totalClientes,setTotalClientes]=useState(0)
-    const [totalProveedores,setTotalProveedores]=useState(0)
-    const [value,setValue]=useState(0)
+  return (
+    <Layout history={props.history} page="Deudas" user={props.user?.uid}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid item xs={6}>
+            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
+              <CardContent sx={{ py: '8px !important' }}>
+                <Typography variant="h5" fontWeight={700} color="error">$ {formatMoney(totalDeudaClientes)}</Typography>
+                <Typography variant="caption" color="text.secondary">Deuda de clientes</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
+              <CardContent sx={{ py: '8px !important' }}>
+                <Typography variant="h5" fontWeight={700} color="warning.main">$ {formatMoney(totalDeudaProv)}</Typography>
+                <Typography variant="caption" color="text.secondary">Deuda a proveedores</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
 
+        <TextField fullWidth size="small" placeholder="Buscar..." value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
+          sx={{ maxWidth: 400, mb: 2 }} />
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
-    const TabPanel=(props)=>{
-        const { children, value, index, ...other } = props;
-      
-        return (
-          <div
-            role="tabpanel"
-            className={classes.tabPanelDeuda}
-            hidden={value !== index}
-          >
-            {value === index && (
-              <Box p={3}>
-                <Typography>{children}</Typography>
-              </Box>
-            )}
-          </div>
-        )
-    }
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
+          <Tab label={`Clientes (${clientes.filter(([_, c]) => c.datos?.deuda > 0).length})`} />
+          <Tab label={`Proveedores (${proveedores.filter(([_, p]) => p.datos?.deuda > 0).length})`} />
+        </Tabs>
 
-    // CHARTS 
-    const generateChartDeudasClientes = () => {
-
-        let series = []
-        let labels = []
-
-        Object.keys(props.clientes).map(cliente=>{
-            if(props.clientes[cliente].datos.deuda>0){
-                series.push(props.clientes[cliente].datos.deuda)
-                labels.push(props.clientes[cliente].datos.nombre)
-            }
-        })
-
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labels,
-            series:series,
-            theme:{
-                mode:'dark',
-                palette:'palette3'
-            },
-            chart:{
-                sparkline:{
-                    enabled:true
-                }
-            },
-            tooltip:{
-                fillSeriesColor:false,
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            }
-        };
-    
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Deudas por Cliente'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='donut' width={300} />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartDeudasProveedores = () => {
-
-        let series = []
-        let labels = []
-
-        Object.keys(props.proveedores).map(proveedor=>{
-            if(props.proveedores[proveedor].datos.deuda>0){
-                series.push(props.proveedores[proveedor].datos.deuda)
-                labels.push(props.proveedores[proveedor].datos.nombre)
-            }
-        })
-
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labels,
-            series:series,
-            theme:{
-                mode:'dark',
-                palette:'palette3'
-            },
-            chart:{
-                sparkline:{
-                    enabled:true
-                }
-            },
-            tooltip:{
-                fillSeriesColor:false,
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            }
-        };
-    
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Deudas por Proveedor'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='donut' width={300} />
-                </CardContent>
-            </Card>)
-    }
-    useEffect(()=>{
-        let auxFilteredDeudas = 0
-        if(props.clientes){
-            Object.values(props.clientes).map(cliente=>{
-                auxFilteredDeudas += cliente.datos.deuda
-            })
-            setTotalClientes(auxFilteredDeudas)
-            auxFilteredDeudas=0
-        }
-        if(props.proveedores){
-            Object.values(props.proveedores).map(proveedor=>{
-                auxFilteredDeudas += proveedor.datos.deuda
-            })
-            setTotalProveedores(auxFilteredDeudas)
-        }
-        setLoading(false)
-    },[])
-    return(
-        <Layout history={props.history} page="Deudas" user={props.user.uid}>
-            {/* CONTENT */}
-            <Paper className={classes.content}>
-                <Grid container xs={12} spacing={4} >
-                     <Grid container item xs={12} justify='center'>
-                        <TextField
-                            value={search}
-                            onChange={e=>{
-                                setSearch(e.target.value)
-                            }}
-                            label='Buscar'
-                        />
-                    </Grid>
-                    <Grid container item xs={12} justify='center'>
-                        <Grid item>
-                            <AppBar position="static">
-                                <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                                    <Tab label="Clientes" />
-                                    <Tab label="Proveedores" />
-                                </Tabs>
-                            </AppBar>
-                        </Grid>
-                    </Grid>
-                    {/* DEUDAS CLIENTES */}
-                    <TabPanel value={value}  index={0}>
-                        <Grid container item xs={12} justify='center'>
-                            {props.clientes?
-                                <Grid container item xs={12} justify='center' alignItems='center' spacing={3}>
-                                    <Grid container item xs={12} justify='center'>
-                                        <Typography  variant='h5' textAlign='center'>
-                                            Total ${formatMoney(totalClientes)}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid container item xs={12} justify='center'>
-                                        {generateChartDeudasClientes()}
-                                    </Grid>
-                                    <Grid container justify='center' alignItems='center' spacing={4}>
-                                        {Object.keys(props.clientes).map(key=>(
-                                            props.clientes[key].datos.deuda != 0 ?
-                                                <CardDeudaCliente nombre={key} search={search} deuda={props.clientes[key].datos.deuda}/>
-                                            :
-                                            null
-                                        ))}
-                                    </Grid>
-                                </Grid>
-                                :
-                                null
-                            }
-                        </Grid>
-                    </TabPanel>
-
-                    {/* DEUDAS PROVEEDORES */}
-                    <TabPanel value={value} style={{width:'100%'}} index={1}>
-                        <Grid container item xs={12} justify='center'>
-                            {props.proveedores?
-                                <Grid container item xs={12} justify='center' alignItems='center' spacing={3}>
-                                    <Grid container item xs={12} justify='center'>
-                                        <Typography  variant='h5' textAlign='center'>
-                                            Total ${formatMoney(totalProveedores)}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid container item xs={12} justify='center'>
-                                        {generateChartDeudasProveedores()}
-                                    </Grid>
-                                    <Grid container item justify='center' alignItems='center' spacing={4}>
-                                        {Object.keys(props.proveedores).map(key=>(
-                                            props.proveedores[key].datos.deuda != 0 ?
-                                            <CardDeudaProveedor nombre={key} search={search} deuda={props.proveedores[key].datos.deuda}/>
-                                            :
-                                            null
-                                        ))}
-                                    </Grid>
-                                </Grid>
-                                :
-                                null
-                            }
-                            
-                        </Grid>
-                    </TabPanel>
-                </Grid>
-            </Paper>
-
-            {/* BACKDROP & SNACKBAR */}
-            <Backdrop className={classes.backdrop} open={loading}>
-                <CircularProgress color="inherit" />
-                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                    <Alert severity="success" variant='filled'>
-                        {showSnackbar}
-                    </Alert>
-                </Snackbar>
-            </Backdrop>
-        </Layout>
-    )
+        {tab === 0 && (
+          <Grid container spacing={2}>
+            {clientes.filter(([_, c]) => c.datos?.deuda > 0 && (!search || c.nombre?.toLowerCase().includes(search.toLowerCase()))).map(([nombre, c]) => (
+              <Grid item xs={12} sm={6} md={4} key={nombre}>
+                <CardDeudaCliente nombre={nombre} deuda={c.datos.deuda} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+        {tab === 1 && (
+          <Grid container spacing={2}>
+            {proveedores.filter(([_, p]) => p.datos?.deuda > 0 && (!search || p.datos?.nombre?.toLowerCase().includes(search.toLowerCase()))).map(([nombre, p]) => (
+              <Grid item xs={12} sm={6} md={4} key={nombre}>
+                <CardDeudaProveedor nombre={nombre} deuda={p.datos.deuda} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Box>
+    </Layout>
+  )
 }
-
 export default withStore(Deudas)

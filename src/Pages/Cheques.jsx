@@ -1,334 +1,104 @@
-﻿import React,{useState,useEffect} from 'react'
+﻿import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent, Button} from '@mui/material'
-import {Alert} from '@mui/material'
-import {PersonAdd} from '@mui/icons-material'
-import {MoreVert,ArrowForward} from '@mui/icons-material'
-import {Link} from 'react-router-dom'
-import {CardPedido} from '../components/Pedidos/CardPedido'
+import { Layout } from './Layout'
+import {
+  Box, Grid, Typography, Card, CardContent, Chip, IconButton,
+  Button, Backdrop, CircularProgress, Snackbar, Table,
+  TableHead, TableBody, TableRow, TableCell, Paper,
+  FormControl, InputLabel, Select, MenuItem
+} from '@mui/material'
+import { Alert } from '@mui/material'
+import { Add, ArrowForward } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
 import { database } from '../services'
-import {DialogConfirmAction} from '../components/Dialogs/DialogConfirmAction'
-import {formatMoney,obtenerFecha,monthsList} from '../utilities'
-import {DialogEntregarCheque} from '../components/Cheques/DialogEntregarCheque'
-import {content} from './styles/styles'
+import { formatMoney, monthsList } from '../utilities'
 import { Cheque } from '../components/Cheques/Cheque'
-import Empty from '../images/Empty.png'
-import ApexCharts from 'react-apexcharts';
+import { DialogEntregarCheque } from '../components/Cheques/DialogEntregarCheque'
 
-// COMPONENT
-const Cheques=(props)=>{
-    const classes = content()
-    const [search,setSearch]=useState(props.history.location.search?props.history.location.search.slice(1):'')
-    const [showSnackbar, setshowSnackbar] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [totalBlanco,setTotalBlanco] = useState('')
-    const [totalNegro,setTotalNegro] = useState('')
-    const [sortedCheques,setSortedCheques] = useState(undefined)
-    const [showDialogDelete, setShowDialogDelete] = useState(false);
-    const [deleteIndex, setDeleteIndex] = useState(false);
-    const [showDialogSelectGroup, setShowDialogSelectGroup] = useState(false);
-    const [idGroup, setIdGroup] = useState(undefined);
-    
+const ChequesPage = (props) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [search, setSearch] = useState('')
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  const [year, setYear] = useState(new Date().getFullYear())
+  const [snack, setSnack] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showDialogEntregar, setShowDialogEntregar] = useState(false)
 
-    // FUNCTIONS 
+  const cheques = props.cheques || {}
+  const filtered = Object.entries(cheques).filter(([_, c]) => {
+    if (!c.fecha) return false
+    const [d, m, y] = c.fecha.split('/')
+    return parseInt(m) === month && parseInt(y) === year
+  })
 
-    const guardarChequeRebotado = id =>{
-        setLoading(true)
+  const entregarCheque = async (id, fecha, nombre) => {
+    setLoading(true)
+    try {
+      await database().ref().child(props.user.uid).child('cheques').child(id).update({ fechaDeEntrega: fecha, entregadoA: nombre })
+      setSnack('Cheque entregado')
+    } catch { }
+    setLoading(false)
+  }
 
-        let valor = props.cheques[id].valor
-        let cliente = props.cheques[id].nombre
-        let destinatario = props.cheques[id].destinatario?props.cheques[id].destinatario:undefined
+  return (
+    <Layout history={props.history} page="Cheques" user={props.user?.uid}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Mes</InputLabel>
+            <Select value={month} label="Mes" onChange={(e) => setMonth(e.target.value)}>
+              {monthsList.map((m, i) => <MenuItem key={i} value={i + 1}>{m}</MenuItem>)}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 100 }}>
+            <InputLabel>Año</InputLabel>
+            <Select value={year} label="Año" onChange={(e) => setYear(e.target.value)}>
+              {[2024, 2025, 2026].map((y) => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+            </Select>
+          </FormControl>
+          <Button component={Link} to="/Depositar-Cheque" startIcon={<ArrowForward />} variant="contained" size="small">
+            Depositar
+          </Button>
+          <Button component={Link} to="/Cheques-Personales" variant="outlined" size="small">
+            Cheques Personales
+          </Button>
+        </Box>
 
+        {filtered.length > 0 ? (
+          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Número</TableCell>
+                  <TableCell>Banco</TableCell>
+                  <TableCell>Cliente</TableCell>
+                  <TableCell>Vencimiento</TableCell>
+                  <TableCell align="right">Valor</TableCell>
+                  <TableCell>Estado</TableCell>
+                  <TableCell align="center"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filtered.map(([id, c]) => (
+                  <Cheque key={id} id={id} data={c} onEntregar={() => setShowDialogEntregar(id)} />
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        ) : (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Typography color="text.secondary">No hay cheques para este período.</Typography>
+          </Box>
+        )}
+      </Box>
 
-        // GUARDA EL MOVIMIENTO EN LA LISTA DE PAGOS DEL CLIENTE Y DEL PROVEEDOR
-        guardarPago(cliente,id,destinatario)
-
-        // ACTUALIZA DEUDA DE CLIENTE Y PROVEEDOR 
-        actualizarDeuda(valor,cliente,destinatario)
-
-        // ACTUALIZA EL CHEQUE EN LA DB
-        database().ref().child(props.user.uid).child('cheques').child(id).update({
-            dadoDeBaja:true
-        })
-        // FEEDBACK DEL PROCESO
-        .then(()=>{
-            setshowSnackbar('El cheque se dio de baja correctamente!')
-            setShowDialogDelete(false)
-            setTimeout(() => {
-                setLoading(false)
-                setshowSnackbar('')
-            }, 2000);
-        })
-        .catch(()=>{
-            setLoading(false)
-        })
-    }
-
-    const actualizarDeuda = (valor,nombre,destinatario) =>{
-        
-        // CLIENTE
-        const nuevaDeudaCliente = props.clientes[nombre].datos.deuda+parseFloat(valor)
-        database().ref().child(props.user.uid).child('clientes').child(nombre).child('datos').update({
-            deuda:nuevaDeudaCliente
-        })
-        // SI EL CHEQUE FUE ENTREGADO SE ACTUALIZA LA DEUDA DEL PROVEEDOR
-        if(destinatario){
-            const nuevaDeudaProveedor = props.proveedores[destinatario].datos.deuda+parseFloat(valor)
-            database().ref().child(props.user.uid).child('proveedores').child(`${destinatario}`).child('datos').update({
-                deuda:nuevaDeudaProveedor
-            })  
-        }
-
-    }
-    
-    const guardarPago = (cliente,cheque,destinatario) =>{
-
-        // FUNCIONES DE ESTRUCTURA
-        const calcularDeudaActualizada = type =>{
-            if(type == 'cliente'){
-                return getDeudaPasada(type) + parseFloat(props.cheques[cheque].valor)
-            }
-            else if(type == 'proveedor'){
-                return getDeudaPasada(type) + parseFloat(props.cheques[cheque].valor)
-            }
-        }
-        const getDeudaPasada = type =>{
-            if(type == 'cliente'){
-                return props.clientes[cliente].datos.deuda
-            }
-            else if(type == 'proveedor'){
-                return props.proveedores[destinatario].datos.deuda
-
-            }
-        }
-        // ESTRUCTURA DEL PAGO
-        let aux={
-            deudaPasada:getDeudaPasada('cliente'),
-            deudaActualizada:calcularDeudaActualizada('cliente'),
-            cheques:[props.cheques[cheque].numero],
-            fecha:obtenerFecha(),
-            pagado:-(props.cheques[cheque].valor),
-            total:-(props.cheques[cheque].valor),
-        }
-        // ACTUALIZA DB CLIENTE
-        database().ref().child(props.user.uid).child('clientes').child(cliente).child('pagos').push(aux)
-        
-        // ACTUALIZA DB PROVEEDOR
-        if(destinatario){
-            aux.deudaPasada=getDeudaPasada('proveedor')
-            aux.deudaActualizada=calcularDeudaActualizada('proveedor')
-            database().ref().child(props.user.uid).child('proveedores').child(destinatario).child('pagos').push(aux)  
-        }
-    }
-    const guardarChequeEnBlanco = (id) =>{
-        setLoading(true)
-        database().ref().child(props.user.uid).child('cheques').child(id).update({
-                grupo:'Blanco'
-        })
-        .then(()=>{
-            setshowSnackbar('El cheque Se Agrego Al Grupo!')
-            setShowDialogSelectGroup(false)
-            setTimeout(() => {
-                setLoading(false)
-                setshowSnackbar('')
-            }, 2000);
-        })
-    }
-    const guardarChequeEnNegro = (id) =>{
-        setLoading(true)
-        database().ref().child(props.user.uid).child('cheques').child(id).update({
-                grupo:'Negro'
-        })
-        .then(()=>{
-            setshowSnackbar('El cheque Se Agrego Al Grupo!')
-            setShowDialogSelectGroup(false)
-            setTimeout(() => {
-                setLoading(false)
-                setshowSnackbar('')
-            }, 2000);
-        })
-    }
-    const obtenerTotalGrupos = (cheques) =>{
-        let auxBlanco = 0
-        let auxNegro = 0
-        if(cheques){
-            Object.keys(cheques).map(cheque=>{
-                if(!cheques[cheque].destinatario && !cheques[cheque].dadoDeBaja){
-                    if(cheques[cheque].grupo){
-                        if(cheques[cheque].grupo=='Blanco'){
-                            auxBlanco+=parseFloat(cheques[cheque].valor)
-                        }
-                        else{
-                            auxNegro+=parseFloat(cheques[cheque].valor)
-                        }
-                    }
-                }
-            })
-        }
-        setTotalBlanco(auxBlanco)
-        setTotalNegro(auxNegro)
-    }
-
-
-    // CHARTS
-    const generateChartGrupos = () => {
-        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        let series = [totalBlanco,totalNegro]
-        let labels = ['blanco','negro']
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labels,
-            theme:{
-                mode:'dark',
-                palette:'palette3'
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
-            }
-        };
-    
-    
-        // Renderiza el grÃ¡fico
-        return <ApexCharts options={options} series={series} type='donut' width={350} />;
-    }
-
-    // FILTRADO DE INFORMACION 
-    const filtrarCheques = () =>{
-        const months = {};
-        const year = new Date().getFullYear()
-            Object.keys(props.cheques).forEach((cheque) => {
-                const yearOfCheque = props.cheques[cheque].vencimiento.split('/')[2]
-                if(year==yearOfCheque){
-                    const month = props.cheques[cheque].vencimiento.split('/')[1];
-                    if (!months[month]) {
-                        months[month] = { total: 0,totalDisponible:0, cheques: [] };
-                    }
-                    if(!props.cheques[cheque].dadoDeBaja){
-                        months[month].total += parseInt(props.cheques[cheque].valor, 10);
-                        if(!props.cheques[cheque].destinatario){
-                            months[month].totalDisponible += parseInt(props.cheques[cheque].valor, 10);
-                        }
-                    }
-        
-                    months[month].cheques={...months[month].cheques,[`${cheque}`]:props.cheques[cheque]}
-                    console.log(months[month].cheques)
-                }
-            });
-        return months
-    }
-
-    useEffect(()=>{
-        setLoading(true)
-        if(props.cheques){
-            const auxSortedCheques = filtrarCheques()
-            setSortedCheques(auxSortedCheques)
-        }
-
-        obtenerTotalGrupos(props.cheques)
-        if(props.history.location.search){
-            setSearch(props.history.location.search.slice(1))
-        }
-        setTimeout(() => {
-            setLoading(false)
-        }, 500);
-    },[props.cheques])
-
-    return(
-        <Layout history={props.history} page="Cheques" user={props.user.uid}>
-            {/* CONTENT */}
-            <Paper className={classes.content}>
-                {console.log(search)}
-                {/* CHEQUES TABLE */}
-                <Grid container spacing={6}>
-                    <Grid container item xs={12} justify='space-around'>
-                        
-                        {/* SEARCH BAR */}
-                        
-                        <Grid item>
-                            <TextField
-                                value={search}
-                                onChange={e=>{
-                                    setSearch(e.target.value)
-                                }}
-                                disabled={!props.cheques}
-                                label='Buscar Cheque'
-                            />
-                        </Grid>
-
-
-                        {/* NAVIGATION TO CHEQUES PERSONALES */}
-                        <Grid item>
-                            <Link
-                                style={{color:'#fff',textDecoration:'none',cursor:'pointer'}}
-                                to={{
-                                    pathname:'/Cheques-Personales',
-                            }}>
-                                <Button endIcon={<ArrowForward/>}>Cheques Personales</Button>
-                            </Link>  
-                        </Grid>
-                    </Grid>
-
-                    {/* LIST */}
-                    <Grid container justify='center' alignItems='center' spacing={3}>
-                        {sortedCheques?
-                            <Grid container xs={12} justify='center' spacing={3}>
-                                {Object.keys(sortedCheques).reverse().map((month)=>(
-                                    <>
-                                        <Grid container item xs={12} justify='center'>
-                                            <Card className={classes.CardMonthCheques}>
-                                                <CardHeader
-                                                    title={`$ ${formatMoney(sortedCheques[month].totalDisponible)} ($ ${formatMoney(sortedCheques[month].total)})`}
-                                                    subheader={monthsList[month-1]}
-                                                />
-                                            </Card>
-                                        </Grid>
-                                        <Grid container item xs={12} justify='center' spacing={3}>
-                                            {Object.keys(sortedCheques[month].cheques).map(cheque=>(
-                                                <Cheque cheque={sortedCheques[month].cheques[cheque]} id={cheque} search={search}  setShowDialogDelete={setShowDialogDelete} setDeleteIndex={setDeleteIndex} setShowDialogSelectGroup={setShowDialogSelectGroup} setIdGroup={setIdGroup}/>    
-                                            ))}
-                                        </Grid>
-                                    </>
-                                ))}
-                            </Grid>
-                        :
-                            <>
-                                <Grid item>
-                                    <img src={Empty} alt="" height='500px'/>
-                                </Grid>
-                                <Grid container item xs={12} justify='center'>
-                                    <Typography variant='h4'>No hay Cheques Ingresados</Typography>
-                                </Grid>
-                            </>
-                        }
-                    </Grid>
-                </Grid>
-            </Paper>
-
-            {/* BACKDROP & SNACKBAR */}
-            <Backdrop className={classes.backdrop} open={loading}>
-                <CircularProgress color="inherit" />
-                <DialogConfirmAction showDialog={showDialogDelete} setShowDialog={setShowDialogDelete} action={()=>{guardarChequeRebotado(deleteIndex)}} tipo='dar de baja el cheque'/>
-                <DialogConfirmAction showDialog={showDialogSelectGroup} setShowDialog={setShowDialogSelectGroup} action={()=>{guardarChequeEnBlanco(idGroup)}} tipo='Guardar Cheque en Blanco'/>
-                <DialogConfirmAction showDialog={showDialogSelectGroup} setShowDialog={setShowDialogSelectGroup} action={()=>{guardarChequeEnNegro(idGroup)}} tipo='Guardar Cheque en Negro'/>
-                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                    <Alert severity="success" variant='filled'>
-                        {showSnackbar}
-                    </Alert>
-                </Snackbar>
-            </Backdrop>
-        </Layout>
-    )
+      <Backdrop open={loading} sx={{ zIndex: 9999 }}><CircularProgress color="inherit" /></Backdrop>
+      <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}>
+        <Alert severity="success">{snack}</Alert>
+      </Snackbar>
+    </Layout>
+  )
 }
-export default withStore(Cheques)
-
+export default withStore(ChequesPage)
