@@ -3,38 +3,48 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Grid, Typography, Paper, Chip, Button, Backdrop, CircularProgress,
-  Snackbar, Stepper, Step, StepLabel, TextField, InputAdornment
+  Snackbar, TextField, InputAdornment, Divider, Stepper, Step, StepLabel
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { Search, PlayArrow, CheckCircle, Schedule } from '@mui/icons-material'
+import { Search, PlayArrow, CheckCircle, Schedule, HourglassEmpty } from '@mui/icons-material'
 import { updateData } from '../services'
 import { obtenerFecha, formatMoney } from '../utilities'
 
 const CadenaCard = ({ cadena, id, onIniciar }) => {
-  const stepsCount = cadena.procesos?.length || 0
-  const activeStep = cadena.procesos?.filter((p) => p.fechaDeEntrega).length || 0
+  const procesos = cadena.procesos || []
+  const stepsCount = procesos.length
+  const completados = procesos.filter((p) => p.fechaDeEntrega).length
 
   return (
     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
-      <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'action.selected', borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography variant="subtitle1" fontWeight={700}>{cadena.producto}</Typography>
-          <Typography variant="caption" color="text.secondary">
-            {cadena.cantidad ? `${cadena.cantidad} u. — ` : ''}Iniciado: {cadena.fechaDeInicio}
-          </Typography>
-        </Box>
-        <Chip
-          size="small"
-          label={`${activeStep}/${stepsCount}`}
-          color={activeStep === stepsCount ? 'success' : activeStep > 0 ? 'primary' : 'default'}
-          variant="filled"
-        />
+      {/* Header */}
+      <Box sx={{ px: 3, py: 2, bgcolor: 'action.selected', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs>
+            <Typography variant="h6" fontWeight={700}>{cadena.producto}</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5 }}>
+              <Chip size="small" icon={<Schedule />} label={cadena.fechaDeInicio || '—'} variant="outlined" sx={{ fontSize: 11 }} />
+              {cadena.cantidad > 0 && (
+                <Chip size="small" label={`${cadena.cantidad} unidad(es)`} color="primary" variant="filled" sx={{ fontWeight: 700, fontSize: 11 }} />
+              )}
+            </Box>
+          </Grid>
+          <Grid item>
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography variant="h5" fontWeight={900} color={completados === stepsCount ? 'success.main' : 'primary.main'}>
+                {completados}/{stepsCount}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">pasos</Typography>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
 
-      <Box sx={{ px: 2.5, py: 2 }}>
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {cadena.procesos?.map((proceso, i) => (
-            <Step key={i} completed={!!proceso.fechaDeEntrega}>
+      {/* Stepper */}
+      <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Stepper activeStep={completados} alternativeLabel>
+          {procesos.map((p, i) => (
+            <Step key={i} completed={!!p.fechaDeEntrega}>
               <StepLabel
                 StepIconProps={{
                   sx: {
@@ -43,47 +53,85 @@ const CadenaCard = ({ cadena, id, onIniciar }) => {
                   },
                 }}
               >
-                <Typography variant="caption" fontWeight={activeStep >= i ? 600 : 400}>
-                  {proceso.proceso}
+                <Typography variant="caption" fontWeight={completados >= i ? 600 : 400}>
+                  {p.proceso}
                 </Typography>
-                {proceso.fechaDeEntrega && (
-                  <Typography variant="caption" color="text.disabled" display="block">
-                    {proceso.fechaDeEntrega}
-                  </Typography>
-                )}
               </StepLabel>
             </Step>
           ))}
         </Stepper>
       </Box>
 
-      {/* Current step actions */}
-      {activeStep < stepsCount && (
-        <Box sx={{ px: 2.5, py: 1.5, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="body2" fontWeight={600}>
-              Siguiente: {cadena.procesos[activeStep].proceso}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {cadena.procesos[activeStep].isProcesoPropio
-                ? 'Proceso propio'
-                : `Proveedor: ${cadena.procesos[activeStep].proveedor}`}
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={cadena.procesos[activeStep]?.fechaDeInicio ? <CheckCircle /> : <PlayArrow />}
-            onClick={() => onIniciar(id, activeStep)}
-          >
-            {cadena.procesos[activeStep]?.fechaDeInicio ? 'Finalizar' : 'Iniciar'}
-          </Button>
-        </Box>
-      )}
+      {/* Detail of each process step */}
+      <Box sx={{ px: 3, py: 2 }}>
+        <Typography variant="subtitle2" fontWeight={600} gutterBottom>Detalle de pasos</Typography>
+        {procesos.map((p, i) => (
+          <Box key={i} sx={{
+            display: 'flex', alignItems: 'center', gap: 1.5, py: 1.2,
+            borderBottom: i < procesos.length - 1 ? '1px solid' : 'none',
+            borderColor: 'divider',
+          }}>
+            {/* Status icon */}
+            <Box sx={{
+              width: 36, height: 36, borderRadius: '50%', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              bgcolor: p.fechaDeEntrega ? 'success.main' : p.fechaDeInicio ? 'primary.main' : 'action.hover',
+            }}>
+              {p.fechaDeEntrega ? <CheckCircle sx={{ fontSize: 18, color: '#fff' }} /> :
+               p.fechaDeInicio ? <HourglassEmpty sx={{ fontSize: 16, color: '#fff' }} /> :
+               <Typography variant="caption" color="text.disabled">{i + 1}</Typography>}
+            </Box>
 
-      {activeStep === stepsCount && (
-        <Box sx={{ px: 2.5, py: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Chip label="Completada ✓" color="success" size="small" variant="filled" />
+            {/* Info */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="body2" fontWeight={600}>
+                {p.proceso}
+                {p.isProcesoPropio && <Chip size="small" label="Propio" color="warning" variant="outlined" sx={{ ml: 0.5, fontSize: 10 }} />}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {p.isProcesoPropio ? 'Sin proveedor (proceso propio)' : `Proveedor: ${p.proveedor || '—'}`}
+              </Typography>
+            </Box>
+
+            {/* Dates */}
+            <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+              {p.fechaDeEntrega ? (
+                <Box>
+                  <Typography variant="caption" color="success.main" fontWeight={600}>Completado</Typography>
+                  <Typography variant="caption" color="text.disabled" display="block">{p.fechaDeEntrega}</Typography>
+                </Box>
+              ) : p.fechaDeInicio ? (
+                <Box>
+                  <Typography variant="caption" color="primary.main" fontWeight={600}>En proceso</Typography>
+                  <Typography variant="caption" color="text.disabled" display="block">Inició: {p.fechaDeInicio}</Typography>
+                </Box>
+              ) : (
+                <Typography variant="caption" color="text.disabled">Pendiente</Typography>
+              )}
+            </Box>
+
+            {/* Action */}
+            {i === completados && !p.fechaDeEntrega && (
+              <Button
+                size="small"
+                variant={p.fechaDeInicio ? 'contained' : 'outlined'}
+                color={p.fechaDeInicio ? 'success' : 'primary'}
+                onClick={() => onIniciar(id, i)}
+                sx={{ ml: 1, flexShrink: 0, minWidth: 80, fontSize: 11 }}
+              >
+                {p.fechaDeInicio ? 'Finalizar' : 'Iniciar'}
+              </Button>
+            )}
+          </Box>
+        ))}
+      </Box>
+
+      {/* Completed badge */}
+      {completados === stepsCount && (
+        <Box sx={{ px: 3, py: 1.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'success.main', color: '#fff' }}>
+          <Typography variant="body2" fontWeight={700} textAlign="center">
+            ✓ Cadena de producción completada
+          </Typography>
         </Box>
       )}
     </Paper>
@@ -102,16 +150,14 @@ const CadenasDeProduccion = (props) => {
     const proceso = cadena.procesos?.[step]
 
     if (proceso?.fechaDeInicio && !proceso?.fechaDeEntrega) {
-      // Ya iniciado → ir a finalizar
       if (proceso.isProcesoPropio) {
         props.history.push(`/Finalizar-Proceso-Propio?${id}`)
       } else {
-        props.history.push(`/Finalizar-Proceso?${id}`, {})
+        props.history.push(`/Finalizar-Proceso?${id}`)
       }
       return
     }
 
-    // Iniciar proceso
     const aux = [...cadena.procesos]
     aux[step] = { ...aux[step], fechaDeInicio: obtenerFecha() }
     updateData(props.user.uid, `cadenasActivas/${id}/procesos`, aux)
@@ -121,14 +167,12 @@ const CadenasDeProduccion = (props) => {
 
   const cadenas = props.cadenasActivas ? Object.entries(props.cadenasActivas) : []
   const filtered = cadenas.filter(([_, c]) => !search || c.producto?.toLowerCase().includes(search.toLowerCase()))
-
   const activas = cadenas.filter(([_, c]) => c.procesos?.some((p) => !p.fechaDeEntrega)).length
   const completadas = cadenas.length - activas
 
   return (
     <Layout history={props.history} page="Cadenas de Producción" user={props.user?.uid}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
-        {/* Stats */}
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={4}>
             <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
@@ -150,20 +194,18 @@ const CadenasDeProduccion = (props) => {
           </Grid>
         </Grid>
 
-        {/* Search */}
         <TextField fullWidth size="small" placeholder="Buscar por producto..." value={search}
           onChange={(e) => setSearch(e.target.value)}
           InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
           sx={{ mb: 2 }} />
 
-        {/* List */}
         {filtered.length > 0 ? (
           filtered.map(([id, cadena]) => (
             <CadenaCard key={id} cadena={cadena} id={id} onIniciar={iniciarProceso} />
           ))
         ) : (
           <Typography color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
-            {search ? 'No se encontraron cadenas.' : 'No hay cadenas de producción activas. Iniciá una desde el perfil de un producto.'}
+            {search ? 'No se encontraron cadenas.' : 'No hay cadenas de producción activas.'}
           </Typography>
         )}
       </Box>
