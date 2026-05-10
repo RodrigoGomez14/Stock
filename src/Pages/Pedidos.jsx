@@ -3,9 +3,9 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Grid, TextField, InputAdornment, IconButton, Typography,
-  Paper, Card, CardContent, CardActions, Button, Chip
+  Card, CardContent, Button, Chip, Divider, Tooltip
 } from '@mui/material'
-import { Search, Add } from '@mui/icons-material'
+import { Search, Add, Send, Edit, Person } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../utilities'
 
@@ -28,19 +28,92 @@ const Pedidos = (props) => {
           <Grid container spacing={2}>
             {filtered.map(([id, p]) => (
               <Grid item xs={12} sm={6} md={4} key={id}>
-                <Card sx={{ borderRadius: 3 }}>
-                  <CardContent>
-                    <Typography variant="h6" fontWeight={600}>{p.cliente}</Typography>
-                    <Typography variant="caption" color="text.secondary">{p.fecha}</Typography>
-                    <Box sx={{ mt: 1 }}>
-                      <Chip size="small" label={`$ ${formatMoney(p.total || 0)}`} color="primary" variant="outlined" />
-                      <Chip size="small" label={`${p.articulos?.length || 0} artículos`} sx={{ ml: 1 }} variant="outlined" />
+                <Card sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <CardContent sx={{ flex: 1, pb: 1 }}>
+                    {/* Header: client name + date */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight={700}
+                          component={Link}
+                          to={`/Cliente?${encodeURIComponent(p.cliente)}`}
+                          sx={{
+                            textDecoration: 'none', color: 'inherit',
+                            '&:hover': { color: 'primary.light' },
+                            display: 'flex', alignItems: 'center', gap: 0.5,
+                          }}
+                        >
+                          <Person fontSize="small" sx={{ color: 'text.secondary' }} />
+                          {p.cliente}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {p.fecha}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Divider sx={{ my: 1 }} />
+
+                    {/* Articles list */}
+                    {p.articulos && p.articulos.length > 0 ? (
+                      <Box sx={{ mb: 1 }}>
+                        {p.articulos.slice(0, 4).map((art, i) => (
+                          <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ flex: 1, mr: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {art.cantidad}x {art.nombre || art.producto}
+                            </Typography>
+                            <Typography variant="body2" fontWeight={500}>
+                              $ {formatMoney((art.cantidad || 0) * (art.precio || 0))}
+                            </Typography>
+                          </Box>
+                        ))}
+                        {p.articulos.length > 4 && (
+                          <Typography variant="caption" color="text.secondary">
+                            +{p.articulos.length - 4} artículos más
+                          </Typography>
+                        )}
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        Sin artículos
+                      </Typography>
+                    )}
+
+                    <Divider sx={{ my: 1 }} />
+
+                    {/* Total */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">{p.articulos?.length || 0} artículo(s)</Typography>
+                      <Typography variant="h6" fontWeight={700} color="primary.main">
+                        $ {formatMoney(p.total || 0)}
+                      </Typography>
                     </Box>
                   </CardContent>
-                  <CardActions>
-                    <Button size="small" component={Link} to={`/Enviar-Pedido?${id}`}>Enviar</Button>
-                    <Button size="small" component={Link} to={`/Editar-Pedido?${id}`}>Editar</Button>
-                  </CardActions>
+
+                  {/* Actions integrated */}
+                  <Box sx={{ display: 'flex', borderTop: '1px solid', borderColor: 'divider' }}>
+                    <Button
+                      component={Link}
+                      to={`/Enviar-Pedido?${id}`}
+                      startIcon={<Send />}
+                      size="small"
+                      fullWidth
+                      sx={{ borderRadius: 0, py: 1 }}
+                    >
+                      Enviar
+                    </Button>
+                    <Button
+                      component={Link}
+                      to={`/Editar-Pedido?${id}`}
+                      startIcon={<Edit />}
+                      size="small"
+                      fullWidth
+                      sx={{ borderRadius: 0, py: 1, borderLeft: '1px solid', borderColor: 'divider' }}
+                    >
+                      Editar
+                    </Button>
+                  </Box>
                 </Card>
               </Grid>
             ))}
