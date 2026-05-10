@@ -72,7 +72,7 @@ const HistorialProveedor=(props)=>{
                                         :
                                         <Grid container xs={12} justify='center' spacing={2}>
                                             <Grid container item xs={12} justify='center'>
-                                                <Typography variant='h5'>{checkSearch(props.location.search)} no tiene historial de pagos</Typography>
+                                                <Typography variant='h5'>{checkSearch(props.history.location.search)} no tiene historial de pagos</Typography>
                                             </Grid>
                                             <Grid item>
                                                 <img src={Empty} alt="" height='600px'/>
@@ -90,3 +90,4 @@ const HistorialProveedor=(props)=>{
 }
 
 export default withStore(HistorialProveedor)
+

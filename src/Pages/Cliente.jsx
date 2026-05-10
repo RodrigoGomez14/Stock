@@ -23,15 +23,15 @@ const Cliente=(props)=>{
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(true);
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
-    const [searchPedido, setSearchPedido] = useState(props.location.props?props.location.props.searchPedido:'');
-    const [searchRemito, setSearchRemito] = useState(props.location.props?props.location.props.remito:'');
+    const [searchPedido, setSearchPedido] = useState(props.history.location.props?props.history.location.props.searchPedido:'');
+    const [searchRemito, setSearchRemito] = useState(props.history.location.props?props.history.location.props.remito:'');
 
     const [filteredPedidos,setFilteredPedidos] = useState(undefined)
 
 
     const generateChartDeudas = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const keyCliente = checkSearch(props.location.search)
+        const keyCliente = checkSearch(props.history.location.search)
         let deudas = []
         let labels = []
         const initialMonth = new Date(Date.now());
@@ -84,7 +84,7 @@ const Cliente=(props)=>{
     }
     const generateChartProductos = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const keyCliente = checkSearch(props.location.search)
+        const keyCliente = checkSearch(props.history.location.search)
         let series = []
         let labels = []
         if(props.clientes[keyCliente].pedidos){
@@ -130,7 +130,7 @@ const Cliente=(props)=>{
     }
     const generateChartProductosValue = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const keyCliente = checkSearch(props.location.search)
+        const keyCliente = checkSearch(props.history.location.search)
         let series = []
         let labels = []
         if(props.clientes[keyCliente].pedidos){
@@ -314,7 +314,7 @@ const Cliente=(props)=>{
     // FILTRADO DE INFORMACION 
     useEffect(()=>{
         const years = {};
-        const keyCliente = checkSearch(props.location.search)
+        const keyCliente = checkSearch(props.history.location.search)
         if(props.clientes[keyCliente].pedidos){
             Object.keys(props.clientes[keyCliente].pedidos).reverse().forEach((pedido) => {
                 const year = props.clientes[keyCliente].pedidos[pedido].fecha.split('/')[2];
@@ -449,3 +449,4 @@ const Cliente=(props)=>{
 }
 
 export default withStore(Cliente)
+

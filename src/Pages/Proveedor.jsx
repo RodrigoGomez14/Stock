@@ -22,7 +22,7 @@ const Proveedor=(props)=>{
     const [proveedor,setProveedor]= useState(props.proveedores[checkSearch(props.history.location.search)])
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [searchEntrega, setSearchEntrega] = useState(props.location.props?props.location.props.searchEntrega:'');
+    const [searchEntrega, setSearchEntrega] = useState(props.history.location.props?props.history.location.props.searchEntrega:'');
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
 
     const dark = 'dark'
@@ -32,7 +32,7 @@ const Proveedor=(props)=>{
 
     const generateChartDeudas = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const keyProveedor = checkSearch(props.location.search)
+        const keyProveedor = checkSearch(props.history.location.search)
         const initialMonth = new Date(Date.now());
         initialMonth.setMonth(initialMonth.getMonth() - 6);
         let deudas = []
@@ -87,7 +87,7 @@ const Proveedor=(props)=>{
     }
     const generateChartProductos = () => {
         // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        const keyProveedor = checkSearch(props.location.search)
+        const keyProveedor = checkSearch(props.history.location.search)
         let series = []
         let labels = []
         if(props.proveedores[keyProveedor].entregas){
@@ -249,7 +249,7 @@ const Proveedor=(props)=>{
     useEffect(()=>{
         setLoading(true)
         const years = {};
-        const keyProveedor = checkSearch(props.location.search)
+        const keyProveedor = checkSearch(props.history.location.search)
         if(props.proveedores[keyProveedor].entregas){
             Object.keys(props.proveedores[keyProveedor].entregas).reverse().forEach((entrega) => {
                 const year = props.proveedores[keyProveedor].entregas[entrega].fecha.split('/')[2];
@@ -383,3 +383,4 @@ const Proveedor=(props)=>{
     )
 }
 export default withStore(Proveedor)
+

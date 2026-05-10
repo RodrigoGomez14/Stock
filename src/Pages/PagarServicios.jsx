@@ -154,7 +154,7 @@ const PagarServicios = (props) => {
     
     // Si hay un servicio especÃ­fico en la URL, seleccionarlo
     useEffect(() => {
-        const queryParams = new URLSearchParams(props.location.search)
+        const queryParams = new URLSearchParams(props.history.location.search)
         const servicioId = queryParams.get('servicio')
         const periodo = queryParams.get('periodo')
         
@@ -179,7 +179,7 @@ const PagarServicios = (props) => {
                 }
             }
         }
-    }, [props.location.search, props.servicios, props.instanciasPago])
+    }, [props.history.location.search, props.servicios, props.instanciasPago])
     
     const serviciosPendientes = obtenerServiciosPendientes()
 
@@ -376,3 +376,4 @@ const PagarServicios = (props) => {
 }
 
 export default withStore(PagarServicios)
+

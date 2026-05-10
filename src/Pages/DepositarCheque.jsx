@@ -65,8 +65,8 @@ const DepositarCheque=(props)=>{
         const auxDeposito ={
             fecha:obtenerFecha(),
             tipo:'cheque',
-            cheque:props.cheques[props.location.search.slice(1)].numero,
-            total:props.cheques[props.location.search.slice(1)].valor
+            cheque:props.cheques[props.history.location.search.slice(1)].numero,
+            total:props.cheques[props.history.location.search.slice(1)].valor
         }
         actualizarCheque()
         await database().ref().child(props.user.uid).child('CuentasBancarias').child(destinatario).child('ingresos').push(auxDeposito)
@@ -80,7 +80,7 @@ const DepositarCheque=(props)=>{
             depositadoEnCuenta:true,
             egreso:obtenerFecha()
         }
-        await database().ref().child(props.user.uid).child('cheques').child(props.location.search.slice(1)).update(aux)
+        await database().ref().child(props.user.uid).child('cheques').child(props.history.location.search.slice(1)).update(aux)
     }
     return(
         <Layout history={props.history} page='Despositar Cheque' user={props.user.uid} blockGoBack={true}>
@@ -134,3 +134,4 @@ const DepositarCheque=(props)=>{
     )
 }
 export default withStore(DepositarCheque)
+

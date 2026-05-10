@@ -174,7 +174,7 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
             articulos:props.entregas[id].productos,
             proveedor:props.entregas[id].proveedor,
             metodoDePago:{
-                facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
+                facturacion:props.history.location.props.facturacion?props.history.location.props.facturacion:null,
                 efectivo:efectivo?efectivo:null,
                 cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
                 totalTransferencia:totalTransferencia?totalTransferencia:null,
@@ -195,7 +195,7 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
         // ACTUALIZA LA DEUDA DEL PROVEEDOR
         actualizarDeuda(aux.total, total + totalChequesPersonales + (efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0))
        
-        if(props.location.props.facturacion){
+        if(props.history.location.props.facturacion){
             aux.articulos = actualizarPrecios(aux.articulos)
         }
 
@@ -398,3 +398,4 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
     )
 }
 export default withStore(RecibirEntrega)
+

@@ -14,7 +14,7 @@ import Empty from '../images/Empty.png'
 // COMPONENT
 const Productos=(props)=>{
     const classes = content()
-    const [search,setSearch]=useState(props.location.search.slice(1)?props.location.search.slice(1):'')
+    const [search,setSearch]=useState(props.history.location.search.slice(1)?props.history.location.search.slice(1):'')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [openDialog,setOpenDialog]=useState(false)

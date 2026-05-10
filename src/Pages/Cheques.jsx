@@ -19,7 +19,7 @@ import ApexCharts from 'react-apexcharts';
 // COMPONENT
 const Cheques=(props)=>{
     const classes = content()
-    const [search,setSearch]=useState(props.location.search?props.location.search.slice(1):'')
+    const [search,setSearch]=useState(props.history.location.search?props.history.location.search.slice(1):'')
     const [showSnackbar, setshowSnackbar] = useState('');
     const [loading, setLoading] = useState(false);
     const [totalBlanco,setTotalBlanco] = useState('')
@@ -331,3 +331,4 @@ const Cheques=(props)=>{
     )
 }
 export default withStore(Cheques)
+

@@ -231,11 +231,11 @@ const NuevoPagoCliente=(props)=>{
                                             <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
                                                 <Grid item xs={12}>
                                                     <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) }/ $ {formatMoney(props.clientes[checkSearch(props.location.search)].datos.deuda) } 
+                                                        Total $ {formatMoney( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) }/ $ {formatMoney(props.clientes[checkSearch(props.history.location.search)].datos.deuda) } 
                                                     </Typography>
                                                 </Grid>
                                                 <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney( parseFloat(props.clientes[checkSearch(props.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) ) }`}/>
+                                                    <Chip label={`$ ${formatMoney( parseFloat(props.clientes[checkSearch(props.history.location.search)].datos.deuda) - ( total + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) ) }`}/>
                                                 </Grid>
                                             </Paper>
                                         </Grid>
@@ -278,3 +278,4 @@ const NuevoPagoCliente=(props)=>{
     )
 }
 export default withStore(NuevoPagoCliente)
+

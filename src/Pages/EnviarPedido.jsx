@@ -138,7 +138,7 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
             cliente:props.pedidos[id].cliente,
             articulos:props.pedidos[id].productos,
             metodoDePago:{
-                facturacion:props.location.props.facturacion?props.location.props.facturacion:null,
+                facturacion:props.history.location.props.facturacion?props.history.location.props.facturacion:null,
                 efectivo:efectivo?efectivo:null,
                 cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
                 totalTransferencia:totalTransferencia?totalTransferencia:null,
@@ -159,7 +159,7 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
         actualizarDeuda(aux.total, total + (efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0) )
         
         //ACTUALIZA LOS PRECIOS PARA FACTURACION
-        if(props.location.props.facturacion){
+        if(props.history.location.props.facturacion){
             aux.articulos = actualizarPrecios(aux.articulos)
         }
 
@@ -191,7 +191,7 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
                 database().ref().child(props.user.uid).child('pedidos').child(id).remove().then(()=>{
                     setTimeout(() => {
                         if(expreso){
-                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:obtenerFecha(),id:idLink.key,remito:remito,cliente:props.location.props.nombre}).then(()=>{
+                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:obtenerFecha(),id:idLink.key,remito:remito,cliente:props.history.location.props.nombre}).then(()=>{
                                 setLoading(false)
                             }) 
                         }
@@ -353,3 +353,4 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
     )
 }
 export default withStore(EnviarPedido)
+

@@ -20,7 +20,7 @@ const Producto = (props) => {
     
     useEffect(() => {
         // Obtener el nombre del producto de la URL
-        const nombreProducto = props.location.search.slice(1)
+        const nombreProducto = props.history.location.search.slice(1)
         
         // Mostrar mensaje de carga
         setProducto(null)
@@ -43,7 +43,7 @@ const Producto = (props) => {
                 }
             }, 100)
         }
-    }, [props.productos, props.location.search, props.history])
+    }, [props.productos, props.history.location.search, props.history])
 
     // FunciÃ³n para eliminar un producto
     const eliminarProducto = () => {
@@ -415,3 +415,4 @@ const Producto = (props) => {
 }
 
 export default withStore(Producto)
+

@@ -25,9 +25,9 @@ import { AttachMoney, List, LocalAtm } from '@mui/icons-material';
     const [efectivo,setEfectivo]=useState(undefined)
 
     const [precio, setPrecio] = useState(undefined);
-    const [cantidad, setCantidad] = useState(props.cadenasActivas[props.location.search.slice(1)].cantidad?props.cadenasActivas[props.location.search.slice(1)].cantidad:undefined);
+    const [cantidad, setCantidad] = useState(props.cadenasActivas[props.history.location.search.slice(1)].cantidad?props.cadenasActivas[props.history.location.search.slice(1)].cantidad:undefined);
 
-    const [facturacion, setFacturacion] = useState(props.location.props?props.location.props.facturacion:false);
+    const [facturacion, setFacturacion] = useState(props.history.location.props?props.history.location.props.facturacion:false);
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -87,7 +87,7 @@ import { AttachMoney, List, LocalAtm } from '@mui/icons-material';
                         setChequesPersonales={setChequesPersonales}
                         totalChequesPersonales={totalChequesPersonales}
                         setTotalChequesPersonales={setTotalChequesPersonales}
-                        cliente={props.cadenasActivas[props.location.search.slice(1)].procesos[checkStepProceso(props.history.location.search.slice(1))].proveedor}
+                        cliente={props.cadenasActivas[props.history.location.search.slice(1)].procesos[checkStepProceso(props.history.location.search.slice(1))].proveedor}
                         addCheque={addCheque}
                         chequesList={props.cheques}
                         tipo='Proveedor'
@@ -218,7 +218,7 @@ import { AttachMoney, List, LocalAtm } from '@mui/icons-material';
         // ACTUALIZA LA DEUDA DEL PROVEEDOR
         actualizarDeuda(aux.total, aux.metodoDePago.pagado,cadena[step].proveedor)
        
-        if(props.location.props.facturacion){
+        if(props.history.location.props.facturacion){
             aux.articulos = actualizarPrecios(aux.articulos)
         }
 
@@ -464,3 +464,4 @@ import { AttachMoney, List, LocalAtm } from '@mui/icons-material';
     )
 }
 export default withStore(FinalizarEntrega)
+

@@ -16,7 +16,7 @@ import Empty from '../images/Empty.png'
 // COMPONENT
 const HistorialDeProduccion=(props)=>{
     const classes = content()
-    const [historial,setHistorial]= useState(props.productos[checkSearchProducto(props.location.search)].historialDeCadenas)
+    const [historial,setHistorial]= useState(props.productos[checkSearchProducto(props.history.location.search)].historialDeCadenas)
    
     const generateChartCadena = (key) => {
         let data=[]
@@ -49,7 +49,7 @@ const HistorialDeProduccion=(props)=>{
             </Card>)
     }
     return(
-        <Layout history={props.history} page={`Historial De Produccion ${checkSearchProducto(props.location.search)}`} user={props.user.uid}>
+        <Layout history={props.history} page={`Historial De Produccion ${checkSearchProducto(props.history.location.search)}`} user={props.user.uid}>
             {/* CONTENT */}            
             <Paper className={classes.content}>
                 <Grid container xs={12} justify='center'>
@@ -62,7 +62,7 @@ const HistorialDeProduccion=(props)=>{
                         :
                         <Grid container xs={12} justify='center' spacing={2}>
                             <Grid container item xs={12} justify='center'>
-                                <Typography variant='h5'>{checkSearchProducto(props.location.search)} no tiene historial de produccion</Typography>
+                                <Typography variant='h5'>{checkSearchProducto(props.history.location.search)} no tiene historial de produccion</Typography>
                             </Grid>
                             <Grid item>
                                 <img src={Empty} alt="" height='600px'/>
@@ -76,3 +76,4 @@ const HistorialDeProduccion=(props)=>{
 }
 
 export default withStore(HistorialDeProduccion)
+

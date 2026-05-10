@@ -14,7 +14,7 @@ import { useEffect } from 'react'
 const CuentasBancarias=(props)=>{
     const classes = content()
     const [search,setSearch]=useState('')
-    const [activeAccount,setActiveAccount]=useState(props.location.search?props.location.search.slice(1):undefined)
+    const [activeAccount,setActiveAccount]=useState(props.history.location.search?props.history.location.search.slice(1):undefined)
 
     return(
         <Layout history={props.history} page="Cuentas Bancarias" user={props.user.uid}>
@@ -60,3 +60,4 @@ const CuentasBancarias=(props)=>{
 }
 
 export default withStore(CuentasBancarias)
+

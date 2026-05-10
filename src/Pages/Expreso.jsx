@@ -19,7 +19,7 @@ import { useEffect } from 'react'
 const Expreso=(props)=>{
     const classes = content()
     const [expreso,setExpreso]= useState(props.expresos[checkSearch(props.history.location.search)])
-    const [search, setSearch] = useState(props.location.props?props.location.props.remito:'');
+    const [search, setSearch] = useState(props.history.location.props?props.history.location.props.remito:'');
     const [showSnackbar, setshowSnackbar] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showDialogConfirmDelete, setshowDialogConfirmDelete] = useState(false);
@@ -125,3 +125,4 @@ const Expreso=(props)=>{
         }
 
         export default withStore(Expreso)
+

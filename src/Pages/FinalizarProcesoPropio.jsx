@@ -15,7 +15,7 @@ const PROVEEDOR_PRODUCCION_PROPIA = 'Tota'
 const FinalizarProcesoPropio=(props)=>{
     const classes = content()
 
-    const [cantidad, setCantidad] = useState(props.cadenasActivas[props.location.search.slice(1)].cantidad?props.cadenasActivas[props.location.search.slice(1)].cantidad:undefined);
+    const [cantidad, setCantidad] = useState(props.cadenasActivas[props.history.location.search.slice(1)].cantidad?props.cadenasActivas[props.history.location.search.slice(1)].cantidad:undefined);
 
     const [activeStep, setActiveStep] = useState(0);
     const [showSnackbar, setshowSnackbar] = useState(false);
@@ -224,3 +224,4 @@ const FinalizarProcesoPropio=(props)=>{
     )
 }
 export default withStore(FinalizarProcesoPropio)
+
