@@ -1,9 +1,10 @@
 ﻿import React from 'react'
-import { AppBar, Toolbar, IconButton, Typography, Box, Avatar } from '@mui/material'
+import { AppBar, Toolbar, IconButton, Typography, Box } from '@mui/material'
 import { MenuOpen, ArrowBackRounded } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
+import { CashBalance } from './CashBalance'
 
-export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, setBlockGoBack }) => {
+export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, setBlockGoBack, user }) => {
   const theme = useTheme()
   return (
     <AppBar
@@ -37,16 +38,19 @@ export const NavBar = ({ page, history, setMenuOpened, menuOpened, blockGoBack, 
         <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 600, letterSpacing: 0.5 }}>
           {page}
         </Typography>
-        {!menuOpened && (
-          <IconButton
-            edge="end"
-            onClick={() => setMenuOpened(true)}
-            color="inherit"
-            sx={{ display: menuOpened ? 'none' : 'inline-flex' }}
-          >
-            <MenuOpen />
-          </IconButton>
-        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {user && <CashBalance uid={user} />}
+          {!menuOpened && (
+            <IconButton
+              edge="end"
+              onClick={() => setMenuOpened(true)}
+              color="inherit"
+              sx={{ display: menuOpened ? 'none' : 'inline-flex' }}
+            >
+              <MenuOpen />
+            </IconButton>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   )

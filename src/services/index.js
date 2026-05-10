@@ -26,3 +26,4 @@ export { getCheques, getChequesPersonales, pushCheque, pushChequePersonal, updat
 export { updateCuentaBancaria, pushIngresoCuenta, pushEgresoCuenta } from './cuentasService'
 export { getExpresos, createExpreso, updateExpreso, removeExpreso, pushEnvioExpreso, updateEnvioExpreso } from './expresosService'
 export { getServicios, createServicio, updateServicio, removeServicio, pushHistorialPagoServicio, pushInstanciaPago, getPushKeyServicios } from './serviciosService'
+export { getCaja, getCajaBalance, registrarMovimientoCaja, ingresoCaja, egresoCaja } from './cajaService'

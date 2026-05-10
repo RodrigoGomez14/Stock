@@ -8,6 +8,7 @@ import {
 import { Alert } from '@mui/material'
 import { CarouselCotizaciones } from '../components/Carousel-Cotizaciones/CarouselCotizaciones'
 import { formatMoney, filtrarCotizaciones } from '../utilities'
+import { ChequesReceivable } from '../components/ChequesReceivable'
 import SalesChart from '../components/Dashboard/SalesChart'
 import IvaChart from '../components/Dashboard/IvaChart'
 import ProductsChart from '../components/Dashboard/ProductsChart'
@@ -137,6 +138,9 @@ const Inicio = (props) => {
       <Box sx={{ p: 2, maxWidth: 1400, mx: 'auto' }}>
         <CarouselCotizaciones dolares={props.tipoDeCambio && filtrarCotizaciones(props.tipoDeCambio)} />
         <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12} sm={6}>
+            <ChequesReceivable cheques={props.cheques} />
+          </Grid>
           {!loading && props.ventas ? (
             <>
               <Grid item xs={12}>

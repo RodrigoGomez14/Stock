@@ -18,6 +18,7 @@ export const Layout = ({ page, children, history, hiddenAppBar, blockGoBack, use
           menuOpened={menuOpened}
           blockGoBack={blockGoBack}
           setBlockGoBack={setdialogBackOpen}
+          user={user}
         />
       )}
       <Box
