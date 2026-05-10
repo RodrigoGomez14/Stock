@@ -117,7 +117,7 @@ const NuevoConsumoFacturado=(props)=>{
     //FILL FOR EDIT
     useEffect(()=>{
         if(props.history.location.search){
-            const {titulo,total,totalIva,fecha} = props.entregas[props.history.location.search.slice(1)]
+            const {titulo,total,totalIva,fecha} = props.compras[props.history.location.search.slice(1)]
             titulo&&setTitulo(titulo)
             total&&settotal(total)
             totalIva&&settotalIva(totalIva)
@@ -179,7 +179,7 @@ const NuevoConsumoFacturado=(props)=>{
 const mapStateToProps = state =>{
     return{
         user:state.user,
-        entregas:state.entregas,
+        compras:state.compras,
     }
 }
 export default connect(mapStateToProps,null)(NuevoConsumoFacturado)

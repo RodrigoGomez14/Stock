@@ -137,7 +137,7 @@ export const FormSignIn = ({history})=>{
                 fullWidth
                 id="email"
                 label="Email"
-                error={userError}
+                error={!!userError}
                 helperText={userError?userError:null}
                 name="email"
                 value={inputUser}
@@ -153,7 +153,7 @@ export const FormSignIn = ({history})=>{
                 name="password"
                 value={inputPassword}
                 helperText={passwordError?passwordError:null}
-                error={passwordError}
+                error={!!passwordError}
                 onChange={e=>{setInputPassword(e.target.value)}}
                 label="contraseña"
                 type="password"

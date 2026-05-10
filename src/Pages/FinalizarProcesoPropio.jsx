@@ -9,8 +9,10 @@ import {Redirect} from 'react-router-dom'
 import {checkSearch, formatMoney,fechaDetallada,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
-  
-  const FinalizarProcesoPropio=(props)=>{
+
+const PROVEEDOR_PRODUCCION_PROPIA = 'Tota'
+
+const FinalizarProcesoPropio=(props)=>{
     const classes = content()
 
     const [cantidad, setCantidad] = useState(props.cadenasActivas[props.location.search.slice(1)].cantidad?props.cadenasActivas[props.location.search.slice(1)].cantidad:undefined);
@@ -85,14 +87,14 @@ import { AttachMoney, List, LocalAtm } from '@material-ui/icons';
                     cantidad:cantidad,
                     producto:props.cadenasActivas[id].producto,
                 }],
-                proveedor:'Tota',
+                proveedor:PROVEEDOR_PRODUCCION_PROPIA,
                 metodoDePago:{
                     facturacion:false
                 }
             }
         
         // AGREGA LA ENTREGA A DB PARA OBTENER ID
-        let idLink = database().ref().child(props.user.uid).child('proveedores').child('Tota').child('entregas').push()
+        let idLink = database().ref().child(props.user.uid).child('proveedores').child(PROVEEDOR_PRODUCCION_PROPIA).child('entregas').push()
         
         // AGREGA LA FACTURA A LISTA DE COMPRAS
         agregarAListaDeCompras(aux,idLink.key)
