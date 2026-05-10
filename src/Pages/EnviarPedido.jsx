@@ -5,7 +5,8 @@ import { Layout } from './Layout'
 import {
   Box, Grid, Typography, Paper, Button, TextField,
   Backdrop, CircularProgress, Snackbar, Autocomplete,
-  Table, TableHead, TableBody, TableRow, TableCell
+  Table, TableHead, TableBody, TableRow, TableCell, Avatar,
+  Collapse, Chip, FormControlLabel, Switch
 } from '@mui/material'
 import { Alert } from '@mui/material'
 
@@ -47,9 +48,10 @@ const EnviarPedido = (props) => {
   const [showChequeForm, setShowChequeForm] = useState(false)
   const [showTransfForm, setShowTransfForm] = useState(false)
   const [transfEditIdx, setTransfEditIdx] = useState(-1)
+  const [agregarCostoEnvio, setAgregarCostoEnvio] = useState(false)
   const [selectedPago, setSelectedPago] = useState('noPagar')
 
-  const totalEnvio = usarExpreso && precioEnvio ? parseFloat(precioEnvio) : 0
+  const totalEnvio = usarExpreso && agregarCostoEnvio && precioEnvio ? parseFloat(precioEnvio) : 0
   const totalPagado = (parseFloat(efectivo || 0) || 0) + (totalTransferencias || 0) + (totalCheques || 0)
   const totalAdeudado = (orderTotal + totalEnvio) - totalPagado
 
@@ -161,23 +163,27 @@ const EnviarPedido = (props) => {
 
   const steps = [
     <Box>
-      <Typography variant="subtitle1" fontWeight={700} gutterBottom>Resumen del pedido</Typography>
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom sx={{ mb: 2 }}>Resumen del pedido</Typography>
+
+      {/* Cliente + Total */}
       <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="body2" color="text.secondary">Cliente</Typography>
-            <Typography variant="body1" fontWeight={700}>{clienteNombre}</Typography>
-          </Box>
-          <Box sx={{ textAlign: 'right' }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={6}>
+            <Typography variant="caption" color="text.secondary">Cliente</Typography>
+            <Typography variant="h6" fontWeight={700}>{clienteNombre}</Typography>
+          </Grid>
+          <Grid item xs={6} sx={{ textAlign: 'right' }}>
             <Typography variant="caption" color="text.secondary">Total del pedido</Typography>
-            <Typography variant="h6" fontWeight={800} color="primary.main">$ {formatMoney(orderTotal)}</Typography>
-          </Box>
-        </Box>
+            <Typography variant="h4" fontWeight={900} color="primary.main">$ {formatMoney(orderTotal)}</Typography>
+          </Grid>
+        </Grid>
       </Paper>
+
+      {/* Artículos — tabla con fotos */}
       {articulos.length > 0 && (
         <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-          <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle2" fontWeight={600}>Artículos</Typography>
+          <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" fontWeight={600}>{articulos.length} artículo(s)</Typography>
           </Box>
           <Table size="small">
             <TableHead>
@@ -189,17 +195,27 @@ const EnviarPedido = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {articulos.map((art, i) => (
-                <TableRow key={i}>
-                  <TableCell sx={{ fontWeight: 500 }}>{art.nombre || art.producto}</TableCell>
-                  <TableCell align="right">{art.cantidad}</TableCell>
-                  <TableCell align="right">$ {formatMoney(art.precio || 0)}</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney((art.cantidad || 0) * (art.precio || 0))}</TableCell>
-                </TableRow>
-              ))}
+              {articulos.map((art, i) => {
+                const prodData = props.productos?.[art.producto || art.nombre]
+                return (
+                  <TableRow key={i} hover>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {prodData?.imagen ? (
+                          <Avatar src={prodData.imagen} variant="rounded" sx={{ width: 32, height: 32 }} />
+                        ) : null}
+                        <Typography variant="body2" fontWeight={500}>{art.nombre || art.producto}</Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell align="right">{art.cantidad}</TableCell>
+                    <TableCell align="right">$ {formatMoney(art.precio || 0)}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney((art.cantidad || 0) * (art.precio || 0))}</TableCell>
+                  </TableRow>
+                )
+              })}
               <TableRow>
-                <TableCell colSpan={3} align="right" sx={{ fontWeight: 700 }}>Total</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 800, color: 'primary.main' }}>$ {formatMoney(orderTotal)}</TableCell>
+                <TableCell colSpan={3} align="right" sx={{ fontWeight: 700, py: 1.5 }}>Total</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 800, color: 'primary.main', fontSize: 16, py: 1.5 }}>$ {formatMoney(orderTotal)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -208,60 +224,54 @@ const EnviarPedido = (props) => {
     </Box>,
 
     <Box>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Método de envío</Typography>
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom>Método de envío</Typography>
       <Grid container spacing={2}>
         <Grid item xs={6}>
-          <Paper
-            variant="outlined"
-            onClick={() => { setUsarExpreso(false); setExpreso(''); setRemito(''); setPrecioEnvio(0) }}
+          <Paper variant="outlined" onClick={() => { setUsarExpreso(false); setExpreso(''); setRemito(''); setPrecioEnvio(0) }}
             sx={{
               p: 2, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
               borderColor: !usarExpreso ? 'primary.main' : 'divider',
               bgcolor: !usarExpreso ? 'action.selected' : 'transparent',
-              transition: '0.15s',
-              '&:hover': { borderColor: 'primary.light' },
-            }}
-          >
+              transition: '0.15s', '&:hover': { borderColor: 'primary.light' },
+            }}>
             <Typography variant="body2" fontWeight={600}>🚚 Particular</Typography>
             <Typography variant="caption" color="text.secondary">El cliente retira o coordina</Typography>
           </Paper>
         </Grid>
         <Grid item xs={6}>
-          <Paper
-            variant="outlined"
-            onClick={() => setUsarExpreso(true)}
+          <Paper variant="outlined" onClick={() => setUsarExpreso(true)}
             sx={{
               p: 2, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
               borderColor: usarExpreso ? 'primary.main' : 'divider',
               bgcolor: usarExpreso ? 'action.selected' : 'transparent',
-              transition: '0.15s',
-              '&:hover': { borderColor: 'primary.light' },
-            }}
-          >
+              transition: '0.15s', '&:hover': { borderColor: 'primary.light' },
+            }}>
             <Typography variant="body2" fontWeight={600}>📦 Expreso</Typography>
             <Typography variant="caption" color="text.secondary">Envío por transportista</Typography>
           </Paper>
         </Grid>
       </Grid>
       {usarExpreso && (
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mt: 2 }}>
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, mt: 2 }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Autocomplete
-                value={expreso}
-                options={allExpresos}
-                getOptionLabel={(o) => o}
-                onChange={(_, v) => setExpreso(v || '')}
-                onInputChange={(_, v) => setExpreso(v || '')}
-                renderInput={(p) => <TextField {...p} label="Seleccionar expreso" fullWidth size="small" />}
+              <Autocomplete value={expreso} options={allExpresos} getOptionLabel={(o) => o}
+                onChange={(_, v) => setExpreso(v || '')} onInputChange={(_, v) => setExpreso(v || '')}
+                renderInput={(p) => <TextField {...p} label="Seleccionar expreso" fullWidth />} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField fullWidth label="N° de remito" value={remito} onChange={(e) => setRemito(e.target.value)} />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControlLabel
+                control={<Switch checked={agregarCostoEnvio} onChange={(e) => { setAgregarCostoEnvio(e.target.checked); if (!e.target.checked) setPrecioEnvio(0) }} />}
+                label="Agregar costo de envío"
+                sx={{ mb: 1 }}
               />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField fullWidth size="small" label="N° de remito" value={remito} onChange={(e) => setRemito(e.target.value)} />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField fullWidth size="small" label="Costo de envío ($)" type="number" value={precioEnvio}
-                onChange={(e) => setPrecioEnvio(parseFloat(e.target.value) || 0)} />
+              <Collapse in={agregarCostoEnvio}>
+                <TextField fullWidth label="Costo de envío ($)" type="number" value={precioEnvio}
+                  onChange={(e) => setPrecioEnvio(parseFloat(e.target.value) || 0)} />
+              </Collapse>
             </Grid>
           </Grid>
         </Paper>
