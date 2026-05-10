@@ -1,79 +1,100 @@
-﻿import React,{useState,useEffect} from 'react'
+﻿import React from 'react'
+import { useLocation } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import {Paper,Grid,Typography,Card,CardContent,TableRow,TableCell,TableBody,TableContainer,Button} from '@mui/material'
-import {MenuCheques} from '../components/Historial/MenuCheques'
-import {AddOutlined} from '@mui/icons-material'
-import {DialogConfirmDelete} from '../components/Shared/DialogConfirmDelete'
-import {Link} from 'react-router-dom'
-import {formatMoney} from '../utilities'
-import {content} from './styles/styles'
-import {Cadena} from '../components/Historial-De-Produccion/Cadena'
-import {checkSearch,checkSearchProducto} from '../utilities'
-import ApexCharts from 'react-apexcharts';
-import Empty from '../images/Empty.png'
+import { Layout } from './Layout'
+import {
+  Box, Grid, Typography, Paper, Chip, Stepper, Step, StepLabel, Button,
+  Table, TableHead, TableBody, TableRow, TableCell
+} from '@mui/material'
+import { ArrowBack } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
+import { formatMoney } from '../utilities'
 
-// COMPONENT
-const HistorialDeProduccion=(props)=>{
-    const classes = content()
-    const [historial,setHistorial]= useState(props.productos[checkSearchProducto(props.history.location.search)].historialDeCadenas)
-   
-    const generateChartCadena = (key) => {
-        let data=[]
+const HistorialDeProduccion = (props) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const nombre = decodeURIComponent(location.search.replace(/^\?/, ''))
+  const historial = props.productos?.[nombre]?.historialDeCadenas
 
-        historial[key].procesos.map((proceso,i)=>{
-            const inicio = new Date(`${proceso.fechaDeInicio.split('/')[1]}-${proceso.fechaDeInicio.split('/')[0]}-${proceso.fechaDeInicio.split('/')[2]}`)
-            const entrega = new Date(`${proceso.fechaDeEntrega.split('/')[1]}-${proceso.fechaDeEntrega.split('/')[0]}-${proceso.fechaDeEntrega.split('/')[2]}`)
-            data.push({x:proceso.proceso,y:[new Date(inicio).getTime(),new Date(entrega).getTime()]})
-        })
-
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            plotOptions:{
-                bar:{
-                    horizontal:true
-                }
-            },
-            xaxis:{
-                type:'datetime'
-            }
-
-        };
-        console.log(data)
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardContent>
-                    <ApexCharts options={options} type='rangeBar' series={[{data:data}]} width={600}/>
-                </CardContent>
-            </Card>)
-    }
-    return(
-        <Layout history={props.history} page={`Historial De Produccion ${checkSearchProducto(props.history.location.search)}`} user={props.user.uid}>
-            {/* CONTENT */}            
-            <Paper className={classes.content}>
-                <Grid container xs={12} justify='center'>
-                    {historial? 
-                        <Grid container item xs={12} spacing={3}>
-                            {Object.keys(historial).reverse().map(key=>(
-                                <Cadena cadena={historial[key]} id={key} generateChartCadena={generateChartCadena}/>
-                            ))}
-                        </Grid>
-                        :
-                        <Grid container xs={12} justify='center' spacing={2}>
-                            <Grid container item xs={12} justify='center'>
-                                <Typography variant='h5'>{checkSearchProducto(props.history.location.search)} no tiene historial de produccion</Typography>
-                            </Grid>
-                            <Grid item>
-                                <img src={Empty} alt="" height='600px'/>
-                            </Grid>
-                        </Grid>
-                    }
-                </Grid>
-            </Paper>
-        </Layout>
+  if (!historial) {
+    return (
+      <Layout history={props.history} page="Historial" user={props.user?.uid}>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography color="text.secondary">Sin historial de producción para {nombre}.</Typography>
+        </Box>
+      </Layout>
     )
+  }
+
+  const entries = Object.entries(historial).reverse()
+
+  return (
+    <Layout history={props.history} page={`Historial - ${nombre}`} user={props.user?.uid}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+          <Button size="small" onClick={() => navigate(-1)} startIcon={<ArrowBack />}>Volver</Button>
+          <Typography variant="h5" fontWeight={700}>Producción: {nombre}</Typography>
+        </Box>
+
+        {entries.map(([key, cadena], idx) => {
+          const stepsCount = cadena.procesos?.length || 0
+          const completados = cadena.procesos?.filter((p) => p.fechaDeEntrega).length || 0
+
+          return (
+            <Paper key={key} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
+              <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'action.selected', borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle2" fontWeight={700}>
+                  #{entries.length - idx} — {cadena.fechaDeInicio || '—'}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 2.5 }}>
+                <Stepper activeStep={completados} alternativeLabel>
+                  {cadena.procesos?.map((p, i) => (
+                    <Step key={i} completed={!!p.fechaDeEntrega}>
+                      <StepLabel
+                        StepIconProps={{
+                          sx: { '&.Mui-completed': { color: 'success.main' } },
+                        }}
+                      >
+                        <Typography variant="caption">{p.proceso}</Typography>
+                      </StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+
+                <Table size="small" sx={{ mt: 2 }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Proceso</TableCell>
+                      <TableCell>Proveedor</TableCell>
+                      <TableCell>Inicio</TableCell>
+                      <TableCell>Fin</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {cadena.procesos?.map((p, i) => (
+                      <TableRow key={i} hover>
+                        <TableCell sx={{ fontWeight: 500 }}>{p.proceso}</TableCell>
+                        <TableCell>{p.isProcesoPropio ? 'Propio' : p.proveedor || '—'}</TableCell>
+                        <TableCell>{p.fechaDeInicio || '—'}</TableCell>
+                        <TableCell>
+                          {p.fechaDeEntrega ? (
+                            <Chip size="small" label={p.fechaDeEntrega} color="success" variant="outlined" />
+                          ) : (
+                            <Chip size="small" label="Pendiente" color="warning" variant="outlined" />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
+            </Paper>
+          )
+        })}
+      </Box>
+    </Layout>
+  )
 }
 
 export default withStore(HistorialDeProduccion)
-
