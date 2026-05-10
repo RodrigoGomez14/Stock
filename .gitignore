@@ -1,2 +1,10 @@
 node_modules
 build
+.firebase
+.env
+.env.local
+.env.development
+.env.production
+src/base de datos.json
+*.log
+.DS_Store

@@ -54,13 +54,13 @@ let data
 
 //FIREBASE
 var config = {
-    apiKey: "AIzaSyDPmTjxjMxN2abofP8ZczgFGeYQYSvbXHE",
-    authDomain: "stock-119e8.firebaseapp.com",
-    databaseURL: "https://stock-119e8.firebaseio.com",
-    projectId: "stock-119e8",
-    storageBucket: "stock-119e8.appspot.com",
-    messagingSenderId: "1007277754269",
-    appId: "1:1007277754269:web:d1db0def0da907b2"
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
 firebase.initializeApp(config)
