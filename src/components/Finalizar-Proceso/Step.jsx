@@ -1,11 +1,11 @@
 ﻿import React, { useState,useEffect } from 'react'
 import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel,InputLabel} from '@mui/material'
 import {AddOutlined,AttachMoney, List} from '@mui/icons-material'
-import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
-import {ChequesPersonales} from './ChequesPersonales'
-import {DialogNuevoChequePersonal} from './Dialogs/DialogNuevoChequePersonal'
+import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
+import {ChequesPersonalesList} from '../Cheques/ChequesPersonalesList'
+import {DialogNuevoChequePersonal} from '../Cheques/DialogNuevoChequePersonal'
 import { Autocomplete } from '@mui/material'
-import {Cheques} from '../Recibir-Entrega/Cheques'
+import {ChequesSelection} from '../Cheques/ChequesSelection'
 import {content} from '../../Pages/styles/styles'
 
 export const Step = ({tipoDeDato,precio,setPrecio,cantidad,setCantidad,efectivo,setEfectivo,cheques,cliente,addCheque,total,settotal,chequesList,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias,chequesPersonales,setChequesPersonales,totalChequesPersonales,setTotalChequesPersonales}) =>{
@@ -145,7 +145,7 @@ export const Step = ({tipoDeDato,precio,setPrecio,cantidad,setCantidad,efectivo,
                                 Efectivo
                             </Typography>
                         </Grid>
-                        <Cheques cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
+                        <ChequesSelection cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
                     </Grid>
                 </Grid>
                 )
@@ -160,7 +160,7 @@ export const Step = ({tipoDeDato,precio,setPrecio,cantidad,setCantidad,efectivo,
                             {
                             chequesPersonales.length?
                                 <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                                    <ChequesPersonales cheques={chequesPersonales} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                                    <ChequesPersonalesList cheques={chequesPersonales} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                                 </Grid>
                                 :
                                 null

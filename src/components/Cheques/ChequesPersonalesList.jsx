@@ -1,10 +1,9 @@
 ﻿import React from 'react'
-import { makeStyles } from 'tss-react/mui'
-import { Grid,Paper,List,ListItem,ListItemText,ListItemSecondaryAction,IconButton,TableContainer,Table,TableCell,TableRow,TableHead,TableBody } from '@mui/material'
+import { Grid,Paper,TableContainer,Table,TableCell,TableRow,TableHead,TableBody,IconButton } from '@mui/material'
 import {EditOutlined,DeleteOutlineOutlined} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 
-export const Cheques = ({cheques,seteditIndex,showDialog,openDialogDelete}) =>{
+export const ChequesPersonalesList = ({cheques,seteditIndex,showDialog,openDialogDelete}) =>{
     const classes = content()
 
     const openDialog = index =>{
@@ -18,9 +17,7 @@ export const Cheques = ({cheques,seteditIndex,showDialog,openDialogDelete}) =>{
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell className={classes.titleDetallesCard}>Nombre</TableCell>
                             <TableCell className={classes.titleDetallesCard}>Valor</TableCell>
-                            <TableCell className={classes.titleDetallesCard} align="right">Banco</TableCell>
                             <TableCell className={classes.titleDetallesCard} align="right">Numero</TableCell>
                             <TableCell className={classes.titleDetallesCard} align="right">Vencimiento</TableCell>
                             <TableCell className={classes.titleDetallesCard} align="right" padding='checkbox'></TableCell>
@@ -29,12 +26,8 @@ export const Cheques = ({cheques,seteditIndex,showDialog,openDialogDelete}) =>{
                     </TableHead>
                     <TableBody>
                         {cheques.map((cheque,i)=>(
-                            <TableRow>
-                                <TableCell component="th" scope="row">
-                                    {cheque.nombre}
-                                </TableCell>
+                            <TableRow key={i}>
                                 <TableCell align="right">$ {cheque.valor}</TableCell>
-                                <TableCell align="right">{cheque.banco}</TableCell>
                                 <TableCell align="right">{cheque.numero}</TableCell>
                                 <TableCell align="right">{cheque.vencimiento}</TableCell>
                                 <TableCell align="right">

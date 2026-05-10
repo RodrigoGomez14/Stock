@@ -1,10 +1,8 @@
 ﻿import React,{useState,useEffect} from 'react'
 import { makeStyles } from 'tss-react/mui'
-import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton } from '@mui/material'
-import {EditOutlined} from '@mui/icons-material'
+import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid } from '@mui/material'
 
-
-import {content} from '../../../Pages/styles/styles'
+import {content} from '../../Pages/styles/styles'
 
 export const DialogNuevoChequePersonal = ({open,setOpen,listaCheques,setListaCheques,listaChequesPersonales,setListaChequesPersonales,totalChequesPersonales,setTotalChequesPersonales,edit,editIndex,seteditIndex,cliente}) =>{
     const classes = content()

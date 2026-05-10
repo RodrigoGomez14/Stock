@@ -1,11 +1,9 @@
-﻿import React, {useState,useEffect} from 'react'
-import { makeStyles } from 'tss-react/mui'
-import { Grid,Paper,Checkbox,ListItem,ListItemText,ListItemSecondaryAction,IconButton,TableContainer,Table,TableCell,TableRow,TableHead,TableBody } from '@mui/material'
-import {EditOutlined,DeleteOutlineOutlined, CheckBox} from '@mui/icons-material'
+﻿import React from 'react'
+import { Grid,Paper,Checkbox,TableContainer,Table,TableCell,TableRow,TableHead,TableBody } from '@mui/material'
 import {content} from '../../Pages/styles/styles'
 import { formatMoney } from '../../utilities'
 
-export const Cheques = ({chequesList,cheques,addCheque}) =>{
+export const ChequesSelection = ({chequesList,cheques,addCheque}) =>{
     const classes = content()
     return (
         <Grid container item xs={12}>
@@ -25,7 +23,7 @@ export const Cheques = ({chequesList,cheques,addCheque}) =>{
                             {chequesList?
                             Object.keys(chequesList).reverse().map((cheque,i)=>(
                                 !chequesList[cheque].dadoDeBaja && !chequesList[cheque].destinatario?
-                                    <TableRow onClick={()=>{addCheque(cheque)}} style={{cursor:'pointer'}}>
+                                    <TableRow key={i} onClick={()=>{addCheque(cheque)}} style={{cursor:'pointer'}}>
                                             <TableCell>
                                                 <Checkbox
                                                     color='primary'

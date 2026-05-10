@@ -2,9 +2,9 @@
 import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel,InputLabel} from '@mui/material'
 import {AddOutlined, AttachMoney} from '@mui/icons-material'
 import {Autocomplete} from '@mui/material'
-import {DialogNuevoCheque} from './Dialogs/DialogNuevoCheque'
-import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
-import {Cheques} from './Cheques'
+import {DialogNuevoCheque} from '../Cheques/DialogNuevoCheque'
+import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
+import {ChequesList} from '../Cheques/ChequesList'
 import {content} from '../../Pages/styles/styles'
 
 export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso,remito,setremito,tipoDeDato,expresosList,total,settotal,precio,setprecio,setsumarEnvio,sumarEnvio,nombre,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias}) =>{
@@ -141,7 +141,7 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,expreso,setexpreso
                                         </Grid>
                                         {cheques.length?
                                             <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                                                <Cheques cheques={cheques} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                                                <ChequesList cheques={cheques} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                                             </Grid>
                                             :
                                             null

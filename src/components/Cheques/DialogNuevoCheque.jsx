@@ -1,10 +1,8 @@
 ﻿import React,{useState,useEffect} from 'react'
 import { makeStyles } from 'tss-react/mui'
-import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton } from '@mui/material'
-import {EditOutlined} from '@mui/icons-material'
+import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid } from '@mui/material'
 
-
-import {content} from '../../../Pages/styles/styles'
+import {content} from '../../Pages/styles/styles'
 
 export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,seteditIndex,total,settotal,cliente}) =>{
     const classes = content()
@@ -51,7 +49,7 @@ export const DialogNuevoCheque = ({open,setOpen,datos,setdatos,edit,editIndex,se
     const convertirVencimiento= (vencimiento)=>{
         return `${vencimiento.slice(vencimiento.indexOf('/')+1,vencimiento.lastIndexOf('/'))}/${vencimiento.slice(0,vencimiento.indexOf('/'))}${vencimiento.slice(vencimiento.lastIndexOf('/'))}`
     }
-    
+
     // FILL FOR EDIT
     useEffect(()=>{
         if(edit){

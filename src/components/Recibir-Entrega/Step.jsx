@@ -2,11 +2,11 @@
 import {Grid, Button,InputAdornment,Select,Input,Chip,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel,InputLabel} from '@mui/material'
 import {AddOutlined,AttachMoney} from '@mui/icons-material'
 import { Autocomplete } from '@mui/material'
-import {Cheques} from './Cheques'
-import {ChequesPersonales} from './ChequesPersonales'
+import {ChequesSelection} from '../Cheques/ChequesSelection'
+import {ChequesPersonalesList} from '../Cheques/ChequesPersonalesList'
 import {content} from '../../Pages/styles/styles'
-import { DialogNuevoChequePersonal } from './Dialogs/DialogNuevoChequePersonal'
-import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
+import { DialogNuevoChequePersonal } from '../Cheques/DialogNuevoChequePersonal'
+import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
 
 
 
@@ -109,13 +109,13 @@ export const Step = ({efectivo,setefectivo,cheques,setcheques,addCheque,chequesP
                         {
                             chequesPersonales.length?
                                 <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                                    <ChequesPersonales cheques={chequesPersonales} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                                    <ChequesPersonalesList cheques={chequesPersonales} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                                 </Grid>
                                 :
                                 null
                         }
                         <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                            <Cheques cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
+                            <ChequesSelection cheques={cheques} chequesList={chequesList} addCheque={addCheque}/>
                         </Grid>
                             {/* DIALOGS CHEQUES PERSONALES*/}
                             <DialogNuevoChequePersonal

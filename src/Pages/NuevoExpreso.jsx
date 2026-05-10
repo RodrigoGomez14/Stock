@@ -3,8 +3,8 @@ import {connect} from 'react-redux'
 import {Layout} from './Layout'
 import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@mui/material'
 import Alert from '@mui/material/Alert';
-import {Step as StepComponent} from '../components/Nuevo-Cliente/Step'
-import {FormDetalles} from '../components/Nuevo-Cliente/FormDetalles'
+import {Step as StepComponent} from '../components/Shared/FormStep'
+import {FormDetalles} from '../components/Shared/FormDetalles'
 import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@mui/icons-material';
 import {checkSearch} from '../utilities'
 import { database } from '../services'

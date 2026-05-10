@@ -3,13 +3,13 @@ import { makeStyles } from 'tss-react/mui'
 import { Grid, Button,Select,Input,Chip,MenuItem,Paper,InputAdornment, TextField,Tab,Tabs,AppBar,Typography,Box,Switch,FormControlLabel } from '@mui/material'
 import {AddOutlined,AttachMoney} from '@mui/icons-material'
 import { Autocomplete } from '@mui/material'
-import {ChequesPersonales} from './ChequesPersonales'
-import {DialogNuevoCheque} from './Dialogs/DialogNuevoCheque'
-import {DialogEliminarCheque} from './Dialogs/DialogEliminarCheque'
-import {DialogNuevoChequePersonal} from './Dialogs/DialogNuevoChequePersonal'
+import {ChequesPersonalesList} from '../Cheques/ChequesPersonalesList'
+import {DialogNuevoCheque} from '../Cheques/DialogNuevoCheque'
+import {DialogEliminarCheque} from '../Cheques/DialogEliminarCheque'
+import {DialogNuevoChequePersonal} from '../Cheques/DialogNuevoChequePersonal'
 import {DialogEliminarChequePersonal} from './Dialogs/DialogEliminarChequePersonal'
-import {Cheques as ChequesProveedor} from '../Recibir-Entrega/Cheques'
-import {Cheques, Cheques  as ChequesCliente} from '../Enviar-Pedido/Cheques'
+import {ChequesSelection as ChequesProveedor} from '../Cheques/ChequesSelection'
+import {ChequesList} from '../Cheques/ChequesList'
 import {content} from '../../Pages/styles/styles'
 
 export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque,chequesList,tipo,cuentaTransferencia,setCuentaTransferencia,totalTransferencia,setTotalTransferencia,cuentasBancarias}) =>{
@@ -105,7 +105,7 @@ export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque
                             </Grid>
                             {datos.length?
                                 <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                                    <Cheques cheques={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                                    <ChequesList cheques={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                                 </Grid>
                                 :
                                 null
@@ -156,7 +156,7 @@ export const Step = ({datos,setdatos,total,settotal,tipoDeDato,cliente,addCheque
                         {
                         datos.length?
                             <Grid container item xs={12} spacing={1} alignItems='center' justify='center'>
-                                <ChequesPersonales cheques={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
+                                <ChequesPersonalesList cheques={datos} seteditIndex={seteditIndex} showDialog={()=>{setshowDialog(true)}} openDialogDelete={i=>{openDialogDelete(i)}}/>
                             </Grid>
                             :
                             null
