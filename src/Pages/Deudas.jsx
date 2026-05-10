@@ -1,5 +1,5 @@
 ﻿import React,{useState} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Backdrop,Paper,CircularProgress,Tab,Typography,TextField,Grid,AppBar,Box,Tabs,Link as LinkComponent,Snackbar,Card,CardHeader,CardContent} from '@mui/material'
 import {Alert} from '@mui/material'
@@ -247,12 +247,4 @@ const Deudas=(props)=>{
     )
 }
 
-//REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        clientes:state.clientes,
-        proveedores:state.proveedores,
-    }
-}
-export default connect(mapStateToProps,null)(Deudas)
+export default withStore(Deudas)

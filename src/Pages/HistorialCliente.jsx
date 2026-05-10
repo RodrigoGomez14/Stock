@@ -1,5 +1,5 @@
 ﻿import React,{useState} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Paper,Grid,Typography,Table,TableHead,TableRow,TableCell,TableBody,TableContainer,Button} from '@mui/material'
 import {MenuCheques} from '../components/Historial/MenuCheques'
@@ -82,11 +82,4 @@ const HistorialCliente=(props)=>{
     )
 }
 
-// REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        clientes:state.clientes
-    }
-}
-export default connect(mapStateToProps,null)(HistorialCliente)
+export default withStore(HistorialCliente)

@@ -1,5 +1,5 @@
 ﻿import React, {useState, useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Paper, Typography, Grid, Card, CardContent, Divider, IconButton, Chip, Button, Snackbar, Backdrop, CircularProgress} from '@mui/material'
 import {ArrowBack, DeleteOutline} from '@mui/icons-material'
@@ -414,12 +414,4 @@ const Producto = (props) => {
     )
 }
 
-// REDUX STATE TO PROPS
-const mapStateToProps = state => {
-    return {
-        user: state.user,
-        productos: state.productos
-    }
-}
-
-export default connect(mapStateToProps, null)(Producto) 
+export default withStore(Producto)

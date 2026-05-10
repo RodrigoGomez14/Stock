@@ -1,5 +1,5 @@
 ﻿import React,{useState, useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
 import Alert from '@mui/material/Alert';
@@ -397,15 +397,4 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
             <Navigate to='/Entregas' replace/>
     )
 }
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        expresos:state.expresos,
-        entregas:state.entregas,
-        productos:state.productos,
-        proveedores:state.proveedores,
-        cheques:state.cheques,
-        cuentasBancarias:state.CuentasBancarias
-    }
-}
-export default connect(mapStateToProps,null)(RecibirEntrega)
+export default withStore(RecibirEntrega)

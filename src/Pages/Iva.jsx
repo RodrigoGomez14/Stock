@@ -1,5 +1,5 @@
 ﻿import React,{useState,useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Paper,Grid,Button,Backdrop,Snackbar,CircularProgress, Typography,Chip} from '@mui/material'
 import {Add} from '@mui/icons-material'
@@ -180,11 +180,4 @@ const Iva=(props)=>{
         </Layout>
     )
 }
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        compras:state.compras,
-        ventas:state.ventas
-    }
-}
-export default connect(mapStateToProps,null)(Iva)
+export default withStore(Iva)

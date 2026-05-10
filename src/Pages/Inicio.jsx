@@ -1,15 +1,25 @@
 ﻿import React,{useState,useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {content} from './styles/styles'
-import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader,CardContent,Box,AppBar,Tabs,Tab,IconButton} from '@mui/material'
+import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,Card,CardHeader,CardContent,AppBar,Tabs,Tab} from '@mui/material'
 import {CarouselCotizaciones} from '../components/Carousel-Cotizaciones/CarouselCotizaciones'
 import {Alert} from '@mui/material'
 import Home from '../images/Home.png'
-import ApexCharts from 'react-apexcharts';
 import {formatMoney,getActualMonthDetailed,filtrarCotizaciones} from '../utilities'
-import {Link} from 'react-router-dom'
-import { Add,List } from '@mui/icons-material'
+import SalesChart from '../components/Dashboard/SalesChart'
+import IvaChart from '../components/Dashboard/IvaChart'
+import ProductsChart from '../components/Dashboard/ProductsChart'
+import ProductsValueChart from '../components/Dashboard/ProductsValueChart'
+import MonthlySalesChart from '../components/Dashboard/MonthlySalesChart'
+import MonthlySalesValueChart from '../components/Dashboard/MonthlySalesValueChart'
+import MonthlyPurchasesChart from '../components/Dashboard/MonthlyPurchasesChart'
+import MonthlyIvaChart from '../components/Dashboard/MonthlyIvaChart'
+import MonthlyBalanceChart from '../components/Dashboard/MonthlyBalanceChart'
+import DonutProductsChart from '../components/Dashboard/DonutProductsChart'
+import DonutClientsChart from '../components/Dashboard/DonutClientsChart'
+import UnitsChart from '../components/Dashboard/UnitsChart'
+import TabPanel from '../components/Dashboard/TabPanel'
 
 //COMPONENT
 const Inicio=(props)=>{
@@ -27,1254 +37,6 @@ const Inicio=(props)=>{
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-    const TabPanel=(props)=>{
-        const { children, value, index, ...other } = props;
-      
-        return (
-          <div
-            role="tabpanel"
-            className={classes.tabPanelDeuda}
-            hidden={value !== index}
-          >
-            {value === index && (
-              <Box p={3}>
-                <Typography>{children}</Typography>
-              </Box>
-            )}
-          </div>
-        )
-    }
-
-    // CHARTS
-    const generateChartAnualSales = () => {
-        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-        let sales = []
-        let purchases = []
-        let dif = []
-        let labelsUltimoAnio =  []
-
-        if(sortedCompras || sortedVentas){
-            const fechaActual = new Date();
-            const mesActual = fechaActual.getMonth();
-            const anioActual = fechaActual.getFullYear();
-            
-            let auxSales = [0,0,0,0,0,0,0,0,0,0,0,0]
-            let auxPurchases = [0,0,0,0,0,0,0,0,0,0,0,0]
-
-            const mesesDesdeUltimoAnio = 12;
-            let mesInicio = mesActual - mesesDesdeUltimoAnio;
-            let anioInicio = anioActual;
-            if (mesInicio < 0) {
-                mesInicio += 12;
-                anioInicio -= 1;
-            }
-            const initialDate = new Date()
-            initialDate.setFullYear(anioInicio,mesInicio+1,1)
-
-            if(sortedVentas){
-                for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el aÃ±o
-                    console.log(data)
-                    for (const [month, dataMonth] of Object.entries(data.months)) {
-                            const auxFecha = new Date();
-                            auxFecha.setFullYear(year, month - 1, 1);
-                            if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                                auxSales[month-1]+=(dataMonth.total)
-                            }
-                    }
-                }
-            }
-
-            if(sortedCompras){
-                for (const [year, data] of sortedCompras) {
-                    // Itera sobre cada mes en el aÃ±o
-                    for (const [month, dataMonth] of Object.entries(data.months)) {
-                            const auxFecha = new Date();
-                            auxFecha.setFullYear(year, month - 1, 1);
-                            if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                                auxPurchases[month-1]+=(dataMonth.total)
-                            }
-                    }
-                }
-            }
-
-            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-            const arr1Meses = auxMeses.slice(mesInicio+1);
-            const arr2Meses = auxMeses.slice(0,mesInicio+1);
-
-            
-            const arr1Sales = auxSales.slice(mesInicio+1);
-            const arr2Sales = auxSales.slice(0,mesInicio+1);
-
-            const arr1Purchases = auxPurchases.slice(mesInicio+1);
-            const arr2Purchases = auxPurchases.slice(0,mesInicio+1);
-            
-            
-            arr1Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            arr2Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            
-            arr1Sales.map(i=>{
-                sales.push(i)
-            })
-            arr2Sales.map(i=>{
-                sales.push(i)
-            })
-
-            arr1Purchases.map(i=>{
-                purchases.push(i)
-            })
-            arr2Purchases.map(i=>{
-                purchases.push(i)
-            })
-
-            sales.map(sale=>{
-                dif.push(sale)
-            })
-            purchases.map((purchase,i)=>{
-                dif[i]-=purchase
-            })
-
-        }
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labelsUltimoAnio,
-            fill: {
-            },
-            chart:{
-                
-            },
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            grid: {
-                row: {
-                    colors: ['#c3c3c3', 'transparent'], // takes an array which will be repeated on columns
-                    opacity: 0.5
-                },
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            },
-            dataLabels:{
-                enabled:false
-            },
-            yaxis:{
-                labels:{
-                    formatter: val => `$ ${formatMoney(val)}`,
-                }
-            }
-        };
-        const series=[
-        {
-            name:'Ventas',
-            type:'line',
-            data:sales
-        },
-        {
-            name:'Compras',
-            type:'line',
-            data:purchases
-        },
-        {
-            name:'Balance',
-            type:'area',
-            data:dif
-        },
-        ]
-        // Renderiza el grÃ¡fico
-
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Compras & Ventas - Ultimos 12 Meses'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series}  height={400} width={1200} />
-                </CardContent>
-            </Card>
-        )
-    }
-    const generateChartAnualIva = () => {
-        // Asume que tienes los datos en dos variables: sortedCompras y sortedVentas
-
-        let sales = []
-        let purchases =[]
-        let dif =[]
-        let labelsUltimoAnio =  []
-
-        if(sortedCompras || sortedVentas){
-            const fechaActual = new Date();
-            const mesActual = fechaActual.getMonth();
-            const anioActual = fechaActual.getFullYear();
-            let auxSales = [0,0,0,0,0,0,0,0,0,0,0,0]
-            let auxPurchases = [0,0,0,0,0,0,0,0,0,0,0,0]
-
-            const mesesDesdeUltimoAnio = 12;
-            let mesInicio = mesActual - mesesDesdeUltimoAnio;
-            let anioInicio = anioActual;
-            if (mesInicio < 0) {
-                mesInicio += 12;
-                anioInicio -= 1;
-            }
-            const initialDate = new Date()
-            initialDate.setFullYear(anioInicio,mesInicio+1,1)
-            if(sortedVentas){
-                for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el aÃ±o
-                    for (const [month, dataMonth] of Object.entries(data.months)) {
-                        const auxFecha = new Date();
-                        auxFecha.setFullYear(year, month - 1, 1);
-                        if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                            Object.keys(dataMonth.ventas).map(venta=>{
-                                if (dataMonth.ventas[venta].metodoDePago.facturacion) {
-                                    auxSales[(month-1)]+=(dataMonth.ventas[venta].total-(dataMonth.ventas[venta].total/1.21))
-                                }
-                            })
-                        }
-                    }
-                }
-            }
-            if(sortedCompras){
-                for (const [year, data] of sortedCompras) {
-                    // Itera sobre cada mes en el aÃ±o
-                    for (const [month, dataMonth] of Object.entries(data.months)) {
-                        const auxFecha = new Date();
-                        auxFecha.setFullYear(year, month - 1, 1);
-                        if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                            Object.keys(dataMonth.compras).map(compra=>{
-                                if (dataMonth.compras[compra].metodoDePago.facturacion) {
-                                    if(!dataMonth.compras[compra].consumoFacturado){
-                                        auxPurchases[(month-1)]+=(dataMonth.compras[compra].total-(dataMonth.compras[compra].total/1.21))
-                                    }
-                                    else{
-                                        auxPurchases[(month-1)]+=parseFloat(dataMonth.compras[compra].totalIva)
-                                    }
-                                }        
-                            })
-                        }
-                    }
-                }
-            }
-            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-            const arr1Meses = auxMeses.slice(mesInicio+1);
-            const arr2Meses = auxMeses.slice(0,mesInicio+1);
-
-            
-            const arr1Sales = auxSales.slice(mesInicio+1);
-            const arr2Sales = auxSales.slice(0,mesInicio+1);
-
-            const arr1Purchases = auxPurchases.slice(mesInicio+1);
-            const arr2Purchases = auxPurchases.slice(0,mesInicio+1);
-            
-            
-            arr1Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            arr2Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            
-            arr1Sales.map(i=>{
-                sales.push(i)
-            })
-            arr2Sales.map(i=>{
-                sales.push(i)
-            })
-
-            arr1Purchases.map(i=>{
-                purchases.push(i)
-            })
-            arr2Purchases.map(i=>{
-                purchases.push(i)
-            })
-            sales.map(sale=>{
-                dif.push(-sale)
-            })
-            purchases.map((purchase,i)=>{
-                dif[i]+=purchase
-            })
-
-        }
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labelsUltimoAnio,
-            fill: {
-            },
-            chart:{
-                
-            },
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            grid: {
-                row: {
-                    colors: ['#c3c3c3', 'transparent'], // takes an array which will be repeated on columns
-                    opacity: 0.5
-                },
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            },
-            dataLabels:{
-                enabled:false
-            },
-            yaxis:{
-                labels:{
-                    formatter: val => `$ ${formatMoney(val)}`,
-                }
-            }
-        };
-        const series=[
-        {
-            name:'Iva Ventas',
-            type:'line',
-            data:sales
-        },
-        {
-            name:'Iva Compras',
-            type:'line',
-            data:purchases
-        },
-        {
-            name:'Balance',
-            type:'area',
-            data:dif
-        },
-        ]
-        // Renderiza el grÃ¡fico
-
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Iva Compras & Ventas - Ultimos 12 Meses'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series}  height={400} width={1200} />
-                </CardContent>
-            </Card>
-        )
-    }
-    const generateChartAnualProducts = () => {
-        // Asume que tienes los datos en dos variables: sortedVentas
-        const actualYear = new Date().getFullYear()
-
-        let products = []
-        let labelsUltimoAnio =  []
-
-        if(sortedVentas){
-            const fechaActual = new Date();
-            const mesActual = fechaActual.getMonth();
-            const anioActual = fechaActual.getFullYear();
-            let auxProducts = []
-
-            const mesesDesdeUltimoAnio = 12;
-            let mesInicio = mesActual - mesesDesdeUltimoAnio;
-            let anioInicio = anioActual;
-            if (mesInicio < 0) {
-                mesInicio += 12;
-                anioInicio -= 1;
-            }
-            const initialDate = new Date()
-            initialDate.setFullYear(anioInicio,mesInicio+1,1)
-            if(sortedVentas){
-                for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el aÃ±o
-                    for (const [month, dataMonth] of Object.entries(data.months)) {
-                            const auxFecha = new Date();
-                            auxFecha.setFullYear(year, month - 1, 1);
-                            if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                                Object.keys(dataMonth.ventas).map(venta=>{
-                                    dataMonth.ventas[venta].articulos.map(articulo=>{
-                                        let auxData = [0,0,0,0,0,0,0,0,0,0,0,0]
-                                        const index = auxProducts.findIndex((d) => d.name === articulo.producto);
-                                        if (index === -1) {
-                                            // Si no lo encontramos, lo agregamos
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseInt(articulo.cantidad)
-                                            auxProducts.push({ name: articulo.producto, data:auxData});
-                                        } 
-                                        else {
-                                            auxData=auxProducts[index].data
-                                            // Si lo encontramos, sumamos la cantidad y el total
-                                            if(!auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)]){
-                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = 0
-                                            }
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseInt(articulo.cantidad);
-                                            auxProducts[index] = {...auxProducts[index],data:auxData}
-                                        }
-
-                                    })
-                                })
-                            }
-                    }
-                }
-            }
-            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-            const arr1Meses = auxMeses.slice(mesInicio+1);
-            const arr2Meses = auxMeses.slice(0,mesInicio+1);
-            arr1Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            arr2Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-
-            let finalProducts = auxProducts
-            finalProducts.map(product=>{
-                const arr1Products = product.data.slice(mesInicio+1);
-                const arr2Products = product.data.slice(0,mesInicio+1);
-
-                let auxFinalData = []
-                arr1Products.map(i=>{
-                    auxFinalData.push(i)
-                })
-                arr2Products.map(i=>{
-                    auxFinalData.push(i)
-                })
-                product.data = auxFinalData
-            })
-            console.log(auxProducts)
-            products=auxProducts
-        }
-
-        const series = products
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labelsUltimoAnio,
-            fill: {
-            },
-            chart:{
-                
-            },
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            grid: {
-                row: {
-                    colors: ['#c3c3c3', 'transparent'], // takes an array which will be repeated on columns
-                    opacity: 0.5
-                },
-            },
-            tooltip:{
-            },
-            dataLabels:{
-                enabled:false
-            },
-            yaxis:{
-            }
-        };
-        
-        // Renderiza el grÃ¡fico
-
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Ventas por Producto - Ultimos 12 Meses'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='line'  height={400} width={600} />
-                </CardContent>
-            </Card>
-        )
-    }
-    const generateChartAnualProductsValue = () => {
-        // Asume que tienes los datos en dos variables: sortedVentas
-        const actualYear = new Date().getFullYear()
-    
-        let products = []
-        let labelsUltimoAnio =  []
-    
-        if(sortedVentas){
-            const fechaActual = new Date();
-            const mesActual = fechaActual.getMonth();
-            const anioActual = fechaActual.getFullYear();
-            let auxProducts = []
-    
-            const mesesDesdeUltimoAnio = 12;
-            let mesInicio = mesActual - mesesDesdeUltimoAnio;
-            let anioInicio = anioActual;
-            if (mesInicio < 0) {
-                mesInicio += 12;
-                anioInicio -= 1;
-            }
-            const initialDate = new Date()
-            initialDate.setFullYear(anioInicio,mesInicio+1,1)
-            if(sortedVentas){
-                for (const [year, data] of sortedVentas) {
-                    // Itera sobre cada mes en el aÃ±o
-                    for (const [month, dataMonth] of Object.entries(data.months)) {
-                            const auxFecha = new Date();
-                            auxFecha.setFullYear(year, month - 1, 1);
-                            if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                                Object.keys(dataMonth.ventas).map(venta=>{
-                                    dataMonth.ventas[venta].articulos.map(articulo=>{
-                                        let auxData = [0,0,0,0,0,0,0,0,0,0,0,0]
-                                        const index = auxProducts.findIndex((d) => d.name === articulo.producto);
-                                        if (index === -1) {
-                                            // Si no lo encontramos, lo agregamos
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = parseFloat(articulo.total?articulo.total/1.21:0)
-                                            auxProducts.push({ name: articulo.producto, data:auxData});
-                                        } 
-                                        else {
-                                            auxData=auxProducts[index].data
-                                            // Si lo encontramos, sumamos la cantidad y el total
-                                            if(!auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)]){
-                                                auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] = 0
-                                            }
-                                            auxData[(dataMonth.ventas[venta].fecha.split('/')[1]-1)] += parseFloat(dataMonth.ventas[venta].metodoDePago.facturacion?(articulo.total?articulo.total/1.21:0):articulo.total?articulo.total:0);
-                                            auxProducts[index] = {...auxProducts[index],data:auxData}
-                                        }
-    
-                                    })
-                                })
-                            }
-                    }
-                }
-            }
-            const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-            const arr1Meses = auxMeses.slice(mesInicio+1);
-            const arr2Meses = auxMeses.slice(0,mesInicio+1);
-            arr1Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-            arr2Meses.map(i=>{
-                labelsUltimoAnio.push(i)
-            })
-    
-            let finalProducts = auxProducts
-            finalProducts.map(product=>{
-                const arr1Products = product.data.slice(mesInicio+1);
-                const arr2Products = product.data.slice(0,mesInicio+1);
-    
-                let auxFinalData = []
-                arr1Products.map(i=>{
-                    auxFinalData.push(i)
-                })
-                arr2Products.map(i=>{
-                    auxFinalData.push(i)
-                })
-                product.data = auxFinalData
-            })
-            console.log(auxProducts)
-            products=auxProducts
-        }
-    
-        const series = products
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:labelsUltimoAnio,
-            fill: {
-            },
-            chart:{
-                
-            },
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            grid: {
-                row: {
-                    colors: ['#c3c3c3', 'transparent'], // takes an array which will be repeated on columns
-                    opacity: 0.5
-                },
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            },
-            dataLabels:{
-                enabled:false
-            },
-            yaxis:{
-                labels:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            }
-        };
-        
-        // Renderiza el grÃ¡fico
-    
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Ventas por Producto - Ultimos 12 Meses'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='line'  height={400} width={600} />
-                </CardContent>
-            </Card>
-        )
-    }
-    const generateChartProductsValue = () => {
-        const actualYear = new Date().getFullYear()
-
-        const series = [];
-        const labels = [];
-        
-        sortedProductos.map((d)=>{
-            series.push(d.total)
-            labels.push(d.producto)
-        })
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            series:series,
-            labels:labels,
-            theme:{
-                mode:'dark',
-                palette:'palette2'
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                },
-                fillSeriesColor:false
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
-            },
-            
-            
-        };
-    
-    
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Ingresos por Producto - Anual'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='donut'   width={450} />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartClientValue = () => {
-        const actualYear = new Date().getFullYear()
-
-        const series = [];
-        const labels = [];
-        
-        sortedClientes.map((d)=>{
-            series.push(d.total)
-            labels.push(d.nombre)
-        })
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            series:series,
-            labels:labels,
-            theme:{
-                mode:'dark',
-                palette:'palette2'
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                },
-                fillSeriesColor:false
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
-            },
-            
-            
-        };
-    
-    
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Ingresos por Cliente - Anual'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='donut'   width={450} />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartAnualProductsUnits = () => {
-        const actualYear = new Date().getFullYear()
-
-        const series = [];
-        const labels = [];
-        
-        sortedProductos.map((d)=>{
-            series.push(d.cantidad)
-            labels.push(d.producto)
-        })
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            series:series,
-            labels:labels,
-            theme:{
-                mode:'dark',
-                palette:'palette2'
-
-            },
-            dataLabels:{
-                dropShadow: {
-                    enabled: true,
-                    left: 2,
-                    top: 2,
-                    opacity: 0.5
-                },
-            },
-            tooltip:{
-                fillSeriesColor:false
-            }
-        };
-    
-    
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    subheader='Unidades Vendidas - Anual'
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='donut'   width={450} />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartMonthSalesUnits = () => {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-        let auxConsumosFacturados = 0
-        const series = [
-            {
-                name: 'Ventas',
-                data: Array.from({ length: daysInMonth }, () => 0),
-            },
-            {
-                name: 'Compras',
-                data: Array.from({ length: daysInMonth }, () => 0),
-            },
-        ];
-        
-    
-        if(sortedVentas){
-            for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            let auxSales= 0
-                            dataMonth.ventas.map((venta,i)=>{
-                                auxSales +=1
-                                const day = dataMonth.ventas[i].fecha.split('/')[0]-1
-                                series[0].data[day] = (series[0].data[day])+1
-                            })
-                        }
-                    }
-                }
-            }
-        }
-        if(sortedCompras){
-            for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            let auxSales= 0
-                            dataMonth.compras.map((compra,i)=>{
-                                auxSales +=1
-                                const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                                series[1].data[day] = (series[1].data[day])+1
-                                if(dataMonth.compras[i].consumoFacturado){
-                                    auxConsumosFacturados += 1
-                                }
-                            })
-                        }
-                    }
-                }
-            }
-        }
-
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            chart:{
-                sparkline: {
-                    enabled: true
-                },
-                
-            },
-            
-        };
-    
-        let totalMonthSales = 0
-        let totalMonthPurchases = 0
-
-        series[0].data.map(serie=>(
-            totalMonthSales = totalMonthSales + serie
-        ))
-        series[1].data.map(serie=>(
-            totalMonthPurchases = totalMonthPurchases + serie
-        ))
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    title={`${totalMonthSales} - ${totalMonthPurchases-auxConsumosFacturados} (${auxConsumosFacturados})`}
-                    subheader={`Ventas & Compras - ${getActualMonthDetailed()}`}
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={200} height={100}  />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartMonthSalesValue = () => {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-
-        const series = [
-            {
-            name: 'Ventas',
-            data: Array.from({ length: daysInMonth }, () => 0),
-            },
-        ];
-        let auxData=[
-            Array.from({ length: daysInMonth }, () => 0)
-        ]     
-    
-        if(sortedVentas){
-            for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            let auxSales= 0
-                            dataMonth.ventas.map((venta,i)=>{
-                                auxSales +=1
-                                const day = dataMonth.ventas[i].fecha.split('/')[0]-1
-                                auxData[0][day] = (auxData[0][day])+parseFloat(dataMonth.ventas[i].total?dataMonth.ventas[i].total:0)
-                            })
-                        }
-                    }
-                }
-            }
-        }
-
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            chart:{
-                sparkline: {
-                    enabled: true
-                },
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            }
-        };
-    
-        let totalMonth = 0
-        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
-        auxData[0].map((val,i)=>{
-            auxBalance[i]+=val
-            totalMonth+=val
-        })
-        auxBalance.map((val,i)=>{
-            if(i==0){
-                series[0].data[0] = val
-            }
-            else{
-                series[0].data[i]= series[0].data[i-1] + (val?val:0)
-            }
-        })
-
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    title={`$ ${formatMoney(totalMonth)}`}
-                    subheader={`Ventas - ${getActualMonthDetailed()}`}
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={250} height={100} />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartMonthPurchasesValue = () => {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-
-        const series = [
-            {
-            name: 'Compras',
-            data: Array.from({ length: daysInMonth }, () => 0),
-            },
-        ];
-        let auxData=[
-            Array.from({ length: daysInMonth }, () => 0)
-        ]
-    
-        if(sortedCompras){
-            for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            dataMonth.compras.map((compra,i)=>{
-                                const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                                auxData[0][day] = (auxData[0][day])+parseFloat(dataMonth.compras[i].total?dataMonth.compras[i].total:0)
-                            })
-                        }
-                    }
-                }
-            }
-        }
-
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            chart:{
-                sparkline: {
-                    enabled: true
-                },
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            }
-        };
-    
-
-        let totalMonth = 0
-        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
-        auxData[0].map((val,i)=>{
-            auxBalance[i]+=val
-            totalMonth+=val
-        })
-        auxBalance.map((val,i)=>{
-            if(i==0){
-                series[0].data[0] = val
-            }
-            else{
-                series[0].data[i]= series[0].data[i-1] + (val?val:0)
-            }
-        })
-
-        // Renderiza el grÃ¡fico
-        return (
-            <Card>
-                <CardHeader
-                    title={`$ ${formatMoney(totalMonth)}`}
-                    subheader={`Compras - ${getActualMonthDetailed()}`}
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={250} height={100} />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartMonthIva = () => {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-        const series = [
-            {
-            name: 'Balance IVA',
-            data: Array.from({ length: daysInMonth }, () => 0),
-            type:'area'
-            },
-        ];
-        
-    let auxData=[
-        Array.from({ length: daysInMonth }, () => 0),
-        Array.from({ length: daysInMonth }, () => 0)
-    ]
-        if(sortedVentas){
-            for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            dataMonth.ventas.map((venta,i)=>{
-                                const day = dataMonth.ventas[i].fecha.split('/')[0]-1
-                                if(dataMonth.ventas[i].metodoDePago.facturacion){
-                                    auxData[0][day] = (auxData[0][day])+dataMonth.ventas[i].total-(dataMonth.ventas[i].total/1.21)
-                                }
-                            })
-                        }
-                    }
-                }
-            }
-        }
-        if(sortedCompras){
-            for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            dataMonth.compras.map((venta,i)=>{
-                                const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                                if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    if(!dataMonth.compras[i].consumoFacturado){
-                                        auxData[1][day] = (auxData[1][day]) + ((parseInt(dataMonth.compras[i].total)) - (parseInt(dataMonth.compras[i].total)/1.21))
-                                    }
-                                    else{
-                                        auxData[1][day] = (auxData[1][day])+parseFloat(dataMonth.compras[i].totalIva)
-                                    }
-                                }
-                            })
-                        }
-                    }
-                }
-            }
-        }
-
-        let totalMonth = 0
-        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
-        auxData[0].map((val,i)=>{
-            auxBalance[i]-=val
-            totalMonth-=val
-        })
-        auxData[1].map((val,i)=>{
-            auxBalance[i]+=val
-            totalMonth+=val
-        })
-        auxBalance.map((val,i)=>{
-            if(i==0){
-                series[0].data[0] = val
-            }
-            else{
-                series[0].data[i]= series[0].data[i-1] + (val?val:0)
-            }
-        })
-        console.log(series)
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            chart:{
-                background:'transparent',
-                sparkline: {
-                    enabled: true
-                },
-                
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            }
-        };
-
-        // Renderiza el grÃ¡fico
-        return (
-            <Card className={totalMonth>=0?classes.cardBgGreen:classes.cardBgRed}>
-                <CardHeader
-                    title={`$ ${formatMoney(totalMonth)}`}
-                    subheader={`Iva - ${getActualMonthDetailed()}`}
-                    action={
-                        <>
-                            <Link 
-                                style={{color:"#fff",textDecoration:'none'}}
-                                to={{
-                                    pathname:'/Nuevo-Consumo-Facturado'
-                            }}>
-                                <IconButton aria-label="settings">
-                                    <Add/>
-                                </IconButton>
-                            </Link>
-                            <Link 
-                                style={{color:"#fff",textDecoration:'none'}}
-                                to={{
-                                    pathname:'/Iva'
-                            }}>
-                            <IconButton aria-label="settings">
-                                <List/>
-                            </IconButton>
-                        </Link>
-                        </>
-                    }
-                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} width={250} height={100} />
-                </CardContent>
-            </Card>)
-    }
-    const generateChartMonthBalance = () => {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-
-        const series = [
-            {
-            name: 'Balance',
-            data: Array.from({ length: daysInMonth }, () => 0),
-            },
-        ];
-        let auxData=[
-            Array.from({ length: daysInMonth }, () => 0),
-            Array.from({ length: daysInMonth }, () => 0)
-        ]
-        if(sortedVentas){
-            for (const [year, data] of sortedVentas) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            dataMonth.ventas.map((venta,i)=>{
-                                console.log(venta)
-                                const day = venta.fecha.split('/')[0]-1
-                                console.log(day)
-                                if(venta.metodoDePago.facturacion){
-                                    auxData[0][day] = (auxData[0][day])+(venta.total?venta.total/1.21:0)
-                                }
-                                else{
-                                    auxData[0][day] = (auxData[0][day])+(venta.total?venta.total:0)
-                                }
-                            })
-                        }
-                    }
-                }
-            }
-        }
-        if(sortedCompras){
-            for (const [year, data] of sortedCompras) {
-                // Itera sobre cada mes en el aÃ±o
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    if(year == currentYear){
-                        if(month-1==currentMonth){
-                            dataMonth.compras.map((compra,i)=>{
-                                const day = dataMonth.compras[i].fecha.split('/')[0]-1
-                                if(dataMonth.compras[i].metodoDePago.facturacion){
-                                    if(dataMonth.compras[i].consumoFacturado){
-                                        auxData[1][day] = (auxData[1][day])+(dataMonth.compras[i].total?dataMonth.compras[i].total-dataMonth.compras[i].totalIva:0)
-                                    }
-                                    else{
-                                        auxData[1][day] = (auxData[1][day])+(dataMonth.compras[i].total?dataMonth.compras[i].total/1.21:0)
-                                    }
-                                }
-                                else{
-                                    auxData[1][day] = (auxData[1][day])+(dataMonth.compras[i].total?dataMonth.compras[i].total:0)
-                                }
-                            })
-                        }
-                    }
-                }
-            }
-        }
-        let totalMonth = 0
-        let auxBalance =  Array.from({ length: daysInMonth }, () => 0)
-        auxData[0].map((val,i)=>{
-            console.log(val)
-            auxBalance[i]+=val
-            totalMonth+=val
-        })
-        auxData[1].map((val,i)=>{
-            auxBalance[i]-=val
-            totalMonth-=val
-        })
-        auxBalance.map((val,i)=>{
-            if(i==0){
-                series[0].data[0] = val
-            }
-            else{
-                series[0].data[i]= series[0].data[i-1] + (val?val:0)
-            }
-        })
-        // Define la configuraciÃ³n del grÃ¡fico
-        const options = {
-            labels:Array.from({ length: daysInMonth }, (value, index) => (index + 1).toString()),
-            theme:{
-                mode:'dark',
-                palette:'palette6'
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            chart:{
-                background:'transparent',
-                sparkline: {
-                    enabled: true
-                },
-            },
-            tooltip:{
-                y:{
-                    formatter: val=> `$ ${formatMoney(val)}`
-                }
-            }
-        };
-
-        // Renderiza el grÃ¡fico
-        return (
-            <Card className={totalMonth>0?classes.cardBgGreen:classes.cardBgRed}>
-                <CardHeader
-                    title={`$ ${formatMoney(totalMonth)}`}
-                    subheader={`Balance - ${getActualMonthDetailed()}`}                />
-                <CardContent>
-                    <ApexCharts options={options} series={series} type='area' width={250} height={100} />
-                </CardContent>
-            </Card>)
-    }
-    
 
     // FILTERS 
     const filtrarCompras = () =>{
@@ -1284,7 +46,6 @@ const Inicio=(props)=>{
                 const year = props.compras[compra].fecha.split('/')[2];
                 const month = props.compras[compra].fecha.split('/')[1];
             
-                // Si aÃºn no tenemos el aÃ±o en el objeto "years", lo agregamos
                 if (!yearsCompras[year]) {
                     yearsCompras[year] = { total: 0, months: {
                         1:{ total: 0, compras: [] },
@@ -1302,12 +63,8 @@ const Inicio=(props)=>{
                     }}
                 }
 
-
-                
-                // Agregamos la compra al objeto "compras" del mes correspondiente
                 yearsCompras[year].months[month].compras.push(props.compras[compra]);
             
-                // Actualizamos el total del mes y del aÃ±o
                 yearsCompras[year].months[month].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
                 yearsCompras[year].total += parseFloat(props.compras[compra].total?props.compras[compra].total:0);
             });
@@ -1340,15 +97,12 @@ const Inicio=(props)=>{
                     }}
                 }
             
-                // Agregamos la venta al objeto "ventas" del mes correspondiente
                 yearsVentas[year].months[month].ventas.push(props.ventas[venta]);
-                // Actualizamos el total del mes y del aÃ±o
                 yearsVentas[year].months[month].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
                 yearsVentas[year].total += parseFloat(props.ventas[venta].total?props.ventas[venta].total:0);
             });
         
             const sortedVentas = Object.entries(yearsVentas).sort(([year1], [year2]) => year2 - year1);
-            console.log(sortedVentas)
 
             return sortedVentas
         }
@@ -1362,10 +116,8 @@ const Inicio=(props)=>{
                 Object.keys(yearData.months).map((month) => {
                     yearData.months[month].ventas.map((venta,i)=>{
                         yearData.months[month].ventas[i].articulos.map((articulo,v)=>{
-                            // Verificamos si ya tenemos el producto en el array
                             const index = data.findIndex((d) => d.producto === yearData.months[month].ventas[i].articulos[v].producto);
                             if (index === -1) {
-                                // Si no lo encontramos, lo agregamos
                                 if(yearData.months[month].ventas[i].metodoDePago.facturacion){
                                     data.push({ producto: yearData.months[month].ventas[i].articulos[v].producto, cantidad: parseInt(yearData.months[month].ventas[i].articulos[v].cantidad),total:(yearData.months[month].ventas[i].articulos[v].total?yearData.months[month].ventas[i].articulos[v].total/1.21:0) });
                                 }
@@ -1378,7 +130,6 @@ const Inicio=(props)=>{
                                     data[index].total += (yearData.months[month].ventas[i].articulos[v].total?yearData.months[month].ventas[i].articulos[v].total/1.21:0);
                                 }
                                 else{
-                                    // Si lo encontramos, sumamos la cantidad y el total
                                     data[index].cantidad += parseInt(yearData.months[month].ventas[i].articulos[v].cantidad);
                                     data[index].total += yearData.months[month].ventas[i].articulos[v].total?yearData.months[month].ventas[i].articulos[v].total:0;
                                 }
@@ -1399,7 +150,6 @@ const Inicio=(props)=>{
                 Object.keys(yearData.months).map((month) => {
                     yearData.months[month].ventas.map((venta,i)=>{
                         if(yearData.months[month].ventas[i].cliente){
-                            // Verificamos si ya tenemos el producto en el array
                             const index = data.findIndex((d) => d.nombre === yearData.months[month].ventas[i].cliente);
                             if (index === -1) {
                                 if(yearData.months[month].ventas[i].metodoDePago.facturacion){
@@ -1408,14 +158,12 @@ const Inicio=(props)=>{
                                 else{
                                     data.push({ nombre: yearData.months[month].ventas[i].cliente,total:yearData.months[month].ventas[i].total });
                                 }
-                                // Si no lo encontramos, lo agregamos
                             } 
                             else {
                                 if(yearData.months[month].ventas[i].metodoDePago.facturacion){
                                     data[index].total += (yearData.months[month].ventas[i].total/1.21);
                                 }
                                 else{
-                                    // Si lo encontramos, sumamos la cantidad y el total
                                     data[index].total += yearData.months[month].ventas[i].total;
                                 }
                             }
@@ -1445,6 +193,7 @@ const Inicio=(props)=>{
     },[props.compras,props.ventas])
 
 
+
     
 
     return(
@@ -1457,44 +206,44 @@ const Inicio=(props)=>{
                             <Grid container item xs={12} justify='center' spacing={3}>
                                 <Grid item>
                                     <Paper>
-                                        {generateChartMonthSalesValue()}
+                                        <MonthlySalesValueChart sortedVentas={sortedVentas} />
                                     </Paper>
                                 </Grid>
                                 <Grid item>
                                     <Paper>
-                                        {generateChartMonthPurchasesValue()}
+                                        <MonthlyPurchasesChart sortedCompras={sortedCompras} />
                                     </Paper>
                                 </Grid>
                                 <Grid item>
                                     <Paper>
-                                        {generateChartMonthIva()}
+                                        <MonthlyIvaChart sortedVentas={sortedVentas} sortedCompras={sortedCompras} classes={classes} />
                                     </Paper>
                                 </Grid>
                                 <Grid item>
                                     <Paper>
-                                        {generateChartMonthBalance()}
+                                        <MonthlyBalanceChart sortedVentas={sortedVentas} sortedCompras={sortedCompras} classes={classes} />
                                     </Paper>
                                 </Grid>
                             </Grid>
                             <Grid container xs={12} justify='center' spacing={3}>
                                 <Grid container item xs={12} md={8} justify='center'>
                                     <Paper>
-                                        {generateChartAnualSales()}
+                                        <SalesChart sortedCompras={sortedCompras} sortedVentas={sortedVentas} />
                                     </Paper>
                                 </Grid>
                                 <Grid container item xs={12} md={6} justify='center'>
                                     <Paper>
-                                        {generateChartAnualProductsValue()}
+                                        <ProductsValueChart sortedVentas={sortedVentas} />
                                     </Paper>
                                 </Grid>
                                 <Grid container item xs={12} md={6} justify='center'>
                                     <Paper>
-                                        {generateChartAnualProducts()}
+                                        <ProductsChart sortedVentas={sortedVentas} />
                                     </Paper>
                                 </Grid>
                                 <Grid container item xs={12} md={6} justify='center'>
                                     <Paper>
-                                        {generateChartAnualIva()}
+                                        <IvaChart sortedCompras={sortedCompras} sortedVentas={sortedVentas} />
                                     </Paper>
                                 </Grid>
                             </Grid>
@@ -1516,7 +265,7 @@ const Inicio=(props)=>{
                                                 <Grid container spacing={3}>
                                                     <Grid item>
                                                         <Paper>
-                                                            {generateChartProductsValue()}
+                                                            <DonutProductsChart sortedProductos={sortedProductos} />
                                                         </Paper>
                                                     </Grid>
                                                 </Grid>
@@ -1525,7 +274,7 @@ const Inicio=(props)=>{
                                                 <Grid container spacing={3}>
                                                     <Grid item>
                                                         <Paper>
-                                                            {generateChartAnualProductsUnits()}
+                                                            <UnitsChart sortedProductos={sortedProductos} />
                                                         </Paper>
                                                     </Grid>
                                                 </Grid>
@@ -1562,13 +311,4 @@ const Inicio=(props)=>{
     )
 }
 
-//REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        compras:state.compras,
-        ventas:state.ventas,
-        dolares:state.dolares
-    }
-}
-export default connect(mapStateToProps,null)(Inicio)
+export default withStore(Inicio)

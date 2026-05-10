@@ -1,5 +1,5 @@
 ﻿import React,{useState,useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Typography,TextField,Backdrop,Grid,CircularProgress,IconButton,Card,Snackbar,CardHeader,Input,TableCell,TableRow,TableHead,TableBody,Paper,Menu,MenuItem, CardContent, Button} from '@mui/material'
 import {Alert} from '@mui/material'
@@ -330,13 +330,4 @@ const Cheques=(props)=>{
         </Layout>
     )
 }
-// REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        cheques:state.cheques,
-        clientes:state.clientes,
-        proveedores:state.proveedores
-    }
-}
-export default connect(mapStateToProps,null)(Cheques)
+export default withStore(Cheques)

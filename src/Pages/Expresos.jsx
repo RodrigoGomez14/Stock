@@ -1,5 +1,5 @@
 ﻿import React,{useState} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import { makeStyles } from 'tss-react/mui'
 import { Paper,ListItem,Card,CardContent,Typography,TextField,List,Grid,Chip,IconButton,Link as LinkComponent } from '@mui/material'
@@ -62,11 +62,4 @@ const Expresos=(props)=>{
         </Layout>
     )
 }
-//REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        expresos:state.expresos
-    }
-}
-export default connect(mapStateToProps,null)(Expresos)
+export default withStore(Expresos)

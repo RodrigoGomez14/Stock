@@ -1,5 +1,5 @@
 ﻿import React,{useState,useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import { makeStyles } from 'tss-react/mui'
 import { Paper,Grid,List,Typography,IconButton,Backdrop,Snackbar,CircularProgress,Table,TableHead,TableRow,TableCell,TableBody,TableContainer,Button,Menu,MenuItem,Divider } from '@mui/material'
@@ -89,11 +89,4 @@ const HistorialProveedor=(props)=>{
     )
 }
 
-// REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        proveedores:state.proveedores
-    }
-}
-export default connect(mapStateToProps,null)(HistorialProveedor)
+export default withStore(HistorialProveedor)

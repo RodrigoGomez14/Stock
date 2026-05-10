@@ -1,5 +1,5 @@
 ﻿import React,{useState, useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
 import Alert from '@mui/material/Alert';
@@ -223,12 +223,4 @@ const FinalizarProcesoPropio=(props)=>{
         </Layout>
     )
 }
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        productos:state.productos,
-        proveedores:state.proveedores,
-        cadenasActivas:state.cadenasActivas,
-    }
-}
-export default connect(mapStateToProps,null)(FinalizarProcesoPropio)
+export default withStore(FinalizarProcesoPropio)

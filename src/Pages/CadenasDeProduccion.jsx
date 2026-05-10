@@ -1,5 +1,5 @@
 ﻿import React,{useState} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {content} from './styles/styles'
 import {Paper,Grid,Typography,Backdrop,CircularProgress,Snackbar,CardContent,List,ListItem,ListItemText} from '@mui/material'
@@ -66,11 +66,4 @@ const CadenasDeProduccion=(props)=>{
     )
 }
 
-//REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        cadenasActivas:state.cadenasActivas
-    }
-}
-export default connect(mapStateToProps,null)(CadenasDeProduccion)
+export default withStore(CadenasDeProduccion)

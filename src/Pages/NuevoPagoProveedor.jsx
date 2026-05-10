@@ -1,5 +1,5 @@
 ﻿import React,{useState, useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,Typography} from '@mui/material'
 import {AttachMoney,LocalAtm} from '@mui/icons-material'
@@ -344,12 +344,4 @@ const NuevoPagoProveedor=(props)=>{
         </Layout>
     )
 }
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        proveedores:state.proveedores,
-        cheques:state.cheques,
-        cuentasBancarias:state.CuentasBancarias
-    }
-}
-export default connect(mapStateToProps,null)(NuevoPagoProveedor)
+export default withStore(NuevoPagoProveedor)

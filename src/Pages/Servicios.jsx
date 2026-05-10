@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import { 
     Typography, Backdrop, Grid, CircularProgress, Snackbar, Paper, 
@@ -701,13 +701,4 @@ const Servicios = (props) => {
     )
 }
 
-// REDUX STATE TO PROPS
-const mapStateToProps = state => {
-    return {
-        user: state.user,
-        servicios: state.servicios,
-        instanciasPago: state.instanciasPago
-    }
-}
-
-export default connect(mapStateToProps, null)(Servicios) 
+export default withStore(Servicios)

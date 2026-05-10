@@ -1,5 +1,5 @@
 ﻿import React,{useState, useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Paper,Chip,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress,TextField} from '@mui/material'
 import { Autocomplete } from '@mui/material'
@@ -226,13 +226,4 @@ const NuevoPedido=(props)=>{
     )
 }
 
-//REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        pedidos:state.pedidos,
-        productos:state.productos,
-        clientes:state.clientes,
-    }
-}
-export default connect(mapStateToProps,null)(NuevoPedido)
+export default withStore(NuevoPedido)

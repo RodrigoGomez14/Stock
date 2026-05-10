@@ -1,5 +1,5 @@
 ﻿import React,{useState, useEffect} from 'react'
-import {connect} from 'react-redux'
+import { withStore } from '../context/AppContext'
 import {Layout} from './Layout'
 import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress, Avatar} from '@mui/material'
 import Alert from '@mui/material/Alert';
@@ -324,12 +324,4 @@ const NuevoCliente=(props)=>{
     )
 }
 
-// REDUX STATE TO PROPS
-const mapStateToProps = state =>{
-    return{
-        user:state.user,
-        expresos:state.expresos,
-        clientes:state.clientes,
-    }
-}
-export default connect(mapStateToProps,null)(NuevoCliente)
+export default withStore(NuevoCliente)

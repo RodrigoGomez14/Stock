@@ -25,9 +25,7 @@ import EnviarPedido from './Pages/EnviarPedido'
 import NuevoProducto from './Pages/NuevoProducto'
 import {SignInPage} from './Pages/SignIn'
 import {PantallaDeCarga} from './Pages/PantallaDeCarga'
-import {Provider} from 'react-redux'
-import reducer from './reducers'
-import {createStore} from 'redux'
+import { AppProvider } from './context/AppContext'
 import {NotFound} from './Pages/NotFound'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { database, onAuthStateChanged } from './services'
@@ -63,8 +61,7 @@ class App extends Component {
           fetch("https://dolarapi.com/v1/dolares/blue")
             .then((response) => response.json())
             .then((dolar)=>{
-              const store=createStore(reducer, {tipoDeCambio:dolar,user:user,...data})
-              this.setState({store,user:user,loading:false})
+              this.setState({tipoDeCambio:dolar,user:user,...data,loading:false})
             })
         })
       }
@@ -122,7 +119,7 @@ class App extends Component {
       if(this.state.user){
         return (
           <ThemeProvider theme={themeProvider}>
-              <Provider store={this.state.store}>
+              <AppProvider value={this.state}>
                 <BrowserRouter>
                   <Routes>
                     <Route path='/' element={<RouteInjector component={Inicio}/>}/>
@@ -183,7 +180,7 @@ class App extends Component {
                     <Route path='*' element={<RouteInjector component={NotFound}/>}/>
                   </Routes>
                 </BrowserRouter>
-              </Provider>
+              </AppProvider>
             </ThemeProvider>
         )
       }
