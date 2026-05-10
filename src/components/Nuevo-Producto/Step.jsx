@@ -8,7 +8,7 @@ import {Matrices} from './Matrices'
 import {DialogEliminarElemento} from './Dialogs/DialogEliminarElemento'
 import Empty from '../../images/Empty.png'
 
-export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setMatrices,cantidad,setcantidad,proveedoresList,disableCantidad,cadenaDeProduccion,setcadenaDeProduccion,isSubproducto,setIsSubproducto,subproductos,setSubproductos,subproductosList}) =>{
+export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setMatrices,cantidad,setcantidad,proveedoresList,disableCantidad,cadenaDeProduccion,setcadenaDeProduccion,isSubproducto,setIsSubproducto,subproductos,setSubproductos,subproductosList,proveedores}) =>{
     const classes = content()
     const [showDialogNuevaMatriz,setshowDialogNuevaMatriz]=useState(false)
     const [editIndexMatriz,seteditIndexMatriz]=useState(-1)
@@ -106,114 +106,80 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setM
                         </Grid>
                     </Grid>
                 )
-            case 'Cadena De Produccion':
+            case 'Cadena de Producción':
                 return(
-                    <Grid container item xs={12} justify='center' spacing={3}>
-                        <Grid item>
-                            <Button 
-                                color='primary'
-                                variant='contained'
-                                onClick={()=>{
-                                setshowDialog(true)
-                            }}>
-                                Agregar Proceso
-                            </Button>
-                        </Grid>
-                        {cadenaDeProduccion.length?
-                            <Grid container item xs={12} justify='center'>
-                                <Grid item xs={12}>
-                                    <StepperNuevoProducto cadenaDeProduccion={cadenaDeProduccion} seteditIndex={seteditIndex} setshowDialog={setshowDialog} setshowDialogDelete={setshowDialogDelete} setdeleteIndex={setdeleteIndex}/>
-                                </Grid>
-                            </Grid>
-                            :
-                            <Grid container iterm xs={12} justify='center'>
-                                <Grid item>
-                                    <img src={Empty} alt="" height='300px'/>
-                                </Grid>
-                                <Grid container item xs={12} justify='center'>
-                                    <Typography variant='h4'>No Posee Cadena de Produccion</Typography>
-                                </Grid>
-                            </Grid>
-                        }
+                    <Box>
+                        <Typography variant="body2" fontWeight={600} gutterBottom>Pasos de la cadena de producción</Typography>
+
+                        {cadenaDeProduccion.map((p, i) => (
+                            <Paper key={i} variant="outlined" sx={{ p: 1.5, borderRadius: 2, mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box>
+                                    <Typography variant="body2" fontWeight={600}>{p.proceso}</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {p.isProcesoPropio ? 'Proceso propio' : `Proveedor: ${p.proveedor || '—'}`}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                    <Button size="small" variant="outlined" onClick={() => { seteditIndex(i); setNombreProceso(p.proceso); setProveedor(p.proveedor); setIsProcesoPropio(p.isProcesoPropio); setshowDialog(true) }}>
+                                        Editar
+                                    </Button>
+                                    <Button size="small" color="error" variant="outlined" onClick={() => { setdeleteIndex(i); setshowDialogDelete(true) }}>
+                                        Eliminar
+                                    </Button>
+                                </Box>
+                            </Paper>
+                        ))}
+
+                        <Button variant="contained" startIcon={<AddOutlined />} onClick={() => { setshowDialog(true); seteditIndex(-1); setNombreProceso(''); setProveedor(''); setIsProcesoPropio(false) }} sx={{ mb: 2 }}>
+                            Agregar Proceso
+                        </Button>
+
                         <Collapse in={showDialog}>
-                            <Paper elevation={3} style={{ padding: 16, marginTop: 16, width: '100%' }}>
-                                <Grid container direction='column' alignItems='center' spacing={2}>
-                                    <Grid item>
-                                        <Typography variant='h6'>
-                                            {editIndex !== -1 ? 'Editar Proceso' : 'Agregar Proceso'}
-                                        </Typography>
+                            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 2 }}>
+                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                                    {editIndex !== -1 ? 'Editar Proceso' : 'Nuevo Proceso'}
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={6}>
+                                        <Autocomplete freeSolo options={['Fundido', 'Mecanizado', 'Pintado', 'Ensamblado', 'Laminado', 'Corte', 'Soldadura']}
+                                            value={nombreProceso} onInputChange={(_, v) => setNombreProceso(v)} onChange={(_, v) => setNombreProceso(v || '')}
+                                            renderInput={(p) => <TextField {...p} label="Tipo de proceso" fullWidth size="small" />} />
                                     </Grid>
-                                    <Grid item>
-                                        <Autocomplete
-                                            freeSolo
-                                            options={['Fundido','Mecanizado','Pintado','Ensamblado']}
-                                            getOptionLabel={(option) => option}
-                                            value={nombreProceso}
-                                            onSelect={(e)=>{setNombreProceso(e.target.value)}}
-                                            onChange={(e)=>{setNombreProceso(e.target.value)}}
-                                            style={{ width: 300 }}
-                                            renderInput={(params) => <TextField {...params} label="Tipo de Proceso" variant="outlined" />}
-                                        />
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel control={<Checkbox checked={isProcesoPropio} disabled={!!proveedor} onChange={() => { setIsProcesoPropio(!isProcesoPropio); if (!isProcesoPropio) setProveedor('') }} />}
+                                            label="Proceso propio" />
                                     </Grid>
-                                    <Grid item>
-                                        <FormControl component="fieldset">
-                                            <FormGroup aria-label="position" row>
-                                                <FormControlLabel
-                                                    control={<Checkbox color="primary" disabled={proveedor} checked={isProcesoPropio} onChange={()=>{setIsProcesoPropio(!isProcesoPropio)}} />}
-                                                    label="Proceso Propio"
-                                                />
-                                            </FormGroup>
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item>
-                                        <Autocomplete
-                                            freeSolo
-                                            options={proveedoresList?Object.keys(proveedoresList):{}}
-                                            disabled={!proveedoresList || isProcesoPropio}
-                                            getOptionLabel={(option) => option}
-                                            value={proveedor}
-                                            onSelect={(e)=>{setProveedor(e.target.value)}}
-                                            onChange={(e)=>{setProveedor(e.target.value)}}
-                                            style={{ width: 300 }}
-                                            renderInput={(params) => <TextField {...params} label="Proveedor Encargado" variant="outlined" />}
-                                        />
-                                    </Grid>
-                                    <Grid item>
-                                        <Button onClick={()=>{
-                                            if(editIndex !== -1) seteditIndex(-1)
-                                            setNombreProceso(undefined)
-                                            setProveedor(undefined)
-                                            setIsProcesoPropio(false)
-                                            setshowDialog(false)
-                                        }}>Cancelar</Button>
-                                        <Button
-                                            disabled={!nombreProceso || (!proveedor && !isProcesoPropio)}
-                                            onClick={()=>{
-                                                if(editIndex !== -1){
-                                                    let aux = cadenaDeProduccion
-                                                    aux[editIndex]={proceso:nombreProceso,proveedor:proveedor?proveedor:null,isProcesoPropio:isProcesoPropio}
-                                                    setcadenaDeProduccion(aux)
-                                                } else {
-                                                    let proceso = {proceso:nombreProceso,proveedor:proveedor?proveedor:null,isProcesoPropio:isProcesoPropio}
-                                                    let aux = cadenaDeProduccion
-                                                    aux.push(proceso)
-                                                    setcadenaDeProduccion(aux)
-                                                }
-                                                setNombreProceso(undefined)
-                                                setProveedor(undefined)
-                                                setIsProcesoPropio(false)
-                                                seteditIndex(-1)
-                                                setshowDialog(false)
-                                            }}
-                                        >
-                                            {editIndex !== -1 ? 'Editar' : 'Agregar'}
-                                        </Button>
-                                    </Grid>
+                                    {!isProcesoPropio && (
+                                        <Grid item xs={12}>
+                                            <Autocomplete freeSolo
+                                                options={proveedores ? Object.keys(proveedores) : []}
+                                                value={proveedor} onInputChange={(_, v) => setProveedor(v || '')} onChange={(_, v) => setProveedor(v || '')}
+                                                disabled={!proveedores || isProcesoPropio}
+                                                renderInput={(p) => <TextField {...p} label="Proveedor encargado" fullWidth size="small" />} />
+                                        </Grid>
+                                    )}
                                 </Grid>
+                                <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                                    <Button variant="contained" size="small" disabled={!nombreProceso || (!proveedor && !isProcesoPropio)}
+                                        onClick={() => {
+                                            if (editIndex !== -1) {
+                                                let aux = [...cadenaDeProduccion]
+                                                aux[editIndex] = { proceso: nombreProceso, proveedor: proveedor || null, isProcesoPropio }
+                                                setcadenaDeProduccion(aux)
+                                            } else {
+                                                setcadenaDeProduccion([...cadenaDeProduccion, { proceso: nombreProceso, proveedor: proveedor || null, isProcesoPropio }])
+                                            }
+                                            setshowDialog(false); setNombreProceso(''); setProveedor(''); setIsProcesoPropio(false); seteditIndex(-1)
+                                        }}>
+                                        {editIndex !== -1 ? 'Guardar' : 'Agregar'}
+                                    </Button>
+                                    <Button variant="outlined" size="small" onClick={() => { setshowDialog(false); seteditIndex(-1); setNombreProceso(''); setProveedor(''); setIsProcesoPropio(false) }}>
+                                        Cancelar
+                                    </Button>
+                                </Box>
                             </Paper>
                         </Collapse>
-                        <DialogEliminarElemento open={showDialogDelete} setopen={setshowDialogDelete} datos={cadenaDeProduccion} setDatos={setcadenaDeProduccion} index={deleteIndex} setdeleteIndex={setdeleteIndex} tipoDeElemento='Proceso'/>
-                    </Grid>
+                    </Box>
                 )
             case 'Componentes': 
                 return(

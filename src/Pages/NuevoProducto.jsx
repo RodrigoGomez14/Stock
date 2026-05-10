@@ -46,7 +46,7 @@ const NuevoProducto = (props) => {
 
   const guardar = async () => {
     setLoading(true)
-    const payload = { nombre, precio, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices }
+    const payload = { nombre, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices }
     try {
       if (isEdit) {
         await removeData(props.user.uid, `productos/${props.history.location.search.slice(1)}`)
@@ -70,9 +70,6 @@ const NuevoProducto = (props) => {
               <TextField fullWidth label="Nombre *" value={nombre} onChange={(e) => setNombre(e.target.value)} />
             </Grid>
             <Grid item xs={6}>
-              <TextField fullWidth label="Precio" type="number" value={precio} onChange={(e) => setPrecio(parseFloat(e.target.value) || 0)} />
-            </Grid>
-            <Grid item xs={6}>
               <TextField fullWidth label="Stock" type="number" value={cantidad} onChange={(e) => setCantidad(parseFloat(e.target.value) || 0)} />
             </Grid>
             <Grid item xs={12}>
@@ -92,6 +89,7 @@ const NuevoProducto = (props) => {
         tipoDeDato="Cadena de Producción"
         cadenaDeProduccion={cadena}
         setcadenaDeProduccion={setCadena}
+        proveedores={props.proveedores}
         subproductos={Object.values(props.productos || {}).filter((p) => p.isSubproducto)}
         allProductos={Object.values(props.productos || {})}
       />
@@ -112,8 +110,7 @@ const NuevoProducto = (props) => {
       <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
         <Grid container spacing={1}>
           <Grid item xs={6}><Typography variant="caption" color="text.secondary">Nombre</Typography><Typography>{nombre}</Typography></Grid>
-          <Grid item xs={3}><Typography variant="caption" color="text.secondary">Precio</Typography><Typography>${precio}</Typography></Grid>
-          <Grid item xs={3}><Typography variant="caption" color="text.secondary">Stock</Typography><Typography>{cantidad}</Typography></Grid>
+          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Stock</Typography><Typography>{cantidad}</Typography></Grid>
           <Grid item xs={12}><Typography variant="caption" color="text.secondary">Tipo</Typography><Typography>{isSubproducto ? 'Subproducto' : 'Producto final'}</Typography></Grid>
         </Grid>
       </Paper>
