@@ -4,10 +4,12 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Grid, TextField, InputAdornment, IconButton, Typography,
-  Card, CardContent, Tabs, Tab, Button
+  Card, CardContent, Tabs, Tab, Button, Chip, Divider
 } from '@mui/material'
-import { Search, PersonAdd, AttachMoney, People, Star } from '@mui/icons-material'
+import { Search, PersonAdd, AttachMoney, People, Star, Edit, Visibility, Phone, Email } from '@mui/icons-material'
 import { formatMoney } from '../utilities'
+
+const toStr = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
 
 const Clientes = (props) => {
   const [search, setSearch] = useState('')
@@ -29,80 +31,101 @@ const Clientes = (props) => {
 
   return (
     <Layout history={props.history} page="Clientes" user={props.user?.uid}>
-      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={4} sm={3}>
-            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
-              <CardContent sx={{ py: '8px !important' }}>
-                <People color="primary" />
-                <Typography variant="h5" fontWeight={700}>{stats.total}</Typography>
-                <Typography variant="caption" color="text.secondary">Total</Typography>
-              </CardContent>
+      <Box sx={{ maxWidth: 1400, mx: 'auto', p: 3 }}>
+        {/* STATS BAR */}
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={4} sm={2}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
+              <People color="primary" sx={{ fontSize: 28 }} />
+              <Typography variant="h5" fontWeight={800}>{stats.total}</Typography>
+              <Typography variant="caption" color="text.secondary">Total</Typography>
             </Card>
           </Grid>
-          <Grid item xs={4} sm={3}>
-            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
-              <CardContent sx={{ py: '8px !important' }}>
-                <AttachMoney color="error" />
-                <Typography variant="h5" fontWeight={700}>$ {formatMoney(stats.deudaTotal)}</Typography>
-                <Typography variant="caption" color="text.secondary">Deuda total</Typography>
-              </CardContent>
+          <Grid item xs={4} sm={2}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
+              <AttachMoney color="error" sx={{ fontSize: 28 }} />
+              <Typography variant="h5" fontWeight={800}>$ {formatMoney(stats.deudaTotal)}</Typography>
+              <Typography variant="caption" color="text.secondary">Deuda total</Typography>
             </Card>
           </Grid>
-          <Grid item xs={4} sm={3}>
-            <Card sx={{ borderRadius: 3, textAlign: 'center', py: 1 }}>
-              <CardContent sx={{ py: '8px !important' }}>
-                <Star color="warning" />
-                <Typography variant="h5" fontWeight={700}>{stats.conDeuda}</Typography>
-                <Typography variant="caption" color="text.secondary">Con deuda</Typography>
-              </CardContent>
+          <Grid item xs={4} sm={2}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
+              <Star color="warning" sx={{ fontSize: 28 }} />
+              <Typography variant="h5" fontWeight={800}>{stats.conDeuda}</Typography>
+              <Typography variant="caption" color="text.secondary">Con deuda</Typography>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={3} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <Button component={Link} to="/Nuevo-Cliente" variant="contained" startIcon={<PersonAdd />}>
-              Nuevo
-            </Button>
+          <Grid item xs={12} sm={6} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <Button component={Link} to="/Nuevo-Cliente" variant="contained" startIcon={<PersonAdd />}>Nuevo Cliente</Button>
           </Grid>
         </Grid>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <TextField
-            fullWidth size="small" placeholder="Buscar cliente..."
-            value={search} onChange={(e) => setSearch(e.target.value)}
+        {/* SEARCH + TABS */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <TextField fullWidth size="small" placeholder="Buscar cliente..." value={search}
+            onChange={(e) => setSearch(e.target.value)}
             InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
-            sx={{ maxWidth: 400 }}
-          />
+            sx={{ maxWidth: 400 }} />
         </Box>
-
         <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
           <Tab label="Todos" />
           <Tab label="Con deuda" />
         </Tabs>
 
+        {/* CARDS */}
         {filtered.length > 0 ? (
           <Grid container spacing={2}>
-            {filtered.map(([name, c]) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={name}>
-                <Card sx={{ borderRadius: 3, transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
-                  <CardContent>
-                    <Typography variant="h6" fontWeight={600}
-                      component={Link} to={`/Cliente?${encodeURIComponent(name)}`}
-                      sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
-                      {name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-                      <Button size="small" variant="outlined" color={c.datos?.deuda > 0 ? 'error' : 'success'}
-                        component={Link} to={`/Nuevo-Pago-Cliente?${encodeURIComponent(name)}`}>
-                        $ {formatMoney(c.datos?.deuda || 0)}
-                      </Button>
-                      <Button size="small" component={Link} to={`/Historial-Cliente?${encodeURIComponent(name)}`}>
-                        Historial
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+            {filtered.map(([name, c]) => {
+              const d = c.datos || {}
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={name}>
+                  <Card sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', height: '100%', transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
+                    <CardContent sx={{ flex: 1, pb: 1 }}>
+                      {/* Top: name + edit */}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                        <Typography variant="body1" fontWeight={700}
+                          component={Link} to={`/Cliente?${encodeURIComponent(name)}`}
+                          sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, flex: 1 }}>
+                          {name}
+                        </Typography>
+                        <IconButton size="small" component={Link} to={`/Editar-Cliente?${encodeURIComponent(name)}`}
+                          sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' }, ml: 1 }}>
+                          <Edit fontSize="small" />
+                        </IconButton>
+                      </Box>
+
+                      {/* Contact chips */}
+                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1 }}>
+                        {d.telefono?.length > 0 && (
+                          <Chip icon={<Phone />} label={toStr(d.telefono[0])} size="small" variant="outlined" sx={{ fontSize: 11 }} />
+                        )}
+                        {d.mails?.length > 0 && (
+                          <Chip icon={<Email />} label={toStr(d.mails[0])} size="small" variant="outlined" sx={{ fontSize: 11 }} />
+                        )}
+                      </Box>
+
+                      <Divider sx={{ mb: 1.5 }} />
+
+                      {/* Debt amount */}
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                        <Typography variant="caption" color="text.secondary">Deuda</Typography>
+                        <Typography variant="h6" fontWeight={800} color={d.deuda > 0 ? 'error.main' : 'success.main'}>
+                          $ {formatMoney(d.deuda || 0)}
+                        </Typography>
+                      </Box>
+                      {d.dni && <Typography variant="caption" color="text.disabled">DNI: {d.dni}</Typography>}
+                    </CardContent>
+
+                    {/* Ver detalle — full width */}
+                    <Button component={Link} to={`/Cliente?${encodeURIComponent(name)}`}
+                      startIcon={<Visibility />} fullWidth color="primary" variant="contained"
+                      sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 12 }}>
+                      Ver detalle
+                    </Button>
+                  </Card>
+                </Grid>
+              )
+            })}
           </Grid>
         ) : (
           <Box sx={{ textAlign: 'center', py: 8 }}>

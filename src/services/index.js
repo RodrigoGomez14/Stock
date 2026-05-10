@@ -1,4 +1,4 @@
-export { auth, database, default as firebase } from './firebase'
+export { auth, database, storage, default as firebase } from './firebase'
 export { signIn, signOut, sendPasswordReset, onAuthStateChanged } from './auth'
 export {
   getData, onData, pushData, pushDataWithKey,

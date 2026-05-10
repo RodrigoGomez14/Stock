@@ -54,18 +54,25 @@ class App extends Component {
     authLoading: true,
     dataLoading: true,
   }
+  _dbRef = null
 
   componentDidMount(){
     onAuthStateChanged(user => {
+      // Detach old listener to prevent cross-user data leaks
+      if (this._dbRef) {
+        this._dbRef.off()
+        this._dbRef = null
+      }
+
       if (user) {
-        this.setState({ user, authLoading: false })
-        const databaseRef = database().ref().child(user.uid)
-        databaseRef.on('value', snapshot => {
+        this.setState({ user, authLoading: false, dataLoading: true })
+        this._dbRef = database().ref().child(user.uid)
+        this._dbRef.on('value', snapshot => {
           const data = snapshot.val()
           fetch("https://dolarapi.com/v1/dolares")
             .then((response) => response.json())
             .then((dolar) => {
-              this.setState({ tipoDeCambio: dolar, ...data, dataLoading: false })
+              this.setState({ tipoDeCambio: dolar, user, authLoading: false, ...data, dataLoading: false })
             })
         })
       } else {

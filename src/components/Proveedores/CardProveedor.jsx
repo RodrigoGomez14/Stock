@@ -1,45 +1,53 @@
 ﻿import React from 'react'
-import { Card, CardContent, CardActions, Button, Typography, Chip, IconButton, Menu, MenuItem, Box } from '@mui/material'
-import { MoreVert, AttachMoney } from '@mui/icons-material'
+import { Card, CardContent, Button, Typography, Chip, IconButton, Box, Divider } from '@mui/material'
+import { Edit, Visibility, Phone, Email, AttachMoney } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../../utilities'
 
-export const CardProveedor = ({ datos, search }) => {
-  const [anchorEl, setAnchorEl] = React.useState(null)
+const toStr = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
 
-  if (search && !datos.nombre.toLowerCase().includes(search.toLowerCase())) {
-    return null
-  }
+export const CardProveedor = ({ datos, search }) => {
+  if (search && !datos.nombre.toLowerCase().includes(search.toLowerCase())) return null
 
   return (
-    <Card sx={{ borderRadius: 3, transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Typography variant="h6" fontWeight={600} component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}
-            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+    <Card sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', height: '100%', transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
+      <CardContent sx={{ flex: 1, pb: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography variant="body1" fontWeight={700}
+            component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}
+            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, flex: 1 }}>
             {datos.nombre}
           </Typography>
-          <IconButton size="small" onClick={(e) => setAnchorEl(e.currentTarget)}>
-            <MoreVert />
+          <IconButton size="small" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(datos.nombre)}`}
+            sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' }, ml: 1 }}>
+            <Edit fontSize="small" />
           </IconButton>
         </Box>
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-          <MenuItem component={Link} to={`/Editar-Proveedor?${encodeURIComponent(datos.nombre)}`}>Editar</MenuItem>
-        </Menu>
-        <Box sx={{ mt: 2 }}>
-          <Chip
-            size="small"
-            icon={<AttachMoney />}
-            label={`$ ${formatMoney(datos.deuda || 0)}`}
-            color={datos.deuda > 0 ? 'error' : 'success'}
-            variant="outlined"
-          />
+
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1 }}>
+          {datos.telefono?.length > 0 && (
+            <Chip icon={<Phone />} label={toStr(datos.telefono[0])} size="small" variant="outlined" sx={{ fontSize: 11 }} />
+          )}
+          {datos.mails?.length > 0 && (
+            <Chip icon={<Email />} label={toStr(datos.mails[0])} size="small" variant="outlined" sx={{ fontSize: 11 }} />
+          )}
+        </Box>
+
+        <Divider sx={{ mb: 1.5 }} />
+
+        <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <Typography variant="caption" color="text.secondary">Deuda</Typography>
+          <Typography variant="h6" fontWeight={800} color={datos.deuda > 0 ? 'error.main' : 'success.main'}>
+            $ {formatMoney(datos.deuda || 0)}
+          </Typography>
         </Box>
       </CardContent>
-      <CardActions>
-        <Button size="small" component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}>Ver detalle</Button>
-        <Button size="small" component={Link} to={`/Historial-Proveedor?${encodeURIComponent(datos.nombre)}`}>Historial</Button>
-      </CardActions>
+
+      <Button component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}
+        startIcon={<Visibility />} fullWidth color="primary" variant="contained"
+        sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 12 }}>
+        Ver detalle
+      </Button>
     </Card>
   )
 }
