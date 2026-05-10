@@ -2,7 +2,6 @@
 import { makeStyles } from 'tss-react/mui'
 import { Dialog,DialogTitle,DialogContent,DialogActions,TextField,Button,Grid,FormControl,Select,Input,MenuItem,List,ListItem,ListItemText, Typography,IconButton } from '@mui/material'
 import {EditOutlined} from '@mui/icons-material'
-import DateFnsUtils from '@date-io/date-fns';
 import {obtenerFecha} from '../../utilities'
 const useStyles = makeStyles()((theme) => ({
     input:{
