@@ -6,7 +6,7 @@ import {AttachMoney,LocalAtm} from '@mui/icons-material'
 import Alert from '@mui/material/Alert';
 import { Navigate } from 'react-router-dom'
 import {Step as StepComponent} from '../components/Depositar-Cheque/Step'
-import { database } from '../services'
+import { pushData, updateData } from '../services'
 import {checkSearch, formatMoney,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
   
@@ -69,7 +69,7 @@ const DepositarCheque=(props)=>{
             total:props.cheques[props.history.location.search.slice(1)].valor
         }
         actualizarCheque()
-        await database().ref().child(props.user.uid).child('CuentasBancarias').child(destinatario).child('ingresos').push(auxDeposito)
+        await pushData(props.user.uid, `CuentasBancarias/${destinatario}/ingresos`, auxDeposito)
         setshowSnackbar('El Cheque se Deposito Correctamente')
         props.history.replace('/Cheques')
         setLoading(false)
@@ -80,7 +80,7 @@ const DepositarCheque=(props)=>{
             depositadoEnCuenta:true,
             egreso:obtenerFecha()
         }
-        await database().ref().child(props.user.uid).child('cheques').child(props.history.location.search.slice(1)).update(aux)
+        await updateData(props.user.uid, `cheques/${props.history.location.search.slice(1)}`, aux)
     }
     return(
         <Layout history={props.history} page='Despositar Cheque' user={props.user.uid} blockGoBack={true}>

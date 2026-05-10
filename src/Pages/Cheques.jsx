@@ -1,30 +1,27 @@
-﻿import React, { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+﻿import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Box, Grid, Typography, Card, CardContent, Chip, IconButton,
-  Button, Backdrop, CircularProgress, Snackbar, Table,
-  TableHead, TableBody, TableRow, TableCell, Paper,
-  FormControl, InputLabel, Select, MenuItem
+  Box, Typography, Button, Backdrop, CircularProgress, Snackbar, Table,
+  TableHead, TableBody, TableRow, TableCell, Paper, Collapse,
+  FormControl, InputLabel, Select, MenuItem, TextField
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { Add, ArrowForward } from '@mui/icons-material'
+import { ArrowForward } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { database } from '../services'
-import { formatMoney, monthsList } from '../utilities'
+import { updateData } from '../services'
+import { formatMoney, monthsList, obtenerFecha } from '../utilities'
 import { Cheque } from '../components/Cheques/Cheque'
-import { DialogEntregarCheque } from '../components/Cheques/DialogEntregarCheque'
 
 const ChequesPage = (props) => {
-  const location = useLocation()
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [year, setYear] = useState(new Date().getFullYear())
   const [snack, setSnack] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showDialogEntregar, setShowDialogEntregar] = useState(false)
+  const [entregarId, setEntregarId] = useState(null)
+  const [entregarNombre, setEntregarNombre] = useState('')
 
   const cheques = props.cheques || {}
   const filtered = Object.entries(cheques).filter(([_, c]) => {
@@ -33,11 +30,14 @@ const ChequesPage = (props) => {
     return parseInt(m) === month && parseInt(y) === year
   })
 
-  const entregarCheque = async (id, fecha, nombre) => {
+  const entregarCheque = async (id) => {
+    if (!entregarNombre) return
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('cheques').child(id).update({ fechaDeEntrega: fecha, entregadoA: nombre })
+      await updateData(props.user.uid, `cheques/${id}`, { fechaDeEntrega: obtenerFecha(), entregadoA: entregarNombre })
       setSnack('Cheque entregado')
+      setEntregarId(null)
+      setEntregarNombre('')
     } catch { }
     setLoading(false)
   }
@@ -58,12 +58,8 @@ const ChequesPage = (props) => {
               {[2024, 2025, 2026].map((y) => <MenuItem key={y} value={y}>{y}</MenuItem>)}
             </Select>
           </FormControl>
-          <Button component={Link} to="/Depositar-Cheque" startIcon={<ArrowForward />} variant="contained" size="small">
-            Depositar
-          </Button>
-          <Button component={Link} to="/Cheques-Personales" variant="outlined" size="small">
-            Cheques Personales
-          </Button>
+          <Button component={Link} to="/Depositar-Cheque" startIcon={<ArrowForward />} variant="contained" size="small">Depositar</Button>
+          <Button component={Link} to="/Cheques-Personales" variant="outlined" size="small">Cheques Personales</Button>
         </Box>
 
         {filtered.length > 0 ? (
@@ -82,7 +78,25 @@ const ChequesPage = (props) => {
               </TableHead>
               <TableBody>
                 {filtered.map(([id, c]) => (
-                  <Cheque key={id} id={id} data={c} onEntregar={() => setShowDialogEntregar(id)} />
+                  <React.Fragment key={id}>
+                    <Cheque key={id} id={id} data={c} onEntregar={() => { setEntregarId(id); setEntregarNombre('') }} />
+                    {entregarId === id && (
+                      <TableRow>
+                        <TableCell colSpan={7} sx={{ py: 0, borderBottom: 0 }}>
+                          <Collapse in={entregarId === id}>
+                            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, my: 1 }}>
+                              <Typography variant="subtitle2" fontWeight={600} gutterBottom>Entregar cheque</Typography>
+                              <TextField size="small" label="Entregar a" value={entregarNombre}
+                                onChange={(e) => setEntregarNombre(e.target.value)} sx={{ mr: 1 }} />
+                              <Button size="small" variant="contained" disabled={!entregarNombre}
+                                onClick={() => entregarCheque(id)}>Confirmar</Button>
+                              <Button size="small" onClick={() => setEntregarId(null)} sx={{ ml: 1 }}>Cancelar</Button>
+                            </Paper>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>

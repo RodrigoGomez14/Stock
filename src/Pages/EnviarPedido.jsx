@@ -4,8 +4,8 @@ import {Layout} from './Layout'
 import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
 import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Enviar-Pedido/Step'
-import { database } from '../services'
-import {filtrarCotizaciones, formatMoney,obtenerFecha} from '../utilities'
+import { pushData, updateData, removeData, setData, getPushKey } from '../services'
+import {formatMoney, obtenerFecha} from '../utilities'
 import { Navigate } from 'react-router-dom'
 import {content} from './styles/styles'
 import { AttachMoney, LocalShipping } from '@mui/icons-material';
@@ -150,7 +150,6 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
                 pagado:calcularPagado(),
                 adeudado:calcularAdeudado()
             },
-            cotizacion:props.pedidos[id].cotizacion,
             metodoDeEnvio:expreso?{expreso:expreso,remito:remito,precio:precio}:'Particular',
             total:props.history.location.props.total,
         }
@@ -168,13 +167,13 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
         agregarAListaDeIva(aux.total)
 
         // AGREGA EL PEDIDO A DB PARA OBTENER ID
-        let idLink = database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('pedidos').push()
+        const key = getPushKey(props.user.uid, `clientes/${props.pedidos[id].cliente}/pedidos`)
         
         // AGREGA LA FACTURA A LISTA DE VENTAS
-        agregarAListaDeVentas(aux,idLink.key)
+        agregarAListaDeVentas(aux,key)
 
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
-        agregarPagoAlHistorial(aux.metodoDePago,idLink.key,id)
+        agregarPagoAlHistorial(aux.metodoDePago,key,id)
 
         // MODELA Y AGREGA LA TRANSFERENCIA A LOS MOVIMIENTOS BANCARIOS
         if(aux.metodoDePago.cuentaTransferencia){
@@ -185,13 +184,13 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
         setshowSnackbar('El pedido se enviÃ³ correctamente!')
         
         // ACTUALIZA DB ENVIANDO TODA LA INFO
-        idLink.update(aux) 
+        setData(props.user.uid, `clientes/${props.pedidos[id].cliente}/pedidos/${key}`, aux) 
             .then(()=>{
                 props.history.replace('/Pedidos')
-                database().ref().child(props.user.uid).child('pedidos').child(id).remove().then(()=>{
+                removeData(props.user.uid, `pedidos/${id}`).then(()=>{
                     setTimeout(() => {
                         if(expreso){
-                            database().ref().child(props.user.uid).child('expresos').child(expreso).child('envios').push({fecha:obtenerFecha(),id:idLink.key,remito:remito,cliente:props.history.location.props.nombre}).then(()=>{
+                            pushData(props.user.uid, `expresos/${expreso}/envios`, {fecha:obtenerFecha(),id:key,remito:remito,cliente:props.history.location.props.nombre}).then(()=>{
                                 setLoading(false)
                             }) 
                         }
@@ -220,8 +219,8 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
         // RECORRE LOS ARTICULOS DEL PEDIDO
         articulos.map(async articulo=>{
             const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)-parseInt(articulo.cantidad)
-            await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
-            //await database().ref().child(props.user.uid).child('productos').child(articulo.producto).child('historialDeStock').push({cantidad:nuevaCantidad,fecha:obtenerFecha()})
+            await updateData(props.user.uid, `productos/${articulo.producto}`, {cantidad:nuevaCantidad})
+            //await pushData(props.user.uid, `productos/${articulo.producto}/historialDeStock`, {cantidad:nuevaCantidad,fecha:obtenerFecha()})
         })
     }
     const guardarCheques =() =>{
@@ -241,7 +240,7 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
                     valor:cheque.valor
                 }
                 // GUARDA EN LA LISTA DE CHQUES CADA UNO
-                database().ref().child(props.user.uid).child('cheques').push(auxCheque)
+                pushData(props.user.uid, 'cheques', auxCheque)
             })
         }
         // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
@@ -251,15 +250,15 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
         const id = props.history.location.search.slice(1)
         const deudaPasada = props.clientes[props.pedidos[id].cliente].datos.deuda
         if(totalPedido>totalRecibido){
-            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('datos').update({deuda:(deudaPasada)+(totalPedido-totalRecibido)})
+            updateData(props.user.uid, `clientes/${props.pedidos[id].cliente}/datos`, {deuda:(deudaPasada)+(totalPedido-totalRecibido)})
         }
         else{
-            database().ref().child(props.user.uid).child('clientes').child(props.pedidos[id].cliente).child('datos').update({deuda:(deudaPasada)-(totalRecibido-totalPedido)})
+            updateData(props.user.uid, `clientes/${props.pedidos[id].cliente}/datos`, {deuda:(deudaPasada)-(totalRecibido-totalPedido)})
         }
     }
     const agregarAListaDeIva = (aux) =>{
         if(props.history.location.props.facturacion){
-            database().ref().child(props.user.uid).child('iva').child('ventas').push({
+            pushData(props.user.uid, 'iva/ventas', {
                 fecha:obtenerFecha(),
                 iva:aux-(aux/1.21),
                 total:aux
@@ -269,12 +268,12 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
     const agregarAListaDeVentas = (pedido,idLink) =>{
         let aux=pedido
         aux['idPedido']=idLink
-        database().ref().child(props.user.uid).child('ventas').push(aux) 
+        pushData(props.user.uid, 'ventas', aux) 
     }
     const agregarPagoAlHistorial = (pago,idLink,idPedido) =>{
         // AGREGA EL ID DEL PEDIDO AL PAGO
         let aux= {...pago,idPedido:idLink}
-        database().ref().child(props.user.uid).child('clientes').child(props.pedidos[idPedido].cliente).child('pagos').push(aux)
+        pushData(props.user.uid, `clientes/${props.pedidos[idPedido].cliente}/pagos`, aux)
     }
     const guardarTransferenciaBancaria = async (cuenta,total) =>{
         console.log(cuenta,total)
@@ -283,7 +282,7 @@ import { AttachMoney, LocalShipping } from '@mui/icons-material';
             tipo:'transferencia',
             total:total
         }
-        await database().ref().child(props.user.uid).child('CuentasBancarias').child(cuenta).child('ingresos').push(auxDeposito)
+        await pushData(props.user.uid, `CuentasBancarias/${cuenta}/ingresos`, auxDeposito)
     }
     return(
         props.history.location.props?

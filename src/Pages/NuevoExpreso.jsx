@@ -8,7 +8,7 @@ import {
 import { Alert } from '@mui/material'
 import { Add, Delete } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { removeData, updateData } from '../services'
 import { checkSearch } from '../utilities'
 
 const NuevoExpreso = (props) => {
@@ -60,9 +60,9 @@ const NuevoExpreso = (props) => {
     const payload = { datos: { nombre: data.nombre, telefono: [data.telefono], direccion: [data.direccion], telefonos: data.telefonos, mails: data.mails, infoExtra: data.infoExtra } }
     try {
       if (isEdit) {
-        await database().ref().child(props.user.uid).child('expresos').child(props.history.location.search.slice(1)).remove()
+        await removeData(props.user.uid, `expresos/${props.history.location.search.slice(1)}`)
       }
-      await database().ref().child(props.user.uid).child('expresos').update({ [data.nombre]: payload })
+      await updateData(props.user.uid, 'expresos', { [data.nombre]: payload })
       setSnack(isEdit ? 'Transporte editado' : 'Transporte creado')
       setTimeout(() => props.history.replace(`/Expreso?${data.nombre}`), 1500)
     } catch { setLoading(false) }

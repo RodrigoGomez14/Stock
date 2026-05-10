@@ -8,7 +8,6 @@ import {
 import { Search, Add } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../utilities'
-import { database } from '../services'
 
 const Pedidos = (props) => {
   const [search, setSearch] = useState('')

@@ -4,7 +4,7 @@ import {Layout} from './Layout'
 import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@mui/material'
 import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Nuevo-Consumo-Facturado/Step'
-import { database } from '../services'
+import { pushData, updateData } from '../services'
 import {obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
@@ -89,7 +89,7 @@ const NuevoConsumoFacturado=(props)=>{
             }
         }
         if(props.history.location.search){
-            database().ref().child(props.user.uid).child('compras').child(checkSearch(props.history.location.search)).update(aux)
+            updateData(props.user.uid, `compras/${checkSearch(props.history.location.search)}`, aux)
             .then(()=>{
                     setshowSnackbar('El consumo se editÃ³ correctamente!')
                 setTimeout(() => {
@@ -101,7 +101,7 @@ const NuevoConsumoFacturado=(props)=>{
             })
         }
         else{
-            database().ref().child(props.user.uid).child('compras').push(aux)
+            pushData(props.user.uid, 'compras', aux)
             .then(()=>{
                 setshowSnackbar('El consumo se agregÃ³ correctamente!')
                 setTimeout(() => {

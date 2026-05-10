@@ -6,7 +6,7 @@ import {AttachMoney,LocalAtm} from '@mui/icons-material'
 import Alert from '@mui/material/Alert';
 import { Navigate } from 'react-router-dom'
 import {Step as StepComponent} from '../components/Nueva-Cuenta-Bancaria/Step'
-import { database } from '../services'
+import { updateData } from '../services'
 import {checkSearch, formatMoney,obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
   
@@ -66,7 +66,7 @@ const NuevaCuentaBancaria=(props)=>{
                 nombre:nuevaCuenta
             }
         }
-        await database().ref().child(props.user.uid).child('CuentasBancarias').update(auxCuentaBancaria)
+        await updateData(props.user.uid, 'CuentasBancarias', auxCuentaBancaria)
         setshowSnackbar('La cuenta Bancaria se Agrego Correctamente')
         props.history.replace('/Cuentas-Bancarias')
         setLoading(false)

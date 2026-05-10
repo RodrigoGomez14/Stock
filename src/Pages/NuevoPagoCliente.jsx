@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { pushData, updateData } from '../services'
 import { checkSearch, formatMoney, obtenerFecha } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
 
@@ -36,10 +36,10 @@ const NuevoPagoCliente = (props) => {
         cheques: cheques.length ? cheques : null,
         pagado: total, total, deudaPasada: deuda, deudaActualizada: deuda - total,
       }
-      await database().ref().child(props.user.uid).child('clientes').child(nombre).child('pagos').push(pago)
-      await database().ref().child(props.user.uid).child('clientes').child(nombre).child('datos').update({ deuda: deuda - total })
+      await pushData(props.user.uid, `clientes/${nombre}/pagos`, pago)
+      await updateData(props.user.uid, `clientes/${nombre}/datos`, { deuda: deuda - total })
       if (ctaTransferencia && montoTransferencia) {
-        await database().ref().child(props.user.uid).child('CuentasBancarias').child(ctaTransferencia).child('ingresos').push({
+        await pushData(props.user.uid, `CuentasBancarias/${ctaTransferencia}/ingresos`, {
           total: parseFloat(montoTransferencia), fecha: obtenerFecha(), concepto: `Pago de cliente ${nombre}`
         })
       }

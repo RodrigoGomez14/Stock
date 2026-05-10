@@ -64,7 +64,7 @@ export const CardPedido = ({pedido,id,searchPedido,searchRemito}) =>{
                             </>
                         }
                         title={pedido.fecha}
-                        subheader={`$ ${formatMoney(pedido.total)} ${pedido.cotizacion? `(USD${formatMoney(pedido.total/pedido.cotizacion.valor)} x ${formatMoney(pedido.cotizacion.valor)} c/u)` : null}`}
+                        subheader={`$ ${formatMoney(pedido.total)}`}
                     />
                 </Paper>
                 <Collapse in={expanded} timeout='auto' unmountOnExit>

@@ -9,7 +9,7 @@ import {
 import { Alert } from '@mui/material'
 import { ArrowBack, Delete } from '@mui/icons-material'
 import { formatMoney } from '../utilities'
-import { database } from '../services'
+import { removeData } from '../services'
 import ApexCharts from 'react-apexcharts'
 
 const Producto = (props) => {
@@ -30,7 +30,7 @@ const Producto = (props) => {
   const eliminar = async () => {
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('productos').child(nombre).remove()
+      await removeData(props.user.uid, `productos/${nombre}`)
       setSnack('Producto eliminado')
       setTimeout(() => navigate('/Productos', { replace: true }), 1500)
     } catch { setLoading(false) }

@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { ChevronLeft, ChevronRight, AttachMoney, Check, Close } from '@mui/icons-material'
-import { database } from '../services'
+import { updateData } from '../services'
 import { formatMoney, obtenerFecha } from '../utilities'
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -40,7 +40,7 @@ const PagarServicios = (props) => {
         updates[`instanciasPago/${idPeriodo}/${id}/estado`] = 'pagado'
         updates[`instanciasPago/${idPeriodo}/${id}/fechaPago`] = obtenerFecha()
       })
-      await database().ref().child(props.user.uid).update(updates)
+      await updateData(props.user.uid, '', updates)
       setSnack(`${selected.length} servicio(s) pagado(s)`)
       setSelected([])
       setConfirmOpen(false)

@@ -14,7 +14,7 @@ import {
   Badge, CreditCard, Receipt, Payment
 } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { database } from '../services'
+import { removeData } from '../services'
 import { formatMoney } from '../utilities'
 
 const toStr = (v) => typeof v === 'string' ? v : JSON.stringify(v)
@@ -47,7 +47,7 @@ const Cliente = (props) => {
   const eliminar = async () => {
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('clientes').child(nombre).remove()
+      await removeData(props.user.uid, `clientes/${nombre}`)
       setSnack('Cliente eliminado')
       setTimeout(() => props.history.replace('/Clientes'), 1500)
     } catch { setLoading(false) }

@@ -14,7 +14,7 @@ import {
   Badge, CreditCard, Payment
 } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { database } from '../services'
+import { removeData } from '../services'
 import { formatMoney } from '../utilities'
 
 const toStr = (v) => typeof v === 'string' ? v : JSON.stringify(v)
@@ -48,7 +48,7 @@ const Proveedor = (props) => {
   const eliminar = async () => {
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('proveedores').child(nombre).remove()
+      await removeData(props.user.uid, `proveedores/${nombre}`)
       setSnack('Proveedor eliminado')
       setTimeout(() => navigate('/Proveedores', { replace: true }), 1500)
     } catch { setLoading(false) }

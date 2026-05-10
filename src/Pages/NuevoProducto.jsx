@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { removeData, updateData } from '../services'
 import { checkSearchProducto } from '../utilities'
 import { Step } from '../components/Nuevo-Producto/Step'
 import { Subproductos } from '../components/Nuevo-Producto/Subproductos'
@@ -46,9 +46,9 @@ const NuevoProducto = (props) => {
     const payload = { nombre, precio, cantidad, isSubproducto, cadenaDeProduccion: cadena, subproductos, matrices }
     try {
       if (isEdit) {
-        await database().ref().child(props.user.uid).child('productos').child(props.history.location.search.slice(1)).remove()
+        await removeData(props.user.uid, `productos/${props.history.location.search.slice(1)}`)
       }
-      await database().ref().child(props.user.uid).child('productos').update({ [nombre]: payload })
+      await updateData(props.user.uid, 'productos', { [nombre]: payload })
       setSnack(isEdit ? 'Producto editado' : 'Producto creado')
       setTimeout(() => props.history.replace('/Productos'), 1500)
     } catch { setLoading(false) }

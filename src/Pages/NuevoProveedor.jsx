@@ -8,7 +8,7 @@ import {
 import { Alert } from '@mui/material'
 import { Add, Delete } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { removeData, updateData } from '../services'
 import { checkSearch } from '../utilities'
 
 const NuevoProveedor = (props) => {
@@ -61,10 +61,10 @@ const NuevoProveedor = (props) => {
     const payload = { datos: { nombre: data.nombre, dni: data.dni, cuit: data.cuit, expresos: data.expreso ? [data.expreso] : [], mails: data.mails, direcciones: data.direcciones, telefonos: data.telefonos, infoExtra: data.infoExtra, deuda: data.deuda } }
     try {
       if (isEdit) {
-        await database().ref().child(props.user.uid).child('proveedores').child(props.history.location.search.slice(1)).remove()
-        await database().ref().child(props.user.uid).child('proveedores').child(data.nombre).update(payload)
+        await removeData(props.user.uid, `proveedores/${props.history.location.search.slice(1)}`)
+        await updateData(props.user.uid, `proveedores/${data.nombre}`, payload)
       } else {
-        await database().ref().child(props.user.uid).child('proveedores').update({ [data.nombre]: payload })
+        await updateData(props.user.uid, 'proveedores', { [data.nombre]: payload })
       }
       setSnack(isEdit ? 'Proveedor editado' : 'Proveedor creado')
       setTimeout(() => props.history.replace(`/Proveedor?${data.nombre}`), 1500)

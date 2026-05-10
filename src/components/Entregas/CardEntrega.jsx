@@ -88,13 +88,7 @@ export const CardEntrega = ({entrega,id,eliminarEntrega,deuda}) =>{
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                     <CardContent>
                     <List>
-                            {entrega.cotizacion?
-                                <ListItem>
-                                    <ListItemText primary={`$${entrega.cotizacion.valor}`} secondary={entrega.cotizacion.nombre}/>
-                                </ListItem>
-                                :
-                                null
-                            }
+
                             <TableContainer component={Paper}>
                                 <Table stickyHeader>
                                     <TableHead>

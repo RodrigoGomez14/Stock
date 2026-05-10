@@ -4,7 +4,7 @@ import {Layout} from './Layout'
 import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@mui/material'
 import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Nueva-Entrega/Step'
-import { database } from '../services'
+import { pushData, updateData } from '../services'
 import {obtenerFecha} from '../utilities'
 import {content} from './styles/styles'
 import {checkSearch} from '../utilities'
@@ -109,7 +109,7 @@ const NuevaEntrega=(props)=>{
             fecha:!fecha?obtenerFecha():fecha
         }
         if(props.history.location.search){
-            database().ref().child(props.user.uid).child('entregas').child(checkSearch(props.history.location.search)).update(aux)
+            updateData(props.user.uid, `entregas/${checkSearch(props.history.location.search)}`, aux)
             .then(()=>{
                     setshowSnackbar('La entrega se editÃ³ correctamente!')
                 setTimeout(() => {
@@ -121,7 +121,7 @@ const NuevaEntrega=(props)=>{
             })
         }
         else{
-            database().ref().child(props.user.uid).child('entregas').push(aux)
+            pushData(props.user.uid, 'entregas', aux)
             .then(()=>{
                 setshowSnackbar('La entrega se agregÃ³ correctamente!')
                 setTimeout(() => {

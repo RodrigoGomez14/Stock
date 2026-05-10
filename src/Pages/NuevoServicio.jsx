@@ -9,7 +9,7 @@ import {
 import { Alert } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { updateData, setData, getPushKey } from '../services'
 import { checkSearch } from '../utilities'
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -51,10 +51,10 @@ const NuevoServicio = (props) => {
     const payload = { nombre, categoria: showNewCat ? nuevaCat : categoria, nota, frecuencia, mesesPago }
     try {
       if (isEdit) {
-        await database().ref().child(props.user.uid).child('servicios').child(checkSearch(props.history.location.search)).update(payload)
+        await updateData(props.user.uid, `servicios/${checkSearch(props.history.location.search)}`, payload)
       } else {
-        const key = database().ref().child(props.user.uid).child('servicios').push().key
-        await database().ref().child(props.user.uid).child('servicios').child(key).set(payload)
+        const key = getPushKey(props.user.uid, 'servicios')
+        await setData(props.user.uid, `servicios/${key}`, payload)
       }
       setSnack(isEdit ? 'Servicio editado' : 'Servicio creado')
       setTimeout(() => props.history.replace('/Servicios'), 1500)

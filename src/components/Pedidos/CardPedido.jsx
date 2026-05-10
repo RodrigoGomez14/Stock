@@ -6,7 +6,7 @@ import { database } from '../../services'
 import {formatMoney} from '../../utilities'
 import {content} from '../../Pages/styles/styles'
 
-export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex,setUpdatePricesIndex,setShowDialogUpdatePrices,tipoDeCambio}) =>{
+export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex}) =>{
     const classes = content()
     const [anchorEl, setAnchorEl] = useState(null);
     const [facturacion,setFacturacion]=useState(false)
@@ -61,17 +61,7 @@ export const CardPedido = ({pedido,id,deuda,setShowDialogDelete,setDeleteIndex,s
                                     }}>
                                         Eliminar
                                     </MenuItem>
-                                    {parseFloat(tipoDeCambio) != parseFloat(pedido.cotizacion.valor)?
-                                        <MenuItem className={classes.deleteButton} onClick={()=>{
-                                            setAnchorEl(null)
-                                            setShowDialogUpdatePrices(true)
-                                            setUpdatePricesIndex(id)
-                                        }}>
-                                            Actualizar precios
-                                        </MenuItem>
-                                        :
-                                        null
-                                    }
+
                                 </Menu>
                             </>
                         }

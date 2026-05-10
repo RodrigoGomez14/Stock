@@ -9,7 +9,7 @@ import {
 import { Alert } from '@mui/material'
 import { Edit, Delete, Phone, Place, LocalShipping } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { database } from '../services'
+import { database, removeData } from '../services'
 import { obtenerFecha } from '../utilities'
 import { ListaDeEnvios } from '../components/Expreso/ListaDeEnvios'
 
@@ -41,7 +41,7 @@ const Expreso = (props) => {
   const eliminar = async () => {
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('expresos').child(nombre).remove()
+      await removeData(props.user.uid, `expresos/${nombre}`)
       setSnack('Transporte eliminado')
       setTimeout(() => navigate('/Expresos', { replace: true }), 1500)
     } catch { setLoading(false) }

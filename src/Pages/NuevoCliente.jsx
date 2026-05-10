@@ -8,7 +8,7 @@ import {
 import { Alert } from '@mui/material'
 import { Add, Delete } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { removeData, updateData } from '../services'
 import { checkSearch } from '../utilities'
 
 const EMPTY_CLIENT = {
@@ -75,10 +75,10 @@ const NuevoCliente = (props) => {
     try {
       if (isEdit) {
         const oldName = props.history.location.search.slice(1)
-        await database().ref().child(props.user.uid).child('clientes').child(oldName).remove()
-        await database().ref().child(props.user.uid).child('clientes').child(data.nombre).update(payload)
+        await removeData(props.user.uid, `clientes/${oldName}`)
+        await updateData(props.user.uid, `clientes/${data.nombre}`, payload)
       } else {
-        await database().ref().child(props.user.uid).child('clientes').update({ [data.nombre]: payload })
+        await updateData(props.user.uid, 'clientes', { [data.nombre]: payload })
       }
       setSnack(isEdit ? 'Cliente editado correctamente' : 'Cliente creado correctamente')
       setTimeout(() => props.history.replace(`/Cliente?${data.nombre}`), 1500)

@@ -10,7 +10,7 @@ import {
 import { Alert } from '@mui/material'
 import { Add, Delete, ExpandLess, ExpandMore, Check, Close } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { pushData, updateData } from '../services'
 import { fechaDetallada, formatMoney } from '../utilities'
 
 const emptyProd = { producto: '', cantidad: 1, precio: 0 }
@@ -43,9 +43,9 @@ const NuevoPedido = (props) => {
     try {
       const aux = { cliente, fecha: fechaDetallada(), articulos: productos, total }
       if (isEdit) {
-        await database().ref().child(props.user.uid).child('pedidos').child(props.history.location.search.slice(1)).update(aux)
+        await updateData(props.user.uid, `pedidos/${props.history.location.search.slice(1)}`, aux)
       } else {
-        await database().ref().child(props.user.uid).child('pedidos').push(aux)
+        await pushData(props.user.uid, 'pedidos', aux)
       }
       setSnack(isEdit ? 'Pedido editado' : 'Pedido creado')
       setTimeout(() => props.history.replace('/Pedidos'), 1500)

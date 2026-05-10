@@ -4,7 +4,7 @@ import {Layout} from './Layout'
 import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
 import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Recibir-Entrega/Step'
-import { database } from '../services'
+import { pushData, updateData, removeData, getPushKey } from '../services'
 import {formatMoney} from '../utilities'
 import { Navigate } from 'react-router-dom'
 import {obtenerFecha} from '../utilities'
@@ -201,13 +201,13 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
 
 
         // AGREGA LA ENTREGA A DB PARA OBTENER ID
-        let idLink = database().ref().child(props.user.uid).child('proveedores').child(props.entregas[id].proveedor).child('entregas').push()
+        const idLinkKey = getPushKey(props.user.uid, `proveedores/${props.entregas[id].proveedor}/entregas`)
     
         // AGREGA A LISTA DE COMPRAS
-        agregarAListaDeCompras(aux,idLink.key)
+        agregarAListaDeCompras(aux,idLinkKey)
 
         // MODELA Y AGREGA EL PAGO AL HISTORIAL
-        agregarPagoAlHistorial(aux.metodoDePago,idLink.key,id)
+        agregarPagoAlHistorial(aux.metodoDePago,idLinkKey,id)
         
         // MODELA Y AGREGA LA TRANSFERENCIA A LOS MOVIMIENTOS BANCARIOS
         if(aux.metodoDePago.cuentaTransferencia){
@@ -218,11 +218,11 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
         setshowSnackbar('La entrega se agregÃ³ correctamente!')
 
         // ACTUALIZA DB ENVIANDO TODA LA INFO
-        idLink.update(aux)
+        updateData(props.user.uid, `proveedores/${props.entregas[id].proveedor}/entregas/${idLinkKey}`, aux)
             .then(()=>{
                 setTimeout(() => {
                     props.history.replace('/Entregas')
-                    database().ref().child(props.user.uid).child('entregas').child(id).remove().then(()=>{
+                    removeData(props.user.uid, `entregas/${id}`).then(()=>{
                     })
                     .catch(()=>{
                         setLoading(false)
@@ -247,7 +247,7 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
         // RECORRE LOS ARTICULOS DEL PEDIDO
         aux.map(async (articulo)=>{
                 const nuevaCantidad = parseInt(props.productos[articulo.producto].cantidad)+parseInt(articulo.cantidad)
-                await database().ref().child(props.user.uid).child('productos').child(articulo.producto).update({cantidad:nuevaCantidad})
+                await updateData(props.user.uid, `productos/${articulo.producto}`, {cantidad:nuevaCantidad})
                 //await database().ref().child(props.user.uid).child('productos').child(articulo.producto).child('historialDeStock').push({cantidad:nuevaCantidad,fecha:obtenerFecha()})
         })
     }
@@ -257,7 +257,7 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
             // RECORRE LA LISTA DE CHEQUES 
             cheques.map(cheque=>{
                 // ACTUALIZA EL CHEQUE EN DB
-                database().ref().child(props.user.uid).child('cheques').child(cheque).update({
+                updateData(props.user.uid, `cheques/${cheque}`, {
                     destinatario:props.entregas[props.history.location.search.slice(1)].proveedor,
                     egreso:obtenerFecha()
                 })
@@ -284,7 +284,7 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
                     valor:cheque.valor
                 }
                 // GUARDA EN LA LISTA DE CHQUES CADA UNO
-                database().ref().child(props.user.uid).child('chequesPersonales').push(auxCheque)
+                pushData(props.user.uid, 'chequesPersonales', auxCheque)
             })
         }
         // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
@@ -294,20 +294,20 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
         const id = props.history.location.search.slice(1)
         const deudaPasada = props.proveedores[props.entregas[id].proveedor].datos.deuda
         if(totalPedido>totalRecibido){
-            database().ref().child(props.user.uid).child('proveedores').child(props.entregas[id].proveedor).child('datos').update({deuda:(deudaPasada)+(totalPedido-totalRecibido)})
+            updateData(props.user.uid, `proveedores/${props.entregas[id].proveedor}/datos`, {deuda:(deudaPasada)+(totalPedido-totalRecibido)})
         }
         else{
-            database().ref().child(props.user.uid).child('proveedores').child(props.entregas[id].proveedor).child('datos').update({deuda:(deudaPasada)-(totalRecibido-totalPedido)})
+            updateData(props.user.uid, `proveedores/${props.entregas[id].proveedor}/datos`, {deuda:(deudaPasada)-(totalRecibido-totalPedido)})
         }
     }
     const agregarPagoAlHistorial = (pago,idLink,idEntrega) =>{
         let aux= {...pago,idEntrega:idLink}
-        database().ref().child(props.user.uid).child('proveedores').child(props.entregas[idEntrega].proveedor).child('pagos').push(aux)
+        pushData(props.user.uid, `proveedores/${props.entregas[idEntrega].proveedor}/pagos`, aux)
     }
     const agregarAListaDeCompras = (entrega,idLink) =>{
         let aux=entrega
         aux['idEntrega']=idLink
-        database().ref().child(props.user.uid).child('compras').push(aux)
+        pushData(props.user.uid, 'compras', aux)
     }
     const guardarTransferenciaBancaria = async (cuenta,total) =>{
         const auxDeposito ={
@@ -315,7 +315,7 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
             tipo:'transferencia',
             total:total
         }
-        await database().ref().child(props.user.uid).child('CuentasBancarias').child(cuenta).child('egresos').push(auxDeposito)
+        await pushData(props.user.uid, `CuentasBancarias/${cuenta}/egresos`, auxDeposito)
     }
 
     const addCheque = key =>{
@@ -398,4 +398,3 @@ import { AttachMoney, LocalAtm } from '@mui/icons-material';
     )
 }
 export default withStore(RecibirEntrega)
-

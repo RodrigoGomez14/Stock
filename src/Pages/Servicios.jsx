@@ -10,7 +10,7 @@ import {
 import { Alert } from '@mui/material'
 import { Add, ChevronLeft, ChevronRight, Edit, Delete, Receipt, Check, Search, Close } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { database } from '../services'
+import { setData, removeData } from '../services'
 import { formatMoney, obtenerFecha } from '../utilities'
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -68,7 +68,7 @@ const Servicios = (props) => {
     if (!recibirMonto || !recibirVto) return
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('instanciasPago').child(idPeriodo).child(recibirId).set({
+      await setData(props.user.uid, `instanciasPago/${idPeriodo}/${recibirId}`, {
         monto: parseFloat(recibirMonto), vencimiento: recibirVto, estado: 'pendiente', fechaRegistro: obtenerFecha(),
       })
       setSnack('Boleta registrada')
@@ -86,7 +86,7 @@ const Servicios = (props) => {
   const eliminar = async (id) => {
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('servicios').child(id).remove()
+      await removeData(props.user.uid, `servicios/${id}`)
       setSnack('Servicio eliminado')
     } catch { }
     setLoading(false)

@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { BaseWizard } from '../components/BaseWizard'
-import { database } from '../services'
+import { pushData, updateData } from '../services'
 import { checkSearch, formatMoney, obtenerFecha } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
 import { InlineChequePersonalForm } from '../components/Cheques/InlineChequePersonalForm'
@@ -39,10 +39,10 @@ const NuevoPagoProveedor = (props) => {
         cheques: cheques.length ? cheques : null, chequesPersonales: cheqPers.length ? cheqPers : null,
         pagado: total, total, deudaPasada: deuda, deudaActualizada: deuda - total,
       }
-      await database().ref().child(props.user.uid).child('proveedores').child(nombre).child('pagos').push(pago)
-      await database().ref().child(props.user.uid).child('proveedores').child(nombre).child('datos').update({ deuda: deuda - total })
+      await pushData(props.user.uid, `proveedores/${nombre}/pagos`, pago)
+      await updateData(props.user.uid, `proveedores/${nombre}/datos`, { deuda: deuda - total })
       if (ctaTransferencia && montoTransferencia) {
-        await database().ref().child(props.user.uid).child('CuentasBancarias').child(ctaTransferencia).child('egresos').push({
+        await pushData(props.user.uid, `CuentasBancarias/${ctaTransferencia}/egresos`, {
           total: parseFloat(montoTransferencia), fecha: obtenerFecha(), concepto: `Pago a proveedor ${nombre}`
         })
       }

@@ -6,7 +6,7 @@ import { Search, Add } from '@mui/icons-material'
 import { Alert } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { CardProducto } from '../components/Productos/CardProducto'
-import { database } from '../services'
+import { removeData } from '../services'
 
 const Productos = (props) => {
   const [search, setSearch] = useState('')
@@ -24,7 +24,7 @@ const Productos = (props) => {
   const eliminar = async (name) => {
     setLoading(true)
     try {
-      await database().ref().child(props.user.uid).child('productos').child(name).remove()
+      await removeData(props.user.uid, `productos/${name}`)
       setSnack('Producto eliminado')
     } catch { }
     setLoading(false)
