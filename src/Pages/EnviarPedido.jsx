@@ -50,6 +50,8 @@ const EnviarPedido = (props) => {
   const totalPagado = (parseFloat(efectivo || 0) || 0) + (parseFloat(montoTransferencia || 0) || 0) + (totalCheques || 0)
   const totalAdeudado = (orderTotal + totalEnvio) - totalPagado
 
+  const resetPago = () => { setEfectivo(''); setCtaTransferencia(''); setMontoTransferencia(''); setCheques([]); setTotalCheques(0) }
+
   const guardar = async () => {
     setLoading(true)
     const aux = {
@@ -265,58 +267,90 @@ const EnviarPedido = (props) => {
     </Box>,
 
     <Box>
-      <Typography variant="subtitle1" fontWeight={600} gutterBottom sx={{ mb: 2 }}>Método de pago</Typography>
-
-      <Grid container spacing={1.5} sx={{ mb: 2 }}>
+      {/* TOTALS BAR — 4 cards compactos */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
         {[
-          { key: 'noPagar', icon: '⏭️', label: 'No pagar', desc: 'Todo a deuda' },
-          { key: 'efectivo', icon: '💵', label: 'Efectivo', desc: 'Pago en efectivo' },
-          { key: 'transferencia', icon: '🏦', label: 'Transferencia', desc: 'Transferencia bancaria' },
-          { key: 'cheques', icon: '📄', label: 'Cheques', desc: 'Cheques a cobrar' },
-        ].map((opt) => (
-          <Grid item xs={6} key={opt.key}>
-            <Paper
-              variant="outlined"
-              onClick={() => {
-                setSelectedPago(opt.key)
-                if (opt.key === 'noPagar') { setEfectivo(''); setCtaTransferencia(''); setMontoTransferencia(''); setCheques([]); setTotalCheques(0) }
-              }}
-              sx={{
-                p: 1.5, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
-                borderColor: selectedPago === opt.key ? 'primary.main' : 'divider',
-                bgcolor: selectedPago === opt.key ? 'action.selected' : 'transparent',
-                transition: '0.15s', '&:hover': { borderColor: 'primary.light' },
-              }}
-            >
-              <Typography variant="h5" sx={{ mb: 0.3 }}>{opt.icon}</Typography>
-              <Typography variant="body2" fontWeight={600}>{opt.label}</Typography>
-              <Typography variant="caption" color="text.secondary">{opt.desc}</Typography>
+          { label: 'Efectivo', value: efectivo || 0, color: 'text.primary' },
+          { label: 'Transferencia', value: montoTransferencia || 0, color: 'text.primary' },
+          { label: 'Cheques', value: totalCheques, color: 'text.primary' },
+          { label: 'Total pagado', value: totalPagado, color: 'primary.main', big: true,
+            extra: totalAdeudado > 0 ? { text: `+ $${formatMoney(totalAdeudado)} a deuda`, color: 'error.main' }
+                 : totalPagado > 0 ? { text: '✓ Pagado completo', color: 'success.main' }
+                 : null },
+        ].map((item) => (
+          <Grid item xs={3} key={item.label}>
+            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.3 }}>{item.label}</Typography>
+              <Typography variant={item.big ? 'h4' : 'h5'} fontWeight={800} color={item.color}>
+                $ {formatMoney(item.value)}
+              </Typography>
+              {item.extra && (
+                <Typography variant="caption" color={item.extra.color} fontWeight={600}>{item.extra.text}</Typography>
+              )}
             </Paper>
           </Grid>
         ))}
       </Grid>
 
+      {/* PAYMENT METHODS — selector horizontal */}
+      <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{ color: 'text.secondary', letterSpacing: 0.5 }}>
+        SELECCIONAR MÉTODO DE PAGO
+      </Typography>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        {[
+          { key: 'noPagar', label: 'No pagar', desc: 'Pasa todo a deuda', icon: '⏭️' },
+          { key: 'efectivo', label: 'Efectivo', desc: 'Dinero en efectivo', icon: '💵' },
+          { key: 'transferencia', label: 'Transferencia', desc: 'Transferencia bancaria', icon: '🏦' },
+          { key: 'cheques', label: 'Cheques', desc: 'Cheques de terceros', icon: '📄' },
+        ].map((opt) => (
+          <Grid item xs={3} key={opt.key}>
+            <Paper
+              variant="outlined"
+              onClick={() => {
+                setSelectedPago(opt.key)
+                if (opt.key === 'noPagar') resetPago()
+              }}
+              sx={{
+                p: 2, borderRadius: 2, cursor: 'pointer', userSelect: 'none',
+                borderColor: selectedPago === opt.key ? 'primary.main' : 'divider',
+                borderWidth: selectedPago === opt.key ? 2 : 1,
+                bgcolor: selectedPago === opt.key ? 'action.selected' : 'transparent',
+                transition: 'all 0.15s',
+                '&:hover': { borderColor: 'primary.light', bgcolor: 'action.hover' },
+              }}
+            >
+              <Typography variant="h4" sx={{ mb: 0.5, textAlign: 'center' }}>{opt.icon}</Typography>
+              <Typography variant="body2" fontWeight={600} textAlign="center">{opt.label}</Typography>
+              <Typography variant="caption" color="text.secondary" textAlign="center" display="block">{opt.desc}</Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* FORM */}
       {selectedPago === 'efectivo' && (
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <TextField fullWidth label="Monto en efectivo ($)" type="number" value={efectivo}
-            onChange={(e) => setEfectivo(e.target.value)} />
+        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} gutterBottom>Monto en efectivo</Typography>
+          <TextField fullWidth label="$" type="number" value={efectivo}
+            onChange={(e) => setEfectivo(e.target.value)} autoFocus sx={{ maxWidth: 400 }} />
         </Paper>
       )}
 
       {selectedPago === 'transferencia' && (
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} gutterBottom>Transferencia bancaria</Typography>
+          <Grid container spacing={2} sx={{ maxWidth: 700 }}>
+            <Grid item xs={12} sm={6}>
               <Autocomplete
                 value={ctaTransferencia}
                 options={props.CuentasBancarias ? Object.keys(props.CuentasBancarias) : []}
                 getOptionLabel={(o) => o}
                 onChange={(_, v) => setCtaTransferencia(v || '')}
                 onInputChange={(_, v) => setCtaTransferencia(v || '')}
-                renderInput={(p) => <TextField {...p} label="Cuenta destino" fullWidth size="small" />}
+                renderInput={(p) => <TextField {...p} label="Cuenta destino" fullWidth />}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <TextField fullWidth label="Monto ($)" type="number" value={montoTransferencia}
                 onChange={(e) => setMontoTransferencia(e.target.value)} />
             </Grid>
@@ -325,52 +359,16 @@ const EnviarPedido = (props) => {
       )}
 
       {selectedPago === 'cheques' && (
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} gutterBottom>Cheques de terceros</Typography>
           <InlineChequeForm show={showChequeForm} setShow={setShowChequeForm}
             datos={cheques} setdatos={setCheques} total={totalCheques} settotal={setTotalCheques}
             cliente={clienteNombre} editIndex={-1} seteditIndex={() => {}} />
           {!showChequeForm && (
-            <Button variant="contained" size="small" onClick={() => setShowChequeForm(true)}>Agregar cheque</Button>
+            <Button variant="contained" size="small" onClick={() => setShowChequeForm(true)} sx={{ mt: 1 }}>+ Agregar cheque</Button>
           )}
         </Paper>
       )}
-
-      {/* Resumen de pagos */}
-      <Paper variant="outlined" sx={{ borderRadius: 2, mt: 3, overflow: 'hidden' }}>
-        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="subtitle2" fontWeight={600}>Resumen de pagos</Typography>
-        </Box>
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-            <Typography variant="body2" color="text.secondary">Efectivo</Typography>
-            <Typography variant="body2" fontWeight={500}>$ {formatMoney(efectivo || 0)}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-            <Typography variant="body2" color="text.secondary">Transferencia</Typography>
-            <Typography variant="body2" fontWeight={500}>$ {formatMoney(montoTransferencia || 0)}</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-            <Typography variant="body2" color="text.secondary">Cheques</Typography>
-            <Typography variant="body2" fontWeight={500}>$ {formatMoney(totalCheques)}</Typography>
-          </Box>
-          <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mt: 1, pt: 1, display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2" fontWeight={700}>Total pagado</Typography>
-            <Typography variant="body1" fontWeight={800} color="primary.main">
-              $ {formatMoney(totalPagado)}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 0.5 }}>
-            <Typography variant="caption" color="text.secondary">Total del pedido</Typography>
-            <Typography variant="caption" fontWeight={600}>$ {formatMoney(orderTotal + totalEnvio)}</Typography>
-          </Box>
-          {totalAdeudado > 0 && (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 0.3 }}>
-              <Typography variant="caption" color="error.main" fontWeight={600}>Restante a deuda</Typography>
-              <Typography variant="caption" color="error.main" fontWeight={700}>$ {formatMoney(totalAdeudado)}</Typography>
-            </Box>
-          )}
-        </Box>
-      </Paper>
     </Box>,
 
     <Box>
