@@ -1,305 +1,108 @@
-﻿import React,{useState, useEffect} from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import {Chip,Paper,ListItem,Card,Button,StepContent,Backdrop,StepLabel,Grid,Step,Stepper,Link as LinkComponent,Snackbar,CircularProgress} from '@mui/material'
-import Alert from '@mui/material/Alert';
-import {Step as StepComponent} from '../components/Shared/FormStep'
-import {FormDetalles} from '../components/Shared/FormDetalles'
-import { ContactMail, LocalShipping, Mail, PeopleAlt, Phone, Room } from '@mui/icons-material';
-import {checkSearch} from '../utilities'
+import { Layout } from './Layout'
+import {
+  Box, TextField, Button, Grid, Typography, Paper,
+  Backdrop, CircularProgress, Snackbar, IconButton
+} from '@mui/material'
+import { Alert } from '@mui/material'
+import { Add, Delete } from '@mui/icons-material'
+import { BaseWizard } from '../components/BaseWizard'
 import { database } from '../services'
-import {content} from './styles/styles'
+import { checkSearch } from '../utilities'
 
-const NuevoExpreso=(props)=>{
-    const classes = content()
-    const [nombre,setnombre]=useState(undefined)
-    const [dni,setdni]=useState(undefined)
-    const [cuit,setcuit]=useState(undefined)
-    const [mails,setmails]=useState([])
-    const [direcciones,setdirecciones]=useState([])  
-    const [telefonos,settelefonos]=useState([])
-    const [infoExtra,setinfoExtra]=useState([])
-    const [activeStep, setActiveStep] = useState(0);
-    const [showSnackbar, setshowSnackbar] = useState('');
-    const [loading, setLoading] = useState(false);
-    const steps = getSteps();
+const NuevoExpreso = (props) => {
+  const [data, setData] = useState({
+    nombre: '', telefono: '', direccion: '',
+    telefonos: [], mails: [], infoExtra: [],
+  })
+  const [activeStep, setActiveStep] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [snack, setSnack] = useState('')
+  const isEdit = !!props.history.location.search
 
-    // STEPPER NAVIGATION
-    const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    }
-    function getSteps() {
-        return ['Detalles', 'Direcciones', 'Telefonos','Mails','Informacion Extra'];
-    }
-    function getStepContent(step) {
-      switch (step) {
-        case 0:
-          return (
-                <FormDetalles
-                    nombre={nombre} 
-                    setnombre={setnombre}
-                    dni={dni} 
-                    setdni={setdni}
-                    cuit={cuit} 
-                    setcuit={setcuit}
-                />
-          );
-        case 1:
-          return (
-            <StepComponent 
-                datos={direcciones} 
-                setDatos={setdirecciones}
-                tipoDeDato='Direcciones'
-            /> 
-          );
-        case 2:
-          return (
-            <StepComponent
-                datos={telefonos} 
-                setDatos={settelefonos}
-                tipoDeDato='Telefonos'
-            />
-          );
-          case 3:
-              return (
-                <StepComponent
-                  datos={mails} 
-                  setDatos={setmails}
-                  tipoDeDato='Mails'
-                />
-            );
-            case 4:
-                return (
-                <StepComponent
-                    datos={infoExtra} 
-                    setDatos={setinfoExtra}
-                    tipoDeDato='Info Extra'
-                />
-            );
+  useEffect(() => {
+    if (isEdit) {
+      const e = props.expresos?.[checkSearch(props.history.location.search)]
+      const d = e?.datos
+      if (d) {
+        setData({
+          nombre: d.nombre || '', telefono: (d.telefono || [''])[0], direccion: (d.direccion || [''])[0],
+          telefonos: d.telefonos || [], mails: d.mails || [],
+          infoExtra: d.infoExtra || [],
+        })
       }
     }
-    function getStepLabel(label,index) {
-        switch (index) {
-            case 0:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<PeopleAlt/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 1:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<Room/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 2:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<Phone/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 3:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<Mail/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 4:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<LocalShipping/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 5:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<ContactMail/>} 
-                            label={label}  
-                            onClick={()=>{if(nombre){setActiveStep(index)}}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-        }
-    }
+  }, [])
 
-    //FUNCTIONS
-    const guardarDatos = () =>{
-        setLoading(true)
-        let aux={[nombre]:{
-            datos:{
-                nombre:nombre,
-                dni:dni?dni:null,
-                cuit:cuit?cuit:null,
-                direcciones:direcciones?direcciones:null,
-                telefonos:telefonos?telefonos:null,
-                mails:mails?mails:null,
-                infoExtra:infoExtra?infoExtra:null,
-            },
-        }}
-        if(props.history.location.search){
-            let newAux = props.expresos[checkSearch(props.history.location.search)]
-            newAux['datos']=aux[nombre].datos
-            console.log(newAux)
-            // COPIA PEDIDOS E HISTORIAL
-            database().ref().child(props.user.uid).child('expresos').child(props.history.location.search.slice(1)).remove()
-            .then(()=>{
-                database().ref().child(props.user.uid).child('expresos').child(nombre).update(newAux)
-                .then(()=>{
-                    setshowSnackbar(props.history.location.search?'El Expreso Se Edito Correctamente!':'El Expreso Se Agrego Correctamente!')
-                        setTimeout(() => {
-                            setLoading(false)
-                            props.history.replace(`/Expreso?${nombre}`)
-                        }, 2000);
-                })
-                .catch(()=>{
-                    setLoading(false)
-                })
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-        }
-        else{
-            database().ref().child(props.user.uid).child('expresos').update(aux)
-                .then(()=>{
-                    setshowSnackbar(props.history.location.search?'El Expreso Se Edito Correctamente!':'El Expreso Se Agrego Correctamente!')
-                    setTimeout(() => {
-                        props.history.replace(`/Expreso?${nombre}`)
-                    }, 2000);
-                })
-                .catch(()=>{
-                    setLoading(false)
-                })
-        }
-        }
+  const set = (f) => (v) => setData((prev) => ({ ...prev, [f]: v }))
+  const addItem = (f) => setData((prev) => ({ ...prev, [f]: [...prev[f], ''] }))
+  const updItem = (f, i) => (e) => {
+    const copy = [...data[f]]; copy[i] = e.target.value
+    setData((prev) => ({ ...prev, [f]: copy }))
+  }
+  const rmItem = (f, i) => () => setData((prev) => ({ ...prev, [f]: prev[f].filter((_, j) => j !== i) }))
 
-    // VALIDACION EDITAR EXPRESO
-    useEffect(()=>{
-        if(props.history.location.search){
-            const {nombre,dni,cuit,mails,direcciones,telefonos,infoExtra} = props.expresos[checkSearch(props.history.location.search)].datos
-            nombre&&setnombre(nombre)
-            dni&&setdni(dni)
-            cuit&&setcuit(cuit)
-            mails&&setmails(mails)
-            direcciones&&setdirecciones(direcciones)
-            telefonos&&settelefonos(telefonos)
-            infoExtra&&setinfoExtra(infoExtra)
-        }
-    },[])
-    return(
-        <Layout history={props.history} page={props.history.location.search?'Editar Expreso':'Nuevo Expreso'} user={props.user.uid} blockGoBack={true}>
-            {/* CONTENT */}
-            <Paper className={classes.content}>
-                {/* STEPPER */}
-                <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
-                    {steps.map((label,index)=>(
-                        <Step>
-                            {getStepLabel(label,index)}
-                            <StepContent>
-                                <Grid container xs={12} justify='center' spacing={3}>
-                                    {getStepContent(index)}
-                                    <Grid container item xs={12} justify='center' spacing={3}>
-                                        <Grid item>
-                                            <Button
-                                                disabled={activeStep===0}
-                                                onClick={handleBack}
-                                            >
-                                                Volver
-                                            </Button>
-                                        </Grid>
-                                        <Grid item>
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                disabled={!nombre}
-                                                onClick={activeStep === steps.length - 1 ? guardarDatos : handleNext}
-                                            >
-                                                {activeStep === steps.length - 1 ? `${props.history.location.search?'Guardar Edicion':'Guardar Expreso'}` : 'Siguiente'}
-                                            </Button>
-                                        </Grid>
-                                        {activeStep !== steps.length -1?
-                                            <Grid item>
-                                                <Button
-                                                    variant="outlined"
-                                                    color="light"
-                                                    disabled={!nombre}
-                                                    onClick={()=>{setActiveStep(steps.length)}}
-                                                    className={classes.button}
-                                                >
-                                                    Finalizar
-                                                </Button>
-                                            </Grid>
-                                            :
-                                            null
-                                        }
-                                    </Grid>
-                                </Grid>
-                            </StepContent>
-                        </Step>
-                    ))}
-                </Stepper>
+  const listEditor = (items, label, field) => (
+    <Box>
+      {items.map((item, i) => (
+        <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+          <TextField fullWidth size="small" label={`${label} ${i + 1}`} value={item} onChange={updItem(field, i)} />
+          <IconButton color="error" onClick={rmItem(field, i)}><Delete /></IconButton>
+        </Box>
+      ))}
+      <Button size="small" startIcon={<Add />} onClick={() => addItem(field)}>Agregar {label.toLowerCase()}</Button>
+    </Box>
+  )
 
-                {/* PREVIEW */}
-                {activeStep === steps.length && (
-                    <Grid container justify='center'>
-                        <Paper elevation={6}>
-                            <Button  onClick={handleBack}>
-                                Atras     
-                            </Button>
-                            <Button variant='contained'  onClick={guardarDatos} className={classes.button}>
-                                {props.history.location.search?'Guardar Edicion':'Guardar Expreso'}     
-                            </Button>
-                        </Paper>
-                    </Grid>
-                )}
+  const guardar = async () => {
+    setLoading(true)
+    const payload = { datos: { nombre: data.nombre, telefono: [data.telefono], direccion: [data.direccion], telefonos: data.telefonos, mails: data.mails, infoExtra: data.infoExtra } }
+    try {
+      if (isEdit) {
+        await database().ref().child(props.user.uid).child('expresos').child(props.history.location.search.slice(1)).remove()
+      }
+      await database().ref().child(props.user.uid).child('expresos').update({ [data.nombre]: payload })
+      setSnack(isEdit ? 'Transporte editado' : 'Transporte creado')
+      setTimeout(() => props.history.replace(`/Expreso?${data.nombre}`), 1500)
+    } catch { setLoading(false) }
+  }
 
-            </Paper>
-            {/* BACKDROP & SNACKBAR */}
-            <Backdrop className={classes.backdrop} open={loading}>
-                <CircularProgress color="inherit" />
-                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                    <Alert severity="success" variant='filled'>
-                        {showSnackbar}
-                    </Alert>
-                </Snackbar>
-            </Backdrop>
-        </Layout>
-    )
+  const steps = [
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Datos del transporte</Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12}><TextField fullWidth label="Nombre *" value={data.nombre} onChange={(e) => set('nombre')(e.target.value)} /></Grid>
+        <Grid item xs={6}><TextField fullWidth label="Teléfono" value={data.telefono} onChange={(e) => set('telefono')(e.target.value)} /></Grid>
+        <Grid item xs={6}><TextField fullWidth label="Dirección" value={data.direccion} onChange={(e) => set('direccion')(e.target.value)} /></Grid>
+      </Grid>
+    </Box>,
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Teléfonos adicionales</Typography>
+      {listEditor(data.telefonos, 'Teléfono', 'telefonos')}
+      <Box sx={{ mt: 3 }}><Typography variant="subtitle1" fontWeight={600} gutterBottom>Emails</Typography>{listEditor(data.mails, 'Email', 'mails')}</Box>
+    </Box>,
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Info adicional</Typography>
+      {listEditor(data.infoExtra, 'Nota', 'infoExtra')}
+    </Box>,
+    <Box>
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>Confirmar</Typography>
+      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+        <Typography><strong>Nombre:</strong> {data.nombre}</Typography>
+        <Typography><strong>Teléfono:</strong> {data.telefono || '—'}</Typography>
+        <Typography><strong>Dirección:</strong> {data.direccion || '—'}</Typography>
+      </Paper>
+    </Box>,
+  ]
+
+  return (
+    <Layout history={props.history} page={isEdit ? 'Editar Transporte' : 'Nuevo Transporte'} user={props.user?.uid} blockGoBack={true}>
+      <BaseWizard stepLabels={['Datos', 'Contacto', 'Adicional', 'Confirmar']} steps={steps} activeStep={activeStep} onNext={() => setActiveStep((s) => s + 1)} onBack={() => setActiveStep((s) => s - 1)} onFinish={guardar} disabled={!data.nombre} finishLabel={isEdit ? 'Guardar' : 'Crear Transporte'} />
+      <Backdrop open={loading} sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}><CircularProgress color="inherit" /></Backdrop>
+      <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}><Alert severity="success">{snack}</Alert></Snackbar>
+    </Layout>
+  )
 }
+
 export default withStore(NuevoExpreso)
