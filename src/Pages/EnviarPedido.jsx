@@ -3,13 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Box, Grid, Typography, Paper, Button, TextField, Chip,
+  Box, Grid, Typography, Paper, Button, TextField,
   Backdrop, CircularProgress, Snackbar, Autocomplete,
-  FormControlLabel, Switch, Table, TableHead, TableBody, TableRow, TableCell,
-  Collapse
+  Table, TableHead, TableBody, TableRow, TableCell
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { Check, Close, AttachMoney } from '@mui/icons-material'
+
 import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData, removeData, setData, getPushKey } from '../services'
 import { formatMoney, obtenerFecha } from '../utilities'
@@ -29,7 +28,7 @@ const EnviarPedido = (props) => {
   const facturacion = location.state?.facturacion || false
   const clienteNombre = pedido?.cliente || location.state?.nombre || ''
   const clienteData = props.clientes?.[clienteNombre]
-  const expresosList = clienteData?.datos?.expresos || []
+  const allExpresos = props.expresos ? Object.keys(props.expresos) : []
 
   // Envío
   const [usarExpreso, setUsarExpreso] = useState(false)
@@ -188,20 +187,51 @@ const EnviarPedido = (props) => {
 
     <Box>
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>Método de envío</Typography>
-      <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-        <FormControlLabel
-          control={<Switch checked={usarExpreso} onChange={(e) => { setUsarExpreso(e.target.checked); if (!e.target.checked) { setExpreso(''); setRemito(''); setPrecioEnvio(0) } }} />}
-          label="Enviar con expreso"
-        />
-        {usarExpreso && (
-          <Grid container spacing={2} sx={{ mt: 1 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <Paper
+            variant="outlined"
+            onClick={() => { setUsarExpreso(false); setExpreso(''); setRemito(''); setPrecioEnvio(0) }}
+            sx={{
+              p: 2, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
+              borderColor: !usarExpreso ? 'primary.main' : 'divider',
+              bgcolor: !usarExpreso ? 'action.selected' : 'transparent',
+              transition: '0.15s',
+              '&:hover': { borderColor: 'primary.light' },
+            }}
+          >
+            <Typography variant="body2" fontWeight={600}>🚚 Particular</Typography>
+            <Typography variant="caption" color="text.secondary">El cliente retira o coordina</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={6}>
+          <Paper
+            variant="outlined"
+            onClick={() => setUsarExpreso(true)}
+            sx={{
+              p: 2, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
+              borderColor: usarExpreso ? 'primary.main' : 'divider',
+              bgcolor: usarExpreso ? 'action.selected' : 'transparent',
+              transition: '0.15s',
+              '&:hover': { borderColor: 'primary.light' },
+            }}
+          >
+            <Typography variant="body2" fontWeight={600}>📦 Expreso</Typography>
+            <Typography variant="caption" color="text.secondary">Envío por transportista</Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+      {usarExpreso && (
+        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mt: 2 }}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <Autocomplete
-                freeSolo value={expreso}
-                options={expresosList}
+                value={expreso}
+                options={allExpresos}
+                getOptionLabel={(o) => o}
                 onChange={(_, v) => setExpreso(v || '')}
                 onInputChange={(_, v) => setExpreso(v || '')}
-                renderInput={(p) => <TextField {...p} label="Expreso" fullWidth size="small" />}
+                renderInput={(p) => <TextField {...p} label="Seleccionar expreso" fullWidth size="small" />}
               />
             </Grid>
             <Grid item xs={6}>
@@ -212,8 +242,8 @@ const EnviarPedido = (props) => {
                 onChange={(e) => setPrecioEnvio(parseFloat(e.target.value) || 0)} />
             </Grid>
           </Grid>
-        )}
-      </Paper>
+        </Paper>
+      )}
     </Box>,
 
     <Box>
