@@ -194,66 +194,65 @@ const Proveedor = (props) => {
             </Grid>
 
             {/* Entregas */}
-            <Paper sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-              <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="subtitle1" fontWeight={700}>Entregas recibidas</Typography>
-              </Box>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" fontWeight={700} gutterBottom>Entregas recibidas</Typography>
               {entregas.length > 0 ? (
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Fecha</TableCell>
-                      <TableCell>Productos</TableCell>
-                      <TableCell align="right">Total</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {entregas.slice(0, 5).map((e, i) => (
-                      <TableRow key={i} hover>
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>{e.fecha}</TableCell>
-                        <TableCell>{e.articulos?.map(a => `${a.cantidad}x ${a.producto || a.nombre}`).join(', ') || '—'}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney(e.total || 0)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {entregas.slice(0, 5).map((e, i) => (
+                    <Paper key={i} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                      <Box sx={{ px: 2, py: 1.5, bgcolor: 'action.selected', borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" color="text.secondary">{e.fecha}</Typography>
+                        <Typography variant="h6" fontWeight={800} color="error.main">$ {formatMoney(e.total || 0)}</Typography>
+                      </Box>
+                      <Box sx={{ px: 2, py: 1.5 }}>
+                        {e.articulos?.map((art, j) => {
+                          const prodData = props.productos?.[art.producto || art.nombre]
+                          return (
+                            <Box key={j} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5 }}>
+                              {prodData?.imagen ? (
+                                <Box component="img" src={prodData.imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover', flexShrink: 0 }} />
+                              ) : null}
+                              <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography variant="body2" fontWeight={600}>{art.producto || art.nombre}</Typography>
+                                <Typography variant="caption" color="text.disabled">{art.cantidad}u × $ {formatMoney(art.precio || 0)}</Typography>
+                              </Box>
+                              <Typography variant="body2" fontWeight={700}>$ {formatMoney((art.cantidad || 0) * (art.precio || 0))}</Typography>
+                            </Box>
+                          )
+                        })}
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
               ) : (
-                <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin entregas</Typography></Box>
+                <Typography color="text.secondary" sx={{ textAlign: 'center', py: 3 }}>Sin entregas</Typography>
               )}
-            </Paper>
+            </Box>
 
             {/* Pagos */}
-            <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-                <Typography variant="subtitle1" fontWeight={700}>Pagos realizados</Typography>
-              </Box>
+            <Box>
+              <Typography variant="subtitle1" fontWeight={700} gutterBottom>Pagos realizados</Typography>
               {pagos.length > 0 ? (
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Fecha</TableCell>
-                      <TableCell>Método</TableCell>
-                      <TableCell align="right">Monto</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {pagos.slice(0, 5).map((p, i) => (
-                      <TableRow key={i} hover>
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>{p.fecha}</TableCell>
-                        <TableCell>
-                          {p.efectivo && <Chip label="Efectivo" size="small" variant="outlined" sx={{ mr: 0.3 }} />}
-                          {p.totalTransferencia && <Chip label="Transf." size="small" variant="outlined" sx={{ mr: 0.3 }} />}
-                          {p.cheques?.length > 0 && <Chip label={`${p.cheques.length} ch.`} size="small" variant="outlined" />}
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney(p.total || p.monto || 0)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {pagos.map((p, i) => (
+                    <Paper key={i} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                      <Box sx={{ px: 2, py: 1.5, bgcolor: 'action.selected', borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" color="text.secondary">{p.fecha}</Typography>
+                        <Typography variant="h6" fontWeight={800} color="success.main">$ {formatMoney(p.total || p.monto || 0)}</Typography>
+                      </Box>
+                      <Box sx={{ px: 2, py: 1.5, display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                        {p.efectivo && <Chip label={`Efectivo: $${formatMoney(p.efectivo)}`} size="small" />}
+                        {p.transferencias?.map((t, j) => <Chip key={j} label={`${t.cuenta}: $${formatMoney(t.monto)}`} size="small" variant="outlined" />)}
+                        {p.cheques?.length > 0 && <Chip label={`${p.cheques.length} cheque(s)`} size="small" variant="outlined" />}
+                        {p.chequesPersonales?.length > 0 && <Chip label={`${p.chequesPersonales.length} ch. pers.`} size="small" variant="outlined" />}
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
               ) : (
-                <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin pagos</Typography></Box>
+                <Typography color="text.secondary" sx={{ textAlign: 'center', py: 3 }}>Sin pagos</Typography>
               )}
-            </Paper>
+            </Box>
           </Grid>
         </Grid>
       </Box>
