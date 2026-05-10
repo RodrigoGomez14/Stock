@@ -4,37 +4,27 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Grid, Typography, Card, CardContent, IconButton,
-  Button, Tabs, Tab, Backdrop, CircularProgress, Snackbar,
+  Button, Backdrop, CircularProgress, Snackbar,
   Table, TableHead, TableBody, TableRow, TableCell, Paper,
-  Divider
+  Chip, Divider
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import {
   Edit, Delete, Phone, Email, Place, LocalShipping,
-  Badge, CreditCard, Payment
+  Badge, CreditCard, Payment, Person,
+  AttachMoney, History, Send
 } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { removeData } from '../services'
 import { formatMoney } from '../utilities'
 
-const toStr = (v) => typeof v === 'string' ? v : JSON.stringify(v)
-
-const InfoRow = ({ icon, label, value }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.8 }}>
-    <Box sx={{ color: 'primary.light', display: 'flex' }}>{icon}</Box>
-    <Box sx={{ minWidth: 80 }}>
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
-    </Box>
-    <Typography variant="body2">{value || '—'}</Typography>
-  </Box>
-)
+const toStr = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
 
 const Proveedor = (props) => {
   const location = useLocation()
   const navigate = useNavigate()
   const [proveedor, setProveedor] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState(0)
   const [snack, setSnack] = useState('')
   const nombre = decodeURIComponent(location.search.replace(/^\?/, ''))
 
@@ -63,111 +53,193 @@ const Proveedor = (props) => {
   }
 
   const d = proveedor.datos || {}
-  const entregas = proveedor.entregas ? Object.values(proveedor.entregas) : []
-  const pagos = proveedor.pagos ? Object.values(proveedor.pagos) : []
+  const entregas = Object.values(proveedor.entregas || {})
+  const pagos = Object.values(proveedor.pagos || {})
 
   return (
     <Layout history={props.history} page={nombre} user={props.user?.uid}>
-      <Box sx={{ maxWidth: 1000, mx: 'auto', p: 2 }}>
-        <Card sx={{ borderRadius: 3, mb: 2 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h5" fontWeight={700}>{nombre}</Typography>
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <Button size="small" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(nombre)}`} startIcon={<Edit />}>Editar</Button>
-                <IconButton size="small" color="error" onClick={() => { if (window.confirm('Eliminar proveedor?')) eliminar() }}><Delete /></IconButton>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
+      <Box sx={{ maxWidth: 1400, mx: 'auto', p: 3 }}>
 
-        <Card sx={{ borderRadius: 3, mb: 2 }}>
-          <CardContent>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Badge fontSize="small" /> Información de contacto
-            </Typography>
-            <Divider sx={{ mb: 1.5 }} />
-            <Grid container spacing={0}>
-              <Grid item xs={12} sm={6}>
-                {d.telefono?.length > 0 && (
-                  <InfoRow icon={<Phone fontSize="small" />} label="Teléfono" value={d.telefono.map(toStr).join(' | ')} />
-                )}
-                {d.mails?.length > 0 && (
-                  <InfoRow icon={<Email fontSize="small" />} label="Email" value={d.mails.map(toStr).join(' | ')} />
-                )}
-                {d.direcciones?.length > 0 && (
-                  <InfoRow icon={<Place fontSize="small" />} label="Dirección" value={d.direcciones.map(toStr).join(' | ')} />
-                )}
+        {/* HEADER */}
+        <Paper sx={{ borderRadius: 2, p: 3, mb: 3 }}>
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{
+                  width: 64, height: 64, borderRadius: 2, bgcolor: 'primary.dark',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Person sx={{ fontSize: 32, color: 'primary.light' }} />
+                </Box>
+                <Box>
+                  <Typography variant="h4" fontWeight={700}>{nombre}</Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
+                    {d.dni && <Chip icon={<Badge />} label={`DNI: ${d.dni}`} size="small" variant="outlined" />}
+                    {d.cuit && <Chip icon={<CreditCard />} label={`CUIT: ${d.cuit}`} size="small" variant="outlined" />}
+                  </Box>
+                </Box>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: { md: 'flex-end' }, flexWrap: 'wrap' }}>
+                <Button variant="contained" component={Link} to={`/Nuevo-Pago-Proveedor?${encodeURIComponent(nombre)}`} startIcon={<AttachMoney />}>
+                  Registrar Pago
+                </Button>
+                <Button variant="outlined" component={Link} to={`/Historial-Proveedor?${encodeURIComponent(nombre)}`} startIcon={<History />}>
+                  Historial
+                </Button>
+                <Button variant="outlined" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(nombre)}`} startIcon={<Edit />}>
+                  Editar
+                </Button>
+                <IconButton color="error" onClick={() => { if (window.confirm('Eliminar?')) eliminar() }}><Delete /></IconButton>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+
+        {/* 2-COLUMN LAYOUT */}
+        <Grid container spacing={3}>
+          {/* LEFT: Contacto */}
+          <Grid item xs={12} md={5}>
+            <Paper sx={{ borderRadius: 2, p: 2.5, mb: 3 }}>
+              <Typography variant="subtitle1" fontWeight={700} gutterBottom>Contacto</Typography>
+              <Divider sx={{ mb: 2 }} />
+
+              {d.telefono?.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                    <Phone sx={{ fontSize: 14 }} /> Teléfono
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {d.telefono.map((t, i) => <Chip key={i} label={toStr(t)} size="small" />)}
+                  </Box>
+                </Box>
+              )}
+
+              {d.mails?.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                    <Email sx={{ fontSize: 14 }} /> Email
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {d.mails.map((m, i) => <Chip key={i} label={toStr(m)} size="small" />)}
+                  </Box>
+                </Box>
+              )}
+
+              {d.direcciones?.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                    <Place sx={{ fontSize: 14 }} /> Direcciones
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {d.direcciones.map((dir, i) => <Chip key={i} label={toStr(dir)} size="small" variant="outlined" />)}
+                  </Box>
+                </Box>
+              )}
+
+              {d.expresos?.length > 0 && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                    <LocalShipping sx={{ fontSize: 14 }} /> Transporte
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {d.expresos.map((ex, i) => <Chip key={i} label={toStr(ex)} size="small" variant="outlined" />)}
+                  </Box>
+                </Box>
+              )}
+            </Paper>
+          </Grid>
+
+          {/* RIGHT: Stats + Tables */}
+          <Grid item xs={12} md={7}>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={4}>
+                <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+                  <AttachMoney sx={{ fontSize: 32, color: d.deuda > 0 ? 'error.main' : 'success.main' }} />
+                  <Typography variant="h5" fontWeight={800}>$ {formatMoney(d.deuda || 0)}</Typography>
+                  <Typography variant="caption" color="text.secondary">Deuda</Typography>
+                </Card>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                {d.expresos?.length > 0 && (
-                  <InfoRow icon={<LocalShipping fontSize="small" />} label="Expreso" value={d.expresos.map(toStr).join(' | ')} />
-                )}
-                {d.dni && <InfoRow icon={<Badge fontSize="small" />} label="DNI" value={d.dni} />}
-                {d.cuit && <InfoRow icon={<CreditCard fontSize="small" />} label="CUIT" value={d.cuit} />}
-                <InfoRow icon={<Payment fontSize="small" />} label="Deuda" value={`$ ${formatMoney(d.deuda || 0)}`} />
+              <Grid item xs={4}>
+                <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+                  <Send sx={{ fontSize: 32, color: 'primary.light' }} />
+                  <Typography variant="h5" fontWeight={800}>{entregas.length}</Typography>
+                  <Typography variant="caption" color="text.secondary">Entregas</Typography>
+                </Card>
+              </Grid>
+              <Grid item xs={4}>
+                <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+                  <Payment sx={{ fontSize: 32, color: 'success.main' }} />
+                  <Typography variant="h5" fontWeight={800}>{pagos.length}</Typography>
+                  <Typography variant="caption" color="text.secondary">Pagos</Typography>
+                </Card>
               </Grid>
             </Grid>
-          </CardContent>
-        </Card>
 
-        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <Button variant="contained" component={Link} to={`/Nuevo-Pago-Proveedor?${encodeURIComponent(nombre)}`}>Registrar Pago</Button>
-          <Button variant="outlined" component={Link} to={`/Historial-Proveedor?${encodeURIComponent(nombre)}`}>Ver Historial</Button>
-        </Box>
-
-        <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
-          <Tab label="Entregas" />
-          <Tab label="Pagos" />
-        </Tabs>
-
-        {tab === 0 && (
-          entregas.length > 0 ? (
-            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Fecha</TableCell>
-                    <TableCell>Productos</TableCell>
-                    <TableCell align="right">Total</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {entregas.map((e, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{e.fecha}</TableCell>
-                      <TableCell>{e.articulos?.map(a => `${a.cantidad}x ${a.producto}`).join(', ') || '—'}</TableCell>
-                      <TableCell align="right">$ {formatMoney(e.total || 0)}</TableCell>
+            {/* Entregas */}
+            <Paper sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
+              <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle1" fontWeight={700}>Entregas recibidas</Typography>
+              </Box>
+              {entregas.length > 0 ? (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Fecha</TableCell>
+                      <TableCell>Productos</TableCell>
+                      <TableCell align="right">Total</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {entregas.slice(0, 5).map((e, i) => (
+                      <TableRow key={i} hover>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>{e.fecha}</TableCell>
+                        <TableCell>{e.articulos?.map(a => `${a.cantidad}x ${a.producto || a.nombre}`).join(', ') || '—'}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney(e.total || 0)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin entregas</Typography></Box>
+              )}
             </Paper>
-          ) : <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin entregas</Typography>
-        )}
 
-        {tab === 1 && (
-          pagos.length > 0 ? (
-            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Fecha</TableCell>
-                    <TableCell align="right">Monto</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {pagos.map((p, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{p.fecha}</TableCell>
-                      <TableCell align="right">$ {formatMoney(p.monto || 0)}</TableCell>
+            {/* Pagos */}
+            <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle1" fontWeight={700}>Pagos realizados</Typography>
+              </Box>
+              {pagos.length > 0 ? (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Fecha</TableCell>
+                      <TableCell>Método</TableCell>
+                      <TableCell align="right">Monto</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {pagos.slice(0, 5).map((p, i) => (
+                      <TableRow key={i} hover>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>{p.fecha}</TableCell>
+                        <TableCell>
+                          {p.efectivo && <Chip label="Efectivo" size="small" variant="outlined" sx={{ mr: 0.3 }} />}
+                          {p.totalTransferencia && <Chip label="Transf." size="small" variant="outlined" sx={{ mr: 0.3 }} />}
+                          {p.cheques?.length > 0 && <Chip label={`${p.cheques.length} ch.`} size="small" variant="outlined" />}
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>$ {formatMoney(p.total || p.monto || 0)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <Box sx={{ p: 3, textAlign: 'center' }}><Typography color="text.secondary">Sin pagos</Typography></Box>
+              )}
             </Paper>
-          ) : <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>Sin pagos</Typography>
-        )}
+          </Grid>
+        </Grid>
       </Box>
 
       <Backdrop open={loading} sx={{ zIndex: 9999 }}><CircularProgress color="inherit" /></Backdrop>
