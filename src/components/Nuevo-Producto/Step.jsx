@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react'
-import {Grid, Button,Switch,InputLabel,Select,Input,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,FormControlLabel,Collapse,Checkbox,FormGroup,Autocomplete} from '@mui/material'
+import {Grid, Button,Switch,InputLabel,Select,Input,MenuItem,Paper,FormControl, TextField,Tab,Tabs,AppBar,Typography,Box,FormControlLabel,Collapse,Checkbox,FormGroup,Autocomplete,Divider} from '@mui/material'
 import {AddOutlined} from '@mui/icons-material'
 import {content} from '../../Pages/styles/styles'
 import { StepperNuevoProducto } from './StepperNuevoProducto'
@@ -139,15 +139,38 @@ export const Step = ({tipoDeDato,nombre,setnombre,precio,setprecio,matrices,setM
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                                     {editIndex !== -1 ? 'Editar Proceso' : 'Nuevo Proceso'}
                                 </Typography>
+
+                                {/* Tipo de proceso — cards seleccionables */}
+                                <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                                    TIPO DE PROCESO
+                                </Typography>
+                                <Grid container spacing={1} sx={{ mb: 2 }}>
+                                    {['Fundido', 'Mecanizado', 'Pintado', 'Ensamblado', 'Laminado', 'Corte', 'Soldadura'].map((tipo) => (
+                                        <Grid item xs={6} sm={4} md={3} key={tipo}>
+                                            <Paper
+                                                variant="outlined"
+                                                onClick={() => setNombreProceso(tipo)}
+                                                sx={{
+                                                    py: 1.5, px: 1, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
+                                                    borderColor: nombreProceso === tipo ? 'primary.main' : 'divider',
+                                                    borderWidth: nombreProceso === tipo ? 2 : 1,
+                                                    bgcolor: nombreProceso === tipo ? 'action.selected' : 'transparent',
+                                                    transition: '0.15s', '&:hover': { borderColor: 'primary.light' },
+                                                }}
+                                            >
+                                                <Typography variant="body2" fontWeight={600}>{tipo}</Typography>
+                                            </Paper>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+
+                                <Divider sx={{ mb: 2 }} />
+
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={6}>
-                                        <Autocomplete freeSolo options={['Fundido', 'Mecanizado', 'Pintado', 'Ensamblado', 'Laminado', 'Corte', 'Soldadura']}
-                                            value={nombreProceso} onInputChange={(_, v) => setNombreProceso(v)} onChange={(_, v) => setNombreProceso(v || '')}
-                                            renderInput={(p) => <TextField {...p} label="Tipo de proceso" fullWidth size="small" />} />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <FormControlLabel control={<Checkbox checked={isProcesoPropio} disabled={!!proveedor} onChange={() => { setIsProcesoPropio(!isProcesoPropio); if (!isProcesoPropio) setProveedor('') }} />}
-                                            label="Proceso propio" />
+                                        <FormControlLabel control={<Checkbox checked={isProcesoPropio} disabled={!!proveedor}
+                                            onChange={() => { setIsProcesoPropio(!isProcesoPropio); if (!isProcesoPropio) setProveedor('') }} />}
+                                            label="Proceso propio (no tiene proveedor)" />
                                     </Grid>
                                     {!isProcesoPropio && (
                                         <Grid item xs={12}>
