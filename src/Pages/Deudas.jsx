@@ -2,10 +2,10 @@
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Box, Grid, Typography, Card, CardContent, Paper, Tabs, Tab,
+  Box, Grid, Typography, Card, CardContent, Tabs, Tab,
   TextField, InputAdornment
 } from '@mui/material'
-import { Search, AttachMoney, People, Business } from '@mui/icons-material'
+import { Search } from '@mui/icons-material'
 import { formatMoney } from '../utilities'
 import CardDeudaCliente from '../components/Deudas/CardDeudaCliente'
 import CardDeudaProveedor from '../components/Deudas/CardDeudaProveedor'
@@ -25,51 +25,40 @@ const Deudas = (props) => {
   return (
     <Layout history={props.history} page="Deudas" user={props.user?.uid}>
       <Box sx={{ maxWidth: 1400, mx: 'auto', p: 3 }}>
-        {/* STATS BAR */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
-              <AttachMoney color="error" sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalDeudaClientes)}</Typography>
-              <Typography variant="caption" color="text.secondary">Clientes deben</Typography>
+        {/* STATS: Clientes deben | Nosotros debemos | Balance neto */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2.5 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1 }}>CLIENTES DEBEN</Typography>
+              <Typography variant="h3" fontWeight={900} color="error.main">$ {formatMoney(totalDeudaClientes)}</Typography>
+              <Typography variant="caption" color="text.secondary">{clientesConDeuda.length} cliente(s)</Typography>
             </Card>
           </Grid>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
-              <People color="warning" sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={800}>{clientesConDeuda.length}</Typography>
-              <Typography variant="caption" color="text.secondary">Clientes</Typography>
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2.5 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1 }}>NOSOTROS DEBEMOS</Typography>
+              <Typography variant="h3" fontWeight={900} color="warning.main">$ {formatMoney(totalDeudaProv)}</Typography>
+              <Typography variant="caption" color="text.secondary">{provConDeuda.length} proveedor(es)</Typography>
             </Card>
           </Grid>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
-              <AttachMoney color="warning" sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalDeudaProv)}</Typography>
-              <Typography variant="caption" color="text.secondary">Debemos a prov.</Typography>
-            </Card>
-          </Grid>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
-              <Business color="error" sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={800}>{provConDeuda.length}</Typography>
-              <Typography variant="caption" color="text.secondary">Proveedores</Typography>
-            </Card>
-          </Grid>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5, border: '2px solid', borderColor: 'primary.main' }}>
-              <Typography variant="h4" fontWeight={900} color="primary.main">
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2.5, border: '2px solid', borderColor: 'primary.main' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1 }}>BALANCE NETO</Typography>
+              <Typography variant="h3" fontWeight={900} color="primary.main">
                 $ {formatMoney(totalDeudaClientes - totalDeudaProv)}
               </Typography>
-              <Typography variant="caption" color="text.secondary">Balance neto</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {totalDeudaClientes >= totalDeudaProv ? 'Positivo ✓' : 'Negativo'}
+              </Typography>
             </Card>
           </Grid>
         </Grid>
 
-        {/* SEARCH */}
-        <TextField fullWidth size="small" placeholder="Buscar..." value={search}
+        {/* SEARCH — full width */}
+        <TextField fullWidth size="small" placeholder="Buscar por nombre..." value={search}
           onChange={(e) => setSearch(e.target.value)}
           InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
-          sx={{ maxWidth: 400, mb: 2 }} />
+          sx={{ mb: 2 }} />
 
         {/* TABS */}
         <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2 }}>
