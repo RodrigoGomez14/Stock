@@ -1,160 +1,59 @@
 import React from 'react'
-import { Card, CardHeader, CardContent } from '@mui/material'
 import ApexCharts from 'react-apexcharts'
 import { formatMoney } from '../../utilities'
 
-const SalesChart = (props) => {
-    const { sortedCompras, sortedVentas } = props
-    let sales = []
-    let purchases = []
-    let dif = []
-    let labelsUltimoAnio =  []
+const MONTHS_SHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
-    if(sortedCompras || sortedVentas){
-        const fechaActual = new Date();
-        const mesActual = fechaActual.getMonth();
-        const anioActual = fechaActual.getFullYear();
-        
-        let auxSales = [0,0,0,0,0,0,0,0,0,0,0,0]
-        let auxPurchases = [0,0,0,0,0,0,0,0,0,0,0,0]
+const last12Months = () => {
+  const result = []
+  const now = new Date()
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    result.push({ year: d.getFullYear(), month: d.getMonth(), label: `${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}` })
+  }
+  return result
+}
 
-        const mesesDesdeUltimoAnio = 12;
-        let mesInicio = mesActual - mesesDesdeUltimoAnio;
-        let anioInicio = anioActual;
-        if (mesInicio < 0) {
-            mesInicio += 12;
-            anioInicio -= 1;
-        }
-        const initialDate = new Date()
-        initialDate.setFullYear(anioInicio,mesInicio+1,1)
+const SalesChart = ({ sortedVentas, sortedCompras }) => {
+  const months = last12Months()
+  const labels = months.map((m) => m.label)
+  const ventas = months.map((m) => {
+    const yearData = sortedVentas?.find(([y]) => parseInt(y) === m.year)
+    if (!yearData) return 0
+    const monthData = yearData[1]?.months?.[m.month + 1]
+    return monthData?.total || 0
+  })
+  const compras = months.map((m) => {
+    const yearData = sortedCompras?.find(([y]) => parseInt(y) === m.year)
+    if (!yearData) return 0
+    const monthData = yearData[1]?.months?.[m.month + 1]
+    return monthData?.total || 0
+  })
+  const balance = ventas.map((v, i) => v - compras[i])
 
-        if(sortedVentas){
-            for (const [year, data] of sortedVentas) {
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                        const auxFecha = new Date();
-                        auxFecha.setFullYear(year, month - 1, 1);
-                        if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                            auxSales[month-1]+=(dataMonth.total)
-                        }
-                }
-            }
-        }
-
-        if(sortedCompras){
-            for (const [year, data] of sortedCompras) {
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                        const auxFecha = new Date();
-                        auxFecha.setFullYear(year, month - 1, 1);
-                        if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                            auxPurchases[month-1]+=(dataMonth.total)
-                        }
-                }
-            }
-        }
-
-        const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-        const arr1Meses = auxMeses.slice(mesInicio+1);
-        const arr2Meses = auxMeses.slice(0,mesInicio+1);
-
-        
-        const arr1Sales = auxSales.slice(mesInicio+1);
-        const arr2Sales = auxSales.slice(0,mesInicio+1);
-
-        const arr1Purchases = auxPurchases.slice(mesInicio+1);
-        const arr2Purchases = auxPurchases.slice(0,mesInicio+1);
-        
-        
-        arr1Meses.map(i=>{
-            labelsUltimoAnio.push(i)
-        })
-        arr2Meses.map(i=>{
-            labelsUltimoAnio.push(i)
-        })
-        
-        arr1Sales.map(i=>{
-            sales.push(i)
-        })
-        arr2Sales.map(i=>{
-            sales.push(i)
-        })
-
-        arr1Purchases.map(i=>{
-            purchases.push(i)
-        })
-        arr2Purchases.map(i=>{
-            purchases.push(i)
-        })
-
-        sales.map(sale=>{
-            dif.push(sale)
-        })
-        purchases.map((purchase,i)=>{
-            dif[i]-=purchase
-        })
-
-    }
-    const options = {
-        labels:labelsUltimoAnio,
-        fill: {
-        },
-        chart:{
-            
-        },
-        theme:{
-            mode:'dark',
-            palette:'palette6'
-        },
-        stroke: {
-            curve: 'smooth'
-        },
-        grid: {
-            row: {
-                colors: ['#c3c3c3', 'transparent'],
-                opacity: 0.5
-            },
-        },
-        tooltip:{
-            y:{
-                formatter: val=> `$ ${formatMoney(val)}`
-            }
-        },
-        dataLabels:{
-            enabled:false
-        },
-        yaxis:{
-            labels:{
-                formatter: val => `$ ${formatMoney(val)}`,
-            }
-        }
-    };
-    const series=[
-    {
-        name:'Ventas',
-        type:'line',
-        data:sales
-    },
-    {
-        name:'Compras',
-        type:'line',
-        data:purchases
-    },
-    {
-        name:'Balance',
-        type:'area',
-        data:dif
-    },
-    ]
-
-    return (
-        <Card>
-            <CardHeader
-                subheader='Compras & Ventas - Ultimos 12 Meses'
-            />
-            <CardContent>
-                <ApexCharts options={options} series={series}  height={400} width={1200} />
-            </CardContent>
-        </Card>
-    )
+  return (
+    <ApexCharts
+      height={320}
+      options={{
+        chart: { type: 'line', toolbar: { show: false }, background: 'transparent' },
+        colors: ['#1a73e8', '#e65100', '#2e7d32'],
+        labels,
+        theme: { mode: 'dark' },
+        stroke: { curve: 'smooth', width: [2, 2, 0] },
+        fill: { opacity: [1, 1, 0.15], type: 'solid' },
+        grid: { borderColor: 'rgba(255,255,255,0.05)' },
+        tooltip: { y: { formatter: (v) => `$ ${formatMoney(v || 0)}` }, theme: 'dark' },
+        dataLabels: { enabled: false },
+        yaxis: { labels: { formatter: (v) => `$${formatMoney(v || 0)}` } },
+        legend: { position: 'top', labels: { colors: '#94a3b8' } },
+      }}
+      series={[
+        { name: 'Ventas', type: 'line', data: ventas },
+        { name: 'Compras', type: 'line', data: compras },
+        { name: 'Balance', type: 'area', data: balance },
+      ]}
+    />
+  )
 }
 
 export default SalesChart

@@ -49,6 +49,7 @@ import Servicios from './Pages/Servicios';
 import NuevoServicio from './Pages/NuevoServicio';
 import PagarServicios from './Pages/PagarServicios';
 import ListasDePrecios from './Pages/ListasDePrecios';
+import Ajustes from './Pages/Ajustes';
 
 class App extends Component {
   state={
@@ -144,6 +145,7 @@ class App extends Component {
                 <Route path='/Editar-Servicio' element={<RouteInjector component={NuevoServicio} />} />
                 <Route path='/Pagar-Servicios' element={<RouteInjector component={PagarServicios} />} />
                 <Route path='/Listas-De-Precios' element={<RouteInjector component={ListasDePrecios} />} />
+                <Route path='/Ajustes' element={<RouteInjector component={Ajustes} />} />
                 <Route path='*' element={<RouteInjector component={NotFound} />} />
               </Routes>
             </BrowserRouter>

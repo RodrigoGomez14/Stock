@@ -8,7 +8,7 @@ import {
   InputAdornment
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { Add, ChevronLeft, ChevronRight, Edit, Delete, Receipt, Check, Search, Close } from '@mui/icons-material'
+import { Add, ChevronLeft, ChevronRight, Edit, Delete, Receipt, Check, Search, Close, Category } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { setData, removeData } from '../services'
 import { formatMoney, obtenerFecha } from '../utilities'
@@ -56,7 +56,6 @@ const Servicios = (props) => {
     return true
   })
 
-  // Group by category
   const grouped = {}
   filtered.forEach(([id, s]) => {
     const cat = s.categoria || 'Sin categoría'
@@ -94,9 +93,12 @@ const Servicios = (props) => {
 
   const statusChip = (id) => {
     switch (getStatus(id)) {
-      case 'sin-boleta': return <Chip size="small" label="Sin boleta" variant="outlined" sx={{ color: 'text.secondary' }} />
-      case 'pendiente': return <Chip size="small" label="Pendiente" color="warning" variant="outlined" />
-      case 'pagado': return <Chip size="small" label="Pagado" color="success" variant="outlined" />
+      case 'sin-boleta':
+        return <Chip size="small" label="Sin boleta" variant="outlined" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 11 }} />
+      case 'pendiente':
+        return <Chip size="small" label="Pendiente" color="warning" variant="filled" sx={{ fontWeight: 600, fontSize: 11 }} />
+      case 'pagado':
+        return <Chip size="small" icon={<Check sx={{ fontSize: 13 }} />} label="Pagado" color="success" variant="filled" sx={{ fontWeight: 600, fontSize: 11 }} />
     }
   }
 
@@ -112,69 +114,110 @@ const Servicios = (props) => {
 
   const ServiceTable = ({ title, items }) => (
     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
-      <Box sx={{ px: 2, py: 1.5, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="subtitle1" fontWeight={700}>{title}</Typography>
+      <Box sx={{ px: 2.5, py: 1.8, bgcolor: 'action.selected', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Category fontSize="small" color="primary" />
+          <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1.1rem' }}>
+            {title}
+          </Typography>
+          <Chip size="small" label={`${items.length} servicio(s)`} variant="outlined" sx={{ fontSize: 10, height: 20 }} />
+        </Box>
       </Box>
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Servicio</TableCell>
-            {!isSinBoletaTab && <TableCell>Vencimiento</TableCell>}
-            {isPaidTab && <TableCell>Pagado el</TableCell>}
-            {!isSinBoletaTab && <TableCell align="right">Monto</TableCell>}
-            <TableCell>Estado</TableCell>
-            <TableCell align="center"></TableCell>
+            <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Servicio</TableCell>
+            {!isSinBoletaTab && <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Vencimiento</TableCell>}
+            {isPaidTab && <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Pagado el</TableCell>}
+            {!isSinBoletaTab && <TableCell align="right" sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Monto</TableCell>}
+            <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Estado</TableCell>
+            <TableCell align="center" sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {items.map(([id, s]) => {
             const inst = instancias[id]
-            const cols = 2 + (!isSinBoletaTab ? 1 : 0) + (isPaidTab ? 1 : 0) + (!isSinBoletaTab ? 1 : 0)
             return (
               <React.Fragment key={id}>
-                <TableRow hover>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={600}>{s.nombre}</Typography>
+                <TableRow hover sx={{ '&:last-child td': { borderBottom: recibirId === id ? 0 : undefined } }}>
+                  <TableCell sx={{ py: 1.5 }}>
+                    <Typography variant="body1" fontWeight={600} sx={{ fontSize: '0.95rem' }}>
+                      {s.nombre}
+                    </Typography>
+                    {s.frecuencia && (
+                      <Typography variant="caption" color="text.disabled" sx={{ fontSize: 11 }}>
+                        {s.frecuencia === 'mensual' ? 'Mensual' : s.frecuencia === 'anual' ? 'Anual' : 'Único'}
+                      </Typography>
+                    )}
                   </TableCell>
-                  {!isSinBoletaTab && <TableCell>{inst?.vencimiento || '—'}</TableCell>}
-                  {isPaidTab && <TableCell>{inst?.fechaPago || '—'}</TableCell>}
                   {!isSinBoletaTab && (
-                    <TableCell align="right">
-                      {inst ? `$ ${formatMoney(inst.monto || 0)}` : '—'}
+                    <TableCell sx={{ py: 1.5 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {inst?.vencimiento || '—'}
+                      </Typography>
                     </TableCell>
                   )}
-                  <TableCell>{statusChip(id)}</TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                  {isPaidTab && (
+                    <TableCell sx={{ py: 1.5 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {inst?.fechaPago || '—'}
+                      </Typography>
+                    </TableCell>
+                  )}
+                  {!isSinBoletaTab && (
+                    <TableCell align="right" sx={{ py: 1.5 }}>
+                      {inst ? (
+                        <Typography variant="body1" fontWeight={700} sx={{ fontSize: '1rem' }}>
+                          $ {formatMoney(inst.monto || 0)}
+                        </Typography>
+                      ) : (
+                        <Typography variant="body2" color="text.disabled">—</Typography>
+                      )}
+                    </TableCell>
+                  )}
+                  <TableCell sx={{ py: 1.5 }}>{statusChip(id)}</TableCell>
+                  <TableCell align="right" sx={{ py: 1.5, whiteSpace: 'nowrap' }}>
                     {getStatus(id) === 'sin-boleta' && (
-                      <IconButton size="small" onClick={() => abrirRecibir(id)}><Receipt fontSize="small" /></IconButton>
+                      <IconButton size="small" onClick={() => abrirRecibir(id)}
+                        sx={{ color: 'warning.main', '&:hover': { bgcolor: 'warning.main', color: '#fff' } }}>
+                        <Receipt fontSize="small" />
+                      </IconButton>
                     )}
-                    <IconButton size="small" component={Link} to={`/Editar-Servicio?${id}`}><Edit fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => { if (window.confirm('Eliminar?')) eliminar(id) }}>
+                    <IconButton size="small" component={Link} to={`/Editar-Servicio?${id}`}
+                      sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
+                      <Edit fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => { if (window.confirm('¿Eliminar?')) eliminar(id) }}
+                      sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}>
                       <Delete fontSize="small" />
                     </IconButton>
                   </TableCell>
                 </TableRow>
                 {recibirId === id && (
                   <TableRow>
-                    <TableCell colSpan={isSinBoletaTab ? 3 : isPaidTab ? 6 : 5} sx={{ py: 0, borderBottom: 0 }}>
+                    <TableCell colSpan={5} sx={{ py: 0, borderBottom: 0 }}>
                       <Collapse in={recibirId === id}>
-                        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, my: 1 }}>
+                        <Box sx={{ py: 1.5, px: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 1 }}>
                           <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                             Recibir boleta — {s.nombre}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
                             {MONTHS[month]} {year}
                           </Typography>
-                          <TextField size="small" label="Monto ($)" type="number" value={recibirMonto}
-                            onChange={(e) => setRecibirMonto(e.target.value)} sx={{ mr: 1, mb: 1 }} />
-                          <TextField size="small" label="Vencimiento" type="date" value={recibirVto}
-                            onChange={(e) => setRecibirVto(e.target.value)}
-                            InputLabelProps={{ shrink: true }} sx={{ mr: 1, mb: 1 }} />
-                          <Box sx={{ mt: 1 }}>
-                            <Button size="small" variant="contained" startIcon={<Check />} onClick={guardarBoleta}>Guardar</Button>
-                            <Button size="small" startIcon={<Close />} onClick={() => setRecibirId(null)} sx={{ ml: 1 }}>Cancelar</Button>
+                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                            <TextField size="small" label="Monto ($)" type="number" value={recibirMonto}
+                              onChange={(e) => setRecibirMonto(e.target.value)} sx={{ minWidth: 140 }} />
+                            <TextField size="small" label="Vencimiento" type="date" value={recibirVto}
+                              onChange={(e) => setRecibirVto(e.target.value)}
+                              InputLabelProps={{ shrink: true }} sx={{ minWidth: 160 }} />
+                            <Button size="small" variant="contained" startIcon={<Check />} onClick={guardarBoleta}>
+                              Guardar
+                            </Button>
+                            <Button size="small" startIcon={<Close />} onClick={() => setRecibirId(null)}>
+                              Cancelar
+                            </Button>
                           </Box>
-                        </Paper>
+                        </Box>
                       </Collapse>
                     </TableCell>
                   </TableRow>
@@ -190,23 +233,26 @@ const Servicios = (props) => {
   return (
     <Layout history={props.history} page="Servicios" user={props.user?.uid}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+        {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
-          <IconButton size="small" onClick={() => setMonth((m) => Math.max(0, m - 1))}><ChevronLeft /></IconButton>
-          <Typography variant="h6" fontWeight={600} sx={{ minWidth: 150, textAlign: 'center' }}>
-            {MONTHS[month]} {year}
-          </Typography>
-          <IconButton size="small" onClick={() => setMonth((m) => Math.min(11, m + 1))}><ChevronRight /></IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <IconButton size="small" onClick={() => setMonth((m) => Math.max(0, m - 1))}><ChevronLeft /></IconButton>
+            <Typography variant="h5" fontWeight={800} sx={{ minWidth: 160, textAlign: 'center' }}>
+              {MONTHS[month]} {year}
+            </Typography>
+            <IconButton size="small" onClick={() => setMonth((m) => Math.min(11, m + 1))}><ChevronRight /></IconButton>
+          </Box>
           <TextField size="small" placeholder="Buscar servicio..." value={search} onChange={(e) => setSearch(e.target.value)}
             InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
-            sx={{ minWidth: 200 }} />
-          <Button component={Link} to="/Nuevo-Servicio" startIcon={<Add />} variant="contained" size="small">Nuevo</Button>
+            sx={{ minWidth: 220 }} />
+          <Button component={Link} to="/Nuevo-Servicio" startIcon={<Add />} variant="contained" size="small">Nuevo servicio</Button>
         </Box>
 
-        <Tabs value={statusTab} onChange={(_, v) => setStatusTab(v)} sx={{ mb: 2 }}>
-          <Tab label={`Todos (${counts.todos})`} />
-          <Tab label={`Sin boleta (${counts.sinBoleta})`} />
-          <Tab label={`Pendiente (${counts.pendiente})`} />
-          <Tab label={`Pagado (${counts.pagado})`} />
+        <Tabs value={statusTab} onChange={(_, v) => setStatusTab(v)} sx={{ mb: 2 }} variant="scrollable" scrollButtons="auto">
+          <Tab label={`Todos (${counts.todos})`} sx={{ fontWeight: 600 }} />
+          <Tab label={`Sin boleta (${counts.sinBoleta})`} sx={{ fontWeight: 600 }} />
+          <Tab label={`Pendiente (${counts.pendiente})`} sx={{ fontWeight: 600 }} />
+          <Tab label={`Pagado (${counts.pagado})`} sx={{ fontWeight: 600 }} />
         </Tabs>
 
         {Object.keys(grouped).length > 0 ? (
@@ -214,8 +260,8 @@ const Servicios = (props) => {
             <ServiceTable key={cat} title={cat} items={items} />
           ))
         ) : (
-          <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography color="text.secondary">
+          <Box sx={{ textAlign: 'center', py: 10 }}>
+            <Typography variant="h6" color="text.disabled" fontWeight={500}>
               {statusTab === 0 ? 'No hay servicios registrados.' :
                statusTab === 1 ? 'Todos los servicios tienen boleta este mes.' :
                statusTab === 2 ? 'No hay servicios pendientes.' :

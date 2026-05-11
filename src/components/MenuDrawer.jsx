@@ -9,7 +9,7 @@ import {
   AccountBalanceWallet, LocalAtm, AccountBalance,
   Contacts, Link as LinkIcon,
   ShoppingCart, AssignmentLate, ExitToApp, ChevronLeft,
-  Receipt, ShowChart
+  Receipt, ShowChart, Settings
 } from '@mui/icons-material'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logo from '../images/logo.png'
@@ -52,6 +52,12 @@ const menuSections = [
     label: 'Producción',
     items: [
       { label: 'Cadenas', icon: <LinkIcon />, path: '/Cadenas-De-Produccion' },
+    ],
+  },
+  {
+    label: 'Sistema',
+    items: [
+      { label: 'Ajustes', icon: <Settings />, path: '/Ajustes' },
     ],
   },
 ]

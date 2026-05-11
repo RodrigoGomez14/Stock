@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
@@ -24,6 +24,7 @@ const EnviarPedido = (props) => {
   const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [snack, setSnack] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   // id del pedido
   const id = location.search.slice(1)
@@ -59,7 +60,7 @@ const EnviarPedido = (props) => {
   const resetPago = () => { setEfectivo(''); setTransferencias([]); setTotalTransferencias(0); setCheques([]); setTotalCheques(0) }
 
   const guardar = async () => {
-    setLoading(true)
+    setLoading(true); setSubmitting(true)
     const aux = {
       fecha: obtenerFecha(), cliente: clienteNombre,
       articulos: pedido?.productos || pedido?.articulos || [],
@@ -148,13 +149,15 @@ const EnviarPedido = (props) => {
       await removeData(props.user.uid, `pedidos/${id}`)
 
       setSnack('Pedido enviado correctamente')
-      setTimeout(() => navigate('/Pedidos', { replace: true }), 1500)
-    } catch {
+      await new Promise(r => setTimeout(r, 1500))
+      navigate('/Pedidos', { replace: true })
+    } catch (e) {
+      setSnack('Error: ' + (e?.message || 'Ocurrió un error'))
       setLoading(false)
     }
   }
 
-  if (!pedido) {
+  if (!pedido && !submitting) {
     return (
       <Layout history={props.history} page="Enviar Pedido" user={props.user?.uid}>
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -209,7 +212,11 @@ const EnviarPedido = (props) => {
                         {prodData?.imagen ? (
                           <Avatar src={prodData.imagen} variant="rounded" sx={{ width: 32, height: 32 }} />
                         ) : null}
-                        <Typography variant="body2" fontWeight={500}>{art.nombre || art.producto}</Typography>
+                        <Typography variant="body2" fontWeight={500}
+                          component={Link} to={`/Producto?${encodeURIComponent(art.nombre || art.producto)}`}
+                          sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+                          {art.nombre || art.producto}
+                        </Typography>
                       </Box>
                     </TableCell>
                     <TableCell align="right">{art.cantidad}</TableCell>
@@ -443,6 +450,7 @@ const EnviarPedido = (props) => {
   ]
 
   const getDisabled = (step) => {
+    if (loading) return true
     switch (step) {
       case 0: return false
       case 1: return false
@@ -466,7 +474,7 @@ const EnviarPedido = (props) => {
       />
       <Backdrop open={loading} sx={{ zIndex: 9999 }}><CircularProgress color="inherit" /></Backdrop>
       <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}>
-        <Alert severity="success">{snack}</Alert>
+        <Alert severity={snack?.includes('Error') ? 'error' : 'success'}>{snack}</Alert>
       </Snackbar>
     </Layout>
   )

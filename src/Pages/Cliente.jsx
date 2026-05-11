@@ -13,8 +13,9 @@ import {
   MoreVert, ArrowUpward, ArrowDownward
 } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { removeData } from '../services'
-import { formatMoney } from '../utilities'
+import { removeData, pushData } from '../services'
+import { enviarFactura, crearNotaCredito, getApiKey } from '../services/afipService'
+import { formatMoney, obtenerFecha } from '../utilities'
 import { ImgCache } from '../components/ImgCache'
 
 const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
@@ -38,6 +39,7 @@ const Cliente = (props) => {
   const [loading, setLoading] = useState(true)
   const [snack, setSnack] = useState('')
   const [menuAnchor, setMenuAnchor] = useState(null)
+  const [facturando, setFacturando] = useState(null)
   const nombre = decodeURIComponent(location.search.replace(/^\?/, ''))
 
   useEffect(() => {
@@ -65,14 +67,15 @@ const Cliente = (props) => {
   }
 
   const d = cliente.datos || {}
-  const pedidos = Object.values(cliente.pedidos || {})
+  const pedidos = Object.entries(cliente.pedidos || {})
   const pagos = Object.values(cliente.pagos || {})
+  const facturasCliente = props.facturas?.[nombre] || {}
 
   // Merge timeline
   const timeline = []
-  pedidos.forEach((p, i) => {
+  pedidos.forEach(([pedKey, p]) => {
     if (p.metodoDePago) {
-      timeline.push({ fecha: p.fecha, tipo: 'pedido', data: p, key: `p-${i}`, monto: p.total || 0, aumento: true, concepto: `${p.articulos?.length || 0} artículo(s)` })
+      timeline.push({ fecha: p.fecha, tipo: 'pedido', data: p, pedKey, key: `p-${pedKey}`, monto: p.total || 0, aumento: true, concepto: `${p.articulos?.length || 0} artículo(s)` })
     }
   })
   pagos.forEach((p, i) => {
@@ -187,12 +190,80 @@ const Cliente = (props) => {
                           return (
                             <Box key={j} sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 4.5, py: 0.2 }}>
                               {prodData?.imagen && <ImgCache src={prodData.imagen} sx={{ width: 20, height: 20, borderRadius: 0.5 }} />}
-                              <Typography variant="caption" sx={{ flex: 1 }}>{art.nombre || art.producto}</Typography>
+                              <Typography variant="caption" component={Link}
+                                to={`/Producto?${encodeURIComponent(art.nombre || art.producto)}`}
+                                sx={{ flex: 1, textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+                                {art.nombre || art.producto}
+                              </Typography>
                               <Typography variant="caption" color="text.disabled">{art.cantidad}u</Typography>
                               <Typography variant="caption" fontWeight={600}>$ {formatMoney((art.cantidad || 0) * (art.precio || 0))}</Typography>
                             </Box>
                           )
                         })}
+                        {entry.tipo === 'pedido' && entry.data.metodoDePago?.facturacion && (
+                          <Box sx={{ pl: 4.5, mt: 0.5 }}>
+                            {(() => {
+                              const facturaExistente = facturasCliente[entry.pedKey]
+                              if (facturaExistente?.cae) {
+                                return (
+                                  <Button size="small" variant="outlined" color="error"
+                                    disabled={facturando === entry.key}
+                                    onClick={async () => {
+                                      setFacturando(entry.key)
+                                      try {
+                                        const dCliente = cliente.datos || {}
+                                        await crearNotaCredito({
+                                          clienteNombre: nombre,
+                                          clienteCuit: dCliente.cuit,
+                                          clienteDni: dCliente.dni,
+                                          articulos: entry.data.articulos || [],
+                                          total: entry.data.total || 0,
+                                          facturaAsociada: { cae: facturaExistente.cae, numero: facturaExistente.numero },
+                                        })
+                                        setSnack('Nota de crédito emitida')
+                                      } catch (e) { setSnack('Error: ' + (e?.message || '')) }
+                                      setFacturando(null)
+                                    }}
+                                    sx={{ fontSize: 10, height: 22 }}>
+                                    Nota de Crédito
+                                  </Button>
+                                )
+                              }
+                              return (
+                                <Button size="small" variant="contained" color="warning"
+                                  disabled={facturando === entry.key}
+                                  onClick={async () => {
+                                    if (!getApiKey()) { setSnack('Configurá tu API Key en Ajustes'); return }
+                                    setFacturando(entry.key)
+                                    try {
+                                      const dCliente = cliente.datos || {}
+                                      const articulosSinIva = (entry.data.articulos || []).map((art) => ({
+                                        ...art,
+                                        precio: parseFloat((parseFloat(art.precio || 0) / 1.21).toFixed(2)),
+                                      }))
+                                      const res = await enviarFactura({
+                                        clienteNombre: nombre,
+                                        clienteCuit: dCliente.cuit,
+                                        clienteDni: dCliente.dni,
+                                        articulos: articulosSinIva,
+                                        total: parseFloat((entry.data.total || 0) / 1.21).toFixed(2),
+                                        facturacion: true,
+                                      })
+                                      await pushData(props.user.uid, `facturas/${nombre}/${entry.pedKey}`, {
+                                        cae: res.CAE, vencimiento: res.CAE_FchVto, numero: res.comprobante,
+                                        fecha: obtenerFecha(),
+                                      })
+                                      setSnack(`Facturada! CAE: ${res.CAE}`)
+                                    } catch (e) { setSnack('Error: ' + (e?.message || '')) }
+                                    setFacturando(null)
+                                  }}
+                                  sx={{ fontSize: 10, height: 22 }}>
+                                  Facturar
+                                </Button>
+                              )
+                            })()}
+                          </Box>
+                        )}
                       </Box>
                     ))}
                   </Box>

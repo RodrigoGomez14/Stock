@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { pushData, updateData } from '../services'
-import { ingresoCaja } from '../services/cajaService'
+import { ingresoCaja, egresoCaja } from '../services/cajaService'
 import { checkSearch, formatMoney, obtenerFecha } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
 import { InlineChequePersonalForm } from '../components/Cheques/InlineChequePersonalForm'
@@ -48,7 +48,7 @@ const NuevoPagoProveedor = (props) => {
       await updateData(props.user.uid, `proveedores/${nombre}/datos`, { deuda: Math.max(0, restante) })
 
       if (parseFloat(efectivo || 0) > 0) {
-        await ingresoCaja(props.user.uid, parseFloat(efectivo), `Pago a proveedor ${nombre}`, `proveedores/${nombre}`)
+        await egresoCaja(props.user.uid, parseFloat(efectivo), `Pago a proveedor ${nombre}`, `proveedores/${nombre}`)
       }
 
       for (const t of transferencias) {

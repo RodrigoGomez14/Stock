@@ -7,6 +7,7 @@ import {
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { Search, PlayArrow, CheckCircle, Schedule, HourglassEmpty } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
 import { updateData } from '../services'
 import { obtenerFecha, formatMoney } from '../utilities'
 
@@ -89,7 +90,12 @@ const CadenaCard = ({ cadena, id, onIniciar }) => {
                 {p.isProcesoPropio && <Chip size="small" label="Propio" color="warning" variant="outlined" sx={{ ml: 0.5, fontSize: 10 }} />}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {p.isProcesoPropio ? 'Sin proveedor (proceso propio)' : `Proveedor: ${p.proveedor || '—'}`}
+                {p.isProcesoPropio ? 'Sin proveedor (proceso propio)' : (
+                  <>Proveedor: <Box component={Link} to={`/Proveedor?${encodeURIComponent(p.proveedor)}`}
+                    sx={{ color: 'primary.main', textDecoration: 'none', fontWeight: 600, '&:hover': { textDecoration: 'underline' } }}>
+                    {p.proveedor}
+                  </Box></>
+                )}
               </Typography>
             </Box>
 
@@ -167,33 +173,10 @@ const CadenasDeProduccion = (props) => {
 
   const cadenas = props.cadenasActivas ? Object.entries(props.cadenasActivas) : []
   const filtered = cadenas.filter(([_, c]) => !search || c.producto?.toLowerCase().includes(search.toLowerCase()))
-  const activas = cadenas.filter(([_, c]) => c.procesos?.some((p) => !p.fechaDeEntrega)).length
-  const completadas = cadenas.length - activas
 
   return (
     <Layout history={props.history} page="Cadenas de Producción" user={props.user?.uid}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={4}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
-              <Typography variant="h4" fontWeight={800}>{cadenas.length}</Typography>
-              <Typography variant="caption" color="text.secondary">Total</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={4}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
-              <Typography variant="h4" fontWeight={800} color="primary.main">{activas}</Typography>
-              <Typography variant="caption" color="text.secondary">Activas</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={4}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
-              <Typography variant="h4" fontWeight={800} color="success.main">{completadas}</Typography>
-              <Typography variant="caption" color="text.secondary">Completadas</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-
         <TextField fullWidth size="small" placeholder="Buscar por producto..." value={search}
           onChange={(e) => setSearch(e.target.value)}
           InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}

@@ -1,148 +1,138 @@
-// ARCA (ex AFIP) - Factura Electrónica
-// ======================================
+// Facturación Electrónica — TusFacturasAPP
+// ==========================================
+// Documentación: https://tusfacturas.app/desarrolladores
 //
-// ARQUITECTURA:
-//   React App → Backend API (Node.js) → ARCA Web Services (WSFE)
-//
-// Hoy: solo estructuramos los datos y los enviamos a un backend.
-// Mañana: el backend implementa WSAA + WSFE real.
-//
-// ---------------------------------------
-// PASOS PARA IMPLEMENTAR EL BACKEND:
-// ---------------------------------------
-// 1. OBTENER CERTIFICADO DIGITAL
-//    - Solicitar certificado en AFIP/ARCA (según el tipo: factura A, B, C, etc.)
-//    - Se obtiene un .crt y una clave privada .key
-//
-// 2. WSAA (AUTENTICACIÓN)
-//    - El backend crea un TRA (Ticket de Requerimiento de Acceso) en XML
-//    - Lo firma con el certificado → CMS
-//    - Envía el CMS a: https://wsaa.afip.gov.ar/ws/services/LoginCms
-//    - Recibe un TA (Ticket de Acceso) con token + sign
-//    - El TA expira a las 12 horas
-//
-// 3. WSFE (FACTURACIÓN)
-//    - Con el TA, llama a:
-//      https://servicios1.afip.gov.ar/wsfe/service.asmx
-//    - Método: FECAESolicitar (para factura electrónica)
-//    - Envía los datos del comprobante (cliente, items, montos, IVA)
-//    - Recibe el CAE + vencimiento
-//
-// 4. DEVOLUCIÓN
-//    - El backend devuelve: CAE, fecha de vencimiento, número de factura
-//    - La app guarda estos datos en Firebase
-//
-// ---------------------------------------
-// DATOS REQUERIDOS POR AFIP PARA FACTURAR:
-// ---------------------------------------
-// - Tipo de Comprobante: 1 (Factura A), 6 (Factura B), 11 (Factura C)
-// - Punto de Venta: número (ej: 1)
-// - CUIT del vendedor (de la app)
-// - CUIT/DNI del comprador (cliente)
-// - Tipo de Documento: 80 (CUIT), 96 (DNI)
-// - Importe Neto (antes de IVA)
-// - Importe IVA
-// - Importe Total
-// - Items (descripción, cantidad, precio unitario, IVA)
-// - Condición de IVA: Responsable Inscripto, Consumidor Final, etc.
+// Requiere:
+//   1. Suscripción activa en TusFacturasAPP
+//   2. API Key obtenida desde el panel de TusFacturasAPP
+//   3. Configurar empresa (CUIT, punto de venta) en su panel
 
-const API_URL = process.env.REACT_APP_AFIP_API_URL || ''
+const TUS_FACTURAS_URL = 'https://api.tusfacturas.app/v1'
 
-export const setAfipApiUrl = (url) => {
-  localStorage.setItem('afip_api_url', url)
-}
-
-export const getAfipApiUrl = () => {
-  return API_URL || localStorage.getItem('afip_api_url') || ''
-}
+export const setApiKey = (key) => localStorage.setItem('tf_api_key', key)
+export const getApiKey = () => localStorage.getItem('tf_api_key') || ''
 
 // Tipos de comprobante AFIP
 export const TIPOS_COMPROBANTE = {
-  'Factura A': 1,   // Responsable Inscripto
-  'Factura B': 6,   // Consumidor Final
-  'Factura C': 11,  // Monotributista
-  'Nota de Débito A': 2,
-  'Nota de Débito B': 7,
+  'Factura A': 1,
+  'Factura B': 6,
+  'Factura C': 11,
   'Nota de Crédito A': 3,
   'Nota de Crédito B': 8,
 }
 
-// Alicuotas de IVA
-export const ALICUOTAS_IVA = [
-  { id: 3, desc: '0%', porcentaje: 0 },
-  { id: 4, desc: '10.5%', porcentaje: 10.5 },
-  { id: 5, desc: '21%', porcentaje: 21 },
-  { id: 6, desc: '27%', porcentaje: 27 },
+// Condiciones de IVA del cliente
+export const CONDICIONES_IVA = [
+  { id: 1, label: 'Responsable Inscripto' },
+  { id: 2, label: 'Monotributista' },
+  { id: 3, label: 'Consumidor Final' },
+  { id: 4, label: 'Exento' },
 ]
 
-// Estructura completa de una factura para enviar al backend
-export const crearFacturaPayload = ({
+// Armar items para TusFacturasAPP
+const armarItems = (articulos, facturacion) => {
+  const iva = facturacion ? 21 : 0
+  return articulos.map((art) => ({
+    descripcion: art.nombre || art.producto || 'Producto',
+    cantidad: parseFloat(art.cantidad || 1),
+    precio_unitario: parseFloat(art.precio || 0),
+    alicuota_iva: iva,
+  }))
+}
+
+// Facturar — llama a TusFacturasAPP
+export const enviarFactura = async ({
   clienteNombre,
   clienteCuit,
   clienteDni,
-  tipoComprobante = 6, // Factura B por defecto
-  puntoVenta = 1,
+  condicionIva = 3, // Consumidor Final por defecto
+  tipoComprobante = 6,
   articulos = [],
   total,
   facturacion = false,
 }) => {
-  // Determinar tipo de documento
-  const tipoDoc = clienteCuit ? 80 : clienteDni ? 96 : 99
-  const nroDoc = clienteCuit || clienteDni || ''
+  const apiKey = getApiKey()
+  if (!apiKey) throw new Error('Configurá tu API Key de TusFacturasAPP en Ajustes > Facturación')
 
-  // Calcular IVA de cada item
-  const ivaPorcentaje = facturacion ? 21 : 0
-  const ivaId = facturacion ? 5 : 3 // 5 = 21%, 3 = 0%
+  const cuit = clienteCuit || ''
+  const dni = clienteDni || ''
+  const tipoDoc = cuit ? 80 : dni ? 96 : 99
+  const nroDoc = cuit || dni || ''
 
-  const items = articulos.map((art, i) => ({
-    descripcion: art.nombre || art.producto || 'Producto',
-    cantidad: parseFloat(art.cantidad || 1),
-    precioUnitario: parseFloat(art.precio || 0),
-    importe: parseFloat(art.cantidad || 1) * parseFloat(art.precio || 0),
-    ivaPorcentaje,
-    ivaId,
-  }))
+  const items = armarItems(articulos, facturacion)
+  const neto = items.reduce((s, i) => s + i.cantidad * i.precio_unitario, 0)
+  const ivaTotal = facturacion ? neto * 0.21 : 0
 
-  const neto = items.reduce((s, item) => s + item.importe, 0)
-  const ivaTotal = neto * (ivaPorcentaje / 100)
-  const totalFinal = neto + ivaTotal
-
-  return {
-    ticket: {
-      tipoComprobante,
-      puntoVenta,
-    },
-    comprador: {
-      tipoDoc,
-      nroDoc,
-      nombre: clienteNombre,
-    },
-    importes: {
-      neto: Math.round(neto * 100) / 100,
-      ivaTotal: Math.round(ivaTotal * 100) / 100,
-      total: Math.round((total || totalFinal) * 100) / 100,
-    },
-    items,
-    fecha: new Date().toLocaleDateString('es-AR'),
-  }
-}
-
-// Enviar factura al backend (que luego llama a AFIP)
-export const enviarFactura = async (payload) => {
-  const url = getAfipApiUrl()
-  if (!url) {
-    throw new Error(
-      'Backend AFIP no configurado. Configurá la URL en Lista de Precios > Configurar AFIP.'
-    )
-  }
-  const res = await fetch(url, {
+  const res = await fetch(`${TUS_FACTURAS_URL}/facturas`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+    body: JSON.stringify({
+      tipo_comprobante: tipoComprobante,
+      punto_venta: 1,
+      cliente: {
+        nombre: clienteNombre,
+        tipo_documento: tipoDoc,
+        numero_documento: nroDoc,
+        condicion_iva: condicionIva,
+      },
+      items,
+      importe_neto: Math.round(neto * 100) / 100,
+      importe_iva: Math.round(ivaTotal * 100) / 100,
+      importe_total: Math.round(neto * 100) / 100 + Math.round(ivaTotal * 100) / 100,
+    }),
   })
+
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`Error AFIP: ${err}`)
+    throw new Error(`Error TusFacturasAPP: ${err}`)
   }
+
+  return res.json() // { cae, cae_vencimiento, numero_comprobante, ... }
+}
+
+// Nota de Crédito — anula una factura existente
+export const crearNotaCredito = async ({
+  clienteNombre,
+  clienteCuit,
+  clienteDni,
+  condicionIva = 3,
+  tipoComprobante = 8, // Nota de Crédito B
+  articulos = [],
+  total,
+  facturacion = false,
+  facturaAsociada, // { cae, numero }
+}) => {
+  const apiKey = getApiKey()
+  if (!apiKey) throw new Error('API Key no configurada')
+  if (!facturaAsociada?.cae) throw new Error('La factura original no tiene CAE')
+
+  const cuit = clienteCuit || ''
+  const dni = clienteDni || ''
+  const tipoDoc = cuit ? 80 : dni ? 96 : 99
+  const nroDoc = cuit || dni || ''
+  const items = armarItems(articulos, facturacion)
+  const neto = items.reduce((s, i) => s + i.cantidad * i.precio_unitario, 0)
+  const ivaTotal = facturacion ? neto * 0.21 : 0
+
+  const res = await fetch(`${TUS_FACTURAS_URL}/notas-credito`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+    body: JSON.stringify({
+      tipo_comprobante: tipoComprobante,
+      punto_venta: 1,
+      cliente: { nombre: clienteNombre, tipo_documento: tipoDoc, numero_documento: nroDoc, condicion_iva: condicionIva },
+      items,
+      importe_neto: Math.round(neto * 100) / 100,
+      importe_iva: Math.round(ivaTotal * 100) / 100,
+      importe_total: Math.round(neto * 100) / 100 + Math.round(ivaTotal * 100) / 100,
+      comprobante_asociado: { cae: facturaAsociada.cae, numero: facturaAsociada.numero },
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Error TusFacturasAPP: ${err}`)
+  }
+
   return res.json()
 }

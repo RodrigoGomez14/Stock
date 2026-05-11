@@ -7,10 +7,11 @@ const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', '
 export const ChequesReceivable = ({ cheques, title = 'Cheques a cobrar' }) => {
   if (!cheques || Object.keys(cheques).length === 0) return null
 
-  // Group by month of vencimiento
+  // Group by month of vencimiento — only cheques still in our possession
   const byMonth = {}
   Object.entries(cheques).forEach(([id, c]) => {
     if (!c.vencimiento) return
+    if (c.egreso || c.destinatario || c.dadoDeBaja) return
     const [d, m, y] = c.vencimiento.split('/')
     const key = `${y}-${m}`
     if (!byMonth[key]) byMonth[key] = { total: 0, count: 0, items: [] }

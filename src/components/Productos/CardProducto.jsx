@@ -1,6 +1,6 @@
 ﻿import React from 'react'
-import { Card, CardContent, CardActions, Button, Typography, Chip, IconButton, Box, Divider } from '@mui/material'
-import { Edit, Visibility } from '@mui/icons-material'
+import { Card, CardContent, Button, Typography, Box, Chip } from '@mui/material'
+import { Visibility } from '@mui/icons-material'
 import { ImgCache } from '../ImgCache'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../../utilities'
@@ -12,7 +12,7 @@ const calcularPrecioMeli = (precio) => {
   return Math.round(precio * markup + costoFijo)
 }
 
-export const CardProducto = ({ name, precio, cantidad, isSubproducto, imagen, search }) => {
+export const CardProducto = ({ name, precio, cantidad, isSubproducto, imagen, search, variantes }) => {
   if (search && !name.toLowerCase().includes(search.toLowerCase())) return null
 
   return (
@@ -30,35 +30,33 @@ export const CardProducto = ({ name, precio, cantidad, isSubproducto, imagen, se
         )}
       </Box>
 
-      <CardContent sx={{ flex: 1, pb: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Typography variant="body1" fontWeight={700}
-            component={Link} to={`/Producto?${encodeURIComponent(name)}`}
-            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, display: 'block' }}>
-            {name}
-          </Typography>
-          <IconButton size="small" component={Link} to={`/Editar-Producto?${encodeURIComponent(name)}`}
-            sx={{ ml: 1, color: 'text.secondary', '&:hover': { color: 'warning.main' } }}>
-            <Edit fontSize="small" />
-          </IconButton>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
-          {isSubproducto && <Chip size="small" label="Subproducto" color="warning" variant="outlined" />}
-          <Chip size="small" label={`Stock: ${cantidad}`} color={cantidad > 0 ? 'success' : 'error'} variant="filled" sx={{ fontWeight: 600 }} />
-        </Box>
-
-        <Divider sx={{ my: 1.5 }} />
-
-        <Typography variant="h5" fontWeight={800} color="primary.main">
-          $ {formatMoney(precio)}
+      <CardContent sx={{ flex: 1, pb: 1, display: 'flex', flexDirection: 'column' }}>
+        <Typography variant="body1" fontWeight={700}
+          component={Link} to={`/Producto?${encodeURIComponent(name)}`}
+          sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, display: 'block' }}>
+          {name}
         </Typography>
-        {precio > 0 && (
-          <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Typography variant="caption" sx={{ color: 'warning.main', fontWeight: 600, fontSize: 11 }}>
-              🛒 MELI: $ {formatMoney(calcularPrecioMeli(precio))}
-            </Typography>
+        {variantes && Object.keys(variantes).length > 0 && (
+          <Box sx={{ display: 'flex', gap: 0.3, flexWrap: 'wrap', mt: 0.5, mb: 1 }}>
+            {Object.entries(variantes).map(([key, v]) => (
+              <Chip key={key} size="small" label={`${key}${v.precio ? ` $${formatMoney(v.precio)}` : ''}`}
+                variant="outlined" sx={{ fontSize: 9, height: 18 }} />
+            ))}
           </Box>
         )}
+        <Box sx={{ mt: 'auto', bgcolor: 'primary.dark', mx: -2, px: 2, py: 1.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Typography variant="h5" fontWeight={800} color="white">
+              $ {formatMoney(precio)}
+            </Typography>
+            <Typography variant="h5" fontWeight={800} color="white">
+              {cantidad} u.
+            </Typography>
+          </Box>
+          <Typography variant="body1" fontWeight={600} sx={{ color: '#fff', opacity: 0.85, mt: 0.5 }}>
+            🛒 MELI: {precio > 0 ? `$ ${formatMoney(calcularPrecioMeli(precio))}` : '—'}
+          </Typography>
+        </Box>
       </CardContent>
 
       <Button component={Link} to={`/Producto?${encodeURIComponent(name)}`}

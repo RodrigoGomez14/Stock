@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react'
 import { withStore } from '../context/AppContext'
+import { Link } from 'react-router-dom'
 import { Layout } from './Layout'
 import {
   Box, TextField, Autocomplete, Typography, Grid, Paper,
@@ -14,7 +15,7 @@ import { pushData, updateData } from '../services'
 import { fechaDetallada, formatMoney } from '../utilities'
 import { ImgCache } from '../components/ImgCache'
 
-const emptyProd = { producto: '', cantidad: 1, precio: 0, precioOriginal: 0, descuento: 0, redondeo: 0, tipoAjuste: 'ninguno' }
+const emptyProd = { producto: '', variante: '', cantidad: 1, precio: 0, precioOriginal: 0, descuento: 0, redondeo: 0, tipoAjuste: 'ninguno' }
 
 const NuevoPedido = (props) => {
   const [cliente, setCliente] = useState('')
@@ -63,7 +64,8 @@ const NuevoPedido = (props) => {
     if (!newProd.producto || !newProd.cantidad) return
     const precioFinal = getPrecioFinal(newProd)
     const item = {
-      producto: newProd.producto, cantidad: newProd.cantidad,
+      producto: newProd.producto, variante: newProd.variante || null,
+      cantidad: newProd.cantidad,
       precio: precioFinal, precioOriginal: newProd.precioOriginal,
       descuento: newProd.tipoAjuste === 'descuento' ? newProd.descuento : 0,
       redondeo: newProd.tipoAjuste === 'redondeo' ? newProd.redondeo : 0,
@@ -89,7 +91,7 @@ const NuevoPedido = (props) => {
     const name = v || ''
     const prod = props.productos?.[name]
     setNewProd(p => ({
-      ...p, producto: name,
+      ...p, producto: name, variante: '',
       precioOriginal: prod?.precio || 0, precio: prod?.precio || 0,
     }))
   }
@@ -97,7 +99,8 @@ const NuevoPedido = (props) => {
   const editarProducto = (idx) => {
     const p = productos[idx]
     setNewProd({
-      producto: p.producto, cantidad: p.cantidad,
+      producto: p.producto, variante: p.variante || '',
+      cantidad: p.cantidad,
       precioOriginal: p.precioOriginal || p.precio,
       precio: p.precio, descuento: p.descuento || 0,
       redondeo: p.redondeo || 0, tipoAjuste: p.tipoAjuste || 'ninguno',
@@ -176,7 +179,12 @@ const NuevoPedido = (props) => {
                               </Box>
                             )}
                             <Box>
-                              <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
+                              <Typography variant="body2" fontWeight={600}
+                                component={Link} to={`/Producto?${encodeURIComponent(p.producto)}`}
+                                sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+                                {p.producto}
+                              </Typography>
+                              {p.variante && <Typography variant="body2" component="span" color="text.secondary"> — {p.variante}</Typography>}
                               {p.tipoAjuste !== 'ninguno' && (
                                 <Typography variant="caption" color="warning.main">
                                   {p.tipoAjuste === 'descuento' ? `${p.descuento}% dto.` : 'redondeo'}
@@ -215,6 +223,28 @@ const NuevoPedido = (props) => {
                       onInputChange={(_, v) => handleProductoChange(_, v)}
                       renderInput={(params) => <TextField {...params} label="Producto" fullWidth size="small" />} />
                   </Grid>
+                  {newProd.producto && props.productos?.[newProd.producto]?.variantes && Object.keys(props.productos[newProd.producto].variantes).length > 0 && (
+                    <Grid item xs={12}>
+                      <Autocomplete freeSolo value={newProd.variante}
+                        options={Object.keys(props.productos[newProd.producto].variantes)}
+                        getOptionLabel={(o) => o}
+                        onChange={(_, v) => {
+                          const varData = props.productos[newProd.producto].variantes[v]
+                          setNewProd(p => ({
+                            ...p, variante: v || '',
+                            precioOriginal: varData?.precio || p.precioOriginal, precio: varData?.precio || p.precio,
+                          }))
+                        }}
+                        onInputChange={(_, v) => {
+                          const varData = props.productos[newProd.producto].variantes[v]
+                          setNewProd(p => ({
+                            ...p, variante: v || '',
+                            precioOriginal: varData?.precio || p.precioOriginal, precio: varData?.precio || p.precio,
+                          }))
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Variante" fullWidth size="small" />} />
+                    </Grid>
+                  )}
                   <Grid item xs={6}>
                     <TextField fullWidth size="small" label="Cantidad" type="number" value={newProd.cantidad}
                       onChange={(e) => setNewProd(p => ({ ...p, cantidad: parseInt(e.target.value) || 0 }))} />
@@ -249,33 +279,35 @@ const NuevoPedido = (props) => {
                 )}
 
                 {/* Resumen */}
-                <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: 'action.hover' }}>
-                  <Grid container spacing={1}>
-                    <Grid item xs={6}>
-                      <Typography variant="caption" color="text.secondary">Precio original</Typography>
-                      <Typography variant="body2">$ {formatMoney(newProd.precioOriginal)}</Typography>
+                <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, bgcolor: 'primary.dark' }}>
+                  {newProd.tipoAjuste !== 'ninguno' && (
+                    <Grid container spacing={1} sx={{ mb: 1 }}>
+                      <Grid item xs={6}>
+                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Precio original</Typography>
+                        <Typography variant="body2" fontWeight={700} sx={{ color: '#fff' }}>$ {formatMoney(newProd.precioOriginal)}</Typography>
+                      </Grid>
+                      {newProd.tipoAjuste === 'descuento' && newProd.descuento > 0 && (
+                        <Grid item xs={6}>
+                          <Typography variant="caption" sx={{ color: '#ef9a9a' }}>Descuento {newProd.descuento}%</Typography>
+                          <Typography variant="body2" fontWeight={700} sx={{ color: '#ef9a9a' }}>-$ {formatMoney(newProd.precioOriginal * newProd.descuento / 100)}</Typography>
+                        </Grid>
+                      )}
+                      {newProd.tipoAjuste === 'redondeo' && newProd.redondeo > 0 && (
+                        <Grid item xs={6}>
+                          <Typography variant="caption" sx={{ color: '#ffcc80' }}>Redondeo aplicado</Typography>
+                          <Typography variant="body2" fontWeight={700} sx={{ color: '#ffcc80' }}>a $ {formatMoney(newProd.redondeo)}</Typography>
+                        </Grid>
+                      )}
+                      <Grid item xs={12}><Divider sx={{ borderColor: 'rgba(255,255,255,0.2)' }} /></Grid>
                     </Grid>
-                    {newProd.tipoAjuste === 'descuento' && newProd.descuento > 0 && (
-                      <Grid item xs={6}>
-                        <Typography variant="caption" color="error.main">Descuento {newProd.descuento}%</Typography>
-                        <Typography variant="body2" color="error.main">-$ {formatMoney(newProd.precioOriginal * newProd.descuento / 100)}</Typography>
-                      </Grid>
-                    )}
-                    {newProd.tipoAjuste === 'redondeo' && newProd.redondeo > 0 && (
-                      <Grid item xs={6}>
-                        <Typography variant="caption" color="warning.main">Redondeo aplicado</Typography>
-                        <Typography variant="body2" color="warning.main">a $ {formatMoney(newProd.redondeo)}</Typography>
-                      </Grid>
-                    )}
-                  </Grid>
-                  <Divider sx={{ my: 1 }} />
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" fontWeight={700}>Precio final por unidad</Typography>
-                    <Typography variant="body1" fontWeight={800} color="primary.main">$ {formatMoney(precioFinal)}</Typography>
+                  )}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Typography variant="body2" fontWeight={700} sx={{ color: 'rgba(255,255,255,0.8)' }}>Precio final por unidad</Typography>
+                    <Typography variant="body1" fontWeight={800} sx={{ color: '#fff' }}>$ {formatMoney(precioFinal)}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="caption" color="text.secondary">Subtotal ({newProd.cantidad} u)</Typography>
-                    <Typography variant="body2" fontWeight={700}>$ {formatMoney(precioFinal * newProd.cantidad)}</Typography>
+                    <Typography variant="body1" fontWeight={700} sx={{ color: 'rgba(255,255,255,0.8)' }}>Subtotal ({newProd.cantidad} u)</Typography>
+                    <Typography variant="h6" fontWeight={800} sx={{ color: '#fff' }}>$ {formatMoney(precioFinal * newProd.cantidad)}</Typography>
                   </Box>
                 </Paper>
 
@@ -325,7 +357,11 @@ const NuevoPedido = (props) => {
                             {props.productos?.[p.producto]?.imagen ? (
                               <ImgCache src={props.productos[p.producto].imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }} />
                             ) : null}
-                            <Typography variant="body2" fontWeight={600}>{p.producto}</Typography>
+                            <Typography variant="body2" fontWeight={600}
+                              component={Link} to={`/Producto?${encodeURIComponent(p.producto)}`}
+                              sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+                              {p.producto}
+                            </Typography>
                           </Box>
                           <Typography variant="caption" color="text.secondary">
                             {p.cantidad} u × $ {formatMoney(p.precio)}

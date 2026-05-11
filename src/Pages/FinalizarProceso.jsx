@@ -1,467 +1,502 @@
-﻿import React,{useState, useEffect} from 'react'
+﻿import React, { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
-import {Layout} from './Layout'
-import {Grid,Paper,Chip,Card,Button,StepContent,Backdrop,StepLabel,Typography,Step,Stepper,Snackbar,CircularProgress} from '@mui/material'
-import Alert from '@mui/material/Alert';
-import {Step as StepComponent} from '../components/Finalizar-Proceso/Step'
+import { Layout } from './Layout'
+import {
+  Box, Grid, Typography, Paper, Button, TextField, Backdrop,
+  CircularProgress, Snackbar, Chip, Divider, FormControlLabel, Switch
+} from '@mui/material'
+import { Alert } from '@mui/material'
+import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData, removeData, setData, getPushKey } from '../services'
-import { Navigate } from 'react-router-dom'
-import {checkSearch, formatMoney,fechaDetallada,obtenerFecha} from '../utilities'
-import {content} from './styles/styles'
-import { AttachMoney, List, LocalAtm } from '@mui/icons-material';
-  
-  const FinalizarEntrega=(props)=>{
-    const classes = content()
+import { ingresoCaja } from '../services/cajaService'
+import { formatMoney, obtenerFecha } from '../utilities'
+import { ChequesSelection } from '../components/Cheques/ChequesSelection'
+import { InlineChequePersonalForm } from '../components/Cheques/InlineChequePersonalForm'
+import { InlineTransferenciaForm } from '../components/InlineTransferenciaForm'
 
-    const [cheques,setcheques]=useState([])
-    const [total, settotal] = useState(0);
+const FinalizarProceso = (props) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [activeStep, setActiveStep] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [snack, setSnack] = useState('')
 
-    const [chequesPersonales,setChequesPersonales]=useState([])
-    const [totalChequesPersonales, setTotalChequesPersonales] = useState(0);
+  const id = location.search.slice(1)
+  const cadena = props.cadenasActivas?.[id]
+  const procesos = cadena?.procesos || []
+  const stepIndex = procesos.findIndex((p) => p.fechaDeInicio && !p.fechaDeEntrega)
+  const proceso = procesos[stepIndex] || {}
+  const proveedorNombre = proceso.proveedor || ''
+  const proveedorData = props.proveedores?.[proveedorNombre]
 
-    const [cuentaTransferencia,setCuentaTransferencia]=useState(undefined)
-    const [totalTransferencia, setTotalTransferencia] = useState(undefined);
+  const [precio, setPrecio] = useState('')
+  const [cantidad, setCantidad] = useState(cadena?.cantidad || '')
+  const [facturacion, setFacturacion] = useState(false)
 
-    const [efectivo,setEfectivo]=useState(undefined)
+  // Payment
+  const [selectedPago, setSelectedPago] = useState('noPagar')
+  const [efectivo, setEfectivo] = useState('')
+  const [transferencias, setTransferencias] = useState([])
+  const [totalTransferencias, setTotalTransferencias] = useState(0)
+  const [cheques, setCheques] = useState([])
+  const [totalCheques, setTotalCheques] = useState(0)
+  const [cheqPers, setCheqPers] = useState([])
+  const [totalCheqPers, setTotalCheqPers] = useState(0)
+  const [showChequePersForm, setShowChequePersForm] = useState(false)
+  const [showTransfForm, setShowTransfForm] = useState(false)
+  const [transfEditIdx, setTransfEditIdx] = useState(-1)
 
-    const [precio, setPrecio] = useState(undefined);
-    const [cantidad, setCantidad] = useState(props.cadenasActivas[props.history.location.search.slice(1)].cantidad?props.cadenasActivas[props.history.location.search.slice(1)].cantidad:undefined);
+  const totalPagado = (parseFloat(efectivo || 0) || 0) + (totalTransferencias || 0) + (totalCheques || 0) + (totalCheqPers || 0)
+  const precioNum = parseFloat(precio || 0)
+  const restante = precioNum - totalPagado
 
-    const [facturacion, setFacturacion] = useState(props.history.location.props?props.history.location.props.facturacion:false);
-    const [activeStep, setActiveStep] = useState(0);
-    const [showSnackbar, setshowSnackbar] = useState(false);
-    const [loading, setLoading] = useState(false);
+  const resetPago = () => {
+    setEfectivo(''); setTransferencias([]); setTotalTransferencias(0)
+    setCheques([]); setTotalCheques(0); setCheqPers([]); setTotalCheqPers(0)
+  }
 
-    const steps = getSteps();
+  const toggleCheque = (key) => {
+    if (!props.cheques?.[key]) return
+    const idx = cheques.indexOf(key)
+    const copy = [...cheques]
+    if (idx !== -1) {
+      copy.splice(idx, 1)
+      setTotalCheques((t) => t - parseFloat(props.cheques[key].valor || 0))
+    } else {
+      copy.push(key)
+      setTotalCheques((t) => t + parseFloat(props.cheques[key].valor || 0))
+    }
+    setCheques(copy)
+  }
 
-    //STEPPER NAVIGATION 
-    const handleNext = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    };
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
-    function getStepContent(step) {
-      switch (step) {
-        case 0:
-          return (
-            <StepComponent
-                tipoDeDato='Detalles'
-                precio={precio}      
-                cantidad={cantidad}      
-                setPrecio={setPrecio}      
-                setCantidad={setCantidad}
-                setEfectivo={setEfectivo}    
-            />
-          );
-          case 1:
-            return (
-              <StepComponent
-                  tipoDeDato='Transferencia'
-                  cuentaTransferencia={cuentaTransferencia}
-                  setCuentaTransferencia={setCuentaTransferencia}
-                  totalTransferencia={totalTransferencia}
-                  setTotalTransferencia={setTotalTransferencia}
-                  cuentasBancarias={props.cuentasBancarias}
-                  />
-            );
-          case 2:
-            return (
-              <StepComponent
-                tipoDeDato='Metodo De Pago'
-                efectivo={efectivo}
-                setEfectivo={setEfectivo}
-                cheques={cheques}
-                setcheques={setcheques}
-                addCheque={addCheque}
-                total={total}
-                settotal={settotal}
-                chequesList={props.cheques}
-                  />
-            );
-        case 3:
-            return (
-                    <StepComponent 
-                        tipoDeDato='Cheques Personales'
-                        chequesPersonales={chequesPersonales}
-                        setChequesPersonales={setChequesPersonales}
-                        totalChequesPersonales={totalChequesPersonales}
-                        setTotalChequesPersonales={setTotalChequesPersonales}
-                        cliente={props.cadenasActivas[props.history.location.search.slice(1)].procesos[checkStepProceso(props.history.location.search.slice(1))].proveedor}
-                        addCheque={addCheque}
-                        chequesList={props.cheques}
-                        tipo='Proveedor'
-                    />
-          );
+  const guardar = async () => {
+    setLoading(true)
+    try {
+      const cant = parseInt(cantidad || 0, 10)
+      const unitPrice = precioNum / (cant || 1)
+
+      // Mark third-party cheques as used
+      const chequesUsados = []
+      for (const ch of cheques) {
+        const chData = props.cheques?.[ch]
+        if (chData) {
+          await updateData(props.user.uid, `cheques/${ch}`, { destinatario: proveedorNombre, egreso: obtenerFecha() })
+          chequesUsados.push(chData.numero || ch)
         }
-    }
-    function getSteps() {
-        return ['Detalles',"Transferencia",'Metodo De Pago','Cheques Personales'];
-    }
-    function getStepLabel(label,index) {
-        switch (index) {
-            case 0:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<List/>} 
-                            label={label}  
-                            onClick={()=>{setActiveStep(index)}}
-                            variant='default'
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                        />
-                    </StepLabel>
-                );
-            case 1:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<LocalAtm />} 
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                            label={label} 
-                            variant='default'
-                            onClick={()=>{setActiveStep(index)}}
-                        />
-                    </StepLabel>
-                );
-            case 2:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<AttachMoney />} 
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                            label={label} 
-                            variant='default'
-                            onClick={()=>{setActiveStep(index)}}
-                        />
-                    </StepLabel>
-                );
-            case 3:
-                return (
-                    <StepLabel>
-                        <Chip 
-                            avatar={<AttachMoney />} 
-                            className={activeStep==index?classes.iconLabelSelected:null}
-                            label={label} 
-                            variant='default'
-                            onClick={()=>{setActiveStep(index)}}
-                        />
-                    </StepLabel>
-                );
-        }
-    }
+      }
 
+      // Save personal cheques
+      const cheqPersData = []
+      for (const cp of cheqPers) {
+        const item = { ...cp, egreso: obtenerFecha(), destinatario: proveedorNombre }
+        await pushData(props.user.uid, 'chequesPersonales', item)
+        cheqPersData.push(item)
+      }
 
-    //FUNCTIONS
-    const checkStepProceso = (id) =>{
-        let aux = props.cadenasActivas[id].procesos
-        let index = 0
-        aux.map((proceso,i)=>{
-            if(proceso.fechaDeInicio){
-                index = i
-            }
+      // Update supplier debt
+      const deudaPasada = proveedorData?.datos?.deuda || 0
+      const nuevaDeuda = restante > 0 ? deudaPasada + restante : Math.max(0, deudaPasada + restante)
+      await updateData(props.user.uid, `proveedores/${proveedorNombre}/datos`, { deuda: nuevaDeuda })
+
+      // Build the entrega/compra record
+      const entregaKey = getPushKey(props.user.uid, `proveedores/${proveedorNombre}/entregas`)
+      const entrega = {
+        fecha: obtenerFecha(),
+        proveedor: proveedorNombre,
+        articulos: [{
+          cantidad: cant,
+          precio: unitPrice,
+          producto: cadena.producto,
+          total: precioNum,
+        }],
+        metodoDePago: {
+          efectivo: efectivo || null,
+          transferencias: transferencias.length ? transferencias : null,
+          cheques: chequesUsados.length ? chequesUsados : null,
+          chequesPersonales: cheqPersData.length ? cheqPersData : null,
+          fecha: obtenerFecha(),
+          total: totalPagado || null,
+          deudaPasada,
+          deudaActualizada: nuevaDeuda,
+          pagado: totalPagado,
+          adeudado: restante > 0 ? restante : 0,
+        },
+        metodoDeEnvio: 'Particular',
+        total: precioNum,
+      }
+
+      // Push to compras
+      await pushData(props.user.uid, 'compras', { ...entrega, idEntrega: entregaKey })
+
+      // Push payment to supplier history
+      await pushData(props.user.uid, `proveedores/${proveedorNombre}/pagos`, {
+        ...entrega.metodoDePago, idEntrega: entregaKey,
+      })
+
+      // Save full entregas record
+      await setData(props.user.uid, `proveedores/${proveedorNombre}/entregas/${entregaKey}`, entrega)
+
+      // Caja: egreso de efectivo
+      if (parseFloat(efectivo || 0) > 0) {
+        await ingresoCaja(props.user.uid, -parseFloat(efectivo), `Pago a proveedor ${proveedorNombre} - ${cadena.producto}`, `cadenasActivas/${id}`)
+      }
+
+      // Bank transfers
+      for (const t of transferencias) {
+        await pushData(props.user.uid, `CuentasBancarias/${t.cuenta}/egresos`, {
+          fecha: obtenerFecha(), tipo: 'transferencia', total: parseFloat(t.monto),
+          concepto: `Pago a proveedor ${proveedorNombre} - ${cadena.producto}`,
         })
-        return index
-    }
-    const finalizarProceso = async () =>{
-        const id = props.history.location.search.slice(1)
-        const step = checkStepProceso(id)
-        const cadena = props.cadenasActivas[id].procesos
+      }
 
-        setLoading(true)
-        
-        // ACTUALIZA CADA CHEQUE EN DB
-        let chequesList = actualizarCheques(cadena[step].proveedor)
-        
-        // AGREGA CADA CHEQUE PERSONAL A LA LISTA 
-        let chequesPersonalesList = agregarChequesPersonales()
+      // Update production chain
+      const updatedProcesos = [...procesos]
+      updatedProcesos[stepIndex] = {
+        ...proceso,
+        fechaDeEntrega: obtenerFecha(),
+        idEntrega: entregaKey,
+        precio: precioNum,
+      }
+      const updatedCadena = { ...cadena, procesos: updatedProcesos }
 
-        // FUNCIONES DE ESTRUCTURA
-        const calcularDeudaActualizada = () =>{
-            return props.proveedores[cadena[step].proveedor].datos.deuda + parseFloat(calcularAdeudado())
-        }
-        const calcularPagado = () =>{
-            return total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) +(totalTransferencia?parseFloat(totalTransferencia):0)
-        }     
-        const calcularAdeudado = () =>{
-            return precio - (total + totalChequesPersonales + (efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))
-        }        
-        // ESTRUCTURA DE LA ENTREGA
-        let aux={
-                fecha:obtenerFecha(),
-                proveedor:cadena[step].proveedor,
-                articulos:[{
-                    cantidad:cantidad,
-                    precio:precio/cantidad,
-                    producto:props.cadenasActivas[id].producto,
-                    total:precio
-                }],
-                metodoDePago:{
-                    facturacion:facturacion,
-                    efectivo:efectivo?efectivo:null,
-                    cuentaTransferencia:cuentaTransferencia?cuentaTransferencia:null,
-                    totalTransferencia:totalTransferencia?totalTransferencia:null,
-                    cheques:chequesList,
-                    chequesPersonales:chequesPersonalesList,
-                    totalChequesPersonales:totalChequesPersonales,
-                    fecha:obtenerFecha(),
-                    total:precio,
-                    deudaPasada:props.proveedores[cadena[step].proveedor].datos.deuda,
-                    deudaActualizada:calcularDeudaActualizada(),
-                    pagado:calcularPagado(),
-                    adeudado:calcularAdeudado()
-                },
-                metodoDeEnvio:'Particular',
-                total:precio,
-            }
-        
-        // ACTUALIZA LA DEUDA DEL PROVEEDOR
-        actualizarDeuda(aux.total, aux.metodoDePago.pagado,cadena[step].proveedor)
-       
-        if(props.history.location.props.facturacion){
-            aux.articulos = actualizarPrecios(aux.articulos)
-        }
-
-
-        // AGREGA LA ENTREGA A DB PARA OBTENER ID
-        const key = getPushKey(props.user.uid, `proveedores/${cadena[step].proveedor}/entregas`)
-        
-        // AGREGA LA FACTURA A LISTA DE COMPRAS
-        agregarAListaDeCompras(aux,key)
-
-        // MODELA Y AGREGA EL PAGO AL HISTORIAL
-        agregarPagoAlHistorial(aux.metodoDePago,key,cadena[step].proveedor)
-        
-        // MODELA Y AGREGA LA TRANSFERENCIA A LOS MOVIMIENTOS BANCARIOS
-        if(aux.metodoDePago.cuentaTransferencia){
-            guardarTransferenciaBancaria(aux.metodoDePago.cuentaTransferencia,aux.metodoDePago.totalTransferencia)
-        }
-
-        // FEEDBACK DEL PROCESO
-        setshowSnackbar('El Proceso Finalizo Correctamente')
-
-        // ACTUALIZA LA CADENA DE PRODUCCION ACTIVA
-        actualizarCadenaDeProduccion(id,step,aux.total,cantidad,key)
-
-        // AUMENTAR PRDODUCTOS
-        if(step==cadena.length-1){
-            await aumentarProducto(id)
-            await descontarSubproductos(id)
-        }
-        // ACTUALIZA DB ENVIANDO TODA LA INFO
-        setData(props.user.uid, `proveedores/${cadena[step].proveedor}/entregas/${key}`, aux)
-            .then(()=>{
-                setTimeout(() => {
-                    props.history.replace('/Cadenas-De-Produccion')
-                    if(step==cadena.length-1){
-                        if(cantidad>=props.cadenasActivas[id].cantidad){
-                            removeData(props.user.uid, `cadenasActivas/${id}`)
-                        }
-                    }
-                }, 2000);
-            })
-            .catch(()=>{
-                setLoading(false)
-            })
-    }
-    const actualizarPrecios = (articulos) =>{
-        let aux =articulos
-        aux.map(articulo=>{
-            articulo.precio=articulo.precio+articulo.precio*0.21
-            articulo.total = parseFloat(articulo.cantidad) * articulo.precio
+      // If last step: increase product stock, decrease subproducts
+      if (stepIndex === procesos.length - 1) {
+        // Increase product
+        const prodActual = parseInt(props.productos?.[cadena.producto]?.cantidad || 0, 10)
+        await updateData(props.user.uid, `productos/${cadena.producto}`, { cantidad: prodActual + cant })
+        await pushData(props.user.uid, `productos/${cadena.producto}/historialDeStock`, {
+          cantidad: prodActual + cant, fecha: obtenerFecha(),
         })
-        return aux
-    }
-    const aumentarProducto = async id =>{
-        const producto = props.cadenasActivas[id].producto
 
-        // AUMENTA LA CANTIDAD DE PRODUCTOS
-        const nuevaCantidad = parseInt(props.productos[producto].cantidad)+parseInt(cantidad)
-        await updateData(props.user.uid, `productos/${producto}`, {cantidad:nuevaCantidad})
-        await pushData(props.user.uid, `productos/${producto}/historialDeStock`, {cantidad:nuevaCantidad,fecha:obtenerFecha()})
-        
-    }
-    const descontarSubproductos = async id =>{
-        const subproductos = props.productos[props.cadenasActivas[id].producto].subproductos
+        // Decrease subproducts
+        const subproductos = props.productos?.[cadena.producto]?.subproductos
+        if (subproductos) {
+          for (const sp of subproductos) {
+            const spActual = parseInt(props.productos?.[sp.nombre]?.cantidad || 0, 10)
+            const spDescuento = cant * parseInt(sp.cantidad || 1, 10)
+            await updateData(props.user.uid, `productos/${sp.nombre}`, { cantidad: Math.max(0, spActual - spDescuento) })
+            await pushData(props.user.uid, `productos/${sp.nombre}/historialDeStock`, {
+              cantidad: Math.max(0, spActual - spDescuento), fecha: obtenerFecha(),
+            })
+          }
+        }
 
-        // DESCUENTA LA CANTIDAD DE PRODUCTOS
-        if(subproductos){
-            subproductos.map(async subproducto=>{
-                const nuevaCantidad = parseInt(props.productos[subproducto.nombre].cantidad)-(cantidad*subproducto.cantidad)
-                await updateData(props.user.uid, `productos/${subproducto.nombre}`, {cantidad:nuevaCantidad})
-                await pushData(props.user.uid, `productos/${subproducto.nombre}/historialDeStock`, {cantidad:nuevaCantidad,fecha:obtenerFecha()})
-            })
-        }
-    }
-    const actualizarCheques =(id) =>{
-        let chequesList= []
-        if(cheques.length){
-            // RECORRE LA LISTA DE CHEQUES 
-            cheques.map(cheque=>{
-                // ACTUALIZA EL CHEQUE EN DB
-                updateData(props.user.uid, `cheques/${cheque}`, {
-                    destinatario:id,
-                    egreso:obtenerFecha()
-                })
-                // GUARDA EL NUMERO DE CHEQUE
-                chequesList.push(props.cheques[cheque].numero)
-            })
-        }
-        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
-        return chequesList
-    }
-    const agregarChequesPersonales = () =>{
-        let chequesList= []
-        if(chequesPersonales.length){
-            // RECORRE LA LISTA DE CHEQUES 
-            chequesPersonales.map(cheque=>{
-                // GUARDA EL NUMERO DE CHEQUE
-                chequesList.push(cheque.numero)
-                // ESTRUCTURA DEL CHEQUE
-                let auxCheque = {
-                    egreso:obtenerFecha(),
-                    destinatario:cheque.destinatario,
-                    numero:cheque.numero,
-                    vencimiento:cheque.vencimiento,
-                    valor:cheque.valor
-                }
-                // GUARDA EN LA LISTA DE CHQUES CADA UNO
-                pushData(props.user.uid, 'chequesPersonales', auxCheque)
-            })
-        }
-        // RETORNA UNA LISTA CON CADA NUMERO DE CHEQUE
-        return chequesList
-    }
-    const actualizarDeuda = (totalPedido,totalRecibido,id) =>{
-        const deudaPasada = props.proveedores[id].datos.deuda
-        if(totalPedido>totalRecibido){
-            updateData(props.user.uid, `proveedores/${id}/datos`, {deuda:(deudaPasada)+(totalPedido-totalRecibido)})
-        }
-        else{
-            updateData(props.user.uid, `proveedores/${id}/datos`, {deuda:(deudaPasada)-(totalRecibido-totalPedido)})
-        }
-    }
-    const agregarPagoAlHistorial = (pago,idLink,id) =>{
-        let aux= {...pago,idEntrega:idLink}
-        pushData(props.user.uid, `proveedores/${id}/pagos`, aux)
-    }
-    const agregarAListaDeCompras = (entrega,idLink) =>{
-        let aux=entrega
-        aux['idEntrega']=idLink
-        pushData(props.user.uid, 'compras', aux)
-    }
-    const actualizarCadenaDeProduccion = (id,step,precio,cantidad,idEntrega) =>{
-        let aux = {...props.cadenasActivas[id]}
-        aux.cantidad=cantidad
-        aux.procesos[step].fechaDeEntrega=(obtenerFecha())
-        aux.procesos[step].idEntrega=idEntrega
-        aux.procesos[step].precio=precio
-        if(step==aux.procesos.length-1){
-            pushData(props.user.uid, `productos/${aux.producto}/historialDeCadenas`, aux)
-            if(cantidad<props.cadenasActivas[id].cantidad){
-                aux.cantidad=(props.cadenasActivas[id].cantidad-cantidad)
-                aux.procesos[step].fechaDeInicio=null
-                aux.procesos[step].fechaDeEntrega=null
-                aux.procesos[step].idEntrega=null
-                aux.procesos[step].precio=null
-                updateData(props.user.uid, `cadenasActivas/${id}`, aux)
-            }
-            else{
-                removeData(props.user.uid, `cadenasActivas/${id}`)
-            }
-        }
-        else{
-            updateData(props.user.uid, `cadenasActivas/${id}`, aux)
-        }
-    }
-    const guardarTransferenciaBancaria = async (cuenta,total) =>{
-        const auxDeposito ={
-            fecha:obtenerFecha(),
-            tipo:'transferencia',
-            total:total
-        }
-        await pushData(props.user.uid, `CuentasBancarias/${cuenta}/egresos`, auxDeposito)
-    }
-    const addCheque = key =>{
-        const index = cheques.indexOf(key)
-        let aux = [...cheques]
-        if(index !== -1){
-            aux.splice(index,1)
-            settotal(parseFloat(total)-parseFloat(props.cheques[key].valor))
-        }
-        else{
-            aux.push(key)
-            settotal(parseFloat(total)+parseFloat(props.cheques[key].valor))
-        }
-        setcheques(aux)
-    }
+        // Save to historial de cadenas
+        await pushData(props.user.uid, `productos/${cadena.producto}/historialDeCadenas`, updatedCadena)
+      }
 
-    return(
-        <Layout history={props.history} page='Finalizar Proceso' user={props.user.uid} blockGoBack={true}>
-            {/* CONTENT */}
-            <Paper className={classes.content}>
-                {/* STEPPER */}
-                <Stepper orientation='vertical' activeStep={activeStep} className={classes.stepper}>
-                    {steps.map((label,index)=>(
-                        <Step>
-                            {getStepLabel(label,index)}
-                            <StepContent>
-                                <Grid container xs={12} justify='center' spacing={3}>
-                                    {getStepContent(index)}
-                                    {activeStep == 1?
-                                        <Grid container item xs={12} justify='center'>
-                                            <Paper elevation={3} variant='body1' className={classes.paperTotalRecibirEntrega}>
-                                                <Grid item xs={12}>
-                                                    <Typography variant='h6'>
-                                                        Total $ {formatMoney( total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0))} / $ {formatMoney(precio)}
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid container item xs={12} justify='center'>
-                                                    <Chip label={`$ ${formatMoney( precio - ( total + totalChequesPersonales +(efectivo?parseFloat(efectivo):0) + (totalTransferencia?parseFloat(totalTransferencia):0)) )}`}/>
-                                                </Grid>
-                                            </Paper>
-                                        </Grid>
-                                        :
-                                        null
-                                    }
-                                    <Grid container item xs={12} justify='center'>
-                                        <Grid item>
-                                            <Button
-                                                disabled={activeStep===0}
-                                                onClick={handleBack}
-                                            >
-                                                Volver
-                                            </Button>
-                                        </Grid>
-                                        <Grid item>
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                disabled={!cantidad || !precio}
-                                                onClick={activeStep === steps.length - 1 ? finalizarProceso : handleNext}
-                                            >
-                                                {activeStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                            </StepContent>
-                        </Step>
-                    ))}
-                </Stepper>
-            </Paper>
-            
-            {/* BACKDROP & SNACKBAR */}
-            <Backdrop className={classes.backdrop} open={loading}>
-                <CircularProgress color="inherit" />
-                <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={()=>{setshowSnackbar('')}}>
-                    <Alert severity="success" variant='filled'>
-                        {showSnackbar}
-                    </Alert>
-                </Snackbar>
-            </Backdrop>
-        </Layout>
+      // Update or remove cadena activa
+      if (stepIndex === procesos.length - 1 && cant >= parseInt(cadena.cantidad || 0, 10)) {
+        await removeData(props.user.uid, `cadenasActivas/${id}`)
+      } else if (stepIndex === procesos.length - 1 && cant < parseInt(cadena.cantidad || 0, 10)) {
+        const remainder = { ...cadena }
+        remainder.cantidad = cadena.cantidad - cant
+        remainder.procesos[stepIndex].fechaDeInicio = null
+        remainder.procesos[stepIndex].fechaDeEntrega = null
+        remainder.procesos[stepIndex].idEntrega = null
+        remainder.procesos[stepIndex].precio = null
+        await updateData(props.user.uid, `cadenasActivas/${id}`, remainder)
+      } else {
+        await updateData(props.user.uid, `cadenasActivas/${id}`, updatedCadena)
+      }
+
+      setSnack('Proceso finalizado correctamente')
+      setTimeout(() => navigate('/Cadenas-De-Produccion', { replace: true }), 1500)
+    } catch {
+      setLoading(false)
+    }
+  }
+
+  if (!cadena) {
+    return (
+      <Layout history={props.history} page="Finalizar Proceso" user={props.user?.uid}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <Typography>Cadena no encontrada</Typography>
+        </Box>
+      </Layout>
     )
-}
-export default withStore(FinalizarEntrega)
+  }
 
+  const steps = [
+    // Step 1: Detalles
+    <Box>
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom sx={{ mb: 2 }}>Detalles del proceso</Typography>
+
+      <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, mb: 2 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Typography variant="caption" color="text.secondary">Producto</Typography>
+            <Typography variant="body1" fontWeight={700}>{cadena.producto}</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="caption" color="text.secondary">Proveedor</Typography>
+            <Typography variant="body1" fontWeight={700}>{proveedorNombre}</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="caption" color="text.secondary">Paso actual</Typography>
+            <Typography variant="body1" fontWeight={500}>{proceso.nombre || `Paso ${stepIndex + 1}`}</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="caption" color="text.secondary">Cantidad planificada</Typography>
+            <Typography variant="body1" fontWeight={500}>{cadena.cantidad} unidad(es)</Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="body2" fontWeight={600} gutterBottom>Cantidad recibida</Typography>
+            <TextField fullWidth type="number" value={cantidad}
+              onChange={(e) => setCantidad(e.target.value)}
+              InputProps={{ inputProps: { min: 1 } }} />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="body2" fontWeight={600} gutterBottom>Precio final ($)</Typography>
+            <TextField fullWidth type="number" value={precio}
+              onChange={(e) => setPrecio(e.target.value)}
+              InputProps={{ inputProps: { min: 0 } }} />
+          </Grid>
+        </Grid>
+        {precioNum > 0 && parseFloat(cantidad || 0) > 0 && (
+          <Box sx={{ mt: 1.5, textAlign: 'right' }}>
+            <Typography variant="caption" color="text.secondary">
+              Precio unitario: $ {formatMoney(precioNum / parseFloat(cantidad))}
+            </Typography>
+          </Box>
+        )}
+        <Divider sx={{ my: 2 }} />
+        <FormControlLabel
+          control={<Switch checked={facturacion} onChange={(e) => setFacturacion(e.target.checked)} />}
+          label={
+            <Box>
+              <Typography variant="body2" fontWeight={600}>Facturar a nombre de la empresa</Typography>
+              <Typography variant="caption" color="text.secondary">El gasto se registrará en IVA Compras</Typography>
+            </Box>
+          }
+        />
+      </Paper>
+    </Box>,
+
+    // Step 2: Pago
+    <Box>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={3}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Efectivo</Typography>
+            <Typography variant="h5" fontWeight={800}>$ {formatMoney(efectivo || 0)}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={3}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Transferencias</Typography>
+            <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalTransferencias)}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={3}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Cheques</Typography>
+            <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalCheques)}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={3}>
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary">Ch. Personales</Typography>
+            <Typography variant="h5" fontWeight={800}>$ {formatMoney(totalCheqPers)}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12}>
+          <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, textAlign: 'center', borderColor: 'primary.main', borderWidth: 2 }}>
+            <Typography variant="h3" fontWeight={900} color="primary.main">$ {formatMoney(totalPagado)}</Typography>
+            <Typography variant="body1" color={restante > 0 ? 'error.main' : 'success.main'} fontWeight={700}>
+              {restante > 0 ? `Restan $ ${formatMoney(restante)} a deuda` : restante < 0 ? `Sobran $ ${formatMoney(Math.abs(restante))}` : '✓ Pagado completo'}
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={1.5} sx={{ mb: 2 }}>
+        {[
+          { key: 'efectivo', icon: '💵', label: 'Efectivo', desc: 'Pago en efectivo' },
+          { key: 'transferencia', icon: '🏦', label: 'Transferencia', desc: 'Transferencia bancaria' },
+          { key: 'cheques', icon: '📄', label: 'Cheques', desc: 'Cheques de terceros' },
+          { key: 'cheqPers', icon: '✍️', label: 'Ch. Personal', desc: 'Cheques personales' },
+          { key: 'noPagar', icon: '⏭️', label: 'No pagar', desc: 'No registra pago' },
+        ].map((opt) => (
+          <Grid item xs={opt.key === 'noPagar' ? 2.4 : 2.4} key={opt.key} sx={{ flex: '0 0 20%' }}>
+            <Paper variant="outlined"
+              onClick={() => { setSelectedPago(opt.key); if (opt.key === 'noPagar') resetPago() }}
+              sx={{
+                py: 2, px: 1, borderRadius: 2, textAlign: 'center', cursor: 'pointer',
+                borderColor: selectedPago === opt.key ? 'primary.main' : 'divider',
+                borderWidth: selectedPago === opt.key ? 2 : 1,
+                bgcolor: selectedPago === opt.key ? 'action.selected' : 'transparent',
+                transition: '0.15s', '&:hover': { borderColor: 'primary.light' },
+              }}
+            >
+              <Typography variant="h4" sx={{ mb: 0.5 }}>{opt.icon}</Typography>
+              <Typography variant="body2" fontWeight={600}>{opt.label}</Typography>
+              <Typography variant="caption" color="text.secondary" display="block">{opt.desc}</Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+
+      {selectedPago === 'efectivo' && (
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+          <TextField fullWidth label="Monto en efectivo ($)" type="number" value={efectivo}
+            onChange={(e) => setEfectivo(e.target.value)} autoFocus />
+        </Paper>
+      )}
+
+      {selectedPago === 'transferencia' && (
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} gutterBottom>Transferencias bancarias</Typography>
+          <InlineTransferenciaForm show={showTransfForm} setShow={setShowTransfForm}
+            datos={transferencias} setdatos={setTransferencias}
+            editIndex={transfEditIdx} seteditIndex={setTransfEditIdx}
+            total={totalTransferencias} settotal={setTotalTransferencias}
+            cuentasBancarias={props.CuentasBancarias} />
+          {!showTransfForm && (
+            <Button variant="contained" size="small" onClick={() => setShowTransfForm(true)}>+ Agregar transferencia</Button>
+          )}
+        </Paper>
+      )}
+
+      {selectedPago === 'cheques' && (
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} gutterBottom>Cheques de terceros disponibles</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+            Seleccioná los cheques que tenés en tu poder para entregar como pago.
+          </Typography>
+          {props.cheques && Object.keys(props.cheques).some((k) => !props.cheques[k].egreso && !props.cheques[k].destinatario && !props.cheques[k].dadoDeBaja) ? (
+            <ChequesSelection chequesList={props.cheques} cheques={cheques} addCheque={toggleCheque} />
+          ) : (
+            <Typography variant="body2" color="text.disabled" sx={{ fontStyle: 'italic', py: 2, textAlign: 'center' }}>
+              No hay cheques disponibles en tu poder.
+            </Typography>
+          )}
+          {cheques.length > 0 && (
+            <Box sx={{ mt: 1.5, textAlign: 'right' }}>
+              <Typography variant="body2" fontWeight={700}>
+                Total seleccionado: $ {formatMoney(totalCheques)}
+              </Typography>
+            </Box>
+          )}
+        </Paper>
+      )}
+
+      {selectedPago === 'cheqPers' && (
+        <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2 }}>
+          <Typography variant="body2" fontWeight={600} gutterBottom>Cheques personales</Typography>
+          <InlineChequePersonalForm show={showChequePersForm} setShow={setShowChequePersForm}
+            listaChequesPersonales={cheqPers} setListaChequesPersonales={setCheqPers}
+            totalChequesPersonales={totalCheqPers} setTotalChequesPersonales={setTotalCheqPers}
+            cliente={proveedorNombre} editIndex={-1} seteditIndex={() => {}} />
+          {!showChequePersForm && (
+            <Button variant="contained" size="small" onClick={() => setShowChequePersForm(true)}>+ Agregar cheque personal</Button>
+          )}
+        </Paper>
+      )}
+    </Box>,
+
+    // Step 3: Confirmar
+    <Box>
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom>Confirmar y finalizar proceso</Typography>
+
+      <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Proceso</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Producto</Typography>
+            <Typography variant="body2" fontWeight={600}>{cadena.producto}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Proveedor</Typography>
+            <Typography variant="body2" fontWeight={600}>{proveedorNombre}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Paso</Typography>
+            <Typography variant="body2" fontWeight={500}>{proceso.nombre || `Paso ${stepIndex + 1}`}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Cantidad</Typography>
+            <Typography variant="body2" fontWeight={700}>{cantidad} unidad(es)</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Total</Typography>
+            <Typography variant="body2" fontWeight={700}>$ {formatMoney(precioNum)}</Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Resumen de pagos</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Efectivo</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(efectivo || 0)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Transferencias</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(totalTransferencias)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Cheques ({cheques.length})</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(totalCheques)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+            <Typography variant="body2" color="text.secondary">Ch. Personales ({cheqPers.length})</Typography>
+            <Typography variant="body2" fontWeight={500}>$ {formatMoney(totalCheqPers)}</Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ px: 2.5, py: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Typography variant="body1" fontWeight={700}>Total pagado</Typography>
+            <Typography variant="h6" fontWeight={800} color="primary.main">$ {formatMoney(totalPagado)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mt: 0.5 }}>
+            <Typography variant="caption" color="text.secondary">Restante</Typography>
+            {restante > 0 ? (
+              <Typography variant="body2" fontWeight={700} color="error.main">$ {formatMoney(restante)} → a deuda</Typography>
+            ) : restante === 0 && totalPagado > 0 ? (
+              <Typography variant="body2" fontWeight={700} color="success.main">✓ Pagado completo</Typography>
+            ) : (
+              <Typography variant="body2" fontWeight={500} color="text.secondary">$0 → a deuda</Typography>
+            )}
+          </Box>
+        </Box>
+      </Paper>
+    </Box>,
+  ]
+
+  const getDisabled = (step) => {
+    switch (step) {
+      case 0: return !precio || !cantidad || parseFloat(precio) <= 0 || parseInt(cantidad) <= 0
+      case 1: return false
+      case 2: return false
+      default: return false
+    }
+  }
+
+  return (
+    <Layout history={props.history} page="Finalizar Proceso" user={props.user?.uid} blockGoBack={true}>
+      <BaseWizard
+        stepLabels={['Detalles', 'Pago', 'Confirmar']}
+        steps={steps}
+        activeStep={activeStep}
+        onNext={() => setActiveStep((s) => s + 1)}
+        onBack={() => setActiveStep((s) => s - 1)}
+        onFinish={guardar}
+        disabled={getDisabled(activeStep)}
+        finishLabel="Finalizar Proceso"
+      />
+      <Backdrop open={loading} sx={{ zIndex: 9999 }}><CircularProgress color="inherit" /></Backdrop>
+      <Snackbar open={!!snack} autoHideDuration={2000} onClose={() => setSnack('')}>
+        <Alert severity="success">{snack}</Alert>
+      </Snackbar>
+    </Layout>
+  )
+}
+
+export default withStore(FinalizarProceso)

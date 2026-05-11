@@ -1,4 +1,4 @@
-import { getData, updateData, pushData } from './database'
+import { getData, updateData, setData, pushData } from './database'
 
 export const getCaja = (uid) => getData(uid, 'caja')
 
@@ -21,7 +21,7 @@ export const registrarMovimientoCaja = async (uid, { tipo, monto, descripcion, r
   }
 
   await pushData(uid, 'caja/movimientos', movimiento)
-  await updateData(uid, 'caja/balance', nuevoBalance)
+  await setData(uid, 'caja/balance', nuevoBalance)
   return nuevoBalance
 }
 

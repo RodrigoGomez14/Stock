@@ -12,7 +12,7 @@ const CardDeudaProveedor = ({ nombre, deuda }) => (
         sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, display: 'block', mb: 1 }}>
         {nombre}
       </Typography>
-      <Typography variant="h3" fontWeight={900} color={deuda > 0 ? 'error.main' : 'success.main'}>
+      <Typography variant="h3" fontWeight={700} color={deuda > 0 ? 'error.main' : 'success.main'} sx={{ fontSize: '2rem' }}>
         $ {formatMoney(deuda || 0)}
       </Typography>
     </CardContent>

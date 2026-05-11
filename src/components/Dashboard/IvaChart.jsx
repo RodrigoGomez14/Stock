@@ -1,169 +1,76 @@
 import React from 'react'
-import { Card, CardHeader, CardContent } from '@mui/material'
 import ApexCharts from 'react-apexcharts'
 import { formatMoney } from '../../utilities'
 
-const IvaChart = (props) => {
-    const { sortedCompras, sortedVentas } = props
+const MONTHS_SHORT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
-    let sales = []
-    let purchases =[]
-    let dif =[]
-    let labelsUltimoAnio =  []
+const last12Months = () => {
+  const result = []
+  const now = new Date()
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    result.push({ year: d.getFullYear(), month: d.getMonth(), label: `${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}` })
+  }
+  return result
+}
 
-    if(sortedCompras || sortedVentas){
-        const fechaActual = new Date();
-        const mesActual = fechaActual.getMonth();
-        const anioActual = fechaActual.getFullYear();
-        let auxSales = [0,0,0,0,0,0,0,0,0,0,0,0]
-        let auxPurchases = [0,0,0,0,0,0,0,0,0,0,0,0]
+const IvaChart = ({ sortedVentas, sortedCompras }) => {
+  const months = last12Months()
+  const labels = months.map((m) => m.label)
 
-        const mesesDesdeUltimoAnio = 12;
-        let mesInicio = mesActual - mesesDesdeUltimoAnio;
-        let anioInicio = anioActual;
-        if (mesInicio < 0) {
-            mesInicio += 12;
-            anioInicio -= 1;
-        }
-        const initialDate = new Date()
-        initialDate.setFullYear(anioInicio,mesInicio+1,1)
-        if(sortedVentas){
-            for (const [year, data] of sortedVentas) {
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    const auxFecha = new Date();
-                    auxFecha.setFullYear(year, month - 1, 1);
-                    if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                        Object.keys(dataMonth.ventas).map(venta=>{
-                            if (dataMonth.ventas[venta].metodoDePago.facturacion) {
-                                auxSales[(month-1)]+=(dataMonth.ventas[venta].total-(dataMonth.ventas[venta].total/1.21))
-                            }
-                        })
-                    }
-                }
-            }
-        }
-        if(sortedCompras){
-            for (const [year, data] of sortedCompras) {
-                for (const [month, dataMonth] of Object.entries(data.months)) {
-                    const auxFecha = new Date();
-                    auxFecha.setFullYear(year, month - 1, 1);
-                    if(auxFecha>=initialDate && auxFecha<=fechaActual){
-                        Object.keys(dataMonth.compras).map(compra=>{
-                            if (dataMonth.compras[compra].metodoDePago.facturacion) {
-                                if(!dataMonth.compras[compra].consumoFacturado){
-                                    auxPurchases[(month-1)]+=(dataMonth.compras[compra].total-(dataMonth.compras[compra].total/1.21))
-                                }
-                                else{
-                                    auxPurchases[(month-1)]+=parseFloat(dataMonth.compras[compra].totalIva)
-                                }
-                            }        
-                        })
-                    }
-                }
-            }
-        }
-        const auxMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-        const arr1Meses = auxMeses.slice(mesInicio+1);
-        const arr2Meses = auxMeses.slice(0,mesInicio+1);
+  // IVA Ventas: ventas con facturacion=true → total - (total/1.21)
+  const ivaVentas = months.map((m) => {
+    const yearData = sortedVentas?.find(([y]) => parseInt(y) === m.year)
+    if (!yearData) return 0
+    const monthData = yearData[1]?.months?.[m.month + 1]
+    if (!monthData?.ventas) return 0
+    return monthData.ventas
+      .filter((v) => v.metodoDePago?.facturacion)
+      .reduce((s, v) => s + (parseFloat(v.total || 0) - parseFloat(v.total || 0) / 1.21), 0)
+  })
 
-        
-        const arr1Sales = auxSales.slice(mesInicio+1);
-        const arr2Sales = auxSales.slice(0,mesInicio+1);
+  // IVA Compras:
+  // - consumoFacturado=true → toman totalIva
+  // - metodoDePago.facturacion=true y NO consumoFacturado → total - (total/1.21)
+  const ivaCompras = months.map((m) => {
+    const yearData = sortedCompras?.find(([y]) => parseInt(y) === m.year)
+    if (!yearData) return 0
+    const monthData = yearData[1]?.months?.[m.month + 1]
+    if (!monthData?.compras) return 0
+    return monthData.compras.reduce((s, c) => {
+      if (c.consumoFacturado) return s + parseFloat(c.totalIva || 0)
+      if (c.metodoDePago?.facturacion) return s + (parseFloat(c.total || 0) - parseFloat(c.total || 0) / 1.21)
+      return s
+    }, 0)
+  })
 
-        const arr1Purchases = auxPurchases.slice(mesInicio+1);
-        const arr2Purchases = auxPurchases.slice(0,mesInicio+1);
-        
-        
-        arr1Meses.map(i=>{
-            labelsUltimoAnio.push(i)
-        })
-        arr2Meses.map(i=>{
-            labelsUltimoAnio.push(i)
-        })
-        
-        arr1Sales.map(i=>{
-            sales.push(i)
-        })
-        arr2Sales.map(i=>{
-            sales.push(i)
-        })
+  const balance = ivaVentas.map((v, i) => v - ivaCompras[i])
 
-        arr1Purchases.map(i=>{
-            purchases.push(i)
-        })
-        arr2Purchases.map(i=>{
-            purchases.push(i)
-        })
-        sales.map(sale=>{
-            dif.push(-sale)
-        })
-        purchases.map((purchase,i)=>{
-            dif[i]+=purchase
-        })
-
-    }
-    const options = {
-        labels:labelsUltimoAnio,
-        fill: {
-        },
-        chart:{
-            
-        },
-        theme:{
-            mode:'dark',
-            palette:'palette6'
-        },
-        stroke: {
-            curve: 'smooth'
-        },
-        grid: {
-            row: {
-                colors: ['#c3c3c3', 'transparent'],
-                opacity: 0.5
-            },
-        },
-        tooltip:{
-            y:{
-                formatter: val=> `$ ${formatMoney(val)}`
-            }
-        },
-        dataLabels:{
-            enabled:false
-        },
-        yaxis:{
-            labels:{
-                formatter: val => `$ ${formatMoney(val)}`,
-            }
-        }
-    };
-    const series=[
-    {
-        name:'Iva Ventas',
-        type:'line',
-        data:sales
-    },
-    {
-        name:'Iva Compras',
-        type:'line',
-        data:purchases
-    },
-    {
-        name:'Balance',
-        type:'area',
-        data:dif
-    },
-    ]
-
-    return (
-        <Card>
-            <CardHeader
-                subheader='Iva Compras & Ventas - Ultimos 12 Meses'
-            />
-            <CardContent>
-                <ApexCharts options={options} series={series}  height={400} width={1200} />
-            </CardContent>
-        </Card>
-    )
+  return (
+    <ApexCharts
+      height={200}
+      options={{
+        chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', sparkline: { enabled: true } },
+        colors: ['#1a73e8', '#e65100', '#2e7d32'],
+        labels,
+        theme: { mode: 'dark' },
+        plotOptions: { bar: { columnWidth: '60%', borderRadius: 2 } },
+        stroke: { curve: 'smooth', width: [0, 0, 2] },
+        fill: { opacity: [1, 1, 0.3] },
+        tooltip: { y: { formatter: (v) => `$ ${formatMoney(v || 0)}` }, theme: 'dark' },
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        grid: { show: false },
+        yaxis: { show: false },
+        xaxis: { labels: { show: false } },
+      }}
+      series={[
+        { name: 'IVA Ventas', type: 'bar', data: ivaVentas },
+        { name: 'IVA Compras', type: 'bar', data: ivaCompras },
+        { name: 'Balance', type: 'line', data: balance },
+      ]}
+    />
+  )
 }
 
 export default IvaChart

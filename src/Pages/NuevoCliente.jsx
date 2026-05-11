@@ -37,7 +37,7 @@ const NuevoCliente = (props) => {
           expreso: c.expreso || null,
           telefonos: (c.telefonos || []).map(toStr),
           mails: (c.mails || []).map(toStr),
-          direcciones: (c.direcciones || []).map(toStr),
+          direcciones: (c.direcciones || []).map((d) => typeof d === 'string' ? { calleYnumero: d, ciudad: '', cp: '', provincia: '' } : d),
           infoExtra: (c.infoExtra || []).map(toStr),
         })
       }
@@ -133,7 +133,57 @@ const NuevoCliente = (props) => {
 
     <Box>
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>Direcciones</Typography>
-      {renderListEditor(data.direcciones, 'Dirección', 'direcciones')}
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+        Completá al menos dirección, localidad y provincia para poder imprimir etiquetas de envío.
+      </Typography>
+      {data.direcciones.map((dir, i) => {
+        const addr = typeof dir === 'string' ? { calleYnumero: dir } : dir
+        return (
+          <Paper key={i} variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 1.5 }}>
+            <Typography variant="caption" fontWeight={600} sx={{ mb: 1, display: 'block' }}>Dirección {i + 1}</Typography>
+            <Grid container spacing={1.5}>
+              <Grid item xs={12}>
+                <TextField fullWidth size="small" label="Dirección" value={addr.calleYnumero || ''}
+                  onChange={(e) => {
+                    const copy = [...data.direcciones]
+                    copy[i] = { ...addr, calleYnumero: e.target.value }
+                    set('direcciones')(copy)
+                  }} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth size="small" label="Localidad" value={addr.ciudad || ''}
+                  onChange={(e) => {
+                    const copy = [...data.direcciones]
+                    copy[i] = { ...addr, ciudad: e.target.value }
+                    set('direcciones')(copy)
+                  }} />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField fullWidth size="small" label="CP" value={addr.cp || ''}
+                  onChange={(e) => {
+                    const copy = [...data.direcciones]
+                    copy[i] = { ...addr, cp: e.target.value }
+                    set('direcciones')(copy)
+                  }} />
+              </Grid>
+              <Grid item xs={3}>
+                <TextField fullWidth size="small" label="Provincia" value={addr.provincia || ''}
+                  onChange={(e) => {
+                    const copy = [...data.direcciones]
+                    copy[i] = { ...addr, provincia: e.target.value }
+                    set('direcciones')(copy)
+                  }} />
+              </Grid>
+            </Grid>
+            <Box sx={{ mt: 1, textAlign: 'right' }}>
+              <IconButton size="small" color="error" onClick={() => set('direcciones')(data.direcciones.filter((_, j) => j !== i))}><Delete fontSize="small" /></IconButton>
+            </Box>
+          </Paper>
+        )
+      })}
+      <Button size="small" startIcon={<Add />} onClick={() => set('direcciones')([...data.direcciones, { calleYnumero: '', ciudad: '', cp: '', provincia: '' }])}>
+        Agregar dirección
+      </Button>
       <Box sx={{ mt: 3 }}>
         <Typography variant="subtitle1" fontWeight={600} gutterBottom>Expreso / Transporte</Typography>
         <Autocomplete
@@ -162,7 +212,14 @@ const NuevoCliente = (props) => {
           <Grid item xs={3}><Typography variant="caption" color="text.secondary">CUIT</Typography><Typography>{data.cuit || '—'}</Typography></Grid>
           <Grid item xs={6}><Typography variant="caption" color="text.secondary">Teléfonos</Typography><Typography>{data.telefonos.length} registrados</Typography></Grid>
           <Grid item xs={6}><Typography variant="caption" color="text.secondary">Emails</Typography><Typography>{data.mails.length} registrados</Typography></Grid>
-          <Grid item xs={6}><Typography variant="caption" color="text.secondary">Direcciones</Typography><Typography>{data.direcciones.length} registradas</Typography></Grid>
+          <Grid item xs={12}><Typography variant="caption" color="text.secondary">Direcciones</Typography>
+            {data.direcciones.length > 0 ? (
+              data.direcciones.map((dir, i) => {
+                const a = typeof dir === 'string' ? { calleYnumero: dir } : dir
+                return <Typography key={i} variant="body2">{[a.calleYnumero, a.ciudad, a.cp, a.provincia].filter(Boolean).join(', ') || '—'}</Typography>
+              })
+            ) : <Typography variant="body2">—</Typography>}
+          </Grid>
           <Grid item xs={6}><Typography variant="caption" color="text.secondary">Expreso</Typography><Typography>{data.expreso || '—'}</Typography></Grid>
         </Grid>
       </Paper>

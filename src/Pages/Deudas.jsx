@@ -70,7 +70,7 @@ const Deudas = (props) => {
         {tab === 0 && (
           <Grid container spacing={2}>
             {clientesConDeuda.filter(([n]) => !search || n.toLowerCase().includes(search.toLowerCase())).map(([nombre, c]) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={nombre}>
+              <Grid item xs={12} sm={6} md={4} key={nombre}>
                 <CardDeudaCliente nombre={nombre} deuda={c.datos.deuda} />
               </Grid>
             ))}
@@ -84,7 +84,7 @@ const Deudas = (props) => {
         {tab === 1 && (
           <Grid container spacing={2}>
             {provConDeuda.filter(([n]) => !search || n.toLowerCase().includes(search.toLowerCase())).map(([nombre, p]) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={nombre}>
+              <Grid item xs={12} sm={6} md={4} key={nombre}>
                 <CardDeudaProveedor nombre={nombre} deuda={p.datos.deuda} />
               </Grid>
             ))}

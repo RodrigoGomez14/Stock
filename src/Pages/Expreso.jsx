@@ -3,24 +3,34 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Box, Typography, Card, CardContent, IconButton, Button,
-  Backdrop, CircularProgress, Snackbar, Paper, Divider, Grid
+  Box, Grid, Typography, Card, CardContent, IconButton,
+  Button, Backdrop, CircularProgress, Snackbar,
+  Paper, Chip, Avatar
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { Edit, Delete, Phone, Place, LocalShipping } from '@mui/icons-material'
+import {
+  Edit, Delete, Phone, Place, LocalShipping,
+  Person, Send, History, CheckCircle, HelpOutline
+} from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { database, removeData } from '../services'
-import { obtenerFecha } from '../utilities'
-import { ListaDeEnvios } from '../components/Expreso/ListaDeEnvios'
+import { removeData } from '../services'
+import { formatMoney } from '../utilities'
+import { ImgCache } from '../components/ImgCache'
 
-const toStr = (v) => typeof v === 'string' ? v : JSON.stringify(v)
-const InfoRow = ({ icon, label, value }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.8 }}>
-    <Box sx={{ color: 'primary.light', display: 'flex' }}>{icon}</Box>
-    <Box sx={{ minWidth: 80 }}><Typography variant="caption" color="text.secondary">{label}</Typography></Box>
-    <Typography variant="body2">{value || '—'}</Typography>
-  </Box>
-)
+const fmt = (v) => {
+  if (typeof v === 'string') return v
+  if (typeof v !== 'object' || v === null) return ''
+  if (v.mail) return v.mail
+  if (v.email) return v.email
+  if (v.telefono) return v.telefono
+  if (v.numero) return v.numero
+  if (v.calleYnumero) {
+    const parts = [v.calleYnumero, v.ciudad, v.cp, v.provincia].filter(Boolean)
+    return parts.join(', ')
+  }
+  if (v.nombre) return v.nombre
+  return JSON.stringify(v)
+}
 
 const Expreso = (props) => {
   const location = useLocation()
@@ -28,7 +38,6 @@ const Expreso = (props) => {
   const [expreso, setExpreso] = useState(null)
   const [loading, setLoading] = useState(true)
   const [snack, setSnack] = useState('')
-  const [search, setSearch] = useState('')
   const nombre = decodeURIComponent(location.search.replace(/^\?/, ''))
 
   useEffect(() => {
@@ -56,52 +65,108 @@ const Expreso = (props) => {
   }
 
   const d = expreso.datos || {}
+  const envios = Object.values(expreso.envios || {})
 
   return (
     <Layout history={props.history} page={nombre} user={props.user?.uid}>
-      <Box sx={{ maxWidth: 1000, mx: 'auto', p: 2 }}>
-        <Card sx={{ borderRadius: 3, mb: 2 }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <LocalShipping />
-                <Typography variant="h5" fontWeight={700}>{nombre}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <Button size="small" component={Link} to={`/Editar-Expreso?${encodeURIComponent(nombre)}`} startIcon={<Edit />}>Editar</Button>
-                <IconButton size="small" color="error" onClick={() => { if (window.confirm('Eliminar transporte?')) eliminar() }}><Delete /></IconButton>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
 
-        <Card sx={{ borderRadius: 3, mb: 2 }}>
-          <CardContent>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom>Información de contacto</Typography>
-            <Divider sx={{ mb: 1.5 }} />
-            <Grid container spacing={0}>
-              <Grid item xs={12} sm={6}>
-                {d.telefono?.length > 0 && (
-                  <InfoRow icon={<Phone fontSize="small" />} label="Teléfono" value={d.telefono.map(toStr).join(' | ')} />
-                )}
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                {d.direccion?.length > 0 && (
-                  <InfoRow icon={<Place fontSize="small" />} label="Dirección" value={d.direccion.map(toStr).join(' | ')} />
-                )}
-              </Grid>
+        {/* HEADER */}
+        <Paper sx={{ borderRadius: 2, p: 3, mb: 3 }}>
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Avatar sx={{ width: 56, height: 56, bgcolor: 'primary.dark', fontSize: 24, fontWeight: 700 }}>
+                  <LocalShipping sx={{ fontSize: 28 }} />
+                </Avatar>
+                <Box>
+                  <Typography variant="h4" fontWeight={700}>{nombre}</Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
+                    {d.telefono?.map((t, i) => (
+                      <Chip key={i} icon={<Phone sx={{ fontSize: 12 }} />} label={fmt(t)} size="small" />
+                    ))}
+                    {d.direccion?.map((dir, i) => (
+                      <Chip key={i} icon={<Place sx={{ fontSize: 12 }} />} label={fmt(dir)} size="small" variant="outlined" />
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
             </Grid>
-          </CardContent>
-        </Card>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: { md: 'flex-end' }, flexWrap: 'wrap' }}>
+                <Button variant="outlined" component={Link} to={`/Editar-Expreso?${encodeURIComponent(nombre)}`} startIcon={<Edit />}>
+                  Editar
+                </Button>
+                <IconButton color="error" onClick={() => { if (window.confirm('Eliminar transporte?')) eliminar() }}>
+                  <Delete />
+                </IconButton>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
 
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>Envíos</Typography>
-          <ListaDeEnvios
-            envios={expreso.envios}
-            id={nombre}
-            user={props.user}
-            database={database}
-          />
+        {/* STATS */}
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+              <Send sx={{ fontSize: 32, color: 'primary.light' }} />
+              <Typography variant="h5" fontWeight={800}>{envios.length}</Typography>
+              <Typography variant="caption" color="text.secondary">Env\u00edos totales</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+              <CheckCircle sx={{ fontSize: 32, color: 'success.main' }} />
+              <Typography variant="h5" fontWeight={800}>{envios.filter((e) => e.fechaDeLlegada).length}</Typography>
+              <Typography variant="caption" color="text.secondary">Entregados</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+              <HelpOutline sx={{ fontSize: 32, color: 'warning.main' }} />
+              <Typography variant="h5" fontWeight={800}>{envios.filter((e) => e.inconveniente && !e.resuelto).length}</Typography>
+              <Typography variant="caption" color="text.secondary">Incidencias</Typography>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* ENVÍOS */}
+        <Box>
+          <Typography variant="subtitle1" fontWeight={700} gutterBottom>Env\u00edos</Typography>
+          {envios.length > 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {envios.slice().reverse().map((e, i) => (
+                <Paper key={i} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                  <Box sx={{
+                    px: 2, py: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    bgcolor: e.fechaDeLlegada ? 'success.main' : e.inconveniente && !e.resuelto ? 'warning.light' : 'action.selected',
+                    borderBottom: '1px solid', borderColor: 'divider',
+                  }}>
+                    <Box>
+                      <Typography variant="body2" fontWeight={600} sx={{ color: e.fechaDeLlegada || (e.inconveniente && !e.resuelto) ? '#fff' : 'inherit' }}>
+                        {e.cliente || '—'}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: e.fechaDeLlegada || (e.inconveniente && !e.resuelto) ? 'rgba(255,255,255,0.8)' : 'text.disabled' }}>
+                        Remito: {e.remito || '—'} · {e.fecha || '—'}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography variant="caption" fontWeight={700} sx={{ color: e.fechaDeLlegada || (e.inconveniente && !e.resuelto) ? '#fff' : 'text.secondary', display: 'block' }}>
+                        {e.fechaDeLlegada ? 'Entregado' : e.inconveniente && !e.resuelto ? 'Incidencia' : 'En tr\u00e1nsito'}
+                      </Typography>
+                      {e.inconveniente && (
+                        <Typography variant="caption" sx={{ color: e.fechaDeLlegada || (e.inconveniente && !e.resuelto) ? 'rgba(255,255,255,0.8)' : 'text.disabled', fontSize: 10 }}>
+                          {e.inconveniente}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                </Paper>
+              ))}
+            </Box>
+          ) : (
+            <Typography color="text.secondary" sx={{ textAlign: 'center', py: 3 }}>Sin env\u00edos registrados.</Typography>
+          )}
         </Box>
       </Box>
 

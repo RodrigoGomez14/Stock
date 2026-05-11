@@ -214,7 +214,11 @@ const Proveedor = (props) => {
                                 <ImgCache src={prodData.imagen} sx={{ width: 32, height: 32, borderRadius: 1, objectFit: 'cover' }} />
                               ) : null}
                               <Box sx={{ flex: 1, minWidth: 0 }}>
-                                <Typography variant="body2" fontWeight={600}>{art.producto || art.nombre}</Typography>
+                                <Typography variant="body2" fontWeight={600}
+                                  component={Link} to={`/Producto?${encodeURIComponent(art.producto || art.nombre)}`}
+                                  sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
+                                  {art.producto || art.nombre}
+                                </Typography>
                                 <Typography variant="caption" color="text.disabled">{art.cantidad}u × $ {formatMoney(art.precio || 0)}</Typography>
                               </Box>
                               <Typography variant="body2" fontWeight={700}>$ {formatMoney((art.cantidad || 0) * (art.precio || 0))}</Typography>

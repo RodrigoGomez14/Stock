@@ -103,6 +103,34 @@ const Producto = (props) => {
           )}
         </Box>
 
+        {/* VARIANTES */}
+        {producto.variantes && Object.keys(producto.variantes).length > 0 && (
+          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
+            <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="subtitle1" fontWeight={700}>Variantes</Typography>
+              <Typography variant="caption" color="text.secondary">{Object.keys(producto.variantes).length} variante(s)</Typography>
+            </Box>
+            <Box sx={{ p: 2.5 }}>
+              <Grid container spacing={1.5}>
+                {Object.entries(producto.variantes).map(([key, v]) => (
+                  <Grid item xs={6} sm={4} md={3} key={key}>
+                    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, textAlign: 'center' }}>
+                      <Typography variant="body1" fontWeight={700}>{key}</Typography>
+                      <Typography variant="h5" fontWeight={800} color="primary.main">
+                        {v.precio ? `$ ${formatMoney(v.precio)}` : '—'}
+                      </Typography>
+                      <Typography variant="body2" color={v.cantidad > 0 ? 'success.main' : 'error.main'} fontWeight={600}>
+                        Stock: {v.cantidad ?? 0}
+                      </Typography>
+                      {v.codigo && <Typography variant="caption" color="text.disabled">{v.codigo}</Typography>}
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          </Paper>
+        )}
+
         {/* CADENA DE PRODUCCIÓN */}
         {producto.cadenaDeProduccion?.length > 0 && (
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>

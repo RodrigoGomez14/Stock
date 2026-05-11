@@ -38,7 +38,7 @@ const Productos = (props) => {
           <Grid container spacing={2}>
             {filtered.map(([name, p]) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={name}>
-                <CardProducto name={name} precio={p.precio} cantidad={p.cantidad} isSubproducto={p.isSubproducto} imagen={p.imagen} />
+                <CardProducto name={name} precio={p.precio} cantidad={p.cantidad} isSubproducto={p.isSubproducto} imagen={p.imagen} variantes={p.variantes} />
               </Grid>
             ))}
           </Grid>

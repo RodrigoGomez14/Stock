@@ -4,14 +4,14 @@ import { Layout } from './Layout'
 import {
   Box, TextField, Grid, Typography, Switch, FormControlLabel, Paper,
   Backdrop, CircularProgress, Snackbar, Button, Collapse, Chip, IconButton,
-  Divider, Select, MenuItem, InputLabel, FormControl
+  Divider, Select, MenuItem, InputLabel, FormControl, Autocomplete
 } from '@mui/material'
 import { Alert } from '@mui/material'
 import { Add, Check, Close, Delete, Edit } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
 import { removeData, updateData } from '../services'
 import { registrarMovimientoStock } from '../services/productosService'
-import { checkSearchProducto } from '../utilities'
+import { checkSearchProducto, formatMoney } from '../utilities'
 import { ImageUpload } from '../components/ImageUpload'
 import { Step } from '../components/Nuevo-Producto/Step'
 
@@ -23,6 +23,8 @@ const NuevoProducto = (props) => {
   const [cadena, setCadena] = useState([])
   const [subproductos, setSubproductos] = useState([])
   const [matrices, setMatrices] = useState([])
+  const [variantes, setVariantes] = useState({})
+  const [categoria, setCategoria] = useState('')
   const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [snack, setSnack] = useState('')
@@ -40,6 +42,14 @@ const NuevoProducto = (props) => {
   const [matUbicacion, setMatUbicacion] = useState('Taller')
   const [matEditIdx, setMatEditIdx] = useState(-1)
 
+  // Variante form state
+  const [showVarForm, setShowVarForm] = useState(false)
+  const [varNombre, setVarNombre] = useState('')
+  const [varPrecio, setVarPrecio] = useState('')
+  const [varCantidad, setVarCantidad] = useState('')
+  const [varCodigo, setVarCodigo] = useState('')
+  const [varEditKey, setVarEditKey] = useState('')
+
   useEffect(() => {
     if (isEdit) {
       const p = props.productos?.[checkSearchProducto(props.history.location.search)]
@@ -51,22 +61,29 @@ const NuevoProducto = (props) => {
         setCadena(p.cadenaDeProduccion || [])
         setSubproductos(p.subproductos || [])
         setMatrices(p.matrices || [])
+        setVariantes(p.variantes || {})
+        setCategoria(p.categoria || '')
       }
     }
   }, [])
 
-  const generarId = () => {
+  const generarId = (nombre) => {
     if (isEdit) {
       const p = props.productos?.[checkSearchProducto(props.history.location.search)]
-      return p?.id || Date.now().toString(36)
+      if (p?.id && p.id !== Date.now().toString(36) && !/^[a-z0-9]{8,}$/i.test(p.id)) return p.id
     }
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+    const palabras = nombre.split(' ').filter((w) => !['de', 'del', 'la', 'las', 'los', 'el', 'para', 'por', 'y', 'e', 'a', 'en', 'un', 'una', 'con', 'su'].includes(w.toLowerCase()))
+    if (palabras.length === 0) return nombre.slice(0, 4).toUpperCase()
+    const siglas = palabras.map((w) => w[0].toUpperCase()).join('')
+    if (siglas.length >= 3) return siglas
+    const extra = palabras[0].slice(1, 4 - siglas.length + 1).toUpperCase()
+    return siglas + extra
   }
 
   const guardar = async () => {
     setLoading(true)
     const cantidadAnterior = isEdit ? props.productos?.[checkSearchProducto(props.history.location.search)]?.cantidad || 0 : 0
-    const payload = { id: generarId(), nombre, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices }
+    const payload = { id: generarId(nombre), nombre, cantidad, isSubproducto, imagen, cadenaDeProduccion: cadena, subproductos, matrices, variantes, categoria }
     try {
       if (isEdit) {
         await removeData(props.user.uid, `productos/${props.history.location.search.slice(1)}`)
@@ -85,6 +102,8 @@ const NuevoProducto = (props) => {
   }
 
   const subProductosList = Object.values(props.productos || {}).filter((p) => p.isSubproducto)
+  const CATEGORIAS = ['V\u00e1lvulas', 'Descarga de Combustible', 'Sistema ca\u00f1o camisa succi\u00f3n', 'Accesorios para despacho de combustible', 'Mangueras y accesorios', 'Repuestos para surtidores', 'Cajas antiexplosivas', 'Selladores y flexibles']
+  const todasLasCategorias = [...new Set([...CATEGORIAS, ...Object.values(props.productos || {}).map((p) => p.categoria).filter(Boolean)])]
 
   const steps = [
     // STEP 1 — Info
@@ -105,12 +124,104 @@ const NuevoProducto = (props) => {
             <Grid item xs={6}>
               <FormControlLabel control={<Switch checked={isSubproducto} onChange={(e) => setIsSubproducto(e.target.checked)} />} label="Es subproducto" />
             </Grid>
+            <Grid item xs={12}>
+              <Autocomplete freeSolo value={categoria}
+                options={todasLasCategorias}
+                getOptionLabel={(o) => o}
+                onChange={(_, v) => setCategoria(v || '')}
+                onInputChange={(_, v) => setCategoria(v || '')}
+                renderInput={(params) => <TextField {...params} label="Categor\u00eda" fullWidth />} />
+            </Grid>
+            {nombre && (
+              <Grid item xs={12}>
+                <Typography variant="caption" color="text.secondary">
+                  ID autogenerado: <strong>{generarId(nombre)}</strong>
+                </Typography>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
     </Box>,
 
-    // STEP 2 — Producción (via Step component)
+    // STEP 2 — Variantes
+    <Box>
+      <Typography variant="subtitle1" fontWeight={700} gutterBottom>Variantes del producto</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Si este producto tiene variantes (ej: colores, tamaños), agregalas acá. Cada variante puede tener su propio precio, stock y código.
+      </Typography>
+      {Object.keys(variantes).length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          {Object.entries(variantes).map(([key, v]) => (
+            <Paper key={key} variant="outlined" sx={{ p: 1.5, borderRadius: 2, mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>
+                <Typography variant="body2" fontWeight={600}>{key}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  ${v.precio ? formatMoney(v.precio) : '—'} · Stock: {v.cantidad ?? '—'} {v.codigo ? `· ${v.codigo}` : ''}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <IconButton size="small" onClick={() => { setVarNombre(key); setVarPrecio(String(v.precio || '')); setVarCantidad(String(v.cantidad || '')); setVarCodigo(v.codigo || ''); setVarEditKey(key); setShowVarForm(true) }}
+                  sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' } }}><Edit fontSize="small" /></IconButton>
+                <IconButton size="small" color="error" onClick={() => { const aux = { ...variantes }; delete aux[key]; setVariantes(aux) }}><Delete fontSize="small" /></IconButton>
+              </Box>
+            </Paper>
+          ))}
+        </Box>
+      )}
+
+      <Button variant="contained" startIcon={<Add />} onClick={() => { setShowVarForm(true); setVarEditKey(''); setVarNombre(''); setVarPrecio(''); setVarCantidad(''); setVarCodigo('') }} sx={{ mb: 2 }}>
+        Agregar Variante
+      </Button>
+
+      <Collapse in={showVarForm}>
+        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 2 }}>
+          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+            {varEditKey ? 'Editar Variante' : 'Nueva Variante'}
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField fullWidth size="small" label="Nombre de la variante *" value={varNombre}
+                onChange={(e) => setVarNombre(e.target.value)} placeholder="Ej: Amarillo, XL, 5mm" />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField fullWidth size="small" label="Código interno" value={varCodigo}
+                onChange={(e) => setVarCodigo(e.target.value)} placeholder="Ej: ANT-AM" />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField fullWidth size="small" label="Precio ($)" type="number" value={varPrecio}
+                onChange={(e) => setVarPrecio(e.target.value)} />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField fullWidth size="small" label="Stock" type="number" value={varCantidad}
+                onChange={(e) => setVarCantidad(e.target.value)} />
+            </Grid>
+          </Grid>
+          <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+            <Button variant="contained" size="small" startIcon={<Check />} disabled={!varNombre}
+              onClick={() => {
+                const aux = { ...variantes }
+                if (varEditKey && varEditKey !== varNombre) delete aux[varEditKey]
+                aux[varNombre] = {
+                  precio: varPrecio ? parseFloat(varPrecio) : null,
+                  cantidad: varCantidad ? parseInt(varCantidad) : null,
+                  codigo: varCodigo || null,
+                }
+                setVariantes(aux)
+                setShowVarForm(false); setVarEditKey(''); setVarNombre(''); setVarPrecio(''); setVarCantidad(''); setVarCodigo('')
+              }}>
+              {varEditKey ? 'Guardar' : 'Agregar'}
+            </Button>
+            <Button variant="outlined" size="small" startIcon={<Close />}
+              onClick={() => { setShowVarForm(false); setVarEditKey(''); setVarNombre(''); setVarPrecio(''); setVarCantidad(''); setVarCodigo('') }}>
+              Cancelar
+            </Button>
+          </Box>
+        </Paper>
+      </Collapse>
+    </Box>,
+
+    // STEP 3 — Producción (via Step component)
     <Box>
       <Typography variant="subtitle1" fontWeight={700} gutterBottom>Cadena de producción</Typography>
       <Step tipoDeDato="Cadena de Producción" cadenaDeProduccion={cadena} setcadenaDeProduccion={setCadena}
@@ -253,8 +364,29 @@ const NuevoProducto = (props) => {
             <Grid item xs={6}><Typography variant="caption" color="text.secondary">Nombre</Typography><Typography variant="body2" fontWeight={600}>{nombre}</Typography></Grid>
             <Grid item xs={3}><Typography variant="caption" color="text.secondary">Stock</Typography><Typography variant="body2" fontWeight={600}>{cantidad}</Typography></Grid>
             <Grid item xs={3}><Typography variant="caption" color="text.secondary">Tipo</Typography><Typography variant="body2" fontWeight={600}>{isSubproducto ? 'Subproducto' : 'Producto final'}</Typography></Grid>
+            <Grid item xs={12}><Typography variant="caption" color="text.secondary">ID</Typography><Typography variant="body2" fontWeight={600}>{generarId(nombre)}</Typography></Grid>
+            {categoria && <Grid item xs={12}><Typography variant="caption" color="text.secondary">Categoría</Typography><Typography variant="body2" fontWeight={600}>{categoria}</Typography></Grid>}
           </Grid>
         </Box>
+
+        {Object.keys(variantes).length > 0 && (
+          <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Variantes ({Object.keys(variantes).length})</Typography>
+            <Grid container spacing={1}>
+              {Object.entries(variantes).map(([key, v]) => (
+                <Grid item xs={6} sm={4} md={3} key={key}>
+                  <Paper variant="outlined" sx={{ p: 1, borderRadius: 1, textAlign: 'center' }}>
+                    <Typography variant="body2" fontWeight={600}>{key}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      ${v.precio ? formatMoney(v.precio) : '—'} · Stock: {v.cantidad ?? '—'}
+                      {v.codigo ? ` · ${v.codigo}` : ''}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
 
         {cadena.length > 0 && (
           <Box sx={{ px: 2.5, py: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
@@ -318,7 +450,7 @@ const NuevoProducto = (props) => {
   return (
     <Layout history={props.history} page={isEdit ? 'Editar Producto' : 'Nuevo Producto'} user={props.user?.uid} blockGoBack={true}>
       <BaseWizard
-        stepLabels={['Info', 'Producción', 'Subproductos', 'Matrices', 'Confirmar']}
+        stepLabels={['Info', 'Variantes', 'Producción', 'Subproductos', 'Matrices', 'Confirmar']}
         steps={steps}
         activeStep={activeStep}
         onNext={() => setActiveStep((s) => s + 1)}
