@@ -69,9 +69,9 @@ const Deudas = (props) => {
         {/* CLIENTES */}
         {tab === 0 && (
           <Grid container spacing={2}>
-            {clientesConDeuda.filter(([n]) => !search || n.toLowerCase().includes(search.toLowerCase())).map(([nombre, c]) => (
-              <Grid item xs={12} sm={6} md={4} key={nombre}>
-                <CardDeudaCliente nombre={nombre} deuda={c.datos.deuda} />
+            {clientesConDeuda.filter(([_, c]) => !search || (c.datos?.nombre || c.nombre || '').toLowerCase().includes(search.toLowerCase())).map(([key, c]) => (
+              <Grid item xs={12} sm={6} md={4} key={key}>
+                <CardDeudaCliente nombre={c.datos?.nombre || c.nombre || key} pushKey={key} deuda={c.datos.deuda} />
               </Grid>
             ))}
             {clientesConDeuda.length === 0 && (
@@ -83,9 +83,9 @@ const Deudas = (props) => {
         {/* PROVEEDORES */}
         {tab === 1 && (
           <Grid container spacing={2}>
-            {provConDeuda.filter(([n]) => !search || n.toLowerCase().includes(search.toLowerCase())).map(([nombre, p]) => (
-              <Grid item xs={12} sm={6} md={4} key={nombre}>
-                <CardDeudaProveedor nombre={nombre} deuda={p.datos.deuda} />
+            {provConDeuda.filter(([_, p]) => !search || (p.datos?.nombre || p.nombre || '').toLowerCase().includes(search.toLowerCase())).map(([key, p]) => (
+              <Grid item xs={12} sm={6} md={4} key={key}>
+                <CardDeudaProveedor nombre={p.datos?.nombre || p.nombre || key} pushKey={key} deuda={p.datos.deuda} />
               </Grid>
             ))}
             {provConDeuda.length === 0 && (

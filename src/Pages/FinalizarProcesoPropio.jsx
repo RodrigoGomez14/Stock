@@ -6,7 +6,7 @@ import Alert from '@mui/material/Alert';
 import {Step as StepComponent} from '../components/Finalizar-Proceso-Propio/Step'
 import { pushData, updateData, removeData, setData, getPushKey } from '../services'
 import { Navigate } from 'react-router-dom'
-import {checkSearch, formatMoney,fechaDetallada,obtenerFecha} from '../utilities'
+import {checkSearch, formatMoney,fechaDetallada,obtenerFecha, getProducto} from '../utilities'
 import {content} from './styles/styles'
 import { AttachMoney, List, LocalAtm } from '@mui/icons-material';
 
@@ -126,18 +126,18 @@ const FinalizarProcesoPropio=(props)=>{
         const producto = props.cadenasActivas[id].producto
 
         // AUMENTA LA CANTIDAD DE PRODUCTOS
-        const nuevaCantidad = parseInt(props.productos[producto].cantidad)+parseInt(cantidad)
+        const nuevaCantidad = parseInt(getProducto(props.productos, producto).cantidad)+parseInt(cantidad)
         await updateData(props.user.uid, `productos/${producto}`, {cantidad:nuevaCantidad})
         await pushData(props.user.uid, `productos/${producto}/historialDeStock`, {cantidad:nuevaCantidad,fecha:obtenerFecha()})
         
     }
     const descontarSubproductos = async id =>{
-        const subproductos = props.productos[props.cadenasActivas[id].producto].subproductos
+        const subproductos = getProducto(props.productos, props.cadenasActivas[id].producto).subproductos
 
         // DESCUENTA LA CANTIDAD DE PRODUCTOS
         if(subproductos){
             subproductos.map(async subproducto=>{
-                const nuevaCantidad = parseInt(props.productos[subproducto.nombre].cantidad)-(cantidad*subproducto.cantidad)
+                const nuevaCantidad = parseInt(getProducto(props.productos, subproducto.nombre).cantidad)-(cantidad*subproducto.cantidad)
                 await updateData(props.user.uid, `productos/${subproducto.nombre}`, {cantidad:nuevaCantidad})
                 //await pushData(props.user.uid, `productos/${subproducto.nombre}/historialDeStock`, {cantidad:nuevaCantidad,fecha:obtenerFecha()})
             })

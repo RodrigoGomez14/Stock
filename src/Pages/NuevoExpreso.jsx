@@ -8,8 +8,8 @@ import {
 import { Alert } from '@mui/material'
 import { Add, Delete } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
-import { removeData, updateData } from '../services'
-import { checkSearch } from '../utilities'
+import { removeData, setData, getPushKey } from '../services'
+import { checkSearch, getExpreso, fmtValor } from '../utilities'
 
 const NuevoExpreso = (props) => {
   const [data, setData] = useState({
@@ -23,8 +23,8 @@ const NuevoExpreso = (props) => {
 
   useEffect(() => {
     if (isEdit) {
-      const e = props.expresos?.[checkSearch(props.history.location.search)]
-      const d = e?.datos
+      const e = getExpreso(props.expresos, checkSearch(props.history.location.search))
+      const d = e?.datos || e
       if (d) {
         setData({
           nombre: d.nombre || '', telefono: (d.telefono || [''])[0], direccion: (d.direccion || [''])[0],
@@ -47,7 +47,7 @@ const NuevoExpreso = (props) => {
     <Box>
       {items.map((item, i) => (
         <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-          <TextField fullWidth size="small" label={`${label} ${i + 1}`} value={item} onChange={updItem(field, i)} />
+          <TextField fullWidth size="small" label={`${label} ${i + 1}`} value={fmtValor(item)} onChange={updItem(field, i)} />
           <IconButton color="error" onClick={rmItem(field, i)}><Delete /></IconButton>
         </Box>
       ))}
@@ -60,11 +60,15 @@ const NuevoExpreso = (props) => {
     const payload = { datos: { nombre: data.nombre, telefono: [data.telefono], direccion: [data.direccion], telefonos: data.telefonos, mails: data.mails, infoExtra: data.infoExtra } }
     try {
       if (isEdit) {
-        await removeData(props.user.uid, `expresos/${props.history.location.search.slice(1)}`)
+        const oldName = checkSearch(props.history.location.search)
+        const entry = Object.entries(props.expresos || {}).find(([k, e]) => k === oldName || e.datos?.nombre === oldName || e.nombre === oldName)
+        const key = entry ? entry[0] : oldName
+        await setData(props.user.uid, `expresos/${key}`, payload)
+      } else {
+        await setData(props.user.uid, `expresos/${getPushKey(props.user.uid, 'expresos')}`, payload)
       }
-      await updateData(props.user.uid, 'expresos', { [data.nombre]: payload })
       setSnack(isEdit ? 'Transporte editado' : 'Transporte creado')
-      setTimeout(() => props.history.replace(`/Expreso?${data.nombre}`), 1500)
+      setTimeout(() => props.history.replace(`/Expreso?${encodeURIComponent(data.nombre)}`), 1500)
     } catch { setLoading(false) }
   }
 

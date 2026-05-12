@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { Add, ArrowUpward, ArrowDownward, Send, Payment } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { formatMoney } from '../utilities'
+import { formatMoney, getProveedor } from '../utilities'
 
 const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
 
@@ -23,7 +23,8 @@ const HistorialProveedor = (props) => {
     )
   }
 
-  const proveedor = props.proveedores[nombre]
+  const proveedor = getProveedor(props.proveedores, nombre)
+  const displayName = proveedor?.datos?.nombre || proveedor?.nombre || nombre
   const deudaActual = proveedor?.datos?.deuda || 0
 
   // Merge entregas (debt increase) and pagos (debt decrease)
@@ -81,11 +82,11 @@ const HistorialProveedor = (props) => {
   const sortedKeys = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
 
   return (
-    <Layout history={props.history} page={`Historial ${nombre}`} user={props.user?.uid}>
+    <Layout history={props.history} page={`Historial ${displayName}`} user={props.user?.uid}>
       <Box sx={{ maxWidth: 1100, mx: 'auto', p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Box>
-            <Typography variant="h5" fontWeight={700}>{nombre}</Typography>
+            <Typography variant="h5" fontWeight={700}>{displayName}</Typography>
             <Typography variant="body2" color="text.secondary">
               Deuda actual: <Box component="span" fontWeight={700} color={deudaActual > 0 ? 'error.main' : 'success.main'}>
                 $ {formatMoney(deudaActual)}

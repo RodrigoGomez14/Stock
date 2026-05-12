@@ -165,9 +165,9 @@ const Inicio = (props) => {
                       <Box key={name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.8, borderBottom: '1px solid', borderColor: 'divider' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
                           <Warning sx={{ fontSize: 16, color: p.cantidad === 0 ? 'error.main' : 'warning.main' }} />
-                          <Typography variant="body2" component={Link} to={`/Producto?${encodeURIComponent(name)}`}
+                          <Typography variant="body2" component={Link} to={`/Producto?${encodeURIComponent(p.nombre || name)}`}
                             sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
-                            {name}
+                            {p.nombre || name}
                           </Typography>
                         </Box>
                         <Chip size="small" label={p.cantidad || 0} color={p.cantidad === 0 ? 'error' : 'warning'} variant="filled" sx={{ fontWeight: 700 }} />

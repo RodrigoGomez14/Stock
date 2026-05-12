@@ -24,7 +24,7 @@ const Clientes = (props) => {
   }
 
   const filtered = clientes.filter(([name, c]) => {
-    const matchSearch = !search || name.toLowerCase().includes(search.toLowerCase())
+    const matchSearch = !search || (c.datos?.nombre || name).toLowerCase().includes(search.toLowerCase())
     const matchTab = tab === 0 ? true : tab === 1 ? (c.datos?.deuda || 0) > 0 : true
     return matchSearch && matchTab
   })
@@ -32,36 +32,9 @@ const Clientes = (props) => {
   return (
     <Layout history={props.history} page="Clientes" user={props.user?.uid}>
       <Box sx={{ maxWidth: 1400, mx: 'auto', p: 3 }}>
-        {/* STATS BAR */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
-              <People color="primary" sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={800}>{stats.total}</Typography>
-              <Typography variant="caption" color="text.secondary">Total</Typography>
-            </Card>
-          </Grid>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
-              <AttachMoney color="error" sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={800}>$ {formatMoney(stats.deudaTotal)}</Typography>
-              <Typography variant="caption" color="text.secondary">Deuda total</Typography>
-            </Card>
-          </Grid>
-          <Grid item xs={4} sm={2}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 1.5 }}>
-              <Star color="warning" sx={{ fontSize: 28 }} />
-              <Typography variant="h5" fontWeight={800}>{stats.conDeuda}</Typography>
-              <Typography variant="caption" color="text.secondary">Con deuda</Typography>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <Button component={Link} to="/Nuevo-Cliente" variant="contained" startIcon={<PersonAdd />}>Nuevo Cliente</Button>
-          </Grid>
-        </Grid>
-
         {/* SEARCH + TABS */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <Button component={Link} to="/Nuevo-Cliente" variant="contained" startIcon={<PersonAdd />}>Nuevo Cliente</Button>
           <TextField fullWidth size="small" placeholder="Buscar cliente..." value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }}
@@ -86,7 +59,7 @@ const Clientes = (props) => {
                         <Typography variant="body1" fontWeight={700}
                           component={Link} to={`/Cliente?${encodeURIComponent(name)}`}
                           sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, flex: 1 }}>
-                          {name}
+                          {d.nombre || name}
                         </Typography>
                         <IconButton size="small" component={Link} to={`/Editar-Cliente?${encodeURIComponent(name)}`}
                           sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' }, ml: 1 }}>

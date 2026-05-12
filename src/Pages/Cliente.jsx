@@ -15,7 +15,7 @@ import {
 import { Link } from 'react-router-dom'
 import { removeData, pushData } from '../services'
 import { enviarFactura, crearNotaCredito, getApiKey } from '../services/afipService'
-import { formatMoney, obtenerFecha } from '../utilities'
+import { formatMoney, obtenerFecha, getProducto, getCliente } from '../utilities'
 import { ImgCache } from '../components/ImgCache'
 
 const MONTHS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
@@ -44,7 +44,8 @@ const Cliente = (props) => {
 
   useEffect(() => {
     if (props.clientes && nombre) {
-      setCliente({ nombre, ...props.clientes[nombre] })
+      const c = getCliente(props.clientes, nombre)
+      if (c) setCliente({ nombre: c.datos?.nombre || c.nombre || nombre, ...c })
       setLoading(false)
     }
   }, [props.clientes, nombre])
@@ -186,7 +187,7 @@ const Cliente = (props) => {
                           </Typography>
                         </Box>
                         {entry.tipo === 'pedido' && entry.data.articulos?.slice(0, 3).map((art, j) => {
-                          const prodData = props.productos?.[art.nombre || art.producto]
+                          const prodData = getProducto(props.productos, art.nombre || art.producto)
                           return (
                             <Box key={j} sx={{ display: 'flex', alignItems: 'center', gap: 1, pl: 4.5, py: 0.2 }}>
                               {prodData?.imagen && <ImgCache src={prodData.imagen} sx={{ width: 20, height: 20, borderRadius: 0.5 }} />}

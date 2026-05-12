@@ -8,13 +8,13 @@ import {
 } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { formatMoney } from '../utilities'
+import { formatMoney, getProducto } from '../utilities'
 
 const HistorialDeProduccion = (props) => {
   const location = useLocation()
   const navigate = useNavigate()
   const nombre = decodeURIComponent(location.search.replace(/^\?/, ''))
-  const historial = props.productos?.[nombre]?.historialDeCadenas
+  const historial = getProducto(props.productos, nombre)?.historialDeCadenas
 
   if (!historial) {
     return (

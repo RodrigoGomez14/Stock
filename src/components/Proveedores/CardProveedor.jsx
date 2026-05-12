@@ -6,7 +6,7 @@ import { formatMoney } from '../../utilities'
 
 const toStr = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
 
-export const CardProveedor = ({ datos, search }) => {
+export const CardProveedor = ({ datos, search, pushKey }) => {
   if (search && !datos.nombre.toLowerCase().includes(search.toLowerCase())) return null
 
   return (
@@ -14,11 +14,11 @@ export const CardProveedor = ({ datos, search }) => {
       <CardContent sx={{ flex: 1, pb: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
           <Typography variant="body1" fontWeight={700}
-            component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}
+            component={Link} to={`/Proveedor?${encodeURIComponent(pushKey)}`}
             sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, flex: 1 }}>
             {datos.nombre}
           </Typography>
-          <IconButton size="small" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(datos.nombre)}`}
+          <IconButton size="small" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(pushKey)}`}
             sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' }, ml: 1 }}>
             <Edit fontSize="small" />
           </IconButton>
@@ -43,7 +43,7 @@ export const CardProveedor = ({ datos, search }) => {
         </Box>
       </CardContent>
 
-      <Button component={Link} to={`/Proveedor?${encodeURIComponent(datos.nombre)}`}
+      <Button component={Link} to={`/Proveedor?${encodeURIComponent(pushKey)}`}
         startIcon={<Visibility />} fullWidth color="primary" variant="contained"
         sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 12 }}>
         Ver detalle

@@ -14,7 +14,7 @@ import {
 } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { removeData } from '../services'
-import { formatMoney } from '../utilities'
+import { formatMoney, getExpreso } from '../utilities'
 import { ImgCache } from '../components/ImgCache'
 
 const fmt = (v) => {
@@ -42,7 +42,8 @@ const Expreso = (props) => {
 
   useEffect(() => {
     if (props.expresos && nombre) {
-      setExpreso({ nombre, ...props.expresos[nombre] })
+      const p = getExpreso(props.expresos, nombre)
+      setExpreso({ nombre: p.datos?.nombre || p.nombre || nombre, ...p })
       setLoading(false)
     }
   }, [props.expresos, nombre])
@@ -50,7 +51,11 @@ const Expreso = (props) => {
   const eliminar = async () => {
     setLoading(true)
     try {
-      await removeData(props.user.uid, `expresos/${nombre}`)
+      const entry = Object.entries(props.expresos).find(([k, v]) =>
+        k === nombre || v.nombre === nombre || v.datos?.nombre === nombre
+      )
+      const actualKey = entry ? entry[0] : nombre
+      await removeData(props.user.uid, `expresos/${actualKey}`)
       setSnack('Transporte eliminado')
       setTimeout(() => navigate('/Expresos', { replace: true }), 1500)
     } catch { setLoading(false) }
@@ -68,7 +73,7 @@ const Expreso = (props) => {
   const envios = Object.values(expreso.envios || {})
 
   return (
-    <Layout history={props.history} page={nombre} user={props.user?.uid}>
+      <Layout history={props.history} page={expreso.nombre || nombre} user={props.user?.uid}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
 
         {/* HEADER */}

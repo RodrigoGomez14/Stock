@@ -34,8 +34,10 @@ const ListasDePrecios = (props) => {
   }
 
   const filtered = productos.filter(([name, p]) =>
-    !search || name.toLowerCase().includes(search.toLowerCase())
+    (!p.isSubproducto || p.seVendePorSeparado) && (!search || (p.nombre || name).toLowerCase().includes(search.toLowerCase()))
   ).sort(([a], [b]) => a.localeCompare(b))
+
+  const ordenCategorias = ['Válvulas', 'Descarga de Combustible', 'Sistema caño camisa succión', 'Accesorios para despacho de combustible', 'Mangueras y accesorios', 'Repuestos para surtidores', 'Cajas antiexplosivas', 'Selladores y flexibles']
 
   // Group by category
   const grouped = {}
@@ -43,6 +45,19 @@ const ListasDePrecios = (props) => {
     const cat = p.categoria || 'Sin categor\u00eda'
     if (!grouped[cat]) grouped[cat] = []
     grouped[cat].push([name, p])
+  })
+
+  const sortedCategories = Object.keys(grouped).sort((a, b) => {
+    const aTrim = a.trim()
+    const bTrim = b.trim()
+    const ia = ordenCategorias.findIndex((c) => c.toLowerCase() === aTrim.toLowerCase())
+    const ib = ordenCategorias.findIndex((c) => c.toLowerCase() === bTrim.toLowerCase())
+    if (ia !== -1 && ib !== -1) return ia - ib
+    if (ia !== -1) return -1
+    if (ib !== -1) return 1
+    if (aTrim.toLowerCase() === 'sin categoría') return 1
+    if (bTrim.toLowerCase() === 'sin categoría') return -1
+    return aTrim.localeCompare(bTrim)
   })
 
   return (
@@ -53,25 +68,35 @@ const ListasDePrecios = (props) => {
           <Typography variant="h5" fontWeight={700}>Lista de Precios</Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={() => {
-              const sorted = [...productos].filter(([_, p]) => p.precio > 0).sort(([a], [b]) => a.localeCompare(b))
+              const sorted = [...productos].filter(([_, p]) => (!p.isSubproducto || p.seVendePorSeparado) && p.precio > 0).sort(([a], [b]) => a.localeCompare(b))
               const groupedPdf = {}
               sorted.forEach(([name, p]) => {
                 const cat = p.categoria || 'PRODUCTOS'
                 if (!groupedPdf[cat]) groupedPdf[cat] = []
-                groupedPdf[cat].push({ name, precio: p.precio || 0, id: p.id, imagen: p.imagen })
+                groupedPdf[cat].push({ name: p.nombre || name, precio: p.precio || 0, imagen: p.imagen })
               })
-              const rows = Object.entries(groupedPdf).map(([cat, items]) => `
-                <tr><td colspan="4" style="background:#0f172a;color:#fff;padding:10px 18px;font-weight:700;font-size:13px;letter-spacing:1.5px">${cat}</td></tr>
-                <tr style="background:#f8fafc"><td style="padding:6px 18px;font-size:10px;color:#94a3b8;font-weight:600;width:44px"></td><td style="padding:6px 18px;font-size:10px;color:#94a3b8;font-weight:600">#</td><td style="padding:6px 18px;font-size:10px;color:#94a3b8;font-weight:600">PRODUCTO</td><td style="padding:6px 18px;font-size:10px;color:#94a3b8;font-weight:600;text-align:right">PRECIO</td></tr>
-                ${items.map((item, i) => `
-                  <tr style="${i % 2 === 0 ? 'background:#ffffff' : 'background:#f8fafc'};${i === items.length - 1 ? 'border-bottom:2px solid #0f172a' : ''}">
-                    <td style="padding:8px 8px;text-align:center;width:44px">${item.imagen ? `<img src="${item.imagen}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;display:block" />` : '<span style="font-size:18px;opacity:0.25">📷</span>'}</td>
-                    <td style="padding:8px 18px;font-size:11px;color:#64748b">${item.id || '—'}</td>
-                    <td style="padding:8px 18px;font-weight:600;color:#1e293b;font-size:13px">${item.name}</td>
-                    <td style="padding:8px 18px;text-align:right;font-weight:800;color:#2563eb;font-size:15px">$${formatMoney(item.precio)}</td>
-                  </tr>
-                `).join('')}
-              `).join('')
+              const pdfCatOrder = Object.keys(groupedPdf).sort((a, b) => {
+                const aTrim = a.trim(), bTrim = b.trim()
+                const ia = ordenCategorias.findIndex((c) => c.toLowerCase() === aTrim.toLowerCase())
+                const ib = ordenCategorias.findIndex((c) => c.toLowerCase() === bTrim.toLowerCase())
+                if (ia !== -1 && ib !== -1) return ia - ib
+                if (ia !== -1) return -1
+                if (ib !== -1) return 1
+                if (aTrim.toLowerCase() === 'sin categoría') return 1
+                if (bTrim.toLowerCase() === 'sin categoría') return -1
+                return aTrim.localeCompare(bTrim)
+              })
+              const rows = pdfCatOrder.map((cat) => {
+                const pdfItems = groupedPdf[cat]
+                return '<tr><td colspan="3" style="background:#0f172a;color:#fff;padding:10px 18px;font-weight:700;font-size:13px;letter-spacing:1.5px">' + cat + '</td></tr>' +
+                  pdfItems.map((item, i) =>
+                    '<tr style="' + (i % 2 === 0 ? 'background:#ffffff' : 'background:#f8fafc') + (i === pdfItems.length - 1 ? ';border-bottom:2px solid #0f172a' : '') + '">' +
+                    '<td style="padding:8px 8px;text-align:center;width:44px">' + (item.imagen ? '<img src="' + item.imagen + '" style="width:32px;height:32px;object-fit:cover;border-radius:4px;display:block" />' : '<span style="font-size:18px;opacity:0.25">📷</span>') + '</td>' +
+                    '<td style="padding:8px 18px;font-weight:600;color:#1e293b;font-size:13px">' + item.name + '</td>' +
+                    '<td style="padding:8px 18px;text-align:right;font-weight:800;color:#2563eb;font-size:15px">$' + formatMoney(item.precio) + '</td>' +
+                    '</tr>'
+                  ).join('')
+              }).join('')
               const ahora = new Date()
               const mesAnio = `${meses[ahora.getMonth()]} ${ahora.getFullYear()}`
               const win = window.open('', '_blank')
@@ -94,7 +119,7 @@ const ListasDePrecios = (props) => {
     <div class="sub">www.valvulasgomez.com - gomezbonardi@hotmail.com - (011) 15-5410-6143</div>
     <div class="sub" style="color:#94a3b8;margin-top:6px">${mesAnio} · Precios expresados en ARS ($) + IVA</div>
   </div>
-  <table><tr><th style="width:44px;padding:0"></th><th style="width:80px;padding:0"></th><th style="padding:0"></th><th style="padding:0;text-align:right"></th></tr>${rows}</table>
+  <table><tr><th style="width:44px;padding:0"></th><th style="padding:0"></th><th style="padding:0;text-align:right"></th></tr>${rows}</table>
   <div class="footer">${mesAnio} - Precios expresados en ARS ($) + IVA. Sujetos a modificaci\u00f3n sin previo aviso.</div>
 </body></html>`)
               win.document.close()
@@ -105,22 +130,6 @@ const ListasDePrecios = (props) => {
           </Box>
         </Box>
 
-        {/* Stats */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={6}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
-              <Typography variant="h4" fontWeight={800}>{productos.length}</Typography>
-              <Typography variant="caption" color="text.secondary">Productos</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, textAlign: 'center' }}>
-              <Typography variant="h4" fontWeight={800}>{Object.keys(grouped).length}</Typography>
-              <Typography variant="caption" color="text.secondary">Categor\u00edas</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-
         {/* Search */}
         <TextField fullWidth size="small" placeholder="Buscar producto..." value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -129,7 +138,7 @@ const ListasDePrecios = (props) => {
 
         {/* Products by category */}
         {Object.keys(grouped).length > 0 ? (
-          Object.entries(grouped).map(([cat, items]) => (
+          sortedCategories.map((cat) => { const items = grouped[cat]; return (
             <Paper key={cat} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
               <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'primary.dark', borderBottom: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#fff' }}>
@@ -141,7 +150,9 @@ const ListasDePrecios = (props) => {
                   const isEditing = editPrice === name
                   return (
                     <Box key={name} sx={{
-                      display: 'flex', alignItems: 'center', gap: 1.5, py: 1.2,
+                      display: 'flex', alignItems: 'center', gap: 1.5, py: 1.2, pl: p.variantes && Object.keys(p.variantes).length > 0 ? 3 : 0,
+                      borderLeft: p.variantes && Object.keys(p.variantes).length > 0 ? '3px solid' : 'none',
+                      borderLeftColor: 'primary.main',
                       borderBottom: '1px solid', borderColor: 'divider',
                       '&:last-child': { borderBottom: 'none' },
                     }}>
@@ -153,14 +164,17 @@ const ListasDePrecios = (props) => {
                         </Box>
                       )}
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" fontWeight={600} noWrap>{name}</Typography>
+                        <Typography variant="body2" fontWeight={600} noWrap>{p.nombre || name}</Typography>
                         <Box sx={{ display: 'flex', gap: 0.3, flexWrap: 'wrap', alignItems: 'center' }}>
-                          {p.id && <Typography variant="caption" color="text.disabled">ID: {p.id}</Typography>}
                           <Chip size="small" label={p.isSubproducto ? 'Sub' : 'Final'}
                             color={p.isSubproducto ? 'warning' : 'primary'} variant="outlined" sx={{ fontSize: 9, height: 16 }} />
+                          {p.variantes && Object.keys(p.variantes).length > 0 && (
+                            <Chip size="small" label={`${Object.keys(p.variantes).length} var.`}
+                              color="info" variant="outlined" sx={{ fontSize: 9, height: 16 }} />
+                          )}
                         </Box>
                       </Box>
-                      <Box sx={{ textAlign: 'right', minWidth: 100 }}>
+                      <Box sx={{ textAlign: 'right', whiteSpace: 'nowrap', ml: 1 }}>
                         {isEditing ? (
                           <Box sx={{ display: 'flex', gap: 0.3, alignItems: 'center' }}>
                             <TextField size="small" type="number" value={editValue}
@@ -178,9 +192,8 @@ const ListasDePrecios = (props) => {
                               onClick={() => setEditPrice(null)}><Close fontSize="small" /></Button>
                           </Box>
                         ) : (
-                          <Typography variant="body1" fontWeight={700} color="primary.main"
-                            onClick={() => { setEditPrice(name); setEditValue(String(p.precio || '')) }}
-                            sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
+                          <Typography variant="body1" fontWeight={700} sx={{ color: '#fff', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                            onClick={() => { setEditPrice(name); setEditValue(String(p.precio || '')) }}>
                             $ {formatMoney(p.precio || 0)}
                           </Typography>
                         )}
@@ -190,7 +203,8 @@ const ListasDePrecios = (props) => {
                 })}
               </Box>
             </Paper>
-          ))
+          )
+          })
         ) : (
           <Typography color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
             {search ? 'No se encontraron productos.' : 'No hay productos registrados.'}

@@ -4,11 +4,11 @@ import { History, Payment } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { formatMoney } from '../../utilities'
 
-const CardDeudaCliente = ({ nombre, deuda }) => (
+const CardDeudaCliente = ({ nombre, pushKey, deuda }) => (
   <Card sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', height: '100%', textAlign: 'center', transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
     <CardContent sx={{ flex: 1, pb: 1 }}>
       <Typography variant="body1" fontWeight={700}
-        component={Link} to={`/Cliente?${encodeURIComponent(nombre)}`}
+        component={Link} to={`/Cliente?${encodeURIComponent(pushKey)}`}
         sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' }, display: 'block', mb: 1 }}>
         {nombre}
       </Typography>
@@ -17,12 +17,12 @@ const CardDeudaCliente = ({ nombre, deuda }) => (
       </Typography>
     </CardContent>
     <Box sx={{ display: 'flex', borderTop: '1px solid', borderColor: 'divider' }}>
-      <Button component={Link} to={`/Historial-Cliente?${encodeURIComponent(nombre)}`}
+      <Button component={Link} to={`/Historial-Cliente?${encodeURIComponent(pushKey)}`}
         startIcon={<History />} fullWidth size="small"
         sx={{ borderRadius: 0, py: 1.2, fontWeight: 500, fontSize: 11 }}>
         Historial
       </Button>
-      <Button component={Link} to={`/Nuevo-Pago-Cliente?${encodeURIComponent(nombre)}`}
+      <Button component={Link} to={`/Nuevo-Pago-Cliente?${encodeURIComponent(pushKey)}`}
         startIcon={<Payment />} fullWidth size="small" color="primary" variant="contained"
         sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 11 }}>
         Cobrar

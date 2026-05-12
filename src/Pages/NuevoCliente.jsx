@@ -9,7 +9,7 @@ import { Alert } from '@mui/material'
 import { Add, Delete } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
 import { removeData, updateData } from '../services'
-import { checkSearch } from '../utilities'
+import { checkSearch, getCliente, fmtValor } from '../utilities'
 
 const EMPTY_CLIENT = {
   nombre: '', dni: '', cuit: '', expreso: null,
@@ -28,7 +28,8 @@ const NuevoCliente = (props) => {
 
   useEffect(() => {
     if (isEdit) {
-      const c = props.clientes?.[checkSearch(props.history.location.search)]?.datos
+      const found = getCliente(props.clientes, checkSearch(props.history.location.search))
+      const c = found?.datos || found
       if (c) {
         setData({
           nombre: c.nombre || '',
@@ -94,7 +95,7 @@ const NuevoCliente = (props) => {
             fullWidth
             size="small"
             label={`${label} ${i + 1}`}
-            value={item}
+            value={typeof item === 'string' ? item : fmtValor(item)}
             onChange={updateItem(field, i)}
           />
           <IconButton color="error" onClick={removeItem(field, i)}><Delete /></IconButton>
@@ -189,7 +190,7 @@ const NuevoCliente = (props) => {
         <Autocomplete
           freeSolo
           value={data.expreso}
-          options={props.expresos ? Object.keys(props.expresos) : []}
+          options={props.expresos ? Object.values(props.expresos).map(e => e.datos?.nombre || e.nombre || '').filter(Boolean) : []}
           getOptionLabel={(o) => o}
           onChange={(_, v) => set('expreso')(v)}
           onInputChange={(_, v) => set('expreso')(v)}

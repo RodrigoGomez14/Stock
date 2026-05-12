@@ -8,8 +8,8 @@ import {
 import { Alert } from '@mui/material'
 import { Add, Delete } from '@mui/icons-material'
 import { BaseWizard } from '../components/BaseWizard'
-import { removeData, updateData } from '../services'
-import { checkSearch } from '../utilities'
+import { removeData, updateData, setData, getPushKey } from '../services'
+import { checkSearch, getProveedor, fmtValor } from '../utilities'
 
 const NuevoProveedor = (props) => {
   const [data, setData] = useState({
@@ -23,7 +23,8 @@ const NuevoProveedor = (props) => {
 
   useEffect(() => {
     if (isEdit) {
-      const p = props.proveedores?.[checkSearch(props.history.location.search)]?.datos
+      const found = getProveedor(props.proveedores, checkSearch(props.history.location.search))
+      const p = found?.datos || found
       if (p) {
         setData({
           nombre: p.nombre || '', dni: p.dni || '', cuit: p.cuit || '',
@@ -48,7 +49,7 @@ const NuevoProveedor = (props) => {
     <Box>
       {items.map((item, i) => (
         <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-          <TextField fullWidth size="small" label={`${label} ${i + 1}`} value={item} onChange={updItem(field, i)} />
+          <TextField fullWidth size="small" label={`${label} ${i + 1}`} value={fmtValor(item)} onChange={updItem(field, i)} />
           <IconButton color="error" onClick={rmItem(field, i)}><Delete /></IconButton>
         </Box>
       ))}
@@ -61,13 +62,15 @@ const NuevoProveedor = (props) => {
     const payload = { datos: { nombre: data.nombre, dni: data.dni, cuit: data.cuit, expresos: data.expreso ? [data.expreso] : [], mails: data.mails, direcciones: data.direcciones, telefonos: data.telefonos, infoExtra: data.infoExtra, deuda: data.deuda } }
     try {
       if (isEdit) {
-        await removeData(props.user.uid, `proveedores/${props.history.location.search.slice(1)}`)
-        await updateData(props.user.uid, `proveedores/${data.nombre}`, payload)
+        const oldName = checkSearch(props.history.location.search)
+        const entry = Object.entries(props.proveedores || {}).find(([k, p]) => k === oldName || p.datos?.nombre === oldName || p.nombre === oldName)
+        const key = entry ? entry[0] : oldName
+        await setData(props.user.uid, `proveedores/${key}`, payload)
       } else {
-        await updateData(props.user.uid, 'proveedores', { [data.nombre]: payload })
+        await setData(props.user.uid, `proveedores/${getPushKey(props.user.uid, 'proveedores')}`, payload)
       }
       setSnack(isEdit ? 'Proveedor editado' : 'Proveedor creado')
-      setTimeout(() => props.history.replace(`/Proveedor?${data.nombre}`), 1500)
+      setTimeout(() => props.history.replace(`/Proveedor?${encodeURIComponent(data.nombre)}`), 1500)
     } catch { setLoading(false) }
   }
 
@@ -89,7 +92,7 @@ const NuevoProveedor = (props) => {
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>Direcciones</Typography>
       {listEditor(data.direcciones, 'Dirección', 'direcciones')}
       <Box sx={{ mt: 3 }}><Typography variant="subtitle1" fontWeight={600} gutterBottom>Expreso</Typography>
-        <Autocomplete freeSolo value={data.expreso} options={props.expresos ? Object.keys(props.expresos) : []} onChange={(_, v) => set('expreso')(v)} onInputChange={(_, v) => set('expreso')(v)} renderInput={(p) => <TextField {...p} label="Expreso" fullWidth size="small" />} />
+        <Autocomplete freeSolo value={data.expreso} options={props.expresos ? Object.values(props.expresos).map(e => e.datos?.nombre || e.nombre || '').filter(Boolean) : []} onChange={(_, v) => set('expreso')(v)} onInputChange={(_, v) => set('expreso')(v)} renderInput={(p) => <TextField {...p} label="Expreso" fullWidth size="small" />} />
       </Box>
     </Box>,
     <Box>

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 
 const toStr = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
 
-export const CardExpreso = ({ datos, search }) => {
+export const CardExpreso = ({ datos, search, pushKey }) => {
   if (search && !datos.nombre.toLowerCase().includes(search.toLowerCase())) return null
 
   return (
@@ -15,12 +15,12 @@ export const CardExpreso = ({ datos, search }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, minWidth: 0 }}>
             <LocalShipping color="primary" sx={{ flexShrink: 0 }} />
             <Typography variant="body1" fontWeight={700}
-              component={Link} to={`/Expreso?${encodeURIComponent(datos.nombre)}`}
+              component={Link} to={`/Expreso?${encodeURIComponent(pushKey)}`}
               sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { color: 'primary.light' } }}>
               {datos.nombre}
             </Typography>
           </Box>
-          <IconButton size="small" component={Link} to={`/Editar-Expreso?${encodeURIComponent(datos.nombre)}`}
+          <IconButton size="small" component={Link} to={`/Editar-Expreso?${encodeURIComponent(pushKey)}`}
             sx={{ color: 'text.secondary', '&:hover': { color: 'warning.main' }, ml: 1 }}>
             <Edit fontSize="small" />
           </IconButton>
@@ -36,7 +36,7 @@ export const CardExpreso = ({ datos, search }) => {
         </Box>
       </CardContent>
 
-      <Button component={Link} to={`/Expreso?${encodeURIComponent(datos.nombre)}`}
+      <Button component={Link} to={`/Expreso?${encodeURIComponent(pushKey)}`}
         startIcon={<Visibility />} fullWidth color="primary" variant="contained"
         sx={{ borderRadius: 0, py: 1.2, fontWeight: 600, fontSize: 12 }}>
         Ver detalle

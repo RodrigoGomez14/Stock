@@ -14,7 +14,7 @@ import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData, removeData, setData, getPushKey } from '../services'
 import { registrarMovimientoStock } from '../services/productosService'
 import { ingresoCaja } from '../services/cajaService'
-import { formatMoney, obtenerFecha } from '../utilities'
+import { formatMoney, obtenerFecha, getProducto } from '../utilities'
 import { InlineChequeForm } from '../components/Cheques/InlineChequeForm'
 import { InlineTransferenciaForm } from '../components/InlineTransferenciaForm'
 
@@ -33,7 +33,7 @@ const EnviarPedido = (props) => {
   const facturacion = location.state?.facturacion || false
   const clienteNombre = pedido?.cliente || location.state?.nombre || ''
   const clienteData = props.clientes?.[clienteNombre]
-  const allExpresos = props.expresos ? Object.keys(props.expresos) : []
+  const allExpresos = props.expresos ? Object.values(props.expresos).map(e => e.datos?.nombre || e.nombre || '').filter(Boolean) : []
 
   // Envío
   const [usarExpreso, setUsarExpreso] = useState(false)
@@ -85,7 +85,7 @@ const EnviarPedido = (props) => {
       const articulos = pedido?.productos || pedido?.articulos || []
       for (const art of articulos) {
         const prodName = art.producto || art.nombre
-        if (props.productos?.[prodName]) {
+        if (getProducto(props.productos, prodName)) {
           await registrarMovimientoStock(props.user.uid, prodName, {
             movimiento: -parseInt(art.cantidad || 1),
             concepto: 'Venta',
@@ -204,7 +204,7 @@ const EnviarPedido = (props) => {
             </TableHead>
             <TableBody>
               {articulos.map((art, i) => {
-                const prodData = props.productos?.[art.producto || art.nombre]
+                const prodData = getProducto(props.productos, art.producto || art.nombre)
                 return (
                   <TableRow key={i} hover>
                     <TableCell>

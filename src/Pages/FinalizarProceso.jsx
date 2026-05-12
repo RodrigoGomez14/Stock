@@ -10,7 +10,7 @@ import { Alert } from '@mui/material'
 import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData, removeData, setData, getPushKey } from '../services'
 import { ingresoCaja } from '../services/cajaService'
-import { formatMoney, obtenerFecha } from '../utilities'
+import { formatMoney, obtenerFecha, getProducto } from '../utilities'
 import { ChequesSelection } from '../components/Cheques/ChequesSelection'
 import { InlineChequePersonalForm } from '../components/Cheques/InlineChequePersonalForm'
 import { InlineTransferenciaForm } from '../components/InlineTransferenciaForm'
@@ -163,17 +163,17 @@ const FinalizarProceso = (props) => {
       // If last step: increase product stock, decrease subproducts
       if (stepIndex === procesos.length - 1) {
         // Increase product
-        const prodActual = parseInt(props.productos?.[cadena.producto]?.cantidad || 0, 10)
+        const prodActual = parseInt(getProducto(props.productos, cadena.producto)?.cantidad || 0, 10)
         await updateData(props.user.uid, `productos/${cadena.producto}`, { cantidad: prodActual + cant })
         await pushData(props.user.uid, `productos/${cadena.producto}/historialDeStock`, {
           cantidad: prodActual + cant, fecha: obtenerFecha(),
         })
 
         // Decrease subproducts
-        const subproductos = props.productos?.[cadena.producto]?.subproductos
+        const subproductos = getProducto(props.productos, cadena.producto)?.subproductos
         if (subproductos) {
           for (const sp of subproductos) {
-            const spActual = parseInt(props.productos?.[sp.nombre]?.cantidad || 0, 10)
+            const spActual = parseInt(getProducto(props.productos, sp.nombre)?.cantidad || 0, 10)
             const spDescuento = cant * parseInt(sp.cantidad || 1, 10)
             await updateData(props.user.uid, `productos/${sp.nombre}`, { cantidad: Math.max(0, spActual - spDescuento) })
             await pushData(props.user.uid, `productos/${sp.nombre}/historialDeStock`, {

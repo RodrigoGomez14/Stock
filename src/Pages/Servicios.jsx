@@ -3,17 +3,78 @@ import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
   Box, Typography, Paper, Button, IconButton, Chip, TextField, Tabs, Tab,
-  Collapse, Backdrop, CircularProgress, Snackbar,
-  Table, TableHead, TableBody, TableRow, TableCell, Divider,
+  Collapse, Backdrop, CircularProgress, Snackbar, Grid,
   InputAdornment
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { Add, ChevronLeft, ChevronRight, Edit, Delete, Receipt, Check, Search, Close, Category } from '@mui/icons-material'
+import { Add, ChevronLeft, ChevronRight, Edit, Delete, Receipt, Check, Search, Close } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { setData, removeData } from '../services'
 import { formatMoney, obtenerFecha } from '../utilities'
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+
+const ServiceCard = ({ id, s, inst, status, statusChip, onRecibir, onEliminar, onGuardar, recibirId, recibirMonto, setRecibirMonto, recibirVto, setRecibirVto, month, year }) => {
+  const statusIcons = { 'sin-boleta': '❌', 'pendiente': '📄', 'pagado': '✅' }
+  const icon = statusIcons[status] || '📋'
+
+  return (
+    <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 1.5, position: 'relative' }}>
+      <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Typography variant="h3" sx={{ flexShrink: 0 }}>{icon}</Typography>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="body1" fontWeight={700}>{s.nombre}</Typography>
+          <Typography variant="caption" color="text.disabled">
+            {s.frecuencia === 'mensual' ? 'Mensual' : s.frecuencia === 'anual' ? 'Anual' : 'Único'}
+          </Typography>
+          {inst?.vencimiento && <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>Vence: {inst.vencimiento}</Typography>}
+          {inst?.fechaPago && <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>Pagado: {inst.fechaPago}</Typography>}
+        </Box>
+        <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+          {inst ? (
+            <Typography variant="h6" fontWeight={800} color="primary.main">$ {formatMoney(inst.monto || 0)}</Typography>
+          ) : (
+            <Typography variant="body2" color="text.disabled">—</Typography>
+          )}
+          <Box sx={{ mt: 0.5 }}>{statusChip(status)}</Box>
+        </Box>
+      </Box>
+      <Box sx={{ px: 2, pb: 1.5, display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+        {status === 'sin-boleta' && (
+          <Button size="small" variant="outlined" color="warning" startIcon={<Receipt />}
+            onClick={() => onRecibir(id)} sx={{ fontSize: 10, height: 26 }}>
+            Recibir boleta
+          </Button>
+        )}
+        <IconButton size="small" component={Link} to={`/Editar-Servicio?${id}`}
+          sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
+          <Edit fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => { if (window.confirm('¿Eliminar?')) onEliminar(id) }}
+          sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}>
+          <Delete fontSize="small" />
+        </IconButton>
+      </Box>
+
+      {recibirId === id && (
+        <Collapse in={recibirId === id}>
+          <Box sx={{ px: 2, pb: 2, bgcolor: 'action.hover', mx: 2, mb: 2, borderRadius: 1 }}>
+            <Typography variant="subtitle2" fontWeight={600} gutterBottom>Recibir boleta — {s.nombre}</Typography>
+            <Typography variant="caption" color="text.secondary" display="block" gutterBottom>{MONTHS[month]} {year}</Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <TextField size="small" label="Monto ($)" type="number" value={recibirMonto}
+                onChange={(e) => setRecibirMonto(e.target.value)} sx={{ minWidth: 130 }} />
+              <TextField size="small" label="Vencimiento" type="date" value={recibirVto}
+                onChange={(e) => setRecibirVto(e.target.value)} InputLabelProps={{ shrink: true }} sx={{ minWidth: 150 }} />
+              <Button size="small" variant="contained" startIcon={<Check />} onClick={onGuardar}>Guardar</Button>
+              <Button size="small" startIcon={<Close />} onClick={() => onRecibir(null)}>Cancelar</Button>
+            </Box>
+          </Box>
+        </Collapse>
+      )}
+    </Paper>
+  )
+}
 
 const Servicios = (props) => {
   const [month, setMonth] = useState(new Date().getMonth())
@@ -76,29 +137,17 @@ const Servicios = (props) => {
     setLoading(false)
   }
 
-  const abrirRecibir = (id) => {
-    setRecibirId(id)
-    setRecibirMonto('')
-    setRecibirVto('')
-  }
-
   const eliminar = async (id) => {
     setLoading(true)
-    try {
-      await removeData(props.user.uid, `servicios/${id}`)
-      setSnack('Servicio eliminado')
-    } catch { }
+    try { await removeData(props.user.uid, `servicios/${id}`); setSnack('Servicio eliminado') } catch { }
     setLoading(false)
   }
 
-  const statusChip = (id) => {
-    switch (getStatus(id)) {
-      case 'sin-boleta':
-        return <Chip size="small" label="Sin boleta" variant="outlined" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 11 }} />
-      case 'pendiente':
-        return <Chip size="small" label="Pendiente" color="warning" variant="filled" sx={{ fontWeight: 600, fontSize: 11 }} />
-      case 'pagado':
-        return <Chip size="small" icon={<Check sx={{ fontSize: 13 }} />} label="Pagado" color="success" variant="filled" sx={{ fontWeight: 600, fontSize: 11 }} />
+  const statusChip = (status) => {
+    switch (status) {
+      case 'sin-boleta': return <Chip size="small" label="Sin boleta" variant="outlined" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 10 }} />
+      case 'pendiente': return <Chip size="small" label="Pendiente" color="warning" variant="filled" sx={{ fontWeight: 600, fontSize: 10 }} />
+      case 'pagado': return <Chip size="small" icon={<Check sx={{ fontSize: 12 }} />} label="Pagado" color="success" variant="filled" sx={{ fontWeight: 600, fontSize: 10 }} />
     }
   }
 
@@ -109,142 +158,36 @@ const Servicios = (props) => {
     pagado: servicios.filter(([id]) => getStatus(id) === 'pagado').length,
   }
 
-  const isPaidTab = statusTab === 3
-  const isSinBoletaTab = statusTab === 1
-
-  const ServiceTable = ({ title, items }) => (
-    <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
-      <Box sx={{ px: 2.5, py: 1.8, bgcolor: 'action.selected', borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Category fontSize="small" color="primary" />
-          <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1.1rem' }}>
-            {title}
-          </Typography>
-          <Chip size="small" label={`${items.length} servicio(s)`} variant="outlined" sx={{ fontSize: 10, height: 20 }} />
-        </Box>
-      </Box>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Servicio</TableCell>
-            {!isSinBoletaTab && <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Vencimiento</TableCell>}
-            {isPaidTab && <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Pagado el</TableCell>}
-            {!isSinBoletaTab && <TableCell align="right" sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Monto</TableCell>}
-            <TableCell sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}>Estado</TableCell>
-            <TableCell align="center" sx={{ fontWeight: 600, fontSize: 12, color: 'text.secondary', letterSpacing: 0.3 }}></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items.map(([id, s]) => {
-            const inst = instancias[id]
-            return (
-              <React.Fragment key={id}>
-                <TableRow hover sx={{ '&:last-child td': { borderBottom: recibirId === id ? 0 : undefined } }}>
-                  <TableCell sx={{ py: 1.5 }}>
-                    <Typography variant="body1" fontWeight={600} sx={{ fontSize: '0.95rem' }}>
-                      {s.nombre}
-                    </Typography>
-                    {s.frecuencia && (
-                      <Typography variant="caption" color="text.disabled" sx={{ fontSize: 11 }}>
-                        {s.frecuencia === 'mensual' ? 'Mensual' : s.frecuencia === 'anual' ? 'Anual' : 'Único'}
-                      </Typography>
-                    )}
-                  </TableCell>
-                  {!isSinBoletaTab && (
-                    <TableCell sx={{ py: 1.5 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {inst?.vencimiento || '—'}
-                      </Typography>
-                    </TableCell>
-                  )}
-                  {isPaidTab && (
-                    <TableCell sx={{ py: 1.5 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {inst?.fechaPago || '—'}
-                      </Typography>
-                    </TableCell>
-                  )}
-                  {!isSinBoletaTab && (
-                    <TableCell align="right" sx={{ py: 1.5 }}>
-                      {inst ? (
-                        <Typography variant="body1" fontWeight={700} sx={{ fontSize: '1rem' }}>
-                          $ {formatMoney(inst.monto || 0)}
-                        </Typography>
-                      ) : (
-                        <Typography variant="body2" color="text.disabled">—</Typography>
-                      )}
-                    </TableCell>
-                  )}
-                  <TableCell sx={{ py: 1.5 }}>{statusChip(id)}</TableCell>
-                  <TableCell align="right" sx={{ py: 1.5, whiteSpace: 'nowrap' }}>
-                    {getStatus(id) === 'sin-boleta' && (
-                      <IconButton size="small" onClick={() => abrirRecibir(id)}
-                        sx={{ color: 'warning.main', '&:hover': { bgcolor: 'warning.main', color: '#fff' } }}>
-                        <Receipt fontSize="small" />
-                      </IconButton>
-                    )}
-                    <IconButton size="small" component={Link} to={`/Editar-Servicio?${id}`}
-                      sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-                      <Edit fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => { if (window.confirm('¿Eliminar?')) eliminar(id) }}
-                      sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}>
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-                {recibirId === id && (
-                  <TableRow>
-                    <TableCell colSpan={5} sx={{ py: 0, borderBottom: 0 }}>
-                      <Collapse in={recibirId === id}>
-                        <Box sx={{ py: 1.5, px: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 1 }}>
-                          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                            Recibir boleta — {s.nombre}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                            {MONTHS[month]} {year}
-                          </Typography>
-                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                            <TextField size="small" label="Monto ($)" type="number" value={recibirMonto}
-                              onChange={(e) => setRecibirMonto(e.target.value)} sx={{ minWidth: 140 }} />
-                            <TextField size="small" label="Vencimiento" type="date" value={recibirVto}
-                              onChange={(e) => setRecibirVto(e.target.value)}
-                              InputLabelProps={{ shrink: true }} sx={{ minWidth: 160 }} />
-                            <Button size="small" variant="contained" startIcon={<Check />} onClick={guardarBoleta}>
-                              Guardar
-                            </Button>
-                            <Button size="small" startIcon={<Close />} onClick={() => setRecibirId(null)}>
-                              Cancelar
-                            </Button>
-                          </Box>
-                        </Box>
-                      </Collapse>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </React.Fragment>
-            )
-          })}
-        </TableBody>
-      </Table>
-    </Paper>
-  )
-
   return (
     <Layout history={props.history} page="Servicios" user={props.user?.uid}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+        {/* Stats */}
+        <Grid container spacing={1.5} sx={{ mb: 2 }}>
+          {[
+            { label: 'Total', value: counts.todos, color: 'primary', icon: '📋' },
+            { label: 'Sin boleta', value: counts.sinBoleta, color: 'default', icon: '📄' },
+            { label: 'Pendiente', value: counts.pendiente, color: 'warning', icon: '⏳' },
+            { label: 'Pagado', value: counts.pagado, color: 'success', icon: '✅' },
+          ].map((s) => (
+            <Grid item xs={3} key={s.label}>
+              <Paper variant="outlined" sx={{ py: 1.5, px: 1, borderRadius: 2, textAlign: 'center' }}>
+                <Typography variant="h5" sx={{ mb: 0.2 }}>{s.icon}</Typography>
+                <Typography variant="h5" fontWeight={800}>{s.value}</Typography>
+                <Typography variant="caption" color="text.secondary">{s.label}</Typography>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <IconButton size="small" onClick={() => setMonth((m) => Math.max(0, m - 1))}><ChevronLeft /></IconButton>
-            <Typography variant="h5" fontWeight={800} sx={{ minWidth: 160, textAlign: 'center' }}>
-              {MONTHS[month]} {year}
-            </Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ minWidth: 160, textAlign: 'center' }}>{MONTHS[month]} {year}</Typography>
             <IconButton size="small" onClick={() => setMonth((m) => Math.min(11, m + 1))}><ChevronRight /></IconButton>
           </Box>
           <TextField size="small" placeholder="Buscar servicio..." value={search} onChange={(e) => setSearch(e.target.value)}
-            InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }}
-            sx={{ minWidth: 220 }} />
+            InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }} sx={{ minWidth: 220 }} />
           <Button component={Link} to="/Nuevo-Servicio" startIcon={<Add />} variant="contained" size="small">Nuevo servicio</Button>
         </Box>
 
@@ -257,7 +200,27 @@ const Servicios = (props) => {
 
         {Object.keys(grouped).length > 0 ? (
           Object.entries(grouped).map(([cat, items]) => (
-            <ServiceTable key={cat} title={cat} items={items} />
+            <Paper key={cat} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
+              <Box sx={{ px: 2.5, py: 1.5, bgcolor: 'primary.dark', borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#fff' }}>
+                  {cat} ({items.length})
+                </Typography>
+              </Box>
+              <Box sx={{ p: 2 }}>
+                {items.map(([id, s]) => {
+                  const status = getStatus(id)
+                  const inst = instancias[id]
+                  return (
+                    <ServiceCard key={id} id={id} s={s} inst={inst} status={status}
+                      statusChip={statusChip} onRecibir={setRecibirId} onEliminar={eliminar}
+                      onGuardar={guardarBoleta}
+                      recibirId={recibirId} recibirMonto={recibirMonto} setRecibirMonto={setRecibirMonto}
+                      recibirVto={recibirVto} setRecibirVto={setRecibirVto}
+                      month={month} year={year} />
+                  )
+                })}
+              </Box>
+            </Paper>
           ))
         ) : (
           <Box sx={{ textAlign: 'center', py: 10 }}>

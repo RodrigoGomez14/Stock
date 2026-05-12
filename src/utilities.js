@@ -33,37 +33,79 @@ export const fechaDetallada = () =>{
 }
 
 // CHECK IF SEARCH CONTAINS WHITE SPACES
-export const checkSearch =(search)=>{
-  let aux = checkWhiteSpace(search.slice(1).toString())
-  return aux
+export const checkSearch = (search) => {
+  try {
+    return decodeURIComponent(search.slice(1))
+  } catch {
+    return search.slice(1)
+  }
 }
 
-export const checkSearchProducto =(search)=>{
-  let aux = checkWhiteSpace(search.slice(1).toString())
-  return checkCode(aux)
+export const checkSearchProducto = (search) => {
+  try {
+    return decodeURIComponent(search.slice(1))
+  } catch {
+    return search.slice(1)
+  }
 }
-const checkWhiteSpace =(text)=>{
-  var aux = text
-  while(aux.indexOf('%20')!=-1){
-      aux = aux.slice(0,aux.indexOf('%20')) + ' ' + aux.slice(aux.indexOf('%20')+3)
-  }
-  return aux
+
+// Formatea un valor para mostrar (string directamente, objeto extrae campo relevante)
+export const fmtValor = (v) => {
+  if (typeof v === 'string') return v
+  if (typeof v !== 'object' || v === null) return ''
+  if (v.mail) return v.mail
+  if (v.email) return v.email
+  if (v.telefono) return v.telefono
+  if (v.numero) return `${v.nombre ? v.nombre + ': ' : ''}${v.numero}`
+  if (v.calleYnumero) return [v.calleYnumero, v.ciudad, v.cp, v.provincia].filter(Boolean).join(', ')
+  if (v.nombre) return v.nombre
+  if (v.descripcion) return v.descripcion
+  return JSON.stringify(v)
 }
-const checkCode =(text)=>{
-  var aux = text
-  while(aux.indexOf('%C2%BD')!=-1){
-      aux = aux.slice(0,aux.indexOf('%C2%BD')) + ' ½' + aux.slice(aux.indexOf('%C2%BD')+6)
+
+// Busca un producto por id (pushKey) o por nombre
+export const getProducto = (productos, id) => {
+  if (!productos || !id) return null
+  if (productos[id]) return productos[id]
+  return Object.values(productos).find((p) => p.nombre === id) || null
+}
+
+// Busca un cliente por id (pushKey) o por nombre
+export const getCliente = (clientes, id) => {
+  if (!clientes || !id) return null
+  if (clientes[id]) return clientes[id]
+  const found = Object.values(clientes).find((c) => c.nombre === id || c.datos?.nombre === id)
+  return found || null
+}
+
+// Busca un proveedor por id (pushKey) o por nombre
+export const getProveedor = (proveedores, id) => {
+  if (!proveedores || !id) return null
+  if (proveedores[id]) return proveedores[id]
+  const found = Object.values(proveedores).find((p) => p.nombre === id || p.datos?.nombre === id)
+  return found || null
+}
+
+// Busca un expreso por id (pushKey) o por nombre
+export const getExpreso = (expresos, id) => {
+  if (!expresos || !id) return null
+  if (expresos[id]) return expresos[id]
+  const found = Object.values(expresos).find((e) => e.nombre === id || e.datos?.nombre === id)
+  return found || null
+}
+
+// Migración genérica: toma {key: data} y lo pushea, luego elimina la key vieja
+export const migrarModulo = async (uid, modulo, data) => {
+  if (!data) return 0
+  const { removeData } = await import('./services')
+  const firebase = (await import('./services/firebase')).default
+  let migrados = 0
+  for (const [key, item] of Object.entries(data)) {
+    await firebase.database().ref().child(uid).child(modulo).push().set(item)
+    await removeData(uid, `${modulo}/${key}`)
+    migrados++
   }
-  while(aux.indexOf('%C2%BC')!=-1){
-    aux = aux.slice(0,aux.indexOf('%C2%BC')) + ' ¼' + aux.slice(aux.indexOf('%C2%BC')+6)
-  }
-  while(aux.indexOf('%C2%BE')!=-1){
-    aux = aux.slice(0,aux.indexOf('%C2%BE')) + ' ¾' + aux.slice(aux.indexOf('%C2%BE')+6)
-  }
-  while(aux.indexOf('%22')!=-1){
-    aux = aux.slice(0,aux.indexOf('%22')) + '"' + aux.slice(aux.indexOf('%22')+3)
-  }
-  return aux
+  return migrados
 }
 
 export const getActualMonth = (date) =>{

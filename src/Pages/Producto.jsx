@@ -3,15 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Box, Typography, Grid, Card, CardContent, Chip,
+  Box, Typography, Grid,
   Button, Snackbar, Backdrop, CircularProgress, Paper, Avatar
 } from '@mui/material'
 import { Alert } from '@mui/material'
-import { Edit } from '@mui/icons-material'
-import { formatMoney } from '../utilities'
+import { formatMoney, getProducto } from '../utilities'
 import StockHistory from '../components/StockHistory'
-import { updatePrecioInSheet, getSheetsUrl } from '../services/preciosService'
-import { updateData } from '../services'
 
 const Producto = (props) => {
   const navigate = useNavigate()
@@ -23,8 +20,8 @@ const Producto = (props) => {
 
   useEffect(() => {
     if (props.productos && nombre) {
-      const p = props.productos[nombre]
-      if (p) setProducto({ nombre, ...p })
+      const p = getProducto(props.productos, nombre)
+      if (p) setProducto({ nombre: p.nombre || nombre, ...p })
     }
   }, [props.productos, nombre])
 
@@ -40,169 +37,145 @@ const Producto = (props) => {
   }
 
   return (
-    <Layout history={props.history} page={nombre} user={props.user?.uid}>
+    <Layout history={props.history} page={producto.nombre || nombre} user={props.user?.uid}>
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
         {/* HEADER */}
-        <Box sx={{ display: 'flex', gap: 3, mb: 3, alignItems: 'flex-start' }}>
-          {producto.imagen ? (
-            <Avatar src={producto.imagen} variant="rounded" sx={{ width: 160, height: 160, boxShadow: 2 }} />
-          ) : (
-            <Box sx={{ width: 120, height: 120, borderRadius: 2, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Typography variant="h2">📷</Typography>
+        <Paper sx={{ borderRadius: 2, p: 3, mb: 3 }}>
+          <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+            {producto.imagen ? (
+              <Avatar src={producto.imagen} variant="rounded" sx={{ width: 80, height: 80, boxShadow: 2 }} />
+            ) : (
+              <Box sx={{ width: 80, height: 80, borderRadius: 2, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Typography variant="h3">📷</Typography>
+              </Box>
+            )}
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h4" fontWeight={700}>{producto.nombre || nombre}</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+                <Paper variant="outlined" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1.2, py: 0.3, borderRadius: 1.5, bgcolor: producto.isSubproducto ? 'warning.main' : 'primary.dark' }}>
+                  <Typography variant="body2">{producto.isSubproducto ? '🧩' : '📦'}</Typography>
+                  <Typography variant="caption" fontWeight={700} sx={{ color: '#fff' }}>{producto.isSubproducto ? 'Subproducto' : 'Producto final'}</Typography>
+                </Paper>
+                {producto.seVendePorSeparado && (
+                  <Paper variant="outlined" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1.2, py: 0.3, borderRadius: 1.5, bgcolor: 'success.main' }}>
+                    <Typography variant="caption" fontWeight={700} sx={{ color: '#fff' }}>Se vende por separado</Typography>
+                  </Paper>
+                )}
+              </Box>
             </Box>
-          )}
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h4" fontWeight={700}>{nombre}</Typography>
-            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 1 }}>
-              <Chip label={producto.isSubproducto ? 'Subproducto' : 'Producto final'} color={producto.isSubproducto ? 'warning' : 'primary'} size="small" />
-              <Chip label={`Stock: ${producto.cantidad || 0}`} color={(producto.cantidad || 0) > 0 ? 'success' : 'error'} variant="outlined" size="small" />
+            <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+              <Button variant="contained" onClick={() => navigate('/Editar-Producto?' + encodeURIComponent(producto.nombre || nombre))} startIcon={<span>✏️</span>} sx={{ px: 2.5 }}>
+                Editar
+              </Button>
+              {producto.cadenaDeProduccion?.length > 0 && (
+                <Button variant="outlined" onClick={() => navigate('/Finalizar-Proceso?' + encodeURIComponent(producto.nombre || nombre))} startIcon={<span>▶️</span>} sx={{ px: 2.5 }}>
+                  Iniciar cadena
+                </Button>
+              )}
             </Box>
           </Box>
-        </Box>
+        </Paper>
 
-        {/* PRICE + STOCK */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
-              <Typography variant="h3" fontWeight={900} color="primary">$ {formatMoney(producto.precio || 0)}</Typography>
-              <Typography variant="caption" color="text.secondary">Precio</Typography>
-                <Button size="small" variant="outlined" startIcon={<Edit />}
-                  onClick={async () => {
-                    const nuevo = prompt('Nuevo precio ($):', producto.precio || 0)
-                    if (nuevo && parseFloat(nuevo) >= 0) {
-                      setLoading(true)
-                      try {
-                        if (producto.id && getSheetsUrl()) {
-                          await updatePrecioInSheet(producto.id, parseFloat(nuevo))
-                        }
-                        await updateData(props.user.uid, `productos/${nombre}/precio`, parseFloat(nuevo))
-                        setProducto({ ...producto, precio: parseFloat(nuevo) })
-                        setSnack('Precio actualizado')
-                      } catch (e) { setSnack('Error: ' + e.message) }
-                      setLoading(false)
-                    }
-                  }}
-                  sx={{ mt: 1, display: 'block', mx: 'auto', fontSize: 11 }}>
-                  Editar precio
-                </Button>
-            </Card>
+        {/* PRICE + MELI + TYPE + STOCK */}
+        <Grid container spacing={1.5} sx={{ mb: 3 }}>
+          <Grid item xs={6} sm={3}>
+            <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center', bgcolor: 'primary.main' }}>
+              <Typography variant="h3" fontWeight={900} sx={{ color: '#fff' }}>$ {formatMoney(producto.precio || 0)}</Typography>
+              <Typography variant="caption" fontWeight={700} sx={{ color: 'rgba(255,255,255,0.7)' }}>Precio</Typography>
+            </Paper>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
+          <Grid item xs={6} sm={3}>
+            <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center', bgcolor: '#ECC400' }}>
+              <Typography variant="h3" fontWeight={900} sx={{ color: '#1a1a1a' }}>$ {formatMoney(producto.precioMeli || 0)}</Typography>
+              <Typography variant="caption" fontWeight={700} sx={{ color: 'rgba(26,26,26,0.6)' }}>Precio MELI</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center' }}>
+              <Typography variant="h3" sx={{ mb: 0.2 }}>📋</Typography>
+              <Typography variant="body2" fontWeight={700}>{producto.categoria || 'Sin categoría'}</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center' }}>
               <Typography variant="h3" fontWeight={900}>{producto.cantidad || 0}</Typography>
-              <Typography variant="caption" color="text.secondary">Stock</Typography>
-            </Card>
+              <Typography variant="caption" fontWeight={700} color="text.secondary">Stock</Typography>
+            </Paper>
           </Grid>
         </Grid>
 
-        {/* ACTIONS */}
-        <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
-          <Button variant="contained" onClick={() => navigate('/Editar-Producto?' + nombre)}>Editar producto</Button>
-          {producto.cadenaDeProduccion?.length > 0 && (
-            <Button variant="outlined" onClick={() => navigate('/Finalizar-Proceso?' + nombre)}>Iniciar cadena</Button>
-          )}
-        </Box>
-
         {/* VARIANTES */}
         {producto.variantes && Object.keys(producto.variantes).length > 0 && (
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-            <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="subtitle1" fontWeight={700}>Variantes</Typography>
-              <Typography variant="caption" color="text.secondary">{Object.keys(producto.variantes).length} variante(s)</Typography>
-            </Box>
-            <Box sx={{ p: 2.5 }}>
-              <Grid container spacing={1.5}>
-                {Object.entries(producto.variantes).map(([key, v]) => (
-                  <Grid item xs={6} sm={4} md={3} key={key}>
-                    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, textAlign: 'center' }}>
-                      <Typography variant="body1" fontWeight={700}>{key}</Typography>
-                      <Typography variant="h5" fontWeight={800} color="primary.main">
-                        {v.precio ? `$ ${formatMoney(v.precio)}` : '—'}
-                      </Typography>
-                      <Typography variant="body2" color={v.cantidad > 0 ? 'success.main' : 'error.main'} fontWeight={600}>
-                        Stock: {v.cantidad ?? 0}
-                      </Typography>
-                      {v.codigo && <Typography variant="caption" color="text.disabled">{v.codigo}</Typography>}
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Paper>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight={700} gutterBottom>Variantes ({Object.keys(producto.variantes).length})</Typography>
+            <Grid container spacing={1.5}>
+              {Object.entries(producto.variantes).map(([key, v]) => (
+                <Grid item xs={6} sm={4} md={3} key={key}>
+                  <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center', bgcolor: 'primary.dark' }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: '#fff' }}>{v.cantidad ?? 0}</Typography>
+                    <Typography variant="caption" fontWeight={600} sx={{ color: 'rgba(255,255,255,0.7)' }}>{key}</Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         )}
 
         {/* CADENA DE PRODUCCIÓN */}
         {producto.cadenaDeProduccion?.length > 0 && (
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-            <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="subtitle1" fontWeight={700}>Cadena de producción</Typography>
-              <Typography variant="caption" color="text.secondary">{producto.cadenaDeProduccion.length} paso(s)</Typography>
-            </Box>
-            <Box sx={{ p: 2.5 }}>
-              <Grid container spacing={1.5}>
-                {producto.cadenaDeProduccion.map((p, i) => (
-                  <Grid item xs={12} sm={6} md={4} key={i}>
-                    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Typography variant="body2" fontWeight={700} color="#fff">{i + 1}</Typography>
-                      </Box>
-                      <Box>
-                        <Typography variant="body2" fontWeight={600}>{p.proceso}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {p.isProcesoPropio ? 'Proceso propio' : p.proveedor}
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Paper>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight={700} gutterBottom>Cadena de producción ({producto.cadenaDeProduccion.length} pasos)</Typography>
+            <Grid container spacing={1.5}>
+              {producto.cadenaDeProduccion.map((p, i) => (
+                <Grid item xs={6} sm={4} md={3} key={i}>
+                  <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center' }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 0.5 }}>
+                      <Typography variant="h5" fontWeight={800} color="#fff">{i + 1}</Typography>
+                    </Box>
+                    <Typography variant="body2" fontWeight={600}>{p.proceso}</Typography>
+                    <Typography variant="caption" color="text.disabled" display="block">{p.isProcesoPropio ? 'Propio' : p.proveedor}</Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         )}
 
-        {/* SUBPRODUCTOS — tabla */}
+        {/* SUBPRODUCTOS */}
         {producto.subproductos?.length > 0 && (
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-            <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="subtitle1" fontWeight={700}>Componentes / Subproductos</Typography>
-              <Typography variant="caption" color="text.secondary">{producto.subproductos.length} componente(s)</Typography>
-            </Box>
-            <Box sx={{ p: 2.5 }}>
-              <Grid container spacing={1.5}>
-                {producto.subproductos.map((sp, i) => (
-                  <Grid item xs={6} sm={4} md={3} key={i}>
-                    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, textAlign: 'center' }}>
-                      <Typography variant="body2" fontWeight={600}>{sp.nombre}</Typography>
-                      <Typography variant="h5" fontWeight={800} color="primary.main">{sp.cantidad}</Typography>
-                      <Typography variant="caption" color="text.secondary">unidades</Typography>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Paper>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight={700} gutterBottom>Componentes ({producto.subproductos.length})</Typography>
+            <Grid container spacing={1.5}>
+              {producto.subproductos.map((sp, i) => (
+                <Grid item xs={6} sm={4} md={3} key={i}>
+                  <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center' }}>
+                    <Typography variant="h3" sx={{ mb: 0.3 }}>🧩</Typography>
+                    <Typography variant="body2" fontWeight={600}>{sp.nombre}</Typography>
+                    <Typography variant="h5" fontWeight={800} color="primary.main">{sp.cantidad}</Typography>
+                    <Typography variant="caption" color="text.secondary">unidades</Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         )}
 
         {/* MATRICES */}
         {producto.matrices?.length > 0 && (
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-            <Box sx={{ px: 2.5, py: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="subtitle1" fontWeight={700}>Matrices / Noyos</Typography>
-              <Typography variant="caption" color="text.secondary">{producto.matrices.length} matriz(ces)</Typography>
-            </Box>
-            <Box sx={{ p: 2.5 }}>
-              <Grid container spacing={1.5}>
-                {producto.matrices.map((m, i) => (
-                  <Grid item xs={6} sm={4} md={3} key={i}>
-                    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
-                      <Typography variant="body2" fontWeight={600}>{m.nombre}</Typography>
-                      <Typography variant="caption" color="text.secondary">{m.ubicacion || '—'}</Typography>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Paper>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight={700} gutterBottom>Matrices / Noyos ({producto.matrices.length})</Typography>
+            <Grid container spacing={1.5}>
+              {producto.matrices.map((m, i) => (
+                <Grid item xs={6} sm={4} md={3} key={i}>
+                  <Paper variant="outlined" sx={{ py: 2, px: 1, borderRadius: 2, textAlign: 'center' }}>
+                    <Typography variant="h3" sx={{ mb: 0.3 }}>🔧</Typography>
+                    <Typography variant="body2" fontWeight={600}>{m.nombre}</Typography>
+                    <Typography variant="caption" color="text.disabled">{m.ubicacion || '—'}</Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         )}
 
         {/* STOCK HISTORY */}

@@ -11,6 +11,7 @@ export function BaseWizard({
   disabled,
   finishLabel = 'Finalizar',
   stepLabels,
+  showJumpToLast,
 }) {
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', px: 2 }}>
@@ -41,22 +42,21 @@ export function BaseWizard({
 
       {/* Navigation */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3, mb: 4 }}>
-        <Button
-          disabled={activeStep === 0}
-          onClick={onBack}
-          startIcon={<ChevronLeft />}
-          variant="outlined"
-        >
+        <Button disabled={activeStep === 0} onClick={onBack} startIcon={<ChevronLeft />} variant="outlined">
           Volver
         </Button>
-        <Button
-          variant="contained"
-          disabled={disabled}
-          onClick={activeStep === steps.length - 1 ? onFinish : onNext}
-          endIcon={activeStep === steps.length - 1 ? <Check /> : <ChevronRight />}
-        >
-          {activeStep === steps.length - 1 ? finishLabel : 'Siguiente'}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          {showJumpToLast && activeStep < steps.length - 1 && (
+            <Button variant="outlined" onClick={() => onNext(steps.length - 1)} sx={{ opacity: 0.5, '&:hover': { opacity: 1 }, fontSize: 12 }}>
+              Ir al último paso
+            </Button>
+          )}
+          <Button variant="contained" disabled={disabled}
+            onClick={activeStep === steps.length - 1 ? onFinish : () => onNext()}
+            endIcon={activeStep === steps.length - 1 ? <Check /> : <ChevronRight />}>
+            {activeStep === steps.length - 1 ? finishLabel : 'Siguiente'}
+          </Button>
+        </Box>
       </Box>
     </Box>
   )

@@ -8,9 +8,9 @@ import {
 import { Alert } from '@mui/material'
 import {
   Settings, Key, Description, Save, Download, OpenInNew,
-  Visibility, VisibilityOff, Store, Receipt
+  Visibility, VisibilityOff, Store, Receipt, Transform
 } from '@mui/icons-material'
-import { getApiKey, setApiKey, getSheetsUrl, setSheetsUrl, getPuntoVenta, setPuntoVenta, exportAllData } from '../services'
+import { getApiKey, setApiKey, getSheetsUrl, setSheetsUrl, getPuntoVenta, setPuntoVenta, exportAllData, setData, removeData, getPushKey } from '../services'
 
 const Ajustes = (props) => {
   const [apiKey, setApiKeyState] = useState(getApiKey())
@@ -149,6 +149,41 @@ const Ajustes = (props) => {
           </CardContent>
         </Card>
 
+        {/* Migración */}
+        <Card sx={{ borderRadius: 2, mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <SectionTitle icon={<Transform fontSize="small" color="primary" />} title="Migrar datos a ID único" />
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Migra cada módulo de key=nombre a key=ID único. Después de migrar, los datos se buscan por nombre internamente.
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {[
+                { label: 'Productos', data: props.productos, modulo: 'productos' },
+                { label: 'Clientes', data: props.clientes, modulo: 'clientes' },
+                { label: 'Proveedores', data: props.proveedores, modulo: 'proveedores' },
+                { label: 'Expresos', data: props.expresos, modulo: 'expresos' },
+                { label: 'Cuentas Bancarias', data: props.CuentasBancarias, modulo: 'CuentasBancarias' },
+                { label: 'Cadenas de Producción', data: props.cadenasActivas, modulo: 'cadenasActivas' },
+              ].map((m) => (
+                <Button key={m.modulo} variant="outlined" size="small" onClick={async () => {
+                  const items = m.data
+                  if (!items) { setSnack(`No hay ${m.label.toLowerCase()}`); return }
+                  let migrados = 0
+                  for (const [key, item] of Object.entries(items)) {
+                    const ref = (await import('../services/firebase')).default.database().ref().child(props.user.uid).child(m.modulo).push()
+                    await ref.set(item)
+                    await removeData(props.user.uid, `${m.modulo}/${key}`)
+                    migrados++
+                  }
+                  setSnack(`${migrados} ${m.label.toLowerCase()} migrados`)
+                }}>
+                  Migrar {m.label}
+                </Button>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+
         {/* Respaldo */}
         <Card sx={{ borderRadius: 2, mb: 3 }}>
           <CardContent sx={{ p: 3 }}>
@@ -186,6 +221,8 @@ const Ajustes = (props) => {
             </Box>
           </CardContent>
         </Card>
+
+
 
         <Snackbar open={!!snack} autoHideDuration={3000} onClose={() => setSnack('')}>
           <Alert severity={snack.includes('Error') ? 'error' : 'success'}>{snack}</Alert>

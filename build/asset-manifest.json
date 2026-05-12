@@ -1,17 +1,15 @@
 {
   "files": {
     "main.css": "/static/css/main.911b26be.css",
-    "main.js": "/static/js/main.d4231e73.js",
+    "main.js": "/static/js/main.dea48777.js",
     "static/media/Valvulas.png": "/static/media/Valvulas.cf8e175b1126e99265c2.png",
     "static/media/logo.png": "/static/media/logo.cb02d6e9af4e4b6bf875.png",
-    "static/media/Empty.png": "/static/media/Empty.29041328e6e307c8f7e4.png",
-    "static/media/logoneg.png": "/static/media/logoneg.7d420e9cf75602d87e3d.png",
     "index.html": "/index.html",
     "main.911b26be.css.map": "/static/css/main.911b26be.css.map",
-    "main.d4231e73.js.map": "/static/js/main.d4231e73.js.map"
+    "main.dea48777.js.map": "/static/js/main.dea48777.js.map"
   },
   "entrypoints": [
     "static/css/main.911b26be.css",
-    "static/js/main.d4231e73.js"
+    "static/js/main.dea48777.js"
   ]
 }

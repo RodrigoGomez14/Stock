@@ -42,7 +42,7 @@ const NuevoPedido=(props)=>{
                         <Autocomplete
                             freeSolo
                             value={nombre}
-                            options={Object.keys(props.clientes)}
+                            options={Object.values(props.clientes).map(c => c.datos?.nombre || c.nombre || '').filter(Boolean)}
                             getOptionLabel={(option) => option}
                             onChange={(e)=>{setnombre(e.target.value)}}
                             onSelect={(e)=>{setnombre(e.target.value)}}
@@ -144,7 +144,9 @@ const NuevoPedido=(props)=>{
         //Guardar Pedido Nuevo
         
         // AGREGA EL PEDIDO A DB PARA OBTENER ID
-        let idLink = database().ref().child(props.user.uid).child('clientes').child(nombre).child('pedidos').push()
+        const clienteEntry = Object.entries(props.clientes || {}).find(([k, c]) => k === nombre || c.datos?.nombre === nombre || c.nombre === nombre)
+        const clientKey = clienteEntry ? clienteEntry[0] : nombre
+        let idLink = database().ref().child(props.user.uid).child('clientes').child(clientKey).child('pedidos').push()
         // AGREGA LA FACTURA A LISTA DE VENTAS
         agregarAListaDeVentas(aux,idLink.key)
         idLink.update(aux).then(()=>{

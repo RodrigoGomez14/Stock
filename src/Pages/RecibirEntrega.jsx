@@ -10,7 +10,7 @@ import { Alert } from '@mui/material'
 import { BaseWizard } from '../components/BaseWizard'
 import { pushData, updateData, removeData, getPushKey } from '../services'
 import { egresoCaja } from '../services/cajaService'
-import { formatMoney, obtenerFecha } from '../utilities'
+import { formatMoney, obtenerFecha, getProducto } from '../utilities'
 import { ChequesSelection } from '../components/Cheques/ChequesSelection'
 import { InlineChequePersonalForm } from '../components/Cheques/InlineChequePersonalForm'
 import { InlineTransferenciaForm } from '../components/InlineTransferenciaForm'
@@ -73,8 +73,8 @@ const RecibirEntrega = (props) => {
       // Increase product stock
       for (const art of articulos) {
         const prodName = art.producto || art.nombre
-        if (props.productos?.[prodName]) {
-          const actual = parseInt(props.productos[prodName].cantidad || 0, 10)
+        if (getProducto(props.productos, prodName)) {
+          const actual = parseInt(getProducto(props.productos, prodName)?.cantidad || 0, 10)
           await updateData(props.user.uid, `productos/${prodName}`, { cantidad: actual + parseInt(art.cantidad || 1, 10) })
           await pushData(props.user.uid, `productos/${prodName}/historialDeStock`, {
             cantidad: actual + parseInt(art.cantidad || 1, 10), fecha: obtenerFecha(),

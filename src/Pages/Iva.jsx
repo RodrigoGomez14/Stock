@@ -1,8 +1,8 @@
-﻿import React, { useState, useEffect } from 'react'
+﻿import React, { useState } from 'react'
 import { withStore } from '../context/AppContext'
 import { Layout } from './Layout'
 import {
-  Box, Grid, Typography, Card, CardContent, Paper, Button, Chip, Table,
+  Box, Grid, Typography, Paper, Button, Table,
   TableHead, TableBody, TableRow, TableCell, IconButton
 } from '@mui/material'
 import { Add, ChevronLeft, ChevronRight } from '@mui/icons-material'
@@ -15,7 +15,6 @@ const Iva = (props) => {
   const currentYear = new Date().getFullYear()
   const [year, setYear] = useState(currentYear)
 
-  // Procesar ventas con facturacion=true → IVA = total - (total/1.21)
   const ivaVentas = {}
   if (props.ventas) {
     Object.values(props.ventas).forEach((v) => {
@@ -32,7 +31,6 @@ const Iva = (props) => {
     })
   }
 
-  // Procesar compras con consumoFacturado=true → toman el totalIva
   const ivaCompras = {}
   if (props.compras) {
     Object.values(props.compras).forEach((c) => {
@@ -46,10 +44,6 @@ const Iva = (props) => {
         }
       }
     })
-  }
-
-  // También compras con facturacion=true que NO son consumoFacturado
-  if (props.compras) {
     Object.values(props.compras).forEach((c) => {
       if (!c.consumoFacturado && c.metodoDePago?.facturacion) {
         const [d, m, y] = (c.fecha || '').split('/')
@@ -66,6 +60,7 @@ const Iva = (props) => {
 
   const totalIvaVentas = Object.values(ivaVentas).reduce((s, m) => s + m.iva, 0)
   const totalIvaCompras = Object.values(ivaCompras).reduce((s, m) => s + m.iva, 0)
+  const balance = totalIvaVentas - totalIvaCompras
 
   return (
     <Layout history={props.history} page="IVA" user={props.user?.uid}>
@@ -74,7 +69,7 @@ const Iva = (props) => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <IconButton onClick={() => setYear(y => y - 1)} size="small"><ChevronLeft /></IconButton>
-            <Typography variant="h5" fontWeight={700}>{year}</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ color: '#fff' }}>{year}</Typography>
             <IconButton onClick={() => setYear(y => Math.min(currentYear, y + 1))} size="small"><ChevronRight /></IconButton>
           </Box>
           <Button component={Link} to="/Nuevo-Consumo-Facturado" variant="contained" startIcon={<Add />}>
@@ -83,28 +78,28 @@ const Iva = (props) => {
         </Box>
 
         {/* Stats cards */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid container spacing={1.5} sx={{ mb: 3 }}>
           <Grid item xs={4}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
-              <Typography variant="h4" fontWeight={800} color="primary.main">$ {formatMoney(totalIvaVentas)}</Typography>
-              <Typography variant="caption" color="text.secondary">IVA Ventas facturadas</Typography>
-            </Card>
+            <Paper variant="outlined" sx={{ py: 2.5, px: 1, borderRadius: 2, textAlign: 'center' }}>
+              <Typography variant="h4" fontWeight={800} sx={{ color: '#fff' }}>$ {formatMoney(totalIvaVentas)}</Typography>
+              <Typography variant="caption" fontWeight={700} sx={{ color: 'rgba(255,255,255,0.6)' }}>IVA Ventas</Typography>
+            </Paper>
           </Grid>
           <Grid item xs={4}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2 }}>
-              <Typography variant="h4" fontWeight={800} color="warning.main">$ {formatMoney(totalIvaCompras)}</Typography>
-              <Typography variant="caption" color="text.secondary">IVA Compras / Consumos</Typography>
-            </Card>
+            <Paper variant="outlined" sx={{ py: 2.5, px: 1, borderRadius: 2, textAlign: 'center' }}>
+              <Typography variant="h4" fontWeight={800} sx={{ color: '#fff' }}>$ {formatMoney(totalIvaCompras)}</Typography>
+              <Typography variant="caption" fontWeight={700} sx={{ color: 'rgba(255,255,255,0.6)' }}>IVA Compras</Typography>
+            </Paper>
           </Grid>
           <Grid item xs={4}>
-            <Card sx={{ borderRadius: 2, textAlign: 'center', py: 2, border: '2px solid', borderColor: 'primary.main' }}>
-              <Typography variant="h4" fontWeight={900} color={totalIvaVentas - totalIvaCompras >= 0 ? 'success.main' : 'error.main'}>
-                $ {formatMoney(Math.abs(totalIvaVentas - totalIvaCompras))}
+            <Paper variant="outlined" sx={{ py: 2.5, px: 1, borderRadius: 2, textAlign: 'center', borderColor: balance >= 0 ? 'success.main' : 'error.main', borderWidth: 2 }}>
+              <Typography variant="h4" fontWeight={900} sx={{ color: balance >= 0 ? '#4caf50' : '#ef5350' }}>
+                $ {formatMoney(Math.abs(balance))}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {totalIvaVentas >= totalIvaCompras ? 'A favor (Ventas − Compras)' : 'A pagar (Compras − Ventas)'}
+              <Typography variant="caption" fontWeight={700} sx={{ color: balance >= 0 ? '#4caf50' : '#ef5350' }}>
+                {balance >= 0 ? 'A favor (IVA Ventas − Compras)' : 'A pagar (IVA Compras − Ventas)'}
               </Typography>
-            </Card>
+            </Paper>
           </Grid>
         </Grid>
 
@@ -112,11 +107,11 @@ const Iva = (props) => {
         <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
           <Table size="small">
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Mes</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700 }}>IVA Ventas</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700 }}>IVA Compras</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700 }}>Balance</TableCell>
+              <TableRow sx={{ '& th': { fontWeight: 700, fontSize: 11, color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5 } }}>
+                <TableCell>Mes</TableCell>
+                <TableCell align="right">IVA Ventas</TableCell>
+                <TableCell align="right">IVA Compras</TableCell>
+                <TableCell align="right">Balance</TableCell>
                 <TableCell align="right">Operaciones</TableCell>
               </TableRow>
             </TableHead>
@@ -128,20 +123,20 @@ const Iva = (props) => {
                 const saldo = (ven?.iva || 0) - (com?.iva || 0)
                 return (
                   <TableRow key={m} hover>
-                    <TableCell><Typography variant="body2" fontWeight={600}>{monthName}</Typography></TableCell>
+                    <TableCell><Typography variant="body2" fontWeight={600} sx={{ color: '#fff' }}>{monthName}</Typography></TableCell>
                     <TableCell align="right">
-                      {ven ? <Chip size="small" label={`$ ${formatMoney(ven.iva)}`} color="primary" variant="outlined" /> : '—'}
+                      <Typography variant="body2" fontWeight={500} sx={{ color: '#fff' }}>{ven ? `$ ${formatMoney(ven.iva)}` : '—'}</Typography>
                     </TableCell>
                     <TableCell align="right">
-                      {com ? <Chip size="small" label={`$ ${formatMoney(com.iva)}`} color="warning" variant="outlined" /> : '—'}
+                      <Typography variant="body2" fontWeight={500} sx={{ color: '#fff' }}>{com ? `$ ${formatMoney(com.iva)}` : '—'}</Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <Typography variant="body2" fontWeight={700} color={saldo >= 0 ? 'success.main' : 'error.main'}>
-                        $ {formatMoney(Math.abs(saldo))} {saldo >= 0 ? '✓' : '✗'}
+                      <Typography variant="body2" fontWeight={700} sx={{ color: saldo >= 0 ? '#4caf50' : '#ef5350' }}>
+                        {saldo !== 0 ? `${saldo >= 0 ? '+' : '-'}$ ${formatMoney(Math.abs(saldo))}` : '$ 0'}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <Typography variant="caption" color="text.disabled">
+                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)' }}>
                         V: {ven?.count || 0} / C: {com?.count || 0}
                       </Typography>
                     </TableCell>

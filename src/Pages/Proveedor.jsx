@@ -16,7 +16,7 @@ import {
 } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
 import { removeData } from '../services'
-import { formatMoney } from '../utilities'
+import { formatMoney, getProducto, getProveedor } from '../utilities'
 import { ImgCache } from '../components/ImgCache'
 
 const fmt = (v) => {
@@ -44,15 +44,18 @@ const Proveedor = (props) => {
 
   useEffect(() => {
     if (props.proveedores && nombre) {
-      setProveedor({ nombre, ...props.proveedores[nombre] })
+      const p = getProveedor(props.proveedores, nombre)
+      if (p) setProveedor({ nombre: p.datos?.nombre || p.nombre || nombre, ...p })
       setLoading(false)
     }
   }, [props.proveedores, nombre])
 
   const eliminar = async () => {
     setLoading(true)
+    const entry = Object.entries(props.proveedores || {}).find(([k, p]) => k === nombre || p.datos?.nombre === nombre || p.nombre === nombre)
+    const key = entry ? entry[0] : nombre
     try {
-      await removeData(props.user.uid, `proveedores/${nombre}`)
+      await removeData(props.user.uid, `proveedores/${key}`)
       setSnack('Proveedor eliminado')
       setTimeout(() => navigate('/Proveedores', { replace: true }), 1500)
     } catch { setLoading(false) }
@@ -71,7 +74,7 @@ const Proveedor = (props) => {
   const pagos = Object.values(proveedor.pagos || {})
 
   return (
-    <Layout history={props.history} page={nombre} user={props.user?.uid}>
+    <Layout history={props.history} page={proveedor.nombre || nombre} user={props.user?.uid}>
       <Box sx={{ maxWidth: 1400, mx: 'auto', p: 3 }}>
 
         {/* HEADER */}
@@ -86,7 +89,7 @@ const Proveedor = (props) => {
                   <Person sx={{ fontSize: 32, color: 'primary.light' }} />
                 </Box>
                 <Box>
-                  <Typography variant="h4" fontWeight={700}>{nombre}</Typography>
+                  <Typography variant="h4" fontWeight={700}>{proveedor.nombre || nombre}</Typography>
                   <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
                     {d.dni && <Chip icon={<Badge />} label={`DNI: ${d.dni}`} size="small" variant="outlined" />}
                     {d.cuit && <Chip icon={<CreditCard />} label={`CUIT: ${d.cuit}`} size="small" variant="outlined" />}
@@ -102,7 +105,7 @@ const Proveedor = (props) => {
                 <Button variant="outlined" component={Link} to={`/Historial-Proveedor?${encodeURIComponent(nombre)}`} startIcon={<History />}>
                   Historial
                 </Button>
-                <Button variant="outlined" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(nombre)}`} startIcon={<Edit />}>
+                <Button variant="outlined" component={Link} to={`/Editar-Proveedor?${encodeURIComponent(proveedor.nombre || nombre)}`} startIcon={<Edit />}>
                   Editar
                 </Button>
                 <IconButton color="error" onClick={() => { if (window.confirm('Eliminar?')) eliminar() }}><Delete /></IconButton>
@@ -207,7 +210,7 @@ const Proveedor = (props) => {
                       </Box>
                       <Box sx={{ px: 2, py: 1.5 }}>
                         {e.articulos?.map((art, j) => {
-                          const prodData = props.productos?.[art.producto || art.nombre]
+                          const prodData = getProducto(props.productos, art.producto || art.nombre)
                           return (
                             <Box key={j} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5 }}>
                               {prodData?.imagen ? (

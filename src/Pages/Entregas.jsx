@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { Search, Add, Send, Person } from '@mui/icons-material'
 import { Link } from 'react-router-dom'
-import { formatMoney } from '../utilities'
+import { formatMoney, getProducto } from '../utilities'
 import { ImgCache } from '../components/ImgCache'
 
 const Entregas = (props) => {
@@ -51,7 +51,7 @@ const Entregas = (props) => {
                       {productos.length > 0 && (
                         <Box sx={{ mb: 1.5 }}>
                           {productos.slice(0, 5).map((art, i) => {
-                            const prodData = props.productos?.[art.producto || art.nombre]
+                            const prodData = getProducto(props.productos, art.producto || art.nombre)
                             return (
                               <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5, px: 0.5 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flex: 1, minWidth: 0 }}>
